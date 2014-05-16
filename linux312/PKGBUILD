@@ -12,7 +12,7 @@ _basekernel=3.12
 _basever=312
 _aufs=20140127
 _bfq=v7r2
-pkgver=${_basekernel}.19
+pkgver=${_basekernel}.20
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -32,8 +32,8 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
         'change-default-console-loglevel.patch'
-        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.11/1700_enable-thinkpad-micled.patch'
-        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.11/2700_ThinkPad-30-brightness-control-fix.patch'
+        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/1700_enable-thinkpad-micled.patch'
+        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/2700_ThinkPad-30-brightness-control-fix.patch'
         'criu-no-expert.patch'
         # AMD fixes
         '1-4-ramdisk-Export_relocated_ramdisk_VA.patch::https://lkml.org/lkml/diff/2013/12/5/621/1'
@@ -51,7 +51,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.12.0.patch"
 )
 sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
-            'a19ef03193a22a9f268ad06da8369e7f6c2cff2daf98633f246f047189e23993'
+            '1b38ffa0d4891220cc0a622f6e5bad4408636c0203a4e66a3e57e33869d7f894'
             '675a80ef9683bde709736dc312f5b6843ada73a95b9a052543c49887c5cc44ab'
             'a665022756052b50ef61b563d39389628a956d1ce075472262a915e841399ff2'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
