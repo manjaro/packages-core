@@ -4,6 +4,7 @@
 
 # Maintainer: Philip Müller <philm@manjaro.org>
 # Maintainer: Guinux <guillaume@manjaro.org>
+# Maintainer: Rob McCathie <rob@manjaro.org>
 
 pkgbase=linux311
 pkgname=('linux311' 'linux311-headers')
@@ -11,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=3.11
 _basever=311
 _aufs=20140127
-_subver=9
+_subver=10
 _bfq=v7r2
 pkgver=${_basekernel}.10.${_subver}
 pkgrel=1
@@ -33,8 +34,8 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
         'change-default-console-loglevel.patch'
-        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.11/1700_enable-thinkpad-micled.patch'
-        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.11/2700_ThinkPad-30-brightness-control-fix.patch'
+        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/1700_enable-thinkpad-micled.patch'
+        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.10/2700_ThinkPad-30-brightness-control-fix.patch'
         'criu-no-expert.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.11.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.11.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.11.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.11.patch"
@@ -48,6 +49,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "${_basekernel}.10.7.patch"
         "${_basekernel}.10.8.patch"
         "${_basekernel}.10.9.patch"
+        "${_basekernel}.10.10.patch"
 )
 sha256sums=('803ec8f0ad4b2ddedcb0332a590cd2b5e10dfc57c3b1c95bc9c46af81d51d7f9'
             'b12321f0d62476211662945361178819b134964babd238a67dab0824edcf19b1'
@@ -77,6 +79,7 @@ sha256sums=('803ec8f0ad4b2ddedcb0332a590cd2b5e10dfc57c3b1c95bc9c46af81d51d7f9'
             '92d4ffe64e784beeed7002610aa5ce5154e42706f118afd41bebbaa1926c68e1'
             'd22f7f07ed0f85067a23786949d48ff080cfda1eecae6fecc8bbf8c539d62f01'
             '2751b7d2f665a13e30bf83297b4642df1b1c6e940070e6b79f5055d35335176a'
+            '6dc62787dbf071e98e2a8be4589b5a04860013a7da78ad724a1022a0b62010a1'
 )
 
 ## modules.symboles md5sums
@@ -111,6 +114,8 @@ prepare() {
   patch -p1 -i "${srcdir}/${_basekernel}.10.6.patch"
   patch -p1 -i "${srcdir}/${_basekernel}.10.7.patch"
   patch -p1 -i "${srcdir}/${_basekernel}.10.8.patch"
+  patch -p1 -i "${srcdir}/${_basekernel}.10.9.patch"
+  patch -p1 -i "${srcdir}/${_basekernel}.10.10.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
