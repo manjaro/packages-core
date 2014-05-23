@@ -43,6 +43,17 @@ detectDE()
 
 post_upgrade() {
 
+	# fix twisted
+	pacman -Qq twisted &> /tmp/cmd1
+	pacman -Q twisted &> /tmp/cmd2
+	if [ "$(grep 'twisted' /tmp/cmd1)" == "twisted" ]; then
+		if [ "$(cat /tmp/cmd2 | cut -d" " -f2 | sed -e 's/\.//g' | sed -e 's/\-//g')" -lt "14001" ]; then
+			msg "Fix twisted ..."
+			rm -f /usr/lib/python2.7/site-packages/twisted/plugins/dropin.cache
+			pacman --noconfirm -S python2-twisted
+		fi
+	fi
+
 	# fix terminus-font
 	pacman -Qq terminus-font &> /tmp/cmd1
 	pacman -Q terminus-font &> /tmp/cmd2
