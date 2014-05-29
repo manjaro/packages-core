@@ -1,0 +1,43 @@
+err() {
+    ALL_OFF="\e[1;0m"
+    BOLD="\e[1;1m"
+    RED="${BOLD}\e[1;31m"
+	local mesg=$1; shift
+	printf "${RED}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+msg() {
+    ALL_OFF="\e[1;0m"
+    BOLD="\e[1;1m"
+    GREEN="${BOLD}\e[1;32m"
+	local mesg=$1; shift
+	printf "${GREEN}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+post_install() {
+	mhwd-gpu --check
+
+	msg "use mhwd-gpu to set catalyst as default: 'mhwd-gpu --setgl catalyst'"
+	msg "use mhwd-gpu to set nvidia as default: 'mhwd-gpu --setgl nvidia'"
+}
+
+
+post_upgrade() {
+	post_install
+	# fix proprietary drivers
+	if [ "$(vercmp $2 0.3.900-1)" -lt 0 ]; then
+		if [ "$(mhwd -li | grep nvidia)" != "" ]; then
+			msg "Fixing nvidia settings ..."
+			mhwd-gpu --setgl nvidia
+		fi
+		if [ "$(mhwd -li | grep catalyst)" != "" ]; then
+			msg "Fixing catalyst settings ..."
+			mhwd-gpu --setgl catalyst
+		fi
+	fi
+}
+
+
+post_remove() {
+	mhwd-gpu --check
+}
