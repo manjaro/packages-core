@@ -4,7 +4,7 @@
 
 pkgbase=mhwd
 pkgname=('mhwd' 'mhwd-db')
-pkgver=0.3.5
+pkgver=0.3.900
 pkgrel=1
 pkgdesc="Manjaro Linux Hardware Detection"
 arch=('i686' 'x86_64')
@@ -55,11 +55,42 @@ build() {
 package_mhwd() {
   pkgdesc="Manjaro Linux Hardware Detection library and application"
   depends=('hwinfo' 'mhwd-db' 'v86d' 'pacman')
+  install=mhwd.install
+  provides=('libgl' 'mesa-libgl' 'nvidia-libgl' 'nvidia-304xx-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
+  if [ "${CARCH}" = "x86_64" ]; then
+       provides+=('lib32-libgl' 'lib32-mesa-libgl' 'lib32-nvidia-libgl' 'lib32-nvidia-304xx-libgl' 'lib32-catalyst-libgl')
+  fi
+  replaces=('libgl' 'mesa-libgl' 'nvidia-libgl' 'nvidia-304xx-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
+  if [ "${CARCH}" = "x86_64" ]; then
+       replaces+=('lib32-libgl' 'lib32-mesa-libgl' 'lib32-nvidia-libgl' 'lib32-nvidia-304xx-libgl' 'lib32-catalyst-libgl')
+  fi
+  conflicts=('libgl' 'mesa-libgl' 'nvidia-libgl' 'nvidia-304xx-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
+  if [ "${CARCH}" = "x86_64" ]; then
+       conflicts+=('lib32-libgl' 'lib32-mesa-libgl' 'lib32-nvidia-libgl' 'lib32-nvidia-304xx-libgl' 'lib32-catalyst-libgl')
+  fi
 
   cd ${srcdir}/${pkgname}
 
   make DESTDIR="${pkgdir}" install
   install -d -m755 ${pkgdir}/var/lib/mhwd/{db,local}/{pci,usb}
+
+  # workaround until proprietary drivers get updated
+  mkdir -p ${pkgdir}/usr/lib/nvidia ${pkgdir}/usr/lib32/nvidia
+  mkdir -p ${pkgdir}/usr/lib/fglrx ${pkgdir}/usr/lib32/fglrx
+  ln -s /usr/lib/mesa/libEGL.so.1.0.0 ${pkgdir}/usr/lib/nvidia/libEGL.so
+  ln -s /usr/lib/mesa/libGLESv1_CM.so.1.1.0 ${pkgdir}/usr/lib/nvidia/libGLESv1_CM.so
+  ln -s /usr/lib/mesa/libGLESv2.so.2.0.0 ${pkgdir}/usr/lib/nvidia/libGLESv2.so
+  ln -s /usr/lib/mesa/libEGL.so.1.0.0 ${pkgdir}/usr/lib/fglrx/libEGL.so
+  ln -s /usr/lib/mesa/libGLESv1_CM.so.1.1.0 ${pkgdir}/usr/lib/fglrx/libGLESv1_CM.so
+  ln -s /usr/lib/mesa/libGLESv2.so.2.0.0 ${pkgdir}/usr/lib/fglrx/libGLESv2.so
+  if [ "${CARCH}" = "x86_64" ]; then
+       ln -s /usr/lib32/mesa/libEGL.so.1.0.0 ${pkgdir}/usr/lib32/nvidia/libEGL.so
+       ln -s /usr/lib32/mesa/libGLESv1_CM.so.1.1.0 ${pkgdir}/usr/lib32/nvidia/libGLESv1_CM.so
+       ln -s /usr/lib32/mesa/libGLESv2.so.2.0.0 ${pkgdir}/usr/lib32/nvidia/libGLESv2.so
+       ln -s /usr/lib32/mesa/libEGL.so.1.0.0 ${pkgdir}/usr/lib32/fglrx/libEGL.so
+       ln -s /usr/lib32/mesa/libGLESv1_CM.so.1.1.0 ${pkgdir}/usr/lib32/fglrx/libGLESv1_CM.so
+       ln -s /usr/lib32/mesa/libGLESv2.so.2.0.0 ${pkgdir}/usr/lib32/fglrx/libGLESv2.so
+  fi
 }
 
 package_mhwd-db() {
