@@ -23,18 +23,22 @@ post_install() {
 
 
 post_upgrade() {
-	post_install
 	# fix proprietary drivers
-	if [ "$(vercmp $2 0.3.900-1)" -lt 0 ]; then
-		if [ "$(mhwd -li | grep nvidia)" != "" ]; then
+	if [ "$(vercmp $2 0.3.901-1)" -lt 0 ]; then
+		if [ "$(mhwd -li | grep nvidia)" != "" ] && [ "$(mhwd -li | grep hybrid)" == "" ] ; then
 			msg "Fixing nvidia settings ..."
 			mhwd-gpu --setgl nvidia
 		fi
-		if [ "$(mhwd -li | grep catalyst)" != "" ]; then
+		if [ "$(mhwd -li | grep catalyst)" != "" ] && [ "$(mhwd -li | grep hybrid)" == "" ]; then
 			msg "Fixing catalyst settings ..."
 			mhwd-gpu --setgl catalyst
 		fi
+		if [ "$(mhwd -li | grep hybrid)" != "" ]; then
+			msg "Fixing hybrid settings ..."
+			mhwd-gpu --setgl mesa
+		fi
 	fi
+	post_install
 }
 
 
