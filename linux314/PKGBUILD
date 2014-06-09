@@ -10,9 +10,9 @@ pkgname=('linux314' 'linux314-headers')
 _kernelname=-MANJARO
 _basekernel=3.14
 _basever=314
-_aufs=20140526
+_aufs=20140602
 _bfq=v7r4
-pkgver=${_basekernel}.5
+pkgver=${_basekernel}.6
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -43,26 +43,22 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '0001-Bluetooth-allocate-static-minor-for-vhci.patch'
         '0002-module-allow-multiple-calls-to-MODULE_DEVICE_TABLE-p.patch'
         '0003-module-remove-MODULE_GENERIC_TABLE.patch'
-        '0005-Revert-Bluetooth-Enable-autosuspend-for-Intel-Blueto.patch'
         '0006-genksyms-fix-typeof-handling.patch'
-        '0010-iwlwifi-mvm-delay-enabling-smart-FIFO-until-after-be.patch'
-        '0011-kernfs-fix-removed-error-check.patch'
         '0012-fix-saa7134.patch'
-        '0015-fix-xsdt-validation.patch'
 )
 sha256sums=('61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa'
-            'ecc00856830c05736b3f99609bc6d80353c29d2db9b0dffb91eb2d169808cac4'
-            'aeb2dc6c0fdffc5d8de40c079d13065ef8105d70d1b526eae9539e956169d7ad'
-            '561462f0dd8ef644d2cffa0bce2e458683dc65fcad3457793adb3a659970a649'
+            'b8de86f64a62ec1f5d62ef7b0caf302546be0d397e7c7d29e4b1e260220462d7'
+            '6e66a2358460ff98eb8b348069b6a13db51664cdc78f390b5caa4a5b3e09a092'
+            'f3f3ea8193f52c0714943f846f7991d88aa7d045b515dfaea99345d357761a7f'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '394ce014c4423200d78c9e687075afc155ded2802672f23d305fad104d72af1c'
+            'd7e73614e9f2950faf734d6decfd4824984ae47f21a2a4c7e92636c69bbde2d8'
             'b8d782ea47febaccd0e8d5d5ec3968ea71d3701d5106c2c4733e6a230ae84000'
             'c2b9c767fe57d743bfe4f7b118bde378c60963d3295fb7be45f6e5849466a38c'
-            'a36fddc87ac8f8a8d3ca414b083ce67e93780a0e33eed324f169eb9a1173d97a'
+            '1c7c1e55e78628516d442cfada6fb0c2b0a3c8283068364a6561ded0bce2b376'
             '7795139aec20731ef4713f4a3b7f69fd3394804f648c919b8215a688dfd3d3f9'
             '64cf9be1100047427d9769ccb95a88ef4795fc95f6a8154f92d3ddd41a6e8c1d'
-            '4fe24cc7e2e14a45563d3b3267cd4e9eb5000b518e12a185fffe0d374d4dd7de'
+            '291cb2fd88d5557d542fe88b643e7ec607d5db5c204b9fd647e710d6985e6aa8'
             '4d51ac4ca670f6f4ebf38dfa5ffa5c262ea3fd39f5ea1bb7dd5f86da1be40b79'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
@@ -73,12 +69,8 @@ sha256sums=('61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa'
             '6d72e14552df59e6310f16c176806c408355951724cd5b48a47bf01591b8be02'
             '52dec83a8805a8642d74d764494acda863e0aa23e3d249e80d4b457e20a3fd29'
             '65d58f63215ee3c5f9c4fc6bce36fc5311a6c7dbdbe1ad29de40647b47ff9c0d'
-            '3fffb01cf97a5a7ab9601cb277d2468c0fb1e1cceba4225915f3ffae3a5694ec'
             'cf2e7a2d00787f754028e7459688c2755a406e632ce48b60952fa4ff7ed6f4b7'
-            'c0af4622f75c89fef62183e18b7d49998228d4eaa906c6accaf4aa4ff0134f85'
-            '04f44bf5c181d6dc31905937c1bdccb0f5aecaad3a579e99b302502b9cbe0f7a'
             '79359454c9d8446eb55add2b1cdbf8332bd67dafb01fefb5b1ca090225f64d18'
-            '384dd13fd4248fd6809da8c6ae29ced55d4a5cacc33ac2ae7522093ec0fb26d4'
 )
 
 ## modules.symboles md5sums
@@ -121,33 +113,14 @@ prepare() {
   patch -p1 -i "${srcdir}/0002-module-allow-multiple-calls-to-MODULE_DEVICE_TABLE-p.patch"
   patch -p1 -i "${srcdir}/0003-module-remove-MODULE_GENERIC_TABLE.patch"
 
-  # Disable usb autosuspend for intel btusb
-  # See http://www.spinics.net/lists/kernel/msg1716461.html
-  # Until a solution is found, make sure the driver leaves autosuspend alone
-  patch -p1 -i "${srcdir}/0005-Revert-Bluetooth-Enable-autosuspend-for-Intel-Blueto.patch"
-
   # Fix generation of symbol CRCs
   # http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=dc53324060f324e8af6867f57bf4891c13c6ef18
   patch -p1 -i "${srcdir}/0006-genksyms-fix-typeof-handling.patch"
-
-  # Fix some intel wifi issues
-  # https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/iwlwifi-fixes.git/commit/?id=12f853a89e29f50b17698e17e73c328a35f1498d
-  # FS#39815
-  patch -p1 -i "${srcdir}/0010-iwlwifi-mvm-delay-enabling-smart-FIFO-until-after-be.patch"
-
-  # fix Xorg crash with i810 chipset due to wrong removed error check
-  # References: http://lkml.kernel.org/g/533D01BD.1010200@googlemail.com
-  patch -Np1 -i "${srcdir}/0011-kernfs-fix-removed-error-check.patch"
 
   # fix saa7134 video
   # https://bugs.archlinux.org/task/39904
   # https://bugzilla.kernel.org/show_bug.cgi?id=73361
   patch -Np1 -i "${srcdir}/0012-fix-saa7134.patch"
-
-  # fix xsdt validation bug
-  # https://bugs.archlinux.org/task/39811
-  # https://bugzilla.kernel.org/show_bug.cgi?id=73911
-  patch -Np1 -i "${srcdir}/0015-fix-xsdt-validation.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"

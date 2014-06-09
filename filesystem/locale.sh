@@ -13,7 +13,8 @@ elif [ -r /etc/rc.conf ]; then
   LANG=$(. /etc/rc.conf 2>/dev/null; echo "$LOCALE")
 fi
 
-export LANG="${LANG:-C}"
+LANG=${LANG:-C}
+export LANG
 [ -n "$LC_CTYPE" ]          && export LC_CTYPE
 [ -n "$LC_NUMERIC" ]        && export LC_NUMERIC
 [ -n "$LC_TIME" ]           && export LC_TIME

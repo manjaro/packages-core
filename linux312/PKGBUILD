@@ -10,9 +10,9 @@ pkgname=('linux312' 'linux312-headers')
 _kernelname=-MANJARO
 _basekernel=3.12
 _basever=312
-_aufs=20140127
+_aufs=20140602
 _bfq=v7r4
-pkgver=${_basekernel}.20
+pkgver=${_basekernel}.21
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -31,6 +31,8 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
+        'tmpfs-ibitmap.patch'
+        'vfs-ino.patch'
         'change-default-console-loglevel.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/2700_ThinkPad-30-brightness-control-fix.patch'
@@ -51,17 +53,19 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.12.0.patch"
 )
 sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
-            '1b38ffa0d4891220cc0a622f6e5bad4408636c0203a4e66a3e57e33869d7f894'
-            '675a80ef9683bde709736dc312f5b6843ada73a95b9a052543c49887c5cc44ab'
-            'a665022756052b50ef61b563d39389628a956d1ce075472262a915e841399ff2'
+            '13d1a0267f96096c1e683525fad8e9af155d3ce559146727c54a6d6ead6e2333'
+            '477603e7a06d152e11edd8ff0905871b9179d82a1bc8d8cc04355ecc4e6e28a8'
+            '8813b088a0c73b8d4ecc751dbe2a9b1af7aba69ea9ab1371fdf2f67bd2f249d8'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '2afe70579508ab0f81d75e68c32755c39adeb630b6bcefa7cc42b44915c035e8'
+            'ebca1a8e210dc7ad77a586530c0f11637a05bde684e11f3116a5020e9603a74d'
             '03ec8d29245b222c21aee0a043ab9a48702d252d8460d44541fa9ea65bcea7ce'
             'e9604c6d87ae87830c154c1b12065eb6361e503006025497741f15dbaa9fd3ff'
-            '14fce573416f3df468c562f5a0adc5f117fe0b632f455d989219670ed63d5397'
+            'fa2d7eb0955a46b1e55bc6da361f1b892048e33e201f7d2f2dbbb56b900e0233'
             '3205cf2a7b48fd03840c16de434d79b99ebc7604f848e5d05054e7426525d014'
             '6c9a05787a392bd86da8f0fb66abd32a72808576aa7c635e5c2ae678134b59dd'
+            '173ede3f735979812010e52a2ad5c9ac326621f3993a9cebf4a2e4c089f035b4'
+            '4d51ac4ca670f6f4ebf38dfa5ffa5c262ea3fd39f5ea1bb7dd5f86da1be40b79'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -76,9 +80,9 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             'd8d6745a165e7f1608d8c298e49c8c2fee5a5d6c61c5b80d63a8dc7913ff8dc8'
             'b6f366ed2100ccab99029f61c39c0781ad4863f537381626196ed43b4b115a21'
             'cbfabd113a1954cd3d6cc1e70c19b95ce36a19e2c92ad93939d4982077178135'
-            'ee556393f0637a489aa59f029245bb57bb37b8879369df35f47d1b5c8003dffe'
-            '742e777edcfa0c5cd063b14313e645d617910bbdfa2a5bdf11b6c52f178416d6'
-            '231dc8192da7953bfcc4fbf89cc001bd4f93094a9c34b99110c21d826442e4e5'
+            '308be163ba16b8f988648c53847ee1c74bd046886c7363981545382c59db5dd5'
+            '632c01361bb6bcc025216c1eb448e32f6b71876bc7ae1bd9c06b85123061bd22'
+            'ff14ed204b8b479bdb505ba8eac99f193eb04fcb7bf63737c81f67706aa51203'
 )
 
 ## modules.symboles md5sums
@@ -146,6 +150,8 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-ibitmap.patch"
+  patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"

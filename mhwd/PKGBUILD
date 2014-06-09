@@ -4,7 +4,7 @@
 
 pkgbase=mhwd
 pkgname=('mhwd' 'mhwd-db')
-pkgver=0.3.902
+pkgver=0.3.903
 pkgrel=1
 pkgdesc="Manjaro Linux Hardware Detection"
 arch=('i686' 'x86_64')
@@ -55,6 +55,9 @@ build() {
 package_mhwd() {
   pkgdesc="Manjaro Linux Hardware Detection library and application"
   depends=('hwinfo' 'mesa' 'mhwd-db' 'v86d' 'pacman')
+  if [ "${CARCH}" = "x86_64" ]; then
+     optdepends=('lib32-mesa: for 32bit support')
+  fi
   install=mhwd.install
   provides=('libgl' 'mesa-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
   if [ "${CARCH}" = "x86_64" ]; then

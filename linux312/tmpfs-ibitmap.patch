@@ -58,7 +58,7 @@ index 30aa0dc..4c85b77 100644
  	kgid_t gid;		    /* Mount gid for root directory */
  	umode_t mode;		    /* Mount mode for root directory */
 diff --git a/mm/shmem.c b/mm/shmem.c
-index d3b8562..99fe84f 100644
+index 588beec..d31f81a 100644
 --- a/mm/shmem.c
 +++ b/mm/shmem.c
 @@ -198,14 +198,73 @@ static int shmem_reserve_inode(struct super_block *sb)
@@ -163,7 +163,7 @@ index d3b8562..99fe84f 100644
  	return inode;
  }
  
-@@ -2028,7 +2087,7 @@ static int shmem_unlink(struct inode *dir, struct dentry *dentry)
+@@ -2057,7 +2116,7 @@ static int shmem_unlink(struct inode *dir, struct dentry *dentry)
  	struct inode *inode = dentry->d_inode;
  
  	if (inode->i_nlink > 1 && !S_ISDIR(inode->i_mode))
@@ -172,7 +172,7 @@ index d3b8562..99fe84f 100644
  
  	dir->i_size -= BOGO_DIRENT_SIZE;
  	inode->i_ctime = dir->i_ctime = dir->i_mtime = CURRENT_TIME;
-@@ -2398,6 +2457,150 @@ static const struct export_operations shmem_export_ops = {
+@@ -2427,6 +2486,150 @@ static const struct export_operations shmem_export_ops = {
  	.fh_to_dentry	= shmem_fh_to_dentry,
  };
  
@@ -323,7 +323,7 @@ index d3b8562..99fe84f 100644
  static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
  			       bool remount)
  {
-@@ -2425,6 +2628,14 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
+@@ -2454,6 +2657,14 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
  		}
  		if (!*this_char)
  			continue;
@@ -338,7 +338,7 @@ index d3b8562..99fe84f 100644
  		if ((value = strchr(this_char,'=')) != NULL) {
  			*value++ = 0;
  		} else {
-@@ -2453,7 +2664,7 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
+@@ -2482,7 +2693,7 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
  				goto bad_val;
  		} else if (!strcmp(this_char,"nr_inodes")) {
  			sbinfo->max_inodes = memparse(value, &rest);
@@ -347,7 +347,7 @@ index d3b8562..99fe84f 100644
  				goto bad_val;
  		} else if (!strcmp(this_char,"mode")) {
  			if (remount)
-@@ -2533,6 +2744,10 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
+@@ -2562,6 +2773,10 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
  	sbinfo->max_blocks  = config.max_blocks;
  	sbinfo->max_inodes  = config.max_inodes;
  	sbinfo->free_inodes = config.max_inodes - inodes;
@@ -358,7 +358,7 @@ index d3b8562..99fe84f 100644
  
  	/*
  	 * Preserve previous mempolicy unless mpol remount option was specified.
-@@ -2555,6 +2770,8 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
+@@ -2584,6 +2799,8 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
  			sbinfo->max_blocks << (PAGE_CACHE_SHIFT - 10));
  	if (sbinfo->max_inodes != shmem_default_max_inodes())
  		seq_printf(seq, ",nr_inodes=%lu", sbinfo->max_inodes);
@@ -367,7 +367,7 @@ index d3b8562..99fe84f 100644
  	if (sbinfo->mode != (S_IRWXUGO | S_ISVTX))
  		seq_printf(seq, ",mode=%03ho", sbinfo->mode);
  	if (!uid_eq(sbinfo->uid, GLOBAL_ROOT_UID))
-@@ -2574,6 +2791,7 @@ static void shmem_put_super(struct super_block *sb)
+@@ -2603,6 +2820,7 @@ static void shmem_put_super(struct super_block *sb)
  
  	percpu_counter_destroy(&sbinfo->used_blocks);
  	mpol_put(sbinfo->mpol);
@@ -375,7 +375,7 @@ index d3b8562..99fe84f 100644
  	kfree(sbinfo);
  	sb->s_fs_info = NULL;
  }
-@@ -2593,6 +2811,8 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
+@@ -2622,6 +2840,8 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
  	sbinfo->mode = S_IRWXUGO | S_ISVTX;
  	sbinfo->uid = current_fsuid();
  	sbinfo->gid = current_fsgid();
@@ -384,7 +384,7 @@ index d3b8562..99fe84f 100644
  	sb->s_fs_info = sbinfo;
  
  #ifdef CONFIG_TMPFS
-@@ -2608,6 +2828,10 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
+@@ -2637,6 +2857,10 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
  			err = -EINVAL;
  			goto failed;
  		}
@@ -392,6 +392,6 @@ index d3b8562..99fe84f 100644
 +			shmem_ibitmap_alloc(sbinfo,
 +					    shmem_ibitmap_size(sbinfo->max_inodes),
 +					    GFP_NOFS);
+ 	} else {
+ 		sb->s_flags |= MS_NOUSER;
  	}
- 	sb->s_export_op = &shmem_export_ops;
- 	sb->s_flags |= MS_NOSEC;
