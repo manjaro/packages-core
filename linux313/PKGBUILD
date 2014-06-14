@@ -10,9 +10,9 @@ pkgname=('linux313' 'linux313-headers')
 _kernelname=-MANJARO
 _basekernel=3.13
 _basever=313
-_aufs=20140127
+_aufs=20140609
 _bfq=v7r4
-_subver=1
+_subver=3
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -32,6 +32,8 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
+        'tmpfs-idr.patch'
+        'vfs-ino.patch'
         'change-default-console-loglevel.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.11/1700_enable-thinkpad-micled.patch'
         '2700_ThinkPad-30-brightness-control-fix.patch'
@@ -52,6 +54,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '0006-rpc_pipe-fix-cleanup-of-dummy-gssd-directory-when-no.patch'
         'i8042-fix-aliases.patch'
         '3.13.11.1.patch'
+        '3.13.11.3.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
@@ -62,12 +65,14 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '85d28cc32f2ccfb97ed4377142c91d21e2e57eb74494255ffe20f729cc9c60d0'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'de25813d17674aedebbd9bd8229b4a3689fd1ccd4cc120496b303f2abdc5ab95'
+            '34911f1c1d7ce7c67ad3ece44e1dd96b9d040798fb72ba427816c494a5d41daa'
             'bbdd37f76070844669b3fe916514bc58a45dcc7892ed3be270d74885850418e4'
             'a10ad70335728c66057b62003d525e993e8953d794eb8f57a84172092fd14aa8'
-            '01e246f5e57f3c2f5d882068f02fb4b2bcf1048eb615beb801cdda5a2a0b8dee'
-            '73dac9de2eacbc9f2e4dd57ab729d00dc1f962d1004aa499a5b3bbaf932c56cc'
+            '04651ea8a4ea80e06b32ab7d83b9c39a9023b236a24d1795b9012a1e81cb054c'
+            '3b5d6bb27f9eaed2864873616af1eb61d767245703e7ef4698571fcdb0058f22'
             '12aab7a7d115eae8fa35249674ca6f4bd18de8d45a27f85ad55810bea2097969'
+            '402a98602c781262674733c70c0e39c55642c417e40c894d90350570c115a9c9'
+            '4d51ac4ca670f6f4ebf38dfa5ffa5c262ea3fd39f5ea1bb7dd5f86da1be40b79'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -86,9 +91,10 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             'b54af31bf32ea47dd47c48113481cc3288c04d844f5b4814663b108f43f415a7'
             '1e1dc0c380fcfadfe46d396f3efade08c90f53d74fac7037edcfe9bc0a3c8d56'
             '6a6345d662198a93c44a55283140a2ce6ac24e591df697cac6ada2c92e841229'
-            '38672f6b62bb4fba9aca23882c386fb003ea71b750d0c07d7aa5a32638710308'
-            '85ff750be365e33a0c54898cabfaf299f62a81e1ec142d36508b19f88f2ab8a7'
-            '254f8d1670234c2a9a99bec44ad0bafa9121b12f98ba78e3dae795b9e51faff7'
+            'c3f0eaa8611fc032c12b5c2349a69c75325cba6df2e4e2665beeda3c6b5445d7'
+            'bdb288fcbf97b379aa3aad218b81d3c09b078f41a846d7e307cf4c763414a13f'
+            'f32e0f05ad4295fc6bea804e013b14f0460c1d866dfe204bebe34555b37314a9'
+            '8c6c5463014811862b13c4a836c9e83cb3915f31ff502d58a8deab35d7546d81'
 )
 
 ## modules.symboles md5sums
@@ -116,6 +122,7 @@ prepare() {
 
   # add extended stable patch(es)
   patch -p1 -i "${srcdir}/3.13.11.1.patch"
+  patch -p1 -i "${srcdir}/3.13.11.3.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -172,6 +179,8 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
