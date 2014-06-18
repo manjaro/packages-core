@@ -12,7 +12,7 @@ _basekernel=3.4
 _basever=34
 _aufs=20131104
 _bfq=v7r4
-pkgver=${_basekernel}.93
+pkgver=${_basekernel}.94
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -39,7 +39,6 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.4.4-fix-backlight-regression.patch'
         '3.4.21-Fix-DVB-ioctls-failing-if-frontend-open-closed-too-fast.patch'
         '3.4.23-fat.patch'
-        '3.4.93-netfilter-ipv4-defrag-set-local_df-flag-on-defragmented-skb.patch'
         '3.4.93-cgroup-add-xattr-support.patch'
         '3.4.93-adjust-bfq-cgroup-for-cgroup-add-xattr-support.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.4/1512_af_key-initialize-satype-in-key_notify_policy_flush.patch'
@@ -52,7 +51,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.4.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.4.0.patch"
 )
 sha256sums=('ff3dee6a855873d12487a6f4070ec2f7996d073019171361c955639664baa0c6'
-            'fef5772ec57d0a9ba62587fd523347ff52f2d4fc2ee49514080c3c413b4ccb11'
+            'bdb818297a48e1f27352b757656ffce8769d0fd1b2f6ccc15845a967d71b76e7'
             '884c924c753de86480b214a1afb7e150475a5e62d09d4307edcb38811a53e490'
             'c4bae072f4f2ba70a5ea4f1f0d4a90199fb84ad1a4d067f18936b92c8c3636d5'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
@@ -71,8 +70,7 @@ sha256sums=('ff3dee6a855873d12487a6f4070ec2f7996d073019171361c955639664baa0c6'
             '04d3a4d636950ea8906843274cc6b7b4f745dc65e10f4a9f213dcb5ac9b9f8a8'
             '0ba36591bb38fdb6465bd39a9957295d436591df8b6c3c8e3e4ba0d3b007724b'
             '3190cffd7bf4906cb85632764d4c5ec22e8da5ccda4daf1f6f8666c6e2c39d52'
-            '0a8c7458045d82c52d20dd5259b7c3ffe615e89cd0719963f26a06ab47804144'
-            '406a04f869d989d6ff48dc89eb494bf129b057daffafd5008b3008e9297a9793'
+            '42d53fddf8bb36fe78dfc5570a8f3bff87ad883a91218fc407fb926957f0e73f'
             'd3a3bc0aa3039ab7f2bd3a02070ad42bd5cfae80ed32fd62ff78f3d2829a446c'
             '611446170eb5e6a200d9a8baaea8bc7ab4db41d71afe17dd7b15fd3d83f6a044'
             '307114d5a51b09a6ed6daa11c77f54f636c0e5ff0e6a646d8eb7c77da96ffc12'
@@ -139,10 +137,6 @@ prepare() {
   # https://bugs.archlinux.org/task/32122
   patch -Np1 -i "${srcdir}/3.4-module-symbol-waiting.patch"
   patch -Np1 -i "${srcdir}/3.4-module-init-wait.patch"
-
-  # fix issue with MTU
-  # http://www.spinics.net/lists/kernel/msg1761343.html
-  patch -Np1 -i "${srcdir}/3.4.93-netfilter-ipv4-defrag-set-local_df-flag-on-defragmented-skb.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1512_af_key-initialize-satype-in-key_notify_policy_flush.patch"
