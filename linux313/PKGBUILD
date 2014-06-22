@@ -12,7 +12,7 @@ _basekernel=3.13
 _basever=313
 _aufs=20140609
 _bfq=v7r4
-_subver=3
+_subver=4
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -55,14 +55,15 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'i8042-fix-aliases.patch'
         '3.13.11.1.patch'
         '3.13.11.3.patch'
+        '3.13.11.4.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
 )
 sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '0c481b0abee4ba6779fe168f98dcca6481a033d393d66ff6b9caaed7f0307231'
-            '27f9e59319f875df7b67482334937d41d97957fa65b31f48e9986486e2e43871'
-            '85d28cc32f2ccfb97ed4377142c91d21e2e57eb74494255ffe20f729cc9c60d0'
+            'SKIP'
+            'SKIP'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
             '34911f1c1d7ce7c67ad3ece44e1dd96b9d040798fb72ba427816c494a5d41daa'
@@ -92,6 +93,7 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '1e1dc0c380fcfadfe46d396f3efade08c90f53d74fac7037edcfe9bc0a3c8d56'
             '6a6345d662198a93c44a55283140a2ce6ac24e591df697cac6ada2c92e841229'
             'c3f0eaa8611fc032c12b5c2349a69c75325cba6df2e4e2665beeda3c6b5445d7'
+            'd3e605552ce4d1649e23dc2bcffcd98d9d14b23ac836b6218e7a672b45921477'
             'bdb288fcbf97b379aa3aad218b81d3c09b078f41a846d7e307cf4c763414a13f'
             'f32e0f05ad4295fc6bea804e013b14f0460c1d866dfe204bebe34555b37314a9'
             '8c6c5463014811862b13c4a836c9e83cb3915f31ff502d58a8deab35d7546d81'
@@ -123,6 +125,7 @@ prepare() {
   # add extended stable patch(es)
   patch -p1 -i "${srcdir}/3.13.11.1.patch"
   patch -p1 -i "${srcdir}/3.13.11.3.patch"
+  patch -p1 -i "${srcdir}/3.13.11.4.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git

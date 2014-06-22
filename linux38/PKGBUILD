@@ -12,7 +12,7 @@ _basekernel=3.8
 _basever=38
 _aufs=20131104
 _bfq=v7r4
-_subver=23
+_subver=24
 pkgver=${_basekernel}.13.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -60,12 +60,12 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "3.8.13.21.patch"
         "3.8.13.22.patch"
         "3.8.13.23.patch"
+        "3.8.13.24.patch"
         "http://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/releases/3.10.10/acpi-add-_sta-evaluation-at-do_acpi_find_child.patch"
         "http://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/releases/3.10.10/acpi-try-harder-to-resolve-_adr-collisions-for-bridges.patch"
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.8.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.8.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.8.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.8.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.8.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.8.0.patch"
-        "0001-block-bfq-Switch-from-BFQ-${_bfq}-for-3.8-to-BFQ-${_bfq}-for-3.8.13.patch"
 )
 sha256sums=('e070d1bdfbded5676a4f374721c63565f1c969466c5a3e214004a136b583184b'
             'abc523f59e4c7a4c8ccadd7fd3cd03b7ae8788b399040a1c949c4232601cfd5b'
@@ -107,12 +107,12 @@ sha256sums=('e070d1bdfbded5676a4f374721c63565f1c969466c5a3e214004a136b583184b'
             'eb9c90bc0f0a569d7712ef6ab3d26e874ec83d982d4bad1e644db1192e929b31'
             '34d86756081b0c2c739ca01f1124cf9ffd85d7ed620337773313461e2fad38bf'
             '3ad0389369064300ef2fd12e558be31c121d1f00dab4db157a9cc1a8b487244e'
+            '137cc01894564016d8f71e8e4d7a822949192b5ffd7af5f21a5c73c9ce4111db'
             'cb505a5b9aa750490ba28facb537bfd928ff6d0dc8edc349b6ad5e202f876e69'
             'aaf27758adaf142d04ea8ba43378716d24699a884906ae1e2ef3f655695497c6'
-            '9041d5c9c12d6b5035afa01aac6e813324e796053af846158665878f298bc786'
-            'e2e62d3979ced8dd9cd75139778e4f76b9e2671fe9e26a7423374cbe1704795c'
-            '3781e7289ddc58803b8d5d65944d873c22e0a21d71acbee02be44daf7b1c2de2'
-            '7148fb897d87876410ee4e0a7290630cff8e0d1031341b3913564ef6e58a0373'
+            '0fddf9bb69fb19a229379ad1797b4919f3afc8359e597ab7fdf8eeb79b2ec9a5'
+            'a0ee732f38fa69bddf126417882d7998626d732cc50d070b1c60b166d613d835'
+            '6c11c7ad1a7706895a35460616f1fd0859199624209e39586a365a16f3b3a4cc'
 )
 
 ## modules.symboles md5sums
@@ -162,6 +162,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.8.13.21.patch"
   patch -p1 -i "${srcdir}/3.8.13.22.patch"
   patch -p1 -i "${srcdir}/3.8.13.23.patch"
+  patch -p1 -i "${srcdir}/3.8.13.24.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -198,8 +199,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
-  # Fix compile on 3.8.13
-  patch -Np1 -i "${srcdir}/0001-block-bfq-Switch-from-BFQ-${_bfq}-for-3.8-to-BFQ-${_bfq}-for-3.8.13.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
