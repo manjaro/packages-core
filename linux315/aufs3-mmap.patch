@@ -1,4 +1,4 @@
-aufs3.x-rcN mmap patch
+aufs3.15 mmap patch
 
 diff --git a/fs/buffer.c b/fs/buffer.c
 index 9ddb9fc..1059a0b 100644
@@ -29,7 +29,7 @@ index d4a3574..e44a744 100644
  		ino = inode->i_ino;
  	}
 diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 442177b..2fd6081d 100644
+index c4b2646..dc3c0dc 100644
 --- a/fs/proc/task_mmu.c
 +++ b/fs/proc/task_mmu.c
 @@ -265,7 +265,9 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
@@ -215,19 +215,39 @@ index 088358c..138a88c 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/fremap.c b/mm/fremap.c
-index 34feba6..d857364 100644
+index 34feba6..8d6c451 100644
 --- a/mm/fremap.c
 +++ b/mm/fremap.c
-@@ -227,7 +227,9 @@ get_write_lock:
+@@ -223,16 +223,27 @@ get_write_lock:
+ 		 */
+ 		if (mapping_cap_account_dirty(mapping)) {
+ 			unsigned long addr;
+-			struct file *file = get_file(vma->vm_file);
++			struct file *file = vma->vm_file,
++				*prfile = vma->vm_prfile;
++
  			/* mmap_region may free vma; grab the info now */
  			vm_flags = vma->vm_flags;
  
 +			vma_get_file(vma);
  			addr = mmap_region(file, start, size, vm_flags, pgoff);
+-			fput(file);
 +			vma_fput(vma);
- 			fput(file);
  			if (IS_ERR_VALUE(addr)) {
  				err = addr;
+ 			} else {
+ 				BUG_ON(addr != start);
++				if (prfile) {
++					struct vm_area_struct *new_vma;
++					new_vma = find_vma(mm, addr);
++					if (!new_vma->vm_prfile)
++						new_vma->vm_prfile = prfile;
++					if (new_vma != vma)
++						get_file(prfile);
++				}
+ 				err = 0;
+ 			}
+ 			goto out_freed;
 diff --git a/mm/madvise.c b/mm/madvise.c
 index a402f8f..134e15d 100644
 --- a/mm/madvise.c

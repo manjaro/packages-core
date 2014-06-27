@@ -1,54 +1,23 @@
-    vfs: get_next_ino(), never inum=0
-    
-    It is very rare for get_next_ino() to return zero as a new inode number
-    since its type is unsigned int, but it can surely happen eventually.
-    
-    Interestingly, ls(1) and find(1) (actually readdir(3)) don't show a file
-    whose inum is zero, so people won't be able to find it. This issue may
-    be harmful especially for tmpfs.
-    
-    On a very long lived and busy system, users may frequently create files
-    on tmpfs. And if unluckily he gets inum=0, then he cannot see its
-    filename. If he remembers its name, he may be able to use or unlink it
-    by its name since the file surely exists. Otherwise, the file remains on
-    tmpfs silently. No one can touch it. This behaviour looks like resource
-    leak.
-    As a worse case, if a dir gets inum=0 and a user creates several files
-    under it, then the leaked memory will increase since a user cannot see
-    the name of all files under the dir whose inum=0, regardless the inum of
-    the children.
-    
-    There is another unpleasant effect when get_next_ino() wraps
-    around. When there is a file whose inum=100 on tmpfs, a new file may get
-    inum=100, ie. the duplicated inums. I am not sure what will happen when
-    the duplicated inums exist on tmpfs. If it happens, then some tools
-    won't work correctly such as backup and exporting via NFS, I am afraid.
-    Anyway this is not a issue in get_next_ino(). It should be
-    fixed in mm/shmem.c separatly if it is really necessary.
-    
-    There are many other get_next_ino() callers other than tmpfs, such as
-    several drivers, anon_inode, autofs4, freevxfs, procfs, pis, hugetlbfs,
-    configfs, ramfs, fuse, ocfs2, debugfs, securityfs, cgroup, socket, ipc.
-    Some of them will not care inum so this issue is harmless for them. But
-    the others may suffer from inum=0. For example, if procfs gets inum=0
-    for a task dir (or for one of its children), then several utilities
-    won't work correctly, including ps(1), lsof(8), etc.
-    
-    Signed-off-by: J. R. Okajima <hooanon05g@gmail.com>
-
 diff --git a/fs/inode.c b/fs/inode.c
-index 63c5aad..5a32ff0 100644
+index d6dfb09..ce22100 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
-@@ -886,7 +886,11 @@ unsigned int get_next_ino(void)
+@@ -878,6 +878,8 @@ unsigned int get_next_ino(void)
+ 	unsigned int *p = &get_cpu_var(last_ino);
+ 	unsigned int res = *p;
+ 
++start:
++
+ #ifdef CONFIG_SMP
+ 	if (unlikely((res & (LAST_INO_BATCH-1)) == 0)) {
+ 		static atomic_t shared_last_ino;
+@@ -887,7 +889,9 @@ unsigned int get_next_ino(void)
  	}
  #endif
  
 -	*p = ++res;
-+	res++;
-+	/* never zero */
-+	if (unlikely(!res))
-+		res++;
++	if (unlikely(!++res))
++		goto start;	/* never zero */
 +	*p = res;
  	put_cpu_var(last_ino);
  	return res;

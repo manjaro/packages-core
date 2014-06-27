@@ -10,9 +10,9 @@ pkgname=('linux312' 'linux312-headers')
 _kernelname=-MANJARO
 _basekernel=3.12
 _basever=312
-_aufs=20140602
+_aufs=20140623
 _bfq=v7r5
-pkgver=${_basekernel}.22
+pkgver=${_basekernel}.23
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -51,21 +51,24 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.12.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.12.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.12.0.patch"
+        # Fixes
+        "CVE-2014-0206-1-2.patch::https://github.com/torvalds/linux/commit/edfbbf388f293d70bf4b7c0bc38774d05e6f711a.patch"
+        "CVE-2014-0206-2-2.patch::https://github.com/torvalds/linux/commit/f8567a3845ac05bb28f3c1b478ef752762bd39ef.patch"
 )
 sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
-            '8c088b61dccaafa3dda14f2c8770ad97d155386a9861324163bbf9c6f6e098a1'
-            '477603e7a06d152e11edd8ff0905871b9179d82a1bc8d8cc04355ecc4e6e28a8'
+            'c394c8dd3e13d1350bb62eb4487c8f7194036541a79bbdbd4fd8695b9239a90e'
+            'ef742f7ba913e75d31d3946ba80dbe831b83b9b5c36d79e235c650f5620195ed'
             '8813b088a0c73b8d4ecc751dbe2a9b1af7aba69ea9ab1371fdf2f67bd2f249d8'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'ebca1a8e210dc7ad77a586530c0f11637a05bde684e11f3116a5020e9603a74d'
+            '6bc2bf4108619cbdb154cad468cba6c200c778469e7caf744c3078e1af4e83d7'
             '03ec8d29245b222c21aee0a043ab9a48702d252d8460d44541fa9ea65bcea7ce'
             'e9604c6d87ae87830c154c1b12065eb6361e503006025497741f15dbaa9fd3ff'
-            'fa2d7eb0955a46b1e55bc6da361f1b892048e33e201f7d2f2dbbb56b900e0233'
+            'd84621d306f7a6931b5f42061a21e99899ceedfee7c0e5f51a272851a5a95b63'
             '3205cf2a7b48fd03840c16de434d79b99ebc7604f848e5d05054e7426525d014'
-            '6c9a05787a392bd86da8f0fb66abd32a72808576aa7c635e5c2ae678134b59dd'
+            '90da6391dfc74124be8fb4144dc2f5fbd976a9da4241bba17b0482d145a0252c'
             '173ede3f735979812010e52a2ad5c9ac326621f3993a9cebf4a2e4c089f035b4'
-            '4d51ac4ca670f6f4ebf38dfa5ffa5c262ea3fd39f5ea1bb7dd5f86da1be40b79'
+            '3979d348824f61e42587939e82b41e47668bb068b47ad08adb92ebbd717622a7'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -80,9 +83,11 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             'd8d6745a165e7f1608d8c298e49c8c2fee5a5d6c61c5b80d63a8dc7913ff8dc8'
             'b6f366ed2100ccab99029f61c39c0781ad4863f537381626196ed43b4b115a21'
             'cbfabd113a1954cd3d6cc1e70c19b95ce36a19e2c92ad93939d4982077178135'
-            '308be163ba16b8f988648c53847ee1c74bd046886c7363981545382c59db5dd5'
-            '632c01361bb6bcc025216c1eb448e32f6b71876bc7ae1bd9c06b85123061bd22'
-            'ff14ed204b8b479bdb505ba8eac99f193eb04fcb7bf63737c81f67706aa51203'
+            '6c3b1030c3866c371a8cd3b07427be0d62ed62a8ec74ccefb2f6be2909bd0773'
+            'f3c7c5ad39d58b6faa4f2decf3bb7ee1dd8b2f32856abe00192d0c41401a8b57'
+            '217745a7ffbcdae967e22fe74991f9808ad2b4dd840d8c5d6683e617ea961968'
+            '871f2d8cbebb498b17771ad8999ca036c6e3f02aece6c0dbadb0e46ab4489088'
+            'abe522cdc40424de250ed0cccbca905758209468be795cb93198e212ea76354b' 
 )
 
 ## modules.symboles md5sums
@@ -107,6 +112,10 @@ prepare() {
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # Hotfixes
+  patch -p1 -i "${srcdir}/CVE-2014-0206-1-2.patch"
+  patch -p1 -i "${srcdir}/CVE-2014-0206-2-2.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git

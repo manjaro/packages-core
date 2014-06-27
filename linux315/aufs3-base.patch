@@ -1,4 +1,4 @@
-aufs3.x-rcN base patch
+aufs3.15 base patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
 index f70a230..138104b 100644
@@ -43,7 +43,7 @@ index f96d2a6..2d72083 100644
  	if (inode->i_op->update_time)
  		return inode->i_op->update_time(inode, time, flags);
 diff --git a/fs/splice.c b/fs/splice.c
-index 9bc07d2..897bde2 100644
+index e246954..4797013 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
 @@ -1103,8 +1103,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
