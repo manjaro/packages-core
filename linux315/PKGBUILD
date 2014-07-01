@@ -12,7 +12,7 @@ _basekernel=3.15
 _basever=315
 _aufs=20140623
 _bfq=v7r5
-pkgver=${_basekernel}.2
+pkgver=${_basekernel}.3
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -39,14 +39,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.15.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.15.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.15.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.15.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.15.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.15.0.patch"
-        #ARCH Patches
-        '0012-fix-saa7134.patch'
-        # Fixes
-        "CVE-2014-0206-1-2.patch::https://github.com/torvalds/linux/commit/edfbbf388f293d70bf4b7c0bc38774d05e6f711a.patch"
-        "CVE-2014-0206-2-2.patch::https://github.com/torvalds/linux/commit/f8567a3845ac05bb28f3c1b478ef752762bd39ef.patch"
 )
 sha256sums=('c3927e87be4040fa8aca1b58663dc0776aaf00485604ff88a623be2f3fb07794'
-            '47d902c0f6cb5833a45ba45132197b14e4c85c6bc17883cbdcff60f5c46f3f02'
+            '82ee661b91246c77d0ef3d9d6d8dcc191d3490cad17cd295a95169059735f295'
             '5440832ff532d4ff9329e317ffb536a8045adb423ead17ddf8ab72d0e03e9efd'
             '77b365892f9537abe275f990adb4dc1def6dde9c6eb0153e7e8d539a7e3348d7'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
@@ -65,9 +60,6 @@ sha256sums=('c3927e87be4040fa8aca1b58663dc0776aaf00485604ff88a623be2f3fb07794'
             'ef40c71371168754a1f696216183ffe161aaf1d10add77964e081f3fd36b799b'
             '1a3ecd9d1e19a6b21f54ad8c7b219c6894fa7c5457a127344d0fe69b62f1c4bd'
             '3f599d798ff5a3d449c7cf9bfec5503ab598d2d8372b051d5e1bd2419fb16ee0'
-            '79359454c9d8446eb55add2b1cdbf8332bd67dafb01fefb5b1ca090225f64d18'
-            '871f2d8cbebb498b17771ad8999ca036c6e3f02aece6c0dbadb0e46ab4489088'
-            'abe522cdc40424de250ed0cccbca905758209468be795cb93198e212ea76354b' 
 )
 
 ## modules.symboles md5sums
@@ -93,10 +85,6 @@ prepare() {
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
 
-  # Hotfixes
-  patch -p1 -i "${srcdir}/CVE-2014-0206-1-2.patch"
-  patch -p1 -i "${srcdir}/CVE-2014-0206-2-2.patch"
-
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
@@ -106,11 +94,6 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
-
-  # fix saa7134 video
-  # https://bugs.archlinux.org/task/39904
-  # https://bugzilla.kernel.org/show_bug.cgi?id=73361
-  patch -Np1 -i "${srcdir}/0012-fix-saa7134.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
