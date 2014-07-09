@@ -1,24 +1,22 @@
 # arg 1:  the new package version
 # arg 2:  the old package version
 
-RELEASE=3.4.65-2
-KERNEL_VERSION=3.4.65-2-MANJARO
-KERNEL_BASE=3.4
-BASEVER=34
-ARCH=x86_64
+RELEASE=
+KERNEL_VERSION=
+KERNEL_BASE=
+BASEVER=
+ARCH=
 
 post_install () {
-  # AUFS
-  echo ">>> NOTE, aufs3.4-20131104 is the last release by J. R. Okajima."
-  echo "    There will be no new release with updates or bugfixes."
-  echo "    It is recommend to move on to linux310-series since we will drop this"
-  echo "    kernel series soon. Use followed cmd to migrate to 3.10-series:"
-  echo "    'sudo mhwd-kernel -i linux310'"
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod ${KERNEL_VERSION}
   echo ">>> Generating initial ramdisk, using mkinitcpio.  Please wait..."
   mkinitcpio -p linux${BASEVER}
+
+  echo ">>> WARNING: AT keyboard support is no longer built into the kernel."
+  echo ">>>          In order to use your keyboard during early init, you MUST"
+  echo ">>>          include the 'keyboard' hook in your mkinitcpio.conf."
   
   # update grub.cfg
   if [ -f /usr/sbin/update-grub ]; then
@@ -32,15 +30,15 @@ post_install () {
 }
 
 post_upgrade() {
-  # AUFS
-  echo ">>> NOTE, aufs3.4-20131104 is the last release by J. R. Okajima."
-  echo "    There will be no new release with updates or bugfixes."
-  echo "    It is recommend to move on to linux310-series since we will drop this"
-  echo "    kernel series soon. Use followed cmd to migrate to 3.10-series:"
-  echo "    'sudo mhwd-kernel -i linux310'"
   # reminder notice
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
       echo "WARNING: /boot appears to be a separate partition but is not mounted."
+  fi
+
+  if [ $(vercmp $2 3.13) -lt 0 ]; then
+    echo ">>> WARNING: AT keyboard support is no longer built into the kernel."
+    echo ">>>          In order to use your keyboard during early init, you MUST"
+    echo ">>>          include the 'keyboard' hook in your mkinitcpio.conf."
   fi
   
   # remove old initcpio

@@ -11,8 +11,8 @@ pkgname=('linux311' 'linux311-headers')
 _kernelname=-MANJARO
 _basekernel=3.11
 _basever=311
-_aufs=20140623
-_subver=12
+_aufs=20140707
+_subver=13
 _bfq=v7r5
 pkgver=${_basekernel}.10.${_subver}
 pkgrel=1
@@ -54,6 +54,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "${_basekernel}.10.10.patch"
         "${_basekernel}.10.11.patch"
         "${_basekernel}.10.12.patch"
+        "${_basekernel}.10.13.patch"
 )
 sha256sums=('803ec8f0ad4b2ddedcb0332a590cd2b5e10dfc57c3b1c95bc9c46af81d51d7f9'
             'b12321f0d62476211662945361178819b134964babd238a67dab0824edcf19b1'
@@ -61,10 +62,10 @@ sha256sums=('803ec8f0ad4b2ddedcb0332a590cd2b5e10dfc57c3b1c95bc9c46af81d51d7f9'
             'b55870930e7a414788b967071b7cf7f7693a46a6470b0eee6161d96f17ea2198'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'ea6252245e40394ef078941843379f5762e0fb2283aa3f8a25ffa913782e79a8'
+            'ac84c5478775a52ac7a1249cfb4cf64b8f26f0e9254b001a88eb5672d9bbdd33'
             'a896a9056f3b24c0c3656ec6b0c3f2a767ed8e6b650e0f377a40b9c4d9841f40'
             'c73dd98a7b0a6941762a74128625d0a64032a2e96ba74d379090c094fac41cf5'
-            '07114a9595003c3cd4481f02fef01d17150d4555bd098591c521d3e70bdffc75'
+            'd9e4fe41a5b5cb10403dbbcad056cfaf40c9aa4e7c71b52d26aa827a97b12311'
             '87720f0333b1a73e46d929d435f89c43c04b68d2353ca0f18557db7d0cf1e41e'
             '1e8c907ae32b12a4e68999520dc862e7d13ac837c7907646e9af0f908d88933a'
             '2fbf9f0b46e2d1383639397cef2145d4e51bb0103bea32782de2d66e7a218ba9'
@@ -88,6 +89,7 @@ sha256sums=('803ec8f0ad4b2ddedcb0332a590cd2b5e10dfc57c3b1c95bc9c46af81d51d7f9'
             '6dc62787dbf071e98e2a8be4589b5a04860013a7da78ad724a1022a0b62010a1'
             '244de9e085ae95dbe94d6480ca30ca30f866aab6e70ce3f2a857b5e16c2f4c2b'
             '4c4aceb99554ba34f930e17bff6e23d69fd61f3d69e78459f5dc6d9396902794'
+            '1871b1c8150175d41e2dc721c25983040f60c24de8ddc74e9e875eddbd4e1234'
 )
 
 ## modules.symboles md5sums
@@ -126,6 +128,7 @@ prepare() {
   patch -p1 -i "${srcdir}/${_basekernel}.10.10.patch"
   patch -p1 -i "${srcdir}/${_basekernel}.10.11.patch"
   patch -p1 -i "${srcdir}/${_basekernel}.10.12.patch"
+  patch -p1 -i "${srcdir}/${_basekernel}.10.13.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
