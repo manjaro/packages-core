@@ -6,8 +6,8 @@
 # Maintainer: Philip Müller <philm@manjaro.org>
 
 pkgname=filesystem
-pkgver=2014.06
-pkgrel=2
+pkgver=2014.07
+pkgrel=1
 pkgdesc='Base filesystem'
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -25,8 +25,8 @@ source=('crypttab' 'fstab' 'group' 'gshadow' 'host.conf' 'hostname' 'hosts' 'iss
         'passwd' 'profile' 'rc.local' 'rc.local.shutdown' 'resolv.conf' 'securetty' 'shadow' 'shells' 'vconsole.conf')
 sha256sums=(ea8c67a34a0a8a41beabe3ceb5733c9e8b84b27c569c11ddbfd8395fce99d8dd
             86dff00854a7f2280bb799484ccc39ad449a171448926880742ae64f41666a43
-            b601d194a6d23e4759ebf331ceb519ead4dfe67d7c0d2008d634eb23d4a8a7fb
-            2c4f081e1db3c855b8ab43514275a82263d50ac68b16c5eb5fcc2149c6b42aed
+            08340f9ba6b35b3ce17be86350d43d49e0471c19dbac85f6e686d517059bc063
+            62847a5d8e83b5726b5846621d426f19691b4b9066e6378c7e9eaed8693ff4c7
             f21f35e7d3083aeee19beb48478130d119b2572922a4889df98326d551540eda
             295a881e674d14ee0c0e77f25236a8fd99a9453e5c33f635f55d2e8c6959c7ea
             13d1f59c1d0860bf43da996e2b9a6ab2744791614241ed9a1376b7e7e30de3a8
@@ -50,8 +50,36 @@ sha256sums=(ea8c67a34a0a8a41beabe3ceb5733c9e8b84b27c569c11ddbfd8395fce99d8dd
             6cff886fe9e23096d5f67b7857a747ebaf10431be5a2afc40236de5ad13a654f
             cd4a55177020a436254bb4baf84e068b98b3b0f6644173a7c853d58d236e00f1)
 
+lint() {
+	# ensure that passwd is sync'd to shadow and group is sync'd to gshadow.
+	local r=0
+
+	local passwd shadow group gshadow
+
+	for f in passwd shadow group gshadow; do
+		mapfile -t "$f" < <(cut -d: -f1 "$f" | sort)
+	done
+
+	# we can cheat and do simple string comparison only because we can make some
+	# assumptions about the data in these files
+	if [[ ${passwd[*]} != "${shadow[*]}" ]]; then
+		error 'passwd is not in sync with shadow!'
+		r=1
+	fi
+
+	if [[ ${group[*]} != "${gshadow[*]}" ]]; then
+		error 'group is not in sync with gshadow!'
+		r=1
+	fi
+
+	return $r
+}
+
 build() {
 	cd ${srcdir}
+
+	lint
+
 	a2x -d manpage -f manpage manjaro.7.txt
 }
 
