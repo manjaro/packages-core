@@ -1,12 +1,13 @@
 diff --git a/include/linux/shmem_fs.h b/include/linux/shmem_fs.h
-index 9d55438..763cc92 100644
+index 9d55438..0fd7af6 100644
 --- a/include/linux/shmem_fs.h
 +++ b/include/linux/shmem_fs.h
-@@ -24,10 +24,12 @@ struct shmem_inode_info {
+@@ -24,10 +24,13 @@ struct shmem_inode_info {
  };
  
  struct shmem_sb_info {
 +	struct mutex idr_lock;
++	bool idr_nouse;
 +	struct idr idr;		    /* manages inode-number */
  	unsigned long max_blocks;   /* How many blocks are allowed */
  	struct percpu_counter used_blocks;  /* How many are allocated */
@@ -18,7 +19,7 @@ index 9d55438..763cc92 100644
  	kuid_t uid;		    /* Mount uid for root directory */
  	kgid_t gid;		    /* Mount gid for root directory */
 diff --git a/mm/shmem.c b/mm/shmem.c
-index 902a148..12ec5c0 100644
+index 902a148..22a5fbb 100644
 --- a/mm/shmem.c
 +++ b/mm/shmem.c
 @@ -106,9 +106,13 @@ static unsigned long shmem_default_max_blocks(void)
@@ -49,7 +50,7 @@ index 902a148..12ec5c0 100644
  
  	simple_xattrs_free(&info->xattrs);
  	WARN_ON(inode->i_blocks);
-+	if (inode->i_ino) {
++	if (!sbinfo->idr_nouse && inode->i_ino) {
 +		mutex_lock(&sbinfo->idr_lock);
 +		idr_remove(&sbinfo->idr, inode->i_ino);
 +		mutex_unlock(&sbinfo->idr_lock);
@@ -72,27 +73,33 @@ index 902a148..12ec5c0 100644
  		inode_init_owner(inode, dir, mode);
  		inode->i_blocks = 0;
  		inode->i_mapping->backing_dev_info = &shmem_backing_dev_info;
-@@ -1414,6 +1424,19 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode
+@@ -1414,6 +1424,25 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode
  			mpol_shared_policy_init(&info->policy, NULL);
  			break;
  		}
 +
-+		/* inum 0 and 1 are unused */
-+		mutex_lock(&sbinfo->idr_lock);
-+		ino = idr_alloc(&sbinfo->idr, inode, 2, INT_MAX, GFP_NOFS);
-+		if (ino > 0) {
-+			inode->i_ino = ino;
-+			mutex_unlock(&sbinfo->idr_lock);
-+			__insert_inode_hash(inode, inode->i_ino);
-+		} else {
-+			mutex_unlock(&sbinfo->idr_lock);
-+			iput(inode);	/* shmem_free_inode() will be called */
-+			inode = NULL;
-+		}
++		if (!sbinfo->idr_nouse) {
++			/* inum 0 and 1 are unused */
++			mutex_lock(&sbinfo->idr_lock);
++			ino = idr_alloc(&sbinfo->idr, inode, 2, INT_MAX,
++					GFP_NOFS);
++			if (ino > 0) {
++				inode->i_ino = ino;
++				mutex_unlock(&sbinfo->idr_lock);
++				__insert_inode_hash(inode, inode->i_ino);
++			} else {
++				inode->i_ino = 0;
++				mutex_unlock(&sbinfo->idr_lock);
++				iput(inode);
++				/* shmem_free_inode() will be called */
++				inode = NULL;
++			}
++		} else
++			inode->i_ino = get_next_ino();
  	} else
  		shmem_free_inode(sb);
  	return inode;
-@@ -2348,8 +2371,7 @@ static struct dentry *shmem_get_parent(struct dentry *child)
+@@ -2348,8 +2377,7 @@ static struct dentry *shmem_get_parent(struct dentry *child)
  static int shmem_match(struct inode *ino, void *vfh)
  {
  	__u32 *fh = vfh;
@@ -102,7 +109,7 @@ index 902a148..12ec5c0 100644
  	return ino->i_ino == inum && fh[0] == ino->i_generation;
  }
  
-@@ -2360,14 +2382,11 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
+@@ -2360,14 +2388,11 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
  	struct dentry *dentry = NULL;
  	u64 inum;
  
@@ -120,7 +127,7 @@ index 902a148..12ec5c0 100644
  	if (inode) {
  		dentry = d_find_alias(inode);
  		iput(inode);
-@@ -2379,30 +2398,15 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
+@@ -2379,30 +2404,15 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
  static int shmem_encode_fh(struct inode *inode, __u32 *fh, int *len,
  				struct inode *parent)
  {
@@ -154,7 +161,7 @@ index 902a148..12ec5c0 100644
  	return 1;
  }
  
-@@ -2467,7 +2471,7 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
+@@ -2467,7 +2477,7 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
  				goto bad_val;
  		} else if (!strcmp(this_char,"nr_inodes")) {
  			sbinfo->max_inodes = memparse(value, &rest);
@@ -163,7 +170,7 @@ index 902a148..12ec5c0 100644
  				goto bad_val;
  		} else if (!strcmp(this_char,"mode")) {
  			if (remount)
-@@ -2520,7 +2524,7 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
+@@ -2520,7 +2530,7 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
  {
  	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
  	struct shmem_sb_info config = *sbinfo;
@@ -172,7 +179,7 @@ index 902a148..12ec5c0 100644
  	int error = -EINVAL;
  
  	config.mpol = NULL;
-@@ -2568,7 +2572,7 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
+@@ -2568,7 +2578,7 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
  		seq_printf(seq, ",size=%luk",
  			sbinfo->max_blocks << (PAGE_CACHE_SHIFT - 10));
  	if (sbinfo->max_inodes != shmem_default_max_inodes())
@@ -181,15 +188,16 @@ index 902a148..12ec5c0 100644
  	if (sbinfo->mode != (S_IRWXUGO | S_ISVTX))
  		seq_printf(seq, ",mode=%03ho", sbinfo->mode);
  	if (!uid_eq(sbinfo->uid, GLOBAL_ROOT_UID))
-@@ -2586,6 +2590,7 @@ static void shmem_put_super(struct super_block *sb)
+@@ -2586,6 +2596,8 @@ static void shmem_put_super(struct super_block *sb)
  {
  	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
  
-+	idr_destroy(&sbinfo->idr);
++	if (!sbinfo->idr_nouse)
++		idr_destroy(&sbinfo->idr);
  	percpu_counter_destroy(&sbinfo->used_blocks);
  	mpol_put(sbinfo->mpol);
  	kfree(sbinfo);
-@@ -2604,6 +2609,8 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
+@@ -2604,6 +2616,8 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
  	if (!sbinfo)
  		return -ENOMEM;
  
@@ -198,3 +206,27 @@ index 902a148..12ec5c0 100644
  	sbinfo->mode = S_IRWXUGO | S_ISVTX;
  	sbinfo->uid = current_fsuid();
  	sbinfo->gid = current_fsgid();
+@@ -2707,6 +2721,15 @@ static void shmem_destroy_inodecache(void)
+ 	kmem_cache_destroy(shmem_inode_cachep);
+ }
+ 
++static __init void shmem_no_idr(struct super_block *sb)
++{
++	struct shmem_sb_info *sbinfo;
++
++	sbinfo = SHMEM_SB(sb);
++	sbinfo->idr_nouse = true;
++	idr_destroy(&sbinfo->idr);
++}
++
+ static const struct address_space_operations shmem_aops = {
+ 	.writepage	= shmem_writepage,
+ 	.set_page_dirty	= __set_page_dirty_no_writeback,
+@@ -2843,6 +2866,7 @@ int __init shmem_init(void)
+ 		printk(KERN_ERR "Could not kern_mount tmpfs\n");
+ 		goto out1;
+ 	}
++	shmem_no_idr(shm_mnt->mnt_sb);
+ 	return 0;
+ 
+ out1:

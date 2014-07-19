@@ -113,7 +113,7 @@ index 923fe4a..176b435 100644
  static int fsnotify_mark_destroy(void *ignored)
  {
 diff --git a/fs/open.c b/fs/open.c
-index 4b3e1ed..ce49f2b 100644
+index 4b3e1ed..0d4f3f3 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -62,6 +62,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -123,6 +123,14 @@ index 4b3e1ed..ce49f2b 100644
 +EXPORT_SYMBOL(do_truncate);
  
  long vfs_truncate(struct path *path, loff_t length)
+ {
+@@ -279,6 +280,7 @@ int do_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
+ 	sb_end_write(inode->i_sb);
+ 	return ret;
+ }
++EXPORT_SYMBOL(do_fallocate);
+ 
+ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
  {
 diff --git a/fs/splice.c b/fs/splice.c
 index 719ca3e..6300dc8 100644
