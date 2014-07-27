@@ -351,10 +351,10 @@ index 129b847..869d1d7 100644
  				new_vma->vm_ops->open(new_vma);
  			vma_link(mm, new_vma, prev, rb_link, rb_parent);
 diff --git a/mm/msync.c b/mm/msync.c
-index a5c6736..64afc2c 100644
+index 992a167..ce1915b 100644
 --- a/mm/msync.c
 +++ b/mm/msync.c
-@@ -83,13 +83,13 @@ SYSCALL_DEFINE3(msync, unsigned long, start, size_t, len, int, flags)
+@@ -84,13 +84,13 @@ SYSCALL_DEFINE3(msync, unsigned long, start, size_t, len, int, flags)
  		start = vma->vm_end;
  		if ((flags & MS_SYNC) && file &&
  				(vma->vm_flags & VM_SHARED)) {

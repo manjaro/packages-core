@@ -12,7 +12,7 @@ _basekernel=3.8
 _basever=38
 _aufs=20131104 # last version
 _bfq=v7r5
-_subver=25
+_subver=27
 pkgver=${_basekernel}.13.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -62,6 +62,8 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "3.8.13.23.patch"
         "3.8.13.24.patch"
         "3.8.13.25.patch"
+        "3.8.13.26.patch"
+        "3.8.13.27.patch"
         "http://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/releases/3.10.10/acpi-add-_sta-evaluation-at-do_acpi_find_child.patch"
         "http://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/releases/3.10.10/acpi-try-harder-to-resolve-_adr-collisions-for-bridges.patch"
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.8.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.8.patch"
@@ -110,6 +112,8 @@ sha256sums=('e070d1bdfbded5676a4f374721c63565f1c969466c5a3e214004a136b583184b'
             '3ad0389369064300ef2fd12e558be31c121d1f00dab4db157a9cc1a8b487244e'
             '137cc01894564016d8f71e8e4d7a822949192b5ffd7af5f21a5c73c9ce4111db'
             'a31033927082e930aa8ba9c37f91c749fbde8753a3915cf9f4b567a8fd5dbb5d'
+            '1f611e3571f36872c15a1354f27724ddf0e1e73665128bcc993735daa054fa0f'
+            '4b8723e57da4739268889d3da662074d0a46ad74059a837e5bc94b408300cbb6'
             'cb505a5b9aa750490ba28facb537bfd928ff6d0dc8edc349b6ad5e202f876e69'
             'aaf27758adaf142d04ea8ba43378716d24699a884906ae1e2ef3f655695497c6'
             'd917b25354bb1e35d2c3d849c84a056e2f931026d062ff94442fd22016c2f2af'
@@ -166,6 +170,8 @@ prepare() {
   patch -p1 -i "${srcdir}/3.8.13.23.patch"
   patch -p1 -i "${srcdir}/3.8.13.24.patch"
   patch -p1 -i "${srcdir}/3.8.13.25.patch"
+  patch -p1 -i "${srcdir}/3.8.13.26.patch"
+  patch -p1 -i "${srcdir}/3.8.13.27.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
