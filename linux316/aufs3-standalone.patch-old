@@ -1,4 +1,4 @@
-aufs3.x-rcN standalone patch
+aufs3.16 standalone patch
 
 diff --git a/fs/inode.c b/fs/inode.c
 index b225c0f..73259c8 100644
@@ -113,7 +113,7 @@ index d90deaa..60b4239 100644
  static int fsnotify_mark_destroy(void *ignored)
  {
 diff --git a/fs/open.c b/fs/open.c
-index 36662d0..9a7e1e0 100644
+index d6fd3ac..5e99d8b 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -62,6 +62,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -124,7 +124,7 @@ index 36662d0..9a7e1e0 100644
  
  long vfs_truncate(struct path *path, loff_t length)
  {
-@@ -299,6 +300,7 @@ int do_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
+@@ -298,6 +299,7 @@ int do_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
  	sb_end_write(inode->i_sb);
  	return ret;
  }

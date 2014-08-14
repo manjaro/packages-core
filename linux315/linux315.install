@@ -8,6 +8,12 @@ BASEVER=
 ARCH=
 
 post_install () {
+  # EOL
+  echo ">>> NOTE, 3.15.10 was the last maintained maintenance release"
+  echo "    by Greg Kroah-Hartman. It is recommend to move on to linux316-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux316'"
+  echo "    "
+
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod ${KERNEL_VERSION}
@@ -30,6 +36,12 @@ post_install () {
 }
 
 post_upgrade() {
+  # EOL
+  echo ">>> NOTE, 3.15.10 was the last maintained maintenance release"
+  echo "    by Greg Kroah-Hartman. It is recommend to move on to linux316-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux316'"
+  echo "    "
+
   # reminder notice
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
       echo "WARNING: /boot appears to be a separate partition but is not mounted."

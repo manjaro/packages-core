@@ -10,23 +10,22 @@ pkgname=('linux316' 'linux316-headers')
 _kernelname=-MANJARO
 _basekernel=3.16
 _basever=316
-_aufs=20140721
+_aufs=20140811
 _bfq=v7r5
-_rc=rc6
-pkgver=${_basekernel}${_rc}
+pkgver=${_basekernel}.1
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
-source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
-        #"http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
+        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.x-rcN-${_aufs}.patch.bz2"
+        "aufs3.16-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
@@ -36,68 +35,61 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekerne
         'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::https://groups.google.com/group/bfq-iosched/attach/fb5fa83ab69cbf31/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r5-3.16-rc1.patch?part=0.1"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::https://groups.google.com/group/bfq-iosched/attach/fb5fa83ab69cbf31/0002-block-introduce-the-BFQ-v7r5-I-O-sched-for-3.16-rc1.patch?part=0.2"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::https://groups.google.com/group/bfq-iosched/attach/fb5fa83ab69cbf31/0002-block-introduce-the-BFQ-v7r5-I-O-sched-for-3.16-rc1.patch?part=0.3"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-v7r5/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r5-3.16.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-v7r5/0002-block-introduce-the-BFQ-v7r5-I-O-sched-for-3.16.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-v7r5/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r5-for-3.16.0.patch"
+        # ARCH Patches
+        'change-default-console-loglevel.patch'
+        'compal-laptop-hwmon-fix.patch'
 )
-sha256sums=('4b35f5cd47d56ad89b64003ee8a4ea652c3a3570d83ef83a6b81e4eb27ba814f'
-            #'36590c1a522375cd1bf90bd013bf8b600e08680ac4e6c94926f4fa7c8f65328f'
+sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
+            'd2bf33289acf5c05b57aaca1fd8bb1935ac280c5c4090874e84806d35e17012e'
             'SKIP'
             'SKIP'
-            'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
+            '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'c1413e7a6dffc37a31c7e7381339d8a4040d2ba02e16f0a6f667b5649112a9e2'
-            '8b863326ece97d67d0c99f002db9a1c5cfd70687c5618e53af172d09a3d23abc'
-            '81c9ce9eddd54dbbc76dac862000a2eeb803f5234426ac2b6760b91c188422bc'
-            '2adc524ce649c2d190180f7129f9f13b8666e3a515cce234f751593af801b021'
-            'b96111eea97012cc92d7c489b85f8d74a4dc087173c825c055d9b88079caf319'
-            '8021946336efb65b3ddfe47d28da1e08166acaa801fd86de759f36bccb5ad839'
+            'c983e5c10630ecfd1d2c6e174453a859c4fbe79fe4ebfc2d13bef666a4c85b5c'
+            '9cd3272987bb6fd367a6b716866212f8891a36728e9fcd474429177ae82fbf63'
+            'a91c5affffb9e24cf0e34e1ab1c9e593219f67ef81834e0e4e9572281ef760c0'
+            '395197bc5073f0f84441eb65f50b3429bb9137952f786f4f23ce60c52d1c3d74'
+            'c5ecc97e669d8bcc4540c12ee74c7aecc4e2e8102993407a96a4f7463be74d80'
+            '2ebc0954442056ba87630d17969e07969bc54db10ffe4df38d04d6760458cc16'
             '819917a7c6aaccb0f90230aab5f7fd0013ffb440945bfb5fa87dab65eafb1d5b'
             'a728d65b64f1e7bc29ef1887341383af4da98ee1ab553e5e521c3cb3e725583d'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            'e1e3abd407b74895587ff505162ddff9ad90c2714aa591120852cc345474ac1c'
-            '0f1b9984ee4f0b31f8fe65661959b169bf03d211c1388f118c255793fce91d9e'
-            '9fbda0fe43e04721c8cd2faf5e5c38bf882c13f86f43bfc873226465c3a162c3'
+            '95cfdf13bc78e07cc540d6fc9087f0b4d710ce225acf36abbbbdeee421b023b9'
+            '445b4e9ac3d9281a69523214e09323b36eda88f75ce07bc836451ead76e4adac'
+            '901db70d0e8ea73167998662cfa517e0d9c48d93b95500b5a5d74dfca2ac4c66'
+            '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
+            'f36f61a0a72bcb0a9c04264343503bfbf927c9ea0db819e66734a3933b060588'
 )
 
-## modules.symboles md5sums
-#
-# i686
-# 327f520435aac3162c637fba46c7b6f4  /lib/modules/3.10.27-1-MANJARO/modules.symbols
-# ae67bd3f9ee2fbe29dddf2cd7786eccc  /lib/modules/3.11.10.3-1-MANJARO/modules.symbols
-# ba15d7a09322f0ecb0477506caa190d9  /lib/modules/3.12.8-1-MANJARO/modules.symbols
-# 8d470593b37f21822a5fc2dda4d5362b  /lib/modules/3.13.0-1-MANJARO/modules.symbols
-# 7b296a2ce5395f35a3c06b4d2ea8fb39  /lib/modules/3.4.77-1-MANJARO/modules.symbols
-# d883c826d56325c13816a4ea3395575d  /lib/modules/3.8.13.16-1-MANJARO/modules.symbols
-# x86_64
-# 9c82210478776c06df877d97e10ed7f0  /lib/modules/3.10.27-1-MANJARO/modules.symbols
-# ca2dd8e6c02fed078b06c7e947654890  /lib/modules/3.11.10.3-1-MANJARO/modules.symbols
-# 376919bb83a21900eb1fd90d852daaf5  /lib/modules/3.12.8-1-MANJARO/modules.symbols
-# cfdd0ca8d49e3c908ba7c1de8e3cbc8d  /lib/modules/3.13.0-1-MANJARO/modules.symbols
-# 0d85eb4571ce79a5df3015bcf714e46a  /lib/modules/3.4.77-1-MANJARO/modules.symbols
-# b11bfd0f71f687adcad99fbbc820a517  /lib/modules/3.8.13.16-1-MANJARO/modules.symbols
-
 prepare() {
-   cd "${srcdir}/linux-${_basekernel}-${_rc}"
+   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
 
-  # NOTE: fix dependency cycle libphy -> of_mdio -> libphy
-  # put back CONFIG_OF_MDIO=m CONFIG_PHYLIB=m when fixed !
+  # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
+  # remove this when a Kconfig knob is made available by upstream
+  # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
+  patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # #41458 fix hwmon for compal-laptop module
+  patch -p1 -i "${srcdir}/compal-laptop-hwmon-fix.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.16-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
@@ -149,7 +141,7 @@ prepare() {
 }
 
 build() {
-   cd "${srcdir}/linux-${_basekernel}-${_rc}"
+   cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -162,7 +154,7 @@ package_linux316() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-   cd "${srcdir}/linux-${_basekernel}-${_rc}"
+   cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -228,7 +220,7 @@ package_linux316-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-   cd "${srcdir}/linux-${_basekernel}-${_rc}"
+   cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
