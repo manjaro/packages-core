@@ -70,109 +70,34 @@ index 678455d..0ef7ef4 100644
  		ino = inode->i_ino;
  		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 3552717..9546fa2 100644
+index 3552717..3c6bd93 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -17,6 +17,9 @@
- #include <linux/pfn.h>
- #include <linux/bit_spinlock.h>
- #include <linux/shrinker.h>
-+#include <linux/dcache.h>
-+#include <linux/file.h>
-+#include <linux/fs.h>
- 
- struct mempolicy;
- struct anon_vma;
-@@ -1101,6 +1104,93 @@ static inline int fixup_user_fault(struct task_struct *tsk,
+@@ -1101,6 +1101,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
  }
  #endif
  
-+/*
-+ * Mainly for aufs which mmap(2) diffrent file and wants to print different path
-+ * in /proc/PID/maps.
-+ */
-+/* #define AUFS_DEBUG_MMAP */
-+static inline void aufs_trace(struct file *f, struct file *pr,
-+			      const char func[], int line, const char func2[])
-+{
-+#ifdef AUFS_DEBUG_MMAP
-+	if (pr)
-+		pr_info("%s:%d: %s, %p\n", func, line, func2,
-+			f ? (char *)f->f_dentry->d_name.name : "(null)");
-+#endif
-+}
++#ifdef CONFIG_MMU
++extern void vma_do_file_update_time(struct vm_area_struct *, const char[], int);
++extern struct file *vma_do_pr_or_file(struct vm_area_struct *, const char[],
++				      int);
++extern void vma_do_get_file(struct vm_area_struct *, const char[], int);
++extern void vma_do_fput(struct vm_area_struct *, const char[], int);
 +
-+static inline struct file *vmr_do_pr_or_file(struct vm_region *region,
-+					     const char func[], int line)
-+{
-+	struct file *f = region->vm_file, *pr = region->vm_prfile;
-+
-+	aufs_trace(f, pr, func, line, __func__);
-+	return (f && pr) ? pr : f;
-+}
-+
-+static inline void vmr_do_fput(struct vm_region *region,
-+			       const char func[], int line)
-+{
-+	struct file *f = region->vm_file, *pr = region->vm_prfile;
-+
-+	aufs_trace(f, pr, func, line, __func__);
-+	fput(f);
-+	if (f && pr)
-+		fput(pr);
-+}
-+
-+static inline void vma_do_file_update_time(struct vm_area_struct *vma,
-+					   const char func[], int line)
-+{
-+	struct file *f = vma->vm_file, *pr = vma->vm_prfile;
-+
-+	aufs_trace(f, pr, func, line, __func__);
-+	file_update_time(f);
-+	if (f && pr)
-+		file_update_time(pr);
-+}
-+
-+static inline struct file *vma_do_pr_or_file(struct vm_area_struct *vma,
-+					     const char func[], int line)
-+{
-+	struct file *f = vma->vm_file, *pr = vma->vm_prfile;
-+
-+	aufs_trace(f, pr, func, line, __func__);
-+	return (f && pr) ? pr : f;
-+}
-+
-+static inline void vma_do_get_file(struct vm_area_struct *vma,
-+				   const char func[], int line)
-+{
-+	struct file *f = vma->vm_file, *pr = vma->vm_prfile;
-+
-+	aufs_trace(f, pr, func, line, __func__);
-+	get_file(f);
-+	if (f && pr)
-+		get_file(pr);
-+}
-+
-+static inline void vma_do_fput(struct vm_area_struct *vma,
-+			       const char func[], int line)
-+{
-+	struct file *f = vma->vm_file, *pr = vma->vm_prfile;
-+
-+	aufs_trace(f, pr, func, line, __func__);
-+	fput(f);
-+	if (f && pr)
-+		fput(pr);
-+}
-+
-+#define vmr_pr_or_file(region)		vmr_do_pr_or_file(region, __func__, \
-+							  __LINE__)
-+#define vmr_fput(region)		vmr_do_fput(region, __func__, __LINE__)
 +#define vma_file_update_time(vma)	vma_do_file_update_time(vma, __func__, \
 +								__LINE__)
 +#define vma_pr_or_file(vma)		vma_do_pr_or_file(vma, __func__, \
 +							  __LINE__)
 +#define vma_get_file(vma)		vma_do_get_file(vma, __func__, __LINE__)
 +#define vma_fput(vma)			vma_do_fput(vma, __func__, __LINE__)
++#else
++extern struct file *vmr_do_pr_or_file(struct vm_region *, const char[], int);
++extern void vmr_do_fput(struct vm_region *, const char[], int);
++
++#define vmr_pr_or_file(region)		vmr_do_pr_or_file(region, __func__, \
++							  __LINE__)
++#define vmr_fput(region)		vmr_do_fput(region, __func__, __LINE__)
++#endif /* CONFIG_MMU */
 +
  extern int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write);
  extern int access_remote_vm(struct mm_struct *mm, unsigned long addr,
@@ -210,6 +135,19 @@ index dfa736c..02abdb6 100644
  			if (tmp->vm_flags & VM_DENYWRITE)
  				atomic_dec(&inode->i_writecount);
  			mutex_lock(&mapping->i_mmap_mutex);
+diff --git a/mm/Makefile b/mm/Makefile
+index 305d10a..662e496 100644
+--- a/mm/Makefile
++++ b/mm/Makefile
+@@ -17,7 +17,7 @@ obj-y			:= filemap.o mempool.o oom_kill.o fadvise.o \
+ 			   util.o mmzone.o vmstat.o backing-dev.o \
+ 			   mm_init.o mmu_context.o percpu.o slab_common.o \
+ 			   compaction.o balloon_compaction.o \
+-			   interval_tree.o list_lru.o $(mmu-y)
++			   interval_tree.o list_lru.o prfile.o $(mmu-y)
+ 
+ obj-y += init-mm.o
+ 
 diff --git a/mm/filemap.c b/mm/filemap.c
 index b7749a9..a6693ca 100644
 --- a/mm/filemap.c
@@ -419,3 +357,95 @@ index fec093a..b366e4c 100644
  	kmem_cache_free(vm_area_cachep, vma);
  	kleave(" = %d", ret);
  	return ret;
+diff --git a/mm/prfile.c b/mm/prfile.c
+new file mode 100644
+index 0000000..fc708d2
+--- /dev/null
++++ b/mm/prfile.c
+@@ -0,0 +1,86 @@
++/*
++ * Mainly for aufs which mmap(2) diffrent file and wants to print different path
++ * in /proc/PID/maps.
++ * Call these functions via macros defined in linux/mm.h.
++ *
++ * See Documentation/filesystems/aufs/design/06mmap.txt
++ *
++ * Copyright (c) 2014 Junjro R. Okajima
++ * Copyright (c) 2014 Ian Campbell
++ */
++
++#include <linux/mm.h>
++#include <linux/file.h>
++#include <linux/fs.h>
++
++/* #define PRFILE_TRACE */
++static inline void prfile_trace(struct file *f, struct file *pr,
++			      const char func[], int line, const char func2[])
++{
++#ifdef PRFILE_TRACE
++	if (pr)
++		pr_info("%s:%d: %s, %p\n", func, line, func2,
++			f ? (char *)f->f_dentry->d_name.name : "(null)");
++#endif
++}
++
++#ifdef CONFIG_MMU
++void vma_do_file_update_time(struct vm_area_struct *vma, const char func[],
++			     int line)
++{
++	struct file *f = vma->vm_file, *pr = vma->vm_prfile;
++
++	prfile_trace(f, pr, func, line, __func__);
++	file_update_time(f);
++	if (f && pr)
++		file_update_time(pr);
++}
++
++struct file *vma_do_pr_or_file(struct vm_area_struct *vma, const char func[],
++			       int line)
++{
++	struct file *f = vma->vm_file, *pr = vma->vm_prfile;
++
++	prfile_trace(f, pr, func, line, __func__);
++	return (f && pr) ? pr : f;
++}
++
++void vma_do_get_file(struct vm_area_struct *vma, const char func[], int line)
++{
++	struct file *f = vma->vm_file, *pr = vma->vm_prfile;
++
++	prfile_trace(f, pr, func, line, __func__);
++	get_file(f);
++	if (f && pr)
++		get_file(pr);
++}
++
++void vma_do_fput(struct vm_area_struct *vma, const char func[], int line)
++{
++	struct file *f = vma->vm_file, *pr = vma->vm_prfile;
++
++	prfile_trace(f, pr, func, line, __func__);
++	fput(f);
++	if (f && pr)
++		fput(pr);
++}
++#else
++struct file *vmr_do_pr_or_file(struct vm_region *region, const char func[],
++			       int line)
++{
++	struct file *f = region->vm_file, *pr = region->vm_prfile;
++
++	prfile_trace(f, pr, func, line, __func__);
++	return (f && pr) ? pr : f;
++}
++
++void vmr_do_fput(struct vm_region *region, const char func[], int line)
++{
++	struct file *f = region->vm_file, *pr = region->vm_prfile;
++
++	prfile_trace(f, pr, func, line, __func__);
++	fput(f);
++	if (f && pr)
++		fput(pr);
++}
++#endif /* CONFIG_MMU */

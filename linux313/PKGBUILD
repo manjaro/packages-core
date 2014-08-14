@@ -10,9 +10,9 @@ pkgname=('linux313' 'linux313-headers')
 _kernelname=-MANJARO
 _basekernel=3.13
 _basever=313
-_aufs=20140714
+_aufs=20140811
 _bfq=v7r5
-_subver=5
+_subver=6
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -57,6 +57,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.13.11.3.patch'
         '3.13.11.4.patch'
         '3.13.11.5.patch'
+        '3.13.11.6.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
@@ -67,11 +68,11 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             'f048c5f15d2cbb02acdbdc9e1de62670c0408c1a8b580246cb704f358d8fe59d'
             'b1b1cf291bd68270b700eb21f19f7b052116d07dde492761227cd94bb775910c'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '77e09cd1426183ba4643ed711b4bba94fcc9f05c01ff342c105454300873de9b'
+            'ec2304c7085480c82ca523ded7e95b7a4d7d57fd242f814a19f9a03cc9845eac'
             'bbdd37f76070844669b3fe916514bc58a45dcc7892ed3be270d74885850418e4'
             'a10ad70335728c66057b62003d525e993e8953d794eb8f57a84172092fd14aa8'
-            'c1b54ecfd967f89850583820af81d949d7cf4520c4d761a3e0e115588c4fb306'
-            '6833eaf13072791c8c73233c5db6bede57557b2363daf2c466a8ec1eed1972af'
+            '87c599f7b60d6bd1cf05bda0344e171c0335c6915ce1629e88a3adfcba23e931'
+            '9a740c838429a82753337d24f0adcea744da58ed30519cf75bc73e7a20c9989a'
             '78dcf7a92ddd10e62e2610334d26ad24277579bedda3b4241fb8fe23f1332976'
             '1172bde2bbda9315d2e136268c030572bd9dbd9331bf128644208fc07c6c783d'
             '21a8ba24035c27e1b48892e62f194258bcb01db65033ef274242b80ba09a9db8'
@@ -96,6 +97,7 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             'c3f0eaa8611fc032c12b5c2349a69c75325cba6df2e4e2665beeda3c6b5445d7'
             'd3e605552ce4d1649e23dc2bcffcd98d9d14b23ac836b6218e7a672b45921477'
             '3a6631bed87b2e0beb66bb0c526ebe4e8d5dae6d61038a97b465ce2e9907c635'
+            '6bb949a6be487f6b88b0d990268ca389ecd45dd1740d75a98166aa5007f94dcf'
             'c7bd1f6d14056f6c292d35b20efd7e3a1ac6527794e66a066c575fc8a04cb06c'
             'b6c9267a9344e112c843383f32446f92bcc1965bcce702dc842ca6a05a607362'
             '632383c70bfe52976ab1b99460276e0672da857bce093af83b95c277db05b121'
@@ -112,6 +114,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.13.11.3.patch"
   patch -p1 -i "${srcdir}/3.13.11.4.patch"
   patch -p1 -i "${srcdir}/3.13.11.5.patch"
+  patch -p1 -i "${srcdir}/3.13.11.6.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
