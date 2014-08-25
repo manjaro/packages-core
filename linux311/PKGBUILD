@@ -11,8 +11,8 @@ pkgname=('linux311' 'linux311-headers')
 _kernelname=-MANJARO
 _basekernel=3.11
 _basever=311
-_aufs=20140728
-_subver=14
+_aufs=20140825
+_subver=15
 _bfq=v7r5
 pkgver=${_basekernel}.10.${_subver}
 pkgrel=1
@@ -56,6 +56,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "${_basekernel}.10.12.patch"
         "${_basekernel}.10.13.patch"
         "${_basekernel}.10.14.patch"
+        "${_basekernel}.10.15.patch"
 )
 sha256sums=('803ec8f0ad4b2ddedcb0332a590cd2b5e10dfc57c3b1c95bc9c46af81d51d7f9'
             'b12321f0d62476211662945361178819b134964babd238a67dab0824edcf19b1'
@@ -63,10 +64,10 @@ sha256sums=('803ec8f0ad4b2ddedcb0332a590cd2b5e10dfc57c3b1c95bc9c46af81d51d7f9'
             'b55870930e7a414788b967071b7cf7f7693a46a6470b0eee6161d96f17ea2198'
             '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '6f6b0d9966320fa17717007e36c01341041c2849980832ed8d7ef3644660f3a7'
-            'a896a9056f3b24c0c3656ec6b0c3f2a767ed8e6b650e0f377a40b9c4d9841f40'
+            '1642f1490150b29c00f76a5b43f83052df175c70436e7f089d6381f4fda24250'
+            '49f8d7195e450867546bfd906a8631616a2e303c28d134d862c431d2049df42f'
             'c73dd98a7b0a6941762a74128625d0a64032a2e96ba74d379090c094fac41cf5'
-            '316c295876795529344d1bf22c5423e5ba1c62f22d373aa2a88316101178046a'
+            '87d07e0405362adc8b720417e732813ff5b409b63d42f4af76af624e05556520'
             '87720f0333b1a73e46d929d435f89c43c04b68d2353ca0f18557db7d0cf1e41e'
             '1e8c907ae32b12a4e68999520dc862e7d13ac837c7907646e9af0f908d88933a'
             '2fbf9f0b46e2d1383639397cef2145d4e51bb0103bea32782de2d66e7a218ba9'
@@ -92,6 +93,7 @@ sha256sums=('803ec8f0ad4b2ddedcb0332a590cd2b5e10dfc57c3b1c95bc9c46af81d51d7f9'
             '4c4aceb99554ba34f930e17bff6e23d69fd61f3d69e78459f5dc6d9396902794'
             '1871b1c8150175d41e2dc721c25983040f60c24de8ddc74e9e875eddbd4e1234'
             '984572c06b4c4f7f6360266c1eb8a78f48e469ec0d7118ff502d91aa31d2b728'
+            '86310ec6f28f0c4c4148d554c8903713fecfa2e3f579fe8f34fe11ee23ce9ff8'
 )
 
 prepare() {
@@ -115,6 +117,7 @@ prepare() {
   patch -p1 -i "${srcdir}/${_basekernel}.10.12.patch"
   patch -p1 -i "${srcdir}/${_basekernel}.10.13.patch"
   patch -p1 -i "${srcdir}/${_basekernel}.10.14.patch"
+  patch -p1 -i "${srcdir}/${_basekernel}.10.15.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git

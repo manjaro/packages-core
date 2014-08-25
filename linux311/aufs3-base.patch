@@ -1,5 +1,30 @@
 aufs3.11 base patch
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index b140c81..8c4cea3 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1558,6 +1558,20 @@ F:	include/linux/audit.h
+ F:	include/uapi/linux/audit.h
+ F:	kernel/audit*
+ 
++AUFS (advanced multi layered unification filesystem) FILESYSTEM
++M:	"J. R. Okajima" <hooanon05g@gmail.com>
++L:	linux-unionfs@vger.kernel.org
++L:	aufs-users@lists.sourceforge.net (members only)
++W:	http://aufs.sourceforge.net
++T:	git://git.code.sf.net/p/aufs/aufs3-linux
++T:	git://github.com/sfjro/aufs3-linux.git
++S:	Supported
++F:	Documentation/filesystems/aufs/
++F:	Documentation/ABI/testing/debugfs-aufs
++F:	Documentation/ABI/testing/sysfs-aufs
++F:	fs/aufs/
++F:	include/uapi/linux/aufs_type.h
++
+ AUXILIARY DISPLAY DRIVERS
+ M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
+ W:	http://miguelojeda.es/auxdisplay.htm
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
 index 40e7155..6e43ab0 100644
 --- a/drivers/block/loop.c

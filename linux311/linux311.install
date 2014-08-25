@@ -10,11 +10,12 @@ ARCH=x86_64
 post_install () {
   # EOL
   echo ">>> NOTE, 3.11.10 was the last maintained maintenance release"
-  echo "    by Greg Kroah-Hartman. It is recommend to move on to linux312-series."
-  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux312'"
+  echo "    by Greg Kroah-Hartman. 3.11.10.15 was also the last main-
+  echo "    tenance release by Luis Henriques and the Ubuntu kernel 
+  echo "    team. This means this is the last release of linux311.
   echo "    "
-  echo "    The Ubuntu kernel team will be providing extended stable support for the"
-  echo "    Linux 3.11 kernel until August 2014."
+  echo "    It is recommend to move on to the linux312-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux312'"
   echo "    "
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
@@ -36,11 +37,12 @@ post_install () {
 post_upgrade() {
   # EOL
   echo ">>> NOTE, 3.11.10 was the last maintained maintenance release"
-  echo "    by Greg Kroah-Hartman. It is recommend to move on to linux312-series."
-  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux312'"
+  echo "    by Greg Kroah-Hartman. 3.11.10.15 was also the last main-
+  echo "    tenance release by Luis Henriques and the Ubuntu kernel 
+  echo "    team. This means this is the last release of linux311.
   echo "    "
-  echo "    The Ubuntu kernel team will be providing extended stable support for the"
-  echo "    Linux 3.11 kernel until August 2014."
+  echo "    It is recommend to move on to the linux312-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux312'"
   echo "    "
   # reminder notice
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
