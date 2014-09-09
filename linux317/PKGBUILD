@@ -4,6 +4,7 @@
 
 # Maintainer: Philip Müller <philm@manjaro.org>
 # Maintainer: Guinux <guillaume@manjaro.org>
+# Maintainer: Rob McCathie <rob@manjaro.org>
 
 pkgbase=linux317
 pkgname=('linux317' 'linux317-headers')
@@ -12,7 +13,7 @@ _basekernel=3.17
 _basever=317
 _aufs=20140811
 _bfq=v7r5
-_rc=rc1
+_rc=rc4
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -42,10 +43,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekerne
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('88460db937c671fe5e7dc41918b8a996c4d86aa5f6289ad708ed1733673bd816'
-            #'d2bf33289acf5c05b57aaca1fd8bb1935ac280c5c4090874e84806d35e17012e'
-            '546c687736631e441ff9efff4a6f01849d88d5b0fb9d5091e2fdb89ffdabbf35'
-            'dec297224d35f3823de474b9b968255ede84dfa95e96f05cf7c7b9933ea1900b'
+sha256sums=('b435a0bf0cd3970bef03a3cf1389bca1a61f99432c44086d1ae660e5bdc7b159'
+            'a589418b68e511974ca543bd3dcefde86f55bf519d2a991fa8123730f75b0476'
+            '2312918cb4101e21ab21ed07db2eb8763abe7f489f35b5b5494cc996116403bc'
             '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
             '59aa02f228f838f92a36793b499f271b953760d281f7f6f3bcb2cb50cffb1600'
@@ -61,8 +61,7 @@ sha256sums=('88460db937c671fe5e7dc41918b8a996c4d86aa5f6289ad708ed1733673bd816'
             '95cfdf13bc78e07cc540d6fc9087f0b4d710ce225acf36abbbbdeee421b023b9'
             '445b4e9ac3d9281a69523214e09323b36eda88f75ce07bc836451ead76e4adac'
             '901db70d0e8ea73167998662cfa517e0d9c48d93b95500b5a5d74dfca2ac4c66'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-)
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}-${_rc}"
