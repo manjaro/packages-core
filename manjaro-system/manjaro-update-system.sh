@@ -42,6 +42,12 @@ detectDE()
 }
 
 post_upgrade() {
+	
+	# fix ayceman's signature
+	if [ "$(vercmp $2 20140910-1)" -lt 0 ]; then
+		msg "Configure /etc/pacman.conf ..."
+		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = archlinux-keyring manjaro-keyring manjaro-system pacman|g' /etc/pacman.conf
+	fi
 
 	# fix twisted
 	pacman -Qq twisted &> /tmp/cmd1
