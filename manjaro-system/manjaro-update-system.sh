@@ -43,6 +43,14 @@ detectDE()
 
 post_upgrade() {
 	
+	# fix kwallet
+	pacman -Qq kdeutils-kwallet > /tmp/cmd1
+	if [ "$(grep 'kdeutils-kwallet' /tmp/cmd1)" == "kdeutils-kwallet" ]; then
+		msg "Replacing kdeutils-kwallet with kdeutils-kwalletmanager ..."
+		pacman --noconfirm -Rd kdeutils-kwallet
+		pacman --noconfirm -S kdeutils-kwalletmanager
+	fi
+	
 	# fix ayceman's signature
 	if [ "$(vercmp $2 20140910-1)" -lt 0 ]; then
 		msg "Configure /etc/pacman.conf ..."
