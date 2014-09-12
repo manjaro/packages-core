@@ -44,7 +44,7 @@ detectDE()
 post_upgrade() {
 	
 	# fix kwallet
-	pacman -Qq kdeutils-kwallet > /tmp/cmd1
+	pacman -Qq kdeutils-kwallet &> /tmp/cmd1
 	if [ "$(grep 'kdeutils-kwallet' /tmp/cmd1)" == "kdeutils-kwallet" ]; then
 		msg "Replacing kdeutils-kwallet with kdeutils-kwalletmanager ..."
 		pacman --noconfirm -Rd kdeutils-kwallet
