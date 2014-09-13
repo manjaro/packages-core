@@ -8,7 +8,7 @@ pkgver=0.4.3
 pkgrel=1
 pkgdesc="Manjaro Linux Hardware Detection"
 arch=('i686' 'x86_64')
-url="http://git.manjaro.org"
+url="https://github.com/manjaro/mhwd"
 license=('GPL')
 depends=('gcc-libs' 'hwinfo')
 makedepends=('git' 'cmake')
@@ -129,7 +129,7 @@ package_mhwd-db-catalyst() {
   arch='any'
   install=mhwd-db.install
 
-  getsource "mhwd-db" "git://git.manjaro.org/core/mhwd-db.git"
+  getsource "mhwd-db" "https://github.com/manjaro/mhwd-db.git"
 
   cd ${srcdir}/mhwd-db/
 
