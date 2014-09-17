@@ -13,6 +13,19 @@ index eba6e4f..31f0b2d 100644
  
  	ret = __block_page_mkwrite(vma, vmf, get_block);
  	sb_end_pagefault(sb);
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 2d696b0..fb92686 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1799,7 +1799,7 @@ static int proc_map_files_get_link(struct dentry *dentry, struct path *path)
+ 	down_read(&mm->mmap_sem);
+ 	vma = find_exact_vma(mm, vm_start, vm_end);
+ 	if (vma && vma->vm_file) {
+-		*path = vma->vm_file->f_path;
++		*path = vma_pr_or_file(vma)->f_path;
+ 		path_get(path);
+ 		rc = 0;
+ 	}
 diff --git a/fs/proc/nommu.c b/fs/proc/nommu.c
 index d4a3574..1397181 100644
 --- a/fs/proc/nommu.c
