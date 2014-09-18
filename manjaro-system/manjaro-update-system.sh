@@ -42,6 +42,14 @@ detectDE()
 }
 
 post_upgrade() {
+
+	# fix ayceman's signature
+	if [ "$(vercmp $2 20140918-1)" -lt 0 ]; then
+		msg "Get ayceman's signature ..."
+		pacman-key -r 604F8BA2
+		pacman-key --lsign-key 604F8BA2
+		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = manjaro-system pacman|g' /etc/pacman.conf
+	fi
 	
 	# fix kwallet
 	pacman -Qq kdeutils-kwallet &> /tmp/cmd1
@@ -49,12 +57,6 @@ post_upgrade() {
 		msg "Replacing kdeutils-kwallet with kdeutils-kwalletmanager ..."
 		pacman --noconfirm -Rd kdeutils-kwallet
 		pacman --noconfirm -S kdeutils-kwalletmanager
-	fi
-	
-	# fix ayceman's signature
-	if [ "$(vercmp $2 20140910-1)" -lt 0 ]; then
-		msg "Configure /etc/pacman.conf ..."
-		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = archlinux-keyring manjaro-keyring manjaro-system pacman|g' /etc/pacman.conf
 	fi
 
 	# fix twisted
@@ -113,6 +115,13 @@ post_upgrade() {
 		fi
 	fi
 
+	# fix dcells signature
+	if [ "$(vercmp $2 20140525-1)" -lt 0 ]; then
+		msg "Get dcells signature ..."
+		pacman-key -r 5C0102A6
+		pacman-key --lsign-key 5C0102A6
+	fi
+
 	# xorg downgrade
 	if [ "$(vercmp $2 20140221-1)" -lt 0 ]; then
 		msg "Prepare for Xorg-Server downgrade ..."
@@ -141,10 +150,11 @@ post_upgrade() {
 	   fi
 	fi
 
-	# fix korodes signature
+	# fix korrodes signature
 	if [ "$(vercmp $2 20140212-1)" -lt 0 ]; then
-		msg "Configure /etc/pacman.conf ..."
-		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = archlinux-keyring manjaro-keyring manjaro-system pacman|g' /etc/pacman.conf
+		msg "Get korrodes signature ..."
+		pacman-key -r 5C0102A6
+		pacman-key --lsign-key 5C0102A6
 	fi
 
 	# remove pyc-files if python-dbus < 1.2.0-2
