@@ -43,13 +43,19 @@ detectDE()
 
 post_upgrade() {
 
-	# fix ayceman's signature
-	if [ "$(vercmp $2 20140918-1)" -lt 0 ]; then
-		msg "Get ayceman's signature ..."
-		pacman-key -r 604F8BA2
-		pacman-key --lsign-key 604F8BA2
-		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = manjaro-system pacman|g' /etc/pacman.conf
+	# nvidia legacy changes (sept-oct 2014 - kernels 3.10-3.17)
+	pacman -Qq nvidia-utils &> /tmp/cmd1
+	if [ "$(grep 'nvidia-utils' /tmp/cmd1)" == "nvidia-utils" ]; then
+		msg "Updating mhwd database"
+		pacman --noconfirm -S mhwd-nvidia mhwd-nvidia-340xx mhwd-nvidia-304xx mhwd-db mhwd
+		mhwd | grep " video-nvidia " &> /tmp/cmd2
+		if [ -z /tmp/cmd2 ]; then
+			msg "Maintaining video driver at version nvidia-340xx"
+			pacman --noconfirm -Rc nvidia-utils
+			pacman --noconfirm -S linux"$(uname -r | tr -d . | cut -c1-3)"-nvidia-340xx
+		fi
 	fi
+
 	
 	# fix kwallet
 	pacman -Qq kdeutils-kwallet &> /tmp/cmd1
@@ -57,6 +63,12 @@ post_upgrade() {
 		msg "Replacing kdeutils-kwallet with kdeutils-kwalletmanager ..."
 		pacman --noconfirm -Rd kdeutils-kwallet
 		pacman --noconfirm -S kdeutils-kwalletmanager
+	fi
+	
+	# fix ayceman's signature
+	if [ "$(vercmp $2 20140910-1)" -lt 0 ]; then
+		msg "Configure /etc/pacman.conf ..."
+		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = archlinux-keyring manjaro-keyring manjaro-system pacman|g' /etc/pacman.conf
 	fi
 
 	# fix twisted
@@ -115,13 +127,6 @@ post_upgrade() {
 		fi
 	fi
 
-	# fix dcells signature
-	if [ "$(vercmp $2 20140525-1)" -lt 0 ]; then
-		msg "Get dcells signature ..."
-		pacman-key -r 5C0102A6
-		pacman-key --lsign-key 5C0102A6
-	fi
-
 	# xorg downgrade
 	if [ "$(vercmp $2 20140221-1)" -lt 0 ]; then
 		msg "Prepare for Xorg-Server downgrade ..."
@@ -150,11 +155,10 @@ post_upgrade() {
 	   fi
 	fi
 
-	# fix korrodes signature
+	# fix korodes signature
 	if [ "$(vercmp $2 20140212-1)" -lt 0 ]; then
-		msg "Get korrodes signature ..."
-		pacman-key -r 5C0102A6
-		pacman-key --lsign-key 5C0102A6
+		msg "Configure /etc/pacman.conf ..."
+		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = archlinux-keyring manjaro-keyring manjaro-system pacman|g' /etc/pacman.conf
 	fi
 
 	# remove pyc-files if python-dbus < 1.2.0-2
