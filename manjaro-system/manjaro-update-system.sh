@@ -45,14 +45,18 @@ post_upgrade() {
 
 	# nvidia legacy changes (sept-oct 2014 - kernels 3.10-3.17)
 	pacman -Qq nvidia-utils &> /tmp/cmd1
+	pacman -Qq mhwd-nvidia-340xx &> /tmp/cmd2
 	if [ "$(grep 'nvidia-utils' /tmp/cmd1)" == "nvidia-utils" ]; then
-		msg "Updating mhwd database"
-		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -S mhwd-nvidia mhwd-nvidia-340xx mhwd-nvidia-304xx mhwd-db mhwd
-		mhwd | grep " video-nvidia " &> /tmp/cmd2
-		mhwd-gpu | grep nvidia &> /tmp/cmd3
-		if [[ -z "$(cat /tmp/cmd2)" && -n "$(cat /tmp/cmd3)" ]]; then
+		if [ "$(grep 'mhwd-nvidia-340xx' /tmp/cmd2)" != "mhwd-nvidia-340xx" ]; then
+			msg "Updating mhwd database"
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm -S mhwd-nvidia mhwd-nvidia-340xx mhwd-nvidia-304xx mhwd-db mhwd
+		fi
+		mhwd | grep " video-nvidia " &> /tmp/cmd3
+		mhwd-gpu | grep nvidia &> /tmp/cmd4
+		if [[ -z "$(cat /tmp/cmd3)" && -n "$(cat /tmp/cmd4)" ]]; then
 			msg "Maintaining video driver at version nvidia-340xx"
+			rm /var/lib/pacman/db.lck &> /dev/null
 			pacman --noconfirm -Rc nvidia-utils
 			pacman --noconfirm -S linux"$(uname -r | tr -d . | cut -c1-3)"-nvidia-340xx
 			rm -r /var/lib/mhwd/local/pci/video-nvidia/
