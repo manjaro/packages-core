@@ -54,11 +54,12 @@ post_upgrade() {
 		fi
 		mhwd | grep " video-nvidia " &> /tmp/cmd3
 		mhwd-gpu | grep nvidia &> /tmp/cmd4
+		pacman -Qq | grep nvidia | grep -v mhwd | grep -v toolkit &> /tmp/cmd5
 		if [[ -z "$(cat /tmp/cmd3)" && -n "$(cat /tmp/cmd4)" ]]; then
 			msg "Maintaining video driver at version nvidia-340xx"
 			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman --noconfirm -Rc nvidia-utils
-			pacman --noconfirm -S linux"$(uname -r | tr -d . | cut -c1-3)"-nvidia-340xx
+			pacman --noconfirm -R $(cat /tmp/cmd5)
+			pacman --noconfirm -S $(cat /tmp/cmd5 | sed 's|nvidia|nvidia-340xx|g')
 			rm -r /var/lib/mhwd/local/pci/video-nvidia/
 			cp -a /var/lib/mhwd/db/pci/graphic_drivers/nvidia-340xx/ /var/lib/mhwd/local/pci/
 		fi
