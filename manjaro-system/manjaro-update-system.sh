@@ -47,6 +47,7 @@ post_upgrade() {
 	pacman -Qq nvidia-utils &> /tmp/cmd1
 	if [ "$(grep 'nvidia-utils' /tmp/cmd1)" == "nvidia-utils" ]; then
 		msg "Updating mhwd database"
+		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman --noconfirm -S mhwd-nvidia mhwd-nvidia-340xx mhwd-nvidia-304xx mhwd-db mhwd
 		mhwd | grep " video-nvidia " &> /tmp/cmd2
 		mhwd-gpu | grep nvidia &> /tmp/cmd3
@@ -71,6 +72,7 @@ post_upgrade() {
 	pacman -Qq kdeutils-kwallet &> /tmp/cmd1
 	if [ "$(grep 'kdeutils-kwallet' /tmp/cmd1)" == "kdeutils-kwallet" ]; then
 		msg "Replacing kdeutils-kwallet with kdeutils-kwalletmanager ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman --noconfirm -Rd kdeutils-kwallet
 		pacman --noconfirm -S kdeutils-kwalletmanager
 	fi
@@ -82,6 +84,7 @@ post_upgrade() {
 	if [ "$(grep 'twisted' /tmp/cmd1)" == "twisted" ]; then
 		if [ "$(cat /tmp/cmd2 | cut -d" " -f2 | sed -e 's/\.//g' | sed -e 's/\-//g')" -lt "14001" ]; then
 			msg "Fix twisted ..."
+			rm /var/lib/pacman/db.lck &> /dev/null
 			rm -f /usr/lib/python2.7/site-packages/twisted/plugins/dropin.cache
 			pacman --noconfirm -S python2-twisted
 		fi
@@ -116,6 +119,7 @@ post_upgrade() {
 	if [ "$(vercmp $2 20140407-1)" -lt 0 ]; then
 		if [ "$(grep 'python-configobj' /tmp/cmd1)" == "python-configobj" ]; then
 			msg "Fix python-configobj ..."
+			rm /var/lib/pacman/db.lck &> /dev/null
 			pacman --noconfirm -S python-configobj
 		fi
 	fi
