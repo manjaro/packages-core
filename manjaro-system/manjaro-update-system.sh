@@ -50,7 +50,7 @@ post_upgrade() {
 		pacman --noconfirm -S mhwd-nvidia mhwd-nvidia-340xx mhwd-nvidia-304xx mhwd-db mhwd
 		mhwd | grep " video-nvidia " &> /tmp/cmd2
 		mhwd-gpu | grep nvidia &> /tmp/cmd3
-		if [[ -z "$(cat /tmp/cmd2)" && -z "$(cat /tmp/cmd3)" ]]; then
+		if [[ -z "$(cat /tmp/cmd2)" && -n "$(cat /tmp/cmd3)" ]]; then
 			msg "Maintaining video driver at version nvidia-340xx"
 			pacman --noconfirm -Rc nvidia-utils
 			pacman --noconfirm -S linux"$(uname -r | tr -d . | cut -c1-3)"-nvidia-340xx
