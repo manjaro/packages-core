@@ -58,7 +58,7 @@ post_upgrade() {
 		if [[ -z "$(cat /tmp/cmd3)" && -n "$(cat /tmp/cmd4)" ]]; then
 			msg "Maintaining video driver at version nvidia-340xx"
 			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman --noconfirm -R $(cat /tmp/cmd5)
+			pacman --noconfirm -Rdd $(cat /tmp/cmd5)
 			pacman --noconfirm -S $(cat /tmp/cmd5 | sed 's|nvidia|nvidia-340xx|g')
 			rm -r /var/lib/mhwd/local/pci/video-nvidia/
 			cp -a /var/lib/mhwd/db/pci/graphic_drivers/nvidia-340xx/ /var/lib/mhwd/local/pci/
@@ -78,7 +78,7 @@ post_upgrade() {
 	if [ "$(grep 'kdeutils-kwallet' /tmp/cmd1)" == "kdeutils-kwallet" ]; then
 		msg "Replacing kdeutils-kwallet with kdeutils-kwalletmanager ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -Rd kdeutils-kwallet
+		pacman --noconfirm -Rdd kdeutils-kwallet
 		pacman --noconfirm -S kdeutils-kwalletmanager
 	fi
 	
