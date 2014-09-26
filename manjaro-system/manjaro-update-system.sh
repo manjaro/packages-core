@@ -63,6 +63,20 @@ post_upgrade() {
 			rm -r /var/lib/mhwd/local/pci/video-nvidia/
 			cp -a /var/lib/mhwd/db/pci/graphic_drivers/nvidia-340xx/ /var/lib/mhwd/local/pci/
 		fi
+		mhwd | grep " video-hybrid-intel-nvidia-bumblebee " &> /tmp/cmd6
+		mhwd | grep " video-hybrid-intel-nouveau-bumblebee " &> /tmp/cmd7
+		if [[ -z "$(cat /tmp/cmd6)" && -n "$(cat /tmp/cmd7)" ]]; then
+			msg "Switching to open-source nouveau drivers"
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm -Rdd $(cat /tmp/cmd5)
+			pacman --noconfirm -S xf86-video-nouveau nouveau-dri
+			if [ "$(mhwd-gpu | grep "lib32 support" | grep -oE '[^ ]+$')" == "true"
+				pacman --noconfirm -S lib32-nouveau-dri
+			fi
+			rm -r /var/lib/mhwd/local/pci/video-nvidia/
+			cp -a /var/lib/mhwd/db/pci/graphic_drivers/hybrid-intel-nouveau-bumblebee/ /var/lib/mhwd/local/pci/
+			mhwd-gpu --setgl mesa
+		fi
 	fi
 
 	# fix ayceman's signature
