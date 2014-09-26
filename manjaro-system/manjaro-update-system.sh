@@ -54,6 +54,8 @@ post_upgrade() {
 			msg "Maintaining video driver at version nvidia-340xx"
 			pacman --noconfirm -Rc nvidia-utils
 			pacman --noconfirm -S linux"$(uname -r | tr -d . | cut -c1-3)"-nvidia-340xx
+			rm -r /var/lib/mhwd/local/pci/video-nvidia/
+			cp -a /var/lib/mhwd/db/pci/graphic_drivers/nvidia-340xx/ /var/lib/mhwd/local/pci/
 		fi
 	fi
 
