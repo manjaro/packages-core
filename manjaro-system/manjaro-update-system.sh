@@ -50,7 +50,7 @@ post_upgrade() {
 		if [ "$(grep 'mhwd-nvidia-340xx' /tmp/cmd2)" != "mhwd-nvidia-340xx" ]; then
 			msg "Updating mhwd database"
 			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman --noconfirm -S mhwd-nvidia mhwd-nvidia-340xx mhwd-nvidia-304xx mhwd-db mhwd
+			pacman --noconfirm -S mhwd-db
 		fi
 		mhwd | grep " video-nvidia " &> /tmp/cmd3
 		mhwd-gpu | grep nvidia &> /tmp/cmd4
