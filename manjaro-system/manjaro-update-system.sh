@@ -43,6 +43,13 @@ detectDE()
 
 post_upgrade() {
 
+	# fix ayceman's signature
+	if [ "$(vercmp $2 20141002-1)" -lt 0 ]; then
+		msg "Get kirek's signature ..."
+		pacman-key -r AC97B894
+		pacman-key --lsign-key AC97B894
+	fi
+
 	# nvidia legacy changes (sept-oct 2014 - kernels 3.10-3.17)
 	pacman -Qq nvidia-utils &> /tmp/cmd1
 	pacman -Qq mhwd-nvidia-340xx &> /tmp/cmd2
