@@ -12,7 +12,7 @@ _basekernel=3.13
 _basever=313
 _aufs=20140915
 _bfq=v7r5
-_subver=7
+_subver=8
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -56,6 +56,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.13.11.5.patch'
         '3.13.11.6.patch'
         '3.13.11.7.patch'
+        '3.13.11.8.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
@@ -98,6 +99,7 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '3a6631bed87b2e0beb66bb0c526ebe4e8d5dae6d61038a97b465ce2e9907c635'
             '6bb949a6be487f6b88b0d990268ca389ecd45dd1740d75a98166aa5007f94dcf'
             '6c77e8e9efee374c6a455340daf469aa70063ae322f763553b3b29e895fa2103'
+            'b3cc051f70e49241a429e068e64f304a413f7fe99517d24e444d50c7828c1717'
             # BFQ
             'c7bd1f6d14056f6c292d35b20efd7e3a1ac6527794e66a066c575fc8a04cb06c'
             'b6c9267a9344e112c843383f32446f92bcc1965bcce702dc842ca6a05a607362'
@@ -117,6 +119,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.13.11.5.patch"
   patch -p1 -i "${srcdir}/3.13.11.6.patch"
   patch -p1 -i "${srcdir}/3.13.11.7.patch"
+  patch -p1 -i "${srcdir}/3.13.11.8.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
