@@ -1,10 +1,10 @@
 aufs3.x-rcN mmap patch
 
 diff --git a/fs/buffer.c b/fs/buffer.c
-index 8f05111..2033d7c 100644
+index 3588a80..e185f4f 100644
 --- a/fs/buffer.c
 +++ b/fs/buffer.c
-@@ -2453,7 +2453,7 @@ int block_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf,
+@@ -2455,7 +2455,7 @@ int block_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf,
  	 * Update file times before taking page lock. We may end up failing the
  	 * fault so this update may be superfluous but who really cares...
  	 */
@@ -43,7 +43,7 @@ index d4a3574..1397181 100644
  		ino = inode->i_ino;
  	}
 diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index dfc791c..32699c2 100644
+index c341568..8564639 100644
 --- a/fs/proc/task_mmu.c
 +++ b/fs/proc/task_mmu.c
 @@ -265,7 +265,10 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
@@ -58,7 +58,7 @@ index dfc791c..32699c2 100644
  		dev = inode->i_sb->s_dev;
  		ino = inode->i_ino;
  		pgoff = ((loff_t)vma->vm_pgoff) << PAGE_SHIFT;
-@@ -1405,7 +1408,7 @@ static int show_numa_map(struct seq_file *m, void *v, int is_pid)
+@@ -1414,7 +1417,7 @@ static int show_numa_map(struct seq_file *m, void *v, int is_pid)
  	struct proc_maps_private *proc_priv = &numa_priv->proc_maps;
  	struct vm_area_struct *vma = v;
  	struct numa_maps *md = &numa_priv->md;
@@ -230,10 +230,10 @@ index 0938b30..0b66856 100644
  	return error;
  }
 diff --git a/mm/memory.c b/mm/memory.c
-index adeac30..a9a3247 100644
+index e229970..5f5e345 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
-@@ -2159,7 +2159,7 @@ reuse:
+@@ -2161,7 +2161,7 @@ reuse:
  			set_page_dirty_balance(dirty_page);
  			/* file_update_time outside page_lock */
  			if (vma->vm_file)
@@ -243,7 +243,7 @@ index adeac30..a9a3247 100644
  		put_page(dirty_page);
  		if (page_mkwrite) {
 diff --git a/mm/mmap.c b/mm/mmap.c
-index c1f2ea4..8c434e0 100644
+index c0a3637..60df815 100644
 --- a/mm/mmap.c
 +++ b/mm/mmap.c
 @@ -258,7 +258,7 @@ static struct vm_area_struct *remove_vma(struct vm_area_struct *vma)
