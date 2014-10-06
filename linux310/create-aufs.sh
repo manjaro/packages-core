@@ -5,7 +5,7 @@ rm -Rf aufs3-standalone
 git clone git://git.code.sf.net/p/aufs/aufs3-standalone aufs3-standalone
 cd aufs3-standalone
 git branch -r
-git checkout origin/aufs3.10
+git checkout origin/aufs3.10.x
 
 # modify what you want
 
