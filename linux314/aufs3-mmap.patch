@@ -14,10 +14,10 @@ index 27265a8..75427a6 100644
  	ret = __block_page_mkwrite(vma, vmf, get_block);
  	sb_end_pagefault(sb);
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 2d696b0..fb92686 100644
+index b976062..1bd770b 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
-@@ -1799,7 +1799,7 @@ static int proc_map_files_get_link(struct dentry *dentry, struct path *path)
+@@ -1828,7 +1828,7 @@ static int proc_map_files_get_link(struct dentry *dentry, struct path *path)
  	down_read(&mm->mmap_sem);
  	vma = find_exact_vma(mm, vm_start, vm_end);
  	if (vma && vma->vm_file) {
