@@ -12,7 +12,7 @@ _basekernel=3.10
 _basever=310
 _aufs=20141006
 _bfq=v7r5
-pkgver=${_basekernel}.56
+pkgver=${_basekernel}.57
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -25,7 +25,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.10-${_aufs}.patch.bz2"
+        "aufs3.10.x-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
@@ -44,17 +44,17 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch")
 
 sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
-            '7cd2b165938be773d24a8da32b506150246db643b77131b7e088105270e54f48'
+            'd72d0dfac14791a0f50033962cef23c9cde9d65805c27dea79f41c82f949ebf9'
             'c932ddd593f60dcd8dc9fdedb4230e062f5cb396e3f345d7ea1b407d27ed2da9'
             '267e8d9b658e8cf0aee65541282bcbff4af5ad28bce3c34d24a604a7aa59423d'
             '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'ccc158600ec355cc8add8b879f8ebe41fde8caf76bb72b8e2d9a53b87982bb81'
-            '2f73fb8fcdd609e658b2751dfe51cd1321587105588f4940bea82598e9085b7d'
-            '3ef474c102a1fcc596d92c5d370c60845c789012efd41b4961b557ec3d6a88b1'
-            '58b70661af214dac8d535fd82ca378a36b56619419f7deb6de9e0bcd0a5e8222'
-            '51990b074c3adb7f02d879754e86a005ddd02cff363ea5b059381e70b32efb77'
-            '2f6c0155e77e014342211befc62afe83cfd8e00c70c7f4ea9973990b285bf55b'
+            '7c6c7c63f039b7103b1fa7f1de353c7cae96a017e4f779f6880e4d73c2790db7'
+            '941d1290c2e263bcd85536cd1ba148bee221b4771b66953a1306ac2e0203d13d'
+            '3b8a8a97634c175ebdf1bf9eb13e6c040573d770311f36316531b3cab168471d'
+            '502b9447af266062b8e3b502582ff1a03377fc4f1d3fa3f39c07dbc5b1e67060'
+            'acb79184ad9fc14d19c0594271e27eef2b6e1cafec68388962cf75f24e306d3a'
+            '8e22ce525b80901ed3ffc072a4d96f4447a7b22b6d1cb86fb937f4b1035f6b8b'
             '8b81d9a7d2d4541d4e554fb3f47132035a4fd8daaa867eafbc7cd4ca7e2d90ff'
             '9151b754d8b06fe737c179c75e6229d81cc197fb4ab14baf959dc7f631819a62'
             '56bd99e54429a25a144f2d221718b67f516344ffd518fd7dcdd752206ec5be69'
@@ -97,7 +97,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/4500_nouveau-video-output-control-Kconfig.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.10-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.10.x-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"

@@ -1,7 +1,7 @@
-aufs3.10 loopback patch
+aufs3.10.x loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index d92d50f..9fb5490 100644
+index 4a81165..1e53014 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -513,7 +513,7 @@ out:
@@ -140,7 +140,7 @@ index d92d50f..9fb5490 100644
  	lo->transfer = transfer_none;
  	lo->ioctl = NULL;
  	lo->lo_sizelimit = 0;
-@@ -936,6 +965,7 @@ out_clr:
+@@ -929,6 +958,7 @@ out_clr:
  	lo->lo_thread = NULL;
  	lo->lo_device = NULL;
  	lo->lo_backing_file = NULL;
@@ -148,7 +148,7 @@ index d92d50f..9fb5490 100644
  	lo->lo_flags = 0;
  	set_capacity(lo->lo_disk, 0);
  	invalidate_bdev(bdev);
-@@ -945,6 +975,8 @@ out_clr:
+@@ -938,6 +968,8 @@ out_clr:
  	lo->lo_state = Lo_unbound;
   out_putf:
  	fput(file);
@@ -157,7 +157,7 @@ index d92d50f..9fb5490 100644
   out:
  	/* This is safe: open() is still holding a reference. */
  	module_put(THIS_MODULE);
-@@ -991,6 +1023,7 @@ loop_init_xfer(struct loop_device *lo, struct loop_func_table *xfer,
+@@ -984,6 +1016,7 @@ loop_init_xfer(struct loop_device *lo, struct loop_func_table *xfer,
  static int loop_clr_fd(struct loop_device *lo)
  {
  	struct file *filp = lo->lo_backing_file;
@@ -165,7 +165,7 @@ index d92d50f..9fb5490 100644
  	gfp_t gfp = lo->old_gfp_mask;
  	struct block_device *bdev = lo->lo_device;
  
-@@ -1024,6 +1057,7 @@ static int loop_clr_fd(struct loop_device *lo)
+@@ -1017,6 +1050,7 @@ static int loop_clr_fd(struct loop_device *lo)
  
  	spin_lock_irq(&lo->lo_lock);
  	lo->lo_backing_file = NULL;
@@ -173,7 +173,7 @@ index d92d50f..9fb5490 100644
  	spin_unlock_irq(&lo->lo_lock);
  
  	loop_release_xfer(lo);
-@@ -1066,6 +1100,8 @@ static int loop_clr_fd(struct loop_device *lo)
+@@ -1059,6 +1093,8 @@ static int loop_clr_fd(struct loop_device *lo)
  	 * bd_mutex which is usually taken before lo_ctl_mutex.
  	 */
  	fput(filp);

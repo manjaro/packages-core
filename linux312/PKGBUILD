@@ -10,9 +10,9 @@ pkgname=('linux312' 'linux312-headers')
 _kernelname=-MANJARO
 _basekernel=3.12
 _basever=312
-_aufs=20140915
+_aufs=20141006
 _bfq=v7r5
-pkgver=${_basekernel}.29
+pkgver=${_basekernel}.30
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -25,7 +25,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.12-${_aufs}.patch.bz2"
+        "aufs3.12.x-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
@@ -53,17 +53,17 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.12.0.patch"
 )
 sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
-            '5370590d26831d636fe01363cabe05e054a4ee05dbe16b5f1eb0f2d3b5e170b0'
+            'a495a937cdedd8e7e1bf843d5ad7f5f3fc12a7708e8e34943f154eb5463513ac'
             '68296e8a3f4879ec4751767767b1c4b46263bdaf2b1b297942716e14ab1eb844'
             '0f6c030360e552dc0f00cb72ede17f225633f6e078a0b14d0c1ec200badaaae7'
             '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '697bfc53975f3d47919e4f38f0a3fc50ec47ff5fee9cf4bc611545fc5a6a3517'
-            '3a2b5cf8036f7f8a831be4339a2704b24622faf35267c243f2ad453cb74e360d'
-            'e9604c6d87ae87830c154c1b12065eb6361e503006025497741f15dbaa9fd3ff'
-            '06ffbcd05c90649761392daf4f5bc41260265d2ef2d50808a846aa86efec20a2'
-            '58f49771a39a940127440b6d2f192f08348d28ac06e3d5c060447ee3501cca4b'
-            '90da6391dfc74124be8fb4144dc2f5fbd976a9da4241bba17b0482d145a0252c'
+            '7f214c2ea689a97dca25df29feffbc7ba414b973ebcc4219b7b34272b4278304'
+            '30ec333eb222e5349db27094d2daa39351a3eb43e3dc8fbc90917699821d91eb'
+            'a606eefcb3ddeff6310bad5541855e0852a0d539482e3fe892e914ddac079e7c'
+            '8f2c88254772f8e707e2a8d0fc45ae4ad96c973def672c362bfca094c7b01791'
+            '17938c3880af6131fea29f27e2fa10ffc13032a1347a36b5bdaba6e80649444f'
+            'f6a2ea45df858ad0b2f77bdad379507103c6a00cb0206d4cc14d980349b03d65'
             '173ede3f735979812010e52a2ad5c9ac326621f3993a9cebf4a2e4c089f035b4'
             '3979d348824f61e42587939e82b41e47668bb068b47ad08adb92ebbd717622a7'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
@@ -144,7 +144,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/4-4-microcode-Move_to_a_proper_location.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.12-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.12.x-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"

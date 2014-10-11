@@ -1,7 +1,7 @@
-aufs3.12 loopback patch
+aufs3.12.x loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 6e43ab0..45ed62e 100644
+index 2e229ac..b1cebbe 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -513,7 +513,7 @@ out:
@@ -140,7 +140,7 @@ index 6e43ab0..45ed62e 100644
  	lo->transfer = transfer_none;
  	lo->ioctl = NULL;
  	lo->lo_sizelimit = 0;
-@@ -954,6 +983,7 @@ out_clr:
+@@ -947,6 +976,7 @@ out_clr:
  	lo->lo_thread = NULL;
  	lo->lo_device = NULL;
  	lo->lo_backing_file = NULL;
@@ -148,7 +148,7 @@ index 6e43ab0..45ed62e 100644
  	lo->lo_flags = 0;
  	set_capacity(lo->lo_disk, 0);
  	invalidate_bdev(bdev);
-@@ -963,6 +993,8 @@ out_clr:
+@@ -956,6 +986,8 @@ out_clr:
  	lo->lo_state = Lo_unbound;
   out_putf:
  	fput(file);
@@ -157,7 +157,7 @@ index 6e43ab0..45ed62e 100644
   out:
  	/* This is safe: open() is still holding a reference. */
  	module_put(THIS_MODULE);
-@@ -1009,6 +1041,7 @@ loop_init_xfer(struct loop_device *lo, struct loop_func_table *xfer,
+@@ -1002,6 +1034,7 @@ loop_init_xfer(struct loop_device *lo, struct loop_func_table *xfer,
  static int loop_clr_fd(struct loop_device *lo)
  {
  	struct file *filp = lo->lo_backing_file;
@@ -165,7 +165,7 @@ index 6e43ab0..45ed62e 100644
  	gfp_t gfp = lo->old_gfp_mask;
  	struct block_device *bdev = lo->lo_device;
  
-@@ -1042,6 +1075,7 @@ static int loop_clr_fd(struct loop_device *lo)
+@@ -1035,6 +1068,7 @@ static int loop_clr_fd(struct loop_device *lo)
  
  	spin_lock_irq(&lo->lo_lock);
  	lo->lo_backing_file = NULL;
@@ -173,7 +173,7 @@ index 6e43ab0..45ed62e 100644
  	spin_unlock_irq(&lo->lo_lock);
  
  	loop_release_xfer(lo);
-@@ -1084,6 +1118,8 @@ static int loop_clr_fd(struct loop_device *lo)
+@@ -1077,6 +1111,8 @@ static int loop_clr_fd(struct loop_device *lo)
  	 * bd_mutex which is usually taken before lo_ctl_mutex.
  	 */
  	fput(filp);
@@ -274,7 +274,7 @@ index 45146eb..fccd7d6 100644
  
  /* ---------------------------------------------------------------------- */
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 36b235e..3efee0b 100644
+index 7c48db7..3b2541f 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
 @@ -1626,6 +1626,10 @@ struct super_operations {
