@@ -42,8 +42,19 @@ detectDE()
 }
 
 post_upgrade() {
+	
+	# fix java-runtime-common replaces java-common (https://www.archlinux.org/news/java-users-manual-intervention-required-before-upgrade/)
+	pacman -Qq java-common &> /tmp/cmd1
+	if [ "$(grep 'java-common' /tmp/cmd1)" == "java-common" ]; then
+		msg "Replacing java-common with java-runtime-common ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		archlinux-java unset
+		pacman --noconfirm -Rdd java-common
+		pacman --noconfirm -Sdd --asdeps java-runtime-common
+		archlinux-java fix
+	fi
 
-	# fix ayceman's signature
+	# fix kirek's signature
 	if [ "$(vercmp $2 20141002-1)" -lt 0 ]; then
 		msg "Get kirek's signature ..."
 		pacman-key -r AC97B894
