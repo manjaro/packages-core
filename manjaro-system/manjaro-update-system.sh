@@ -43,6 +43,13 @@ detectDE()
 
 post_upgrade() {
 	
+	# fix artoo's signature
+	if [ "$(vercmp $2 20141014-1)" -lt 0 ]; then
+		msg "Get artoo's signature ..."
+		pacman-key -r 5DCB998E
+		pacman-key --lsign-key 5DCB998E
+	fi
+	
 	# fix java-runtime-common replaces java-common (https://www.archlinux.org/news/java-users-manual-intervention-required-before-upgrade/)
 	if [ "$(vercmp $2 20141013-1)" -lt 0 ]; then
 		pacman -Qq java-common &> /tmp/cmd1
