@@ -13,7 +13,7 @@ _basekernel=3.17
 _basever=317
 _aufs=20141006
 _bfq=v7r5
-pkgver=${_basekernel}.0
+pkgver=${_basekernel}.1
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -21,7 +21,7 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        #"http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -43,8 +43,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
 )
 sha256sums=('f5153ec93c5fcd41b247950e6a9bcbc63fa87beafd112c133a622439a0f76251'
-            'b17c6e0cc3c7d329abff1f62e10c0d256bf7fd962440a325bb3a4dd10cc085cc'
-            '6d5ea60af3aa88664fe076215ba7a7ba04103c4b17e2d17b6575f1cfc6c7f97f'
+            '3b0651951cdc0a81a69b46db99239bc9f00d6a5ae403e0e41c7a1cc177544ec2'
+            '7a896fd853f5e8a57c9e9576127ce75492bdb84515e1978c983801a448fe107f'
+            'caf41aa6e5cd4aca0905bca1783fc336a6eb69561da696ae319cfb78272e0c59'
             '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
             '21c753e2167a94d79e671794d8342067b348174c48f27544353eb5814d172c8c'
@@ -66,7 +67,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
