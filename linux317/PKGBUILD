@@ -11,9 +11,9 @@ pkgname=('linux317' 'linux317-headers')
 _kernelname=-MANJARO
 _basekernel=3.17
 _basever=317
-_aufs=20141006
+_aufs=20141020
 _bfq=v7r5
-pkgver=${_basekernel}.1
+pkgver=${_basekernel}.2
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -26,7 +26,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.x-rcN-${_aufs}.patch.bz2"
+        "aufs3.17-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
@@ -43,17 +43,17 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
 )
 sha256sums=('f5153ec93c5fcd41b247950e6a9bcbc63fa87beafd112c133a622439a0f76251'
-            '3b0651951cdc0a81a69b46db99239bc9f00d6a5ae403e0e41c7a1cc177544ec2'
+            '4576c30a46c016502cdd007d28dde4f2d141c0f8096be8623a9ff519323db777'
             '7a896fd853f5e8a57c9e9576127ce75492bdb84515e1978c983801a448fe107f'
             'caf41aa6e5cd4aca0905bca1783fc336a6eb69561da696ae319cfb78272e0c59'
             '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '21c753e2167a94d79e671794d8342067b348174c48f27544353eb5814d172c8c'
-            '416ebb6fd80b9137b9653f88e1cfbcb8805a0cec0ffcf12caa6fc5a1f7d02bb4'
-            '22d6d44434cef53e350d935240f4ebf8219690b1a250fcfdec1b8a6b0d8d1845'
-            '1099967d3769df93b865960191b4edda519e65add0f9e8ca3f9bcfc654bb49db'
-            'a51f0d5f12ef9cf9aa9db793dd50c7af8590f4daa4df3979203193be740a83af'
-            'c4c432c73d38c3a31ddcb1ec3ef2595facecbe04f1723dfef2b04b22e217e480'
+            '3e49482bdc87d7600945529a2cff071c56608d85148ad01d74fa75be2cc401e8'
+            '3fea014bc042d3fedaab4fead66bb322dbe1cd921354f160569af1cac5ba649d'
+            'a453843192499512b5fb6e9a7ae31e9be375e820482b50c3cda6310d0ab203d1'
+            'da96cbf325f107ac33e6899d35bc93f0f6071b8c0005d2d36d5ee4be03fba179'
+            'd6de99459cdbd73664624ca1ba9b5b98fae3b9538ecd8693aebf0a2be4e69521'
+            'a727511fd3b7cee2aed6f342b62fc45fcf5f22aa9fef58f164524c4b94dac96c'
             '819917a7c6aaccb0f90230aab5f7fd0013ffb440945bfb5fa87dab65eafb1d5b'
             '5072430ceee805a916dcb1113c80d96c22a66893dcd360aaffe5fec8fb9dd8ce'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
@@ -84,7 +84,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.17-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"

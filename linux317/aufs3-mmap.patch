@@ -1,4 +1,4 @@
-aufs3.x-rcN mmap patch
+aufs3.17 mmap patch
 
 diff --git a/fs/buffer.c b/fs/buffer.c
 index 3588a80..e185f4f 100644
@@ -137,7 +137,7 @@ index 6e0b286..8f374ed 100644
  
  #ifndef CONFIG_MMU
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 0cf9cdb..87ef21e 100644
+index a91e47d..2e9d836c 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
 @@ -424,7 +424,7 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
