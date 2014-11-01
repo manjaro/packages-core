@@ -1,0 +1,76 @@
+#!/bin/sh
+# arg 1:  the new package version
+# arg 2:  the old package version
+
+local_config_dir="/var/lib/mhwd/local/pci"
+db_config_dir="/var/lib/mhwd/db/pci"
+rxorg_configs="catalyst"
+rxorg_version="20130818"
+dkmod_configs="catalyst nvidia-legacy nvidia virtualbox"
+dkmod_version="20130101"
+blist_configs="hybrid-intel-nouveau-bumblebee hybrid-intel-nvidia-bumblebee xf86-video-intel"
+blist_version="20130112"
+
+err() {
+    ALL_OFF="\e[1;0m"
+    BOLD="\e[1;1m"
+    RED="${BOLD}\e[1;31m"
+	local mesg=$1; shift
+	printf "${RED}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+msg() {
+    ALL_OFF="\e[1;0m"
+    BOLD="\e[1;1m"
+    GREEN="${BOLD}\e[1;32m"
+	local mesg=$1; shift
+	printf "${GREEN}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+update_configs() {
+   dkmod_config=""
+   blist_config=""
+   rxorg_config=""
+
+   # check for rxorg-configs
+   for rxorg_config in ${rxorg_configs} ; do
+      . "${db_config_dir}/graphic_drivers/${rxorg_config}/MHWDCONFIG"
+      if [ -e "${local_config_dir}/${NAME}/MHWDCONFIG" ] ; then
+         . "${local_config_dir}/${NAME}/MHWDCONFIG"
+         if [ "$(echo ${VERSION} | sed -e 's/\.//g')" -lt "${rxorg_version}" ]; then
+            msg "Updating Config: '${local_config_dir}/${NAME}'"
+            cp ${db_config_dir}/graphic_drivers/${dkmod_config}/MHWDCONFIG ${local_config_dir}/${NAME}
+         fi
+      fi
+   done
+
+   # check for blist-configs
+   for blist_config in ${blist_configs} ; do
+      . "${db_config_dir}/graphic_drivers/${blist_config}/MHWDCONFIG"
+      if [ -e "${local_config_dir}/${NAME}/MHWDCONFIG" ] ; then
+         . "${local_config_dir}/${NAME}/MHWDCONFIG"
+         if [ "$(echo ${VERSION} | sed -e 's/\.//g')" -lt "${blist_version}" ]; then
+            msg "Updating Config: '${local_config_dir}/${NAME}'"
+            cp ${db_config_dir}/graphic_drivers/${blist_config}/MHWDCONFIG ${local_config_dir}/${NAME}
+         fi
+      fi
+   done
+
+   # check for dkmod-configs
+   for dkmod_config in ${dkmod_configs} ; do
+      . "${db_config_dir}/graphic_drivers/${dkmod_config}/MHWDCONFIG"
+      if [ -e "${local_config_dir}/${NAME}/MHWDCONFIG" ] ; then
+         . "${local_config_dir}/${NAME}/MHWDCONFIG"
+         if [ "$(echo ${VERSION} | sed -e 's/\.//g')" -lt "${dkmod_version}" ]; then
+            msg "Updating Config: '${local_config_dir}/${NAME}'"
+            cp ${db_config_dir}/graphic_drivers/${dkmod_config}/MHWDCONFIG ${local_config_dir}/${NAME}
+         fi
+      fi
+   done
+}
+
+post_upgrade() {
+    if [ "$(vercmp $2 0.2.9-2)" -lt 0 ]; then
+        update_configs
+    fi 
+}
