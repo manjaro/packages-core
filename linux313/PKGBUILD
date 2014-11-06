@@ -10,9 +10,9 @@ pkgname=('linux313' 'linux313-headers')
 _kernelname=-MANJARO
 _basekernel=3.13
 _basever=313
-_aufs=20140915
+_aufs=20141020
 _bfq=v7r5
-_subver=8
+_subver=10
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -57,6 +57,8 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.13.11.6.patch'
         '3.13.11.7.patch'
         '3.13.11.8.patch'
+        '3.13.11.9.patch'
+        '3.13.11.10.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
@@ -68,7 +70,7 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
             # Aufs3
-            'bb2d34d2993d964f0fb9f1c9159103cc3162fd49da8ba660b1d2d8e64e68a65f'
+            '7ba11d35383db5cf1eb123384798ae57b767f51296ab91ec069f134152faa72c'
             '818fd440b8565e11091fdb1d136d958e339998bdb8f73fee0390d50f5a67aa89'
             'a10ad70335728c66057b62003d525e993e8953d794eb8f57a84172092fd14aa8'
             '87c599f7b60d6bd1cf05bda0344e171c0335c6915ce1629e88a3adfcba23e931'
@@ -100,6 +102,8 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '6bb949a6be487f6b88b0d990268ca389ecd45dd1740d75a98166aa5007f94dcf'
             '6c77e8e9efee374c6a455340daf469aa70063ae322f763553b3b29e895fa2103'
             'b3cc051f70e49241a429e068e64f304a413f7fe99517d24e444d50c7828c1717'
+            '9ac89c475c9cd22b833e19bcc3a3a40dd76fc8713f6d44efe23fd3059c36216b'
+            '58884aeef2ae286ab935e6b45bf71c4af3aa79e3d97df4e34ec299ee21ac8a5e'
             # BFQ
             'c7bd1f6d14056f6c292d35b20efd7e3a1ac6527794e66a066c575fc8a04cb06c'
             'b6c9267a9344e112c843383f32446f92bcc1965bcce702dc842ca6a05a607362'
@@ -120,6 +124,8 @@ prepare() {
   patch -p1 -i "${srcdir}/3.13.11.6.patch"
   patch -p1 -i "${srcdir}/3.13.11.7.patch"
   patch -p1 -i "${srcdir}/3.13.11.8.patch"
+  patch -p1 -i "${srcdir}/3.13.11.9.patch"
+  patch -p1 -i "${srcdir}/3.13.11.10.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
