@@ -43,6 +43,15 @@ detectDE()
 
 post_upgrade() {
 	
+	# fix cups service name for cups 2.0
+	if [ "$(vercmp $2 20141120-1)" -lt 0 ]; then
+		if [ -h "/etc/systemd/system/multi-user.target.wants/cups.service" ]; then
+			msg "Updating CUPS service name ..."
+			rm /etc/systemd/system/multi-user.target.wants/cups.service
+			ln -sf /usr/lib/systemd/system/org.cups.cupsd.service /etc/systemd/system/multi-user.target.wants/org.cups.cupsd.service
+		fi
+	fi
+
 	# fix artoo's signature
 	if [ "$(vercmp $2 20141014-1)" -lt 0 ]; then
 		msg "Get artoo's signature ..."
