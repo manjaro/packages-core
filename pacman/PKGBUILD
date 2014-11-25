@@ -8,7 +8,7 @@
 
 pkgname=pacman
 pkgver=4.1.2
-pkgrel=7
+pkgrel=8
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
@@ -26,19 +26,20 @@ replaces=('pacman-contrib' 'pacman-init')
 backup=(etc/pacman.conf etc/makepkg.conf)
 install=pacman.install
 options=(!libtool)
-source=(ftp://ftp.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz{,.sig}
+source=(ftp://ftp.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
         pacman.conf.i686
         pacman.conf.x86_64
         makepkg.conf
         pacman-updated-locales.patch
         pacman-remove-sync-first-option.patch
         etc-pacman.d-gnupg.mount
-        pacman-init.service)
-
+        pacman-init.service
+        pacman-key-compatibility-with-gnupg-2.1.patch)
 
 prepare() {
   cd $srcdir/$pkgname-$pkgver
 
+  patch -p1 -i $srcdir/pacman-key-compatibility-with-gnupg-2.1.patch
   patch -Rp1 -i $srcdir/pacman-remove-sync-first-option.patch
   patch -p1 -i $srcdir/pacman-updated-locales.patch
 
@@ -116,12 +117,13 @@ package() {
   install -m644 $srcdir/etc-pacman.d-gnupg.mount $pkgdir/usr/lib/systemd/system/etc-pacman.d-gnupg.mount
   install -m644 $srcdir/pacman-init.service $pkgdir/usr/lib/systemd/system/pacman-init.service
 }
+
 sha256sums=('7c059b444735ee254cfbd8dc2fac8c5d61453601f8adaf001c7038cdc673334c'
-            'SKIP'
             '14e13173498bce6b8837f5d635b819ffc8412c164ccac36d6d62207685aed83d'
             '75e55f2ba3aaf76e839c6538df41219f047af7eddc7903ad8c25754db6b2b100'
             '5506f85799bcdf7f8cb1b5213af815173b4311029b96f1b96b014dea662b3f34'
             '49b7c61acc82fb9cd3178bfbca01c1c4cbd0eba43b079c122bdc6d6a8e45314f'
             '4ae031c1110e9e4b05a305856f623b7d15b7915264024a5e7c5f8fcee2032f14'
             'b6d14727ec465bb66d0a0358163b1bbfafcb4eaed55a0f57c30aabafae7eed68'
-            'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae')
+            'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae'
+            'a6de6cf73e55e326de231056e003efd4af8e0d214492a5e350e9393bac9612ca')
