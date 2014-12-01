@@ -12,7 +12,7 @@ _basekernel=3.16
 _basever=316
 _aufs=20141020
 _bfq=v7r5
-_subver=1
+_subver=2
 pkgver=${_basekernel}.7.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -43,6 +43,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         'compal-laptop-hwmon-fix.patch'
         '3.16.7.1.patch'
+        '3.16.7.2.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
@@ -66,6 +67,7 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
             'f36f61a0a72bcb0a9c04264343503bfbf927c9ea0db819e66734a3933b060588'
             '09f073a606dd4e66e24dd999562879f0664587ac93bab793fcad18dc5d680caa'
+            'd911f7773b06f0a6c6dee3f9366a15d6c83033a3c40ab7cb156da633342c6136'
 )
 
 prepare() {
@@ -76,6 +78,7 @@ prepare() {
 
   # add extended stable patch(es)
   patch -p1 -i "${srcdir}/3.16.7.1.patch"
+  patch -p1 -i "${srcdir}/3.16.7.2.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
