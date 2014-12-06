@@ -42,6 +42,13 @@ detectDE()
 }
 
 post_upgrade() {
+
+	# get artoo's new signature
+	if [ "$(vercmp $2 20141206-1)" -lt 0 ]; then
+		msg "Get new artoo's signature ..."
+		pacman-key -r B35859F8
+		pacman-key --lsign-key B35859F8
+	fi
 	
 	# fix cups service name for cups 2.0
 	if [ "$(vercmp $2 20141120-1)" -lt 0 ]; then
