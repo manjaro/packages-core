@@ -11,7 +11,7 @@ _kernelname=-MANJARO
 _basekernel=3.12
 _basever=312
 _aufs=20141020
-_bfq=v7r5
+_bfq=v7r6
 pkgver=${_basekernel}.34
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -80,27 +80,10 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             'd8d6745a165e7f1608d8c298e49c8c2fee5a5d6c61c5b80d63a8dc7913ff8dc8'
             'b6f366ed2100ccab99029f61c39c0781ad4863f537381626196ed43b4b115a21'
             'cbfabd113a1954cd3d6cc1e70c19b95ce36a19e2c92ad93939d4982077178135'
-            '6c3b1030c3866c371a8cd3b07427be0d62ed62a8ec74ccefb2f6be2909bd0773'
-            'f3c7c5ad39d58b6faa4f2decf3bb7ee1dd8b2f32856abe00192d0c41401a8b57'
-            '217745a7ffbcdae967e22fe74991f9808ad2b4dd840d8c5d6683e617ea961968'
+            '155586eef46a8778946927cb334d449d672779e94f97d7da672b433a83aeb40e'
+            '114b84d179937e6bb8d60746a78bcea7aa2315dc3d607c957580d892e028c327'
+            '520c83b5232c9f813ba77a03f575a026b55eda9f7530b0b6d92da73a6f7c3c52'
 )
-
-## modules.symboles md5sums
-#
-# i686
-# 327f520435aac3162c637fba46c7b6f4  /lib/modules/3.10.27-1-MANJARO/modules.symbols
-# ae67bd3f9ee2fbe29dddf2cd7786eccc  /lib/modules/3.11.10.3-1-MANJARO/modules.symbols
-# ba15d7a09322f0ecb0477506caa190d9  /lib/modules/3.12.8-1-MANJARO/modules.symbols
-# 8d470593b37f21822a5fc2dda4d5362b  /lib/modules/3.13.0-1-MANJARO/modules.symbols
-# 7b296a2ce5395f35a3c06b4d2ea8fb39  /lib/modules/3.4.77-1-MANJARO/modules.symbols
-# d883c826d56325c13816a4ea3395575d  /lib/modules/3.8.13.16-1-MANJARO/modules.symbols
-# x86_64
-# 9c82210478776c06df877d97e10ed7f0  /lib/modules/3.10.27-1-MANJARO/modules.symbols
-# ca2dd8e6c02fed078b06c7e947654890  /lib/modules/3.11.10.3-1-MANJARO/modules.symbols
-# 376919bb83a21900eb1fd90d852daaf5  /lib/modules/3.12.8-1-MANJARO/modules.symbols
-# cfdd0ca8d49e3c908ba7c1de8e3cbc8d  /lib/modules/3.13.0-1-MANJARO/modules.symbols
-# 0d85eb4571ce79a5df3015bcf714e46a  /lib/modules/3.4.77-1-MANJARO/modules.symbols
-# b11bfd0f71f687adcad99fbbc820a517  /lib/modules/3.8.13.16-1-MANJARO/modules.symbols
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"

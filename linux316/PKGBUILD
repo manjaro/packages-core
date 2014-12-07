@@ -11,7 +11,7 @@ _kernelname=-MANJARO
 _basekernel=3.16
 _basever=316
 _aufs=20141020
-_bfq=v7r5
+_bfq=v7r6
 _subver=2
 pkgver=${_basekernel}.7.${_subver}
 pkgrel=1
@@ -36,12 +36,13 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-v7r5/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r5-3.16.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-v7r5/0002-block-introduce-the-BFQ-v7r5-I-O-sched-for-3.16.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-v7r5/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r5-for-3.16.0.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.16.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.16.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         'compal-laptop-hwmon-fix.patch'
+        # Additional patches
         '3.16.7.1.patch'
         '3.16.7.2.patch'
 )
@@ -61,9 +62,9 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'a728d65b64f1e7bc29ef1887341383af4da98ee1ab553e5e521c3cb3e725583d'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '95cfdf13bc78e07cc540d6fc9087f0b4d710ce225acf36abbbbdeee421b023b9'
-            '445b4e9ac3d9281a69523214e09323b36eda88f75ce07bc836451ead76e4adac'
-            '901db70d0e8ea73167998662cfa517e0d9c48d93b95500b5a5d74dfca2ac4c66'
+            '4cbc984edb2c8c49c5cca36bcd5cd3fdeeb43194eb696c6ca9b0b504342b59d0'
+            'e729d86fdcf72e5f61fdc862f952ed247f5b1663644af2630a02e6dab600277c'
+            '8bc574b02f056977ab547d265e499a8d18a84de82c3a67e5871e4e9bc11c2862'
             '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
             'f36f61a0a72bcb0a9c04264343503bfbf927c9ea0db819e66734a3933b060588'
             '09f073a606dd4e66e24dd999562879f0664587ac93bab793fcad18dc5d680caa'
