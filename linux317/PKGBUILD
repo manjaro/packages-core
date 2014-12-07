@@ -13,7 +13,7 @@ _basekernel=3.17
 _basever=317
 _aufs=20141020
 _bfq=v7r6
-pkgver=${_basekernel}.4
+pkgver=${_basekernel}.5
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -41,10 +41,11 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.17.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.17.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
-        'fix_CPU0_microcode_on_resume.patch'
+        '0001-x86-microcode-Update-BSPs-microcode-on-resume.patch'
+        '0002-x86-microcode-Limit-the-microcode-reloading-to-64-bi.patch'
 )
 sha256sums=('f5153ec93c5fcd41b247950e6a9bcbc63fa87beafd112c133a622439a0f76251'
-            'eeef37397a15245bd143569908be40622a87dc7673965e623e811ea3f68b8434'
+            '435a8a3c4faad53b5f9f0349629358a7d273e6ca94ffeb226c1d360787cc7278'
             '7a896fd853f5e8a57c9e9576127ce75492bdb84515e1978c983801a448fe107f'
             'caf41aa6e5cd4aca0905bca1783fc336a6eb69561da696ae319cfb78272e0c59'
             '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
@@ -63,7 +64,8 @@ sha256sums=('f5153ec93c5fcd41b247950e6a9bcbc63fa87beafd112c133a622439a0f76251'
             '53e591f0cab9ea0f0ae823041fa5134686de188a616657cb8acef34c01970c48'
             '9e70b8051c432168dd9ba0d21d5b96afb580473c9801fec185a745f53b75ae44'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '43668fe46147fe93f41b919db673574427ce5a8c376cd28ddddcbf3a00326491')
+            'fb120d3031886afd86a2054f551545898758b18f8bad1f6fee1c49e1ce23a760'
+            '529ffe2f52cba3ce8d7ab07bd85361d804d377464ee878ac085d6032336e4918')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -83,7 +85,9 @@ prepare() {
 
   # Fix FS#42689
   # https://bugzilla.kernel.org/show_bug.cgi?id=88001
-  patch -p1 -i "${srcdir}/fix_CPU0_microcode_on_resume.patch"
+  #
+  patch -p1 -i "${srcdir}/0001-x86-microcode-Update-BSPs-microcode-on-resume.patch"
+  patch -p1 -i "${srcdir}/0002-x86-microcode-Limit-the-microcode-reloading-to-64-bi.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
