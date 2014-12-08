@@ -1,0 +1,337 @@
+# Based on the file created for Arch Linux by:
+# Tobias Powalowski <tpowa@archlinux.org>
+# Thomas Baechler <thomas@archlinux.org>
+
+# Maintainer: Philip Müller <philm@manjaro.org>
+# Maintainer: Guinux <guillaume@manjaro.org>
+# Maintainer: Rob McCathie <rob@manjaro.org>
+
+pkgbase=linux318
+pkgname=('linux318' 'linux318-headers')
+_kernelname=-MANJARO
+_basekernel=3.18
+_basever=318
+_aufs=20141208
+_bfq=v7r6
+pkgver=${_basekernel}.0
+pkgrel=0
+arch=('i686' 'x86_64')
+url="http://www.kernel.org/"
+license=('GPL2')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
+options=('!strip')
+source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
+        #"http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        # the main kernel config files
+        'config' 'config.x86_64' 'config.aufs'
+        # standard config files for mkinitcpio ramdisk
+        "${pkgname}.preset"
+        "aufs3.x-rcN-${_aufs}.patch.bz2"
+        'aufs3-base.patch'
+        'aufs3-kbuild.patch'
+        'aufs3-loopback.patch'
+        'aufs3-mmap.patch'
+        'aufs3-standalone.patch'
+        'aufs3-build-fix.patch'
+        'tmpfs-ibitmap.patch'
+        'vfs-ino.patch'
+        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
+        'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.17.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.17.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.17.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.17.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.17.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.17.0.patch"
+        # ARCH Patches
+        'change-default-console-loglevel.patch'
+)
+sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
+            #'30d8e0da16ac7cc8be13cd6da72ddc487e8c24fb662caf69da7f6d375fdc1aab'
+            'd7bad621ac62601a6b921b2526955baca92e748faf3cb477dacd4c43e47dd9dd'
+            '1702438dd75b4fc4c6036ef03cd8ab91c754112fc542e9bac27376db4262b54c'
+            'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
+            'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
+            # Aufs
+            'aa3d8ccfdfe6116a07cba3ea0216118850cbd4fedb51cb9788559d22f8b8b26d'
+            '98a662d31cf8322c57c1bcd503751b3502aee61dabfa3c717a1b7b243fba1cb7'
+            '388e6caa6c8f22396a5301061a993d9e50b569da22b8a09c0409f6b3e38f2466'
+            '5cb8f08e6e7f9ec41d6ba9db12f2e35eb0060f2d569ab648e6b46cd842601365'
+            '89e4b8a4232ad6b839d8be05fe026d90dc6590c49cd46712193a74376dc7b03b'
+            '5cc1f24b99f23affab874c5ee133305c33c3c0fc17f99eee6dc9f312b1d67b96'
+            'b505de78bc01ef5cb8b53c94ef8b0aa8ffc57b3e7b98a0b8092e89b862ccf1a0'
+            '819917a7c6aaccb0f90230aab5f7fd0013ffb440945bfb5fa87dab65eafb1d5b'
+            '5072430ceee805a916dcb1113c80d96c22a66893dcd360aaffe5fec8fb9dd8ce'
+            # Additional Patches
+            '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
+            'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
+            # BFQ
+            '157f6f386c47ddd9c4b9c9ae6c694c74d79c612bdda7f1df351335bba389a2e3'
+            '53e591f0cab9ea0f0ae823041fa5134686de188a616657cb8acef34c01970c48'
+            '9e70b8051c432168dd9ba0d21d5b96afb580473c9801fec185a745f53b75ae44'
+            # Arch Patches
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+
+prepare() {
+  cd "${srcdir}/linux-${_basekernel}"
+
+  # add upstream patch
+  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # add latest fixes from stable queue, if needed
+  # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
+  # enable only if you have "gen-stable-queue-patch.sh" executed before
+  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
+  # remove this when a Kconfig knob is made available by upstream
+  # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
+  patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # add Gentoo patches
+  patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
+  patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
+
+  # add aufs3 support
+  patch -Np1 -i "${srcdir}/aufs3.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3-base.patch"
+  patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
+  patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
+  patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
+  patch -Np1 -i "${srcdir}/aufs3-build-fix.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-ibitmap.patch"
+  patch -Np1 -i "${srcdir}/vfs-ino.patch"
+
+  # fix base_cftypes renaming
+  sed -i -e 's|base_cftypes|legacy_cftypes|g' "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
+
+  # add BFQ scheduler
+  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
+  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
+  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
+
+  if [ "${CARCH}" = "x86_64" ]; then
+    cat "${srcdir}/config.x86_64" > ./.config
+  else
+    cat "${srcdir}/config" > ./.config
+  fi
+
+  cat "${srcdir}/config.aufs" >> ./.config
+
+  if [ "${_kernelname}" != "" ]; then
+    sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
+    sed -i "s|CONFIG_LOCALVERSION_AUTO=.*|CONFIG_LOCALVERSION_AUTO=n|" ./.config
+  fi
+
+  # set extraversion to pkgrel
+  sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
+
+  # don't run depmod on 'make install'. We'll do this ourselves in packaging
+  sed -i '2iexit 0' scripts/depmod.sh
+
+  # normally not needed
+  make clean
+
+  # get kernel version
+  make prepare
+
+  # load configuration
+  # Configure the kernel. Replace the line below with one of your choice.
+  #make menuconfig # CLI menu for configuration
+  #make nconfig # new CLI menu for configuration
+  #make xconfig # X-based configuration
+  #make oldconfig # using old config from previous kernel version
+  # ... or manually edit .config
+
+  # rewrite configuration
+  yes "" | make config >/dev/null
+}
+
+build() {
+  cd "${srcdir}/linux-${_basekernel}"
+
+  # build!
+  make ${MAKEFLAGS} LOCALVERSION= bzImage modules
+}
+
+package_linux318() {
+  pkgdesc="The ${pkgbase/linux/Linux} kernel and modules"
+  depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
+  optdepends=('crda: to set the correct wireless channels of your country')
+  provides=("linux=${pkgver}")
+  install=${pkgname}.install
+
+  cd "${srcdir}/linux-${_basekernel}"
+
+  KARCH=x86
+
+  # get kernel version
+  _kernver="$(make LOCALVERSION= kernelrelease)"
+
+  mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot}
+  make LOCALVERSION= INSTALL_MOD_PATH="${pkgdir}" modules_install
+  cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${_basever}-${CARCH}"
+
+  # add kernel version
+  if [ "${CARCH}" = "x86_64" ]; then
+     echo "${pkgver}-${pkgrel}-MANJARO x64" > "${pkgdir}/boot/${pkgbase}-${CARCH}.kver"
+  else
+     echo "${pkgver}-${pkgrel}-MANJARO x32" > "${pkgdir}/boot/${pkgbase}-${CARCH}.kver"
+  fi
+
+  # set correct depmod command for install
+  cp -f "${startdir}/${install}" "${startdir}/${install}.pkg"
+  true && install=${install}.pkg
+  sed \
+    -e  "s/RELEASE=.*/RELEASE=${pkgver}-${pkgrel}/g" \
+    -e  "s/KERNEL_VERSION=.*/KERNEL_VERSION=${_kernver}/g" \
+    -e  "s/KERNEL_BASE=.*/KERNEL_BASE=${_basekernel}/g" \
+    -e  "s/BASEVER=.*/BASEVER=${_basever}/g" \
+    -e  "s/ARCH=.*/ARCH=${CARCH}/g" \
+    -i "${startdir}/${install}"
+
+  # install mkinitcpio preset file for kernel
+  install -D -m644 "${srcdir}/${pkgname}.preset" "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
+  sed \
+    -e "s|ALL_kver=.*|ALL_kver=\"/boot/vmlinuz-${_basever}-${CARCH}\"|g" \
+    -e "s|default_image=.*|default_image=\"/boot/initramfs-${_basever}-${CARCH}.img\"|g" \
+    -e "s|fallback_image=.*|fallback_image=\"/boot/initramfs-${_basever}-${CARCH}-fallback.img\"|g" \
+    -i "${pkgdir}/etc/mkinitcpio.d/${pkgname}.preset"
+
+  # remove build and source links
+  rm -f "${pkgdir}"/lib/modules/${_kernver}/{source,build}
+  # remove the firmware
+  rm -rf "${pkgdir}/lib/firmware"
+  # gzip -9 all modules to save 100MB of space
+  find "${pkgdir}" -name '*.ko' -exec gzip -9 {} \;
+  # make room for external modules
+  ln -s "../extramodules-${_basekernel}${_kernelname:--MANJARO}" "${pkgdir}/lib/modules/${_kernver}/extramodules"
+  # add real version for building modules and running depmod from post_install/upgrade
+  mkdir -p "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname:--MANJARO}"
+  echo "${_kernver}" > "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname:--MANJARO}/version"
+
+  # Now we call depmod...
+  depmod -b "${pkgdir}" -F System.map "${_kernver}"
+
+  # move module tree /lib -> /usr/lib
+  mkdir -p "${pkgdir}/usr"
+  mv "${pkgdir}/lib" "${pkgdir}/usr/"
+
+  # add vmlinux
+  install -D -m644 vmlinux "${pkgdir}/usr/lib/modules/${_kernver}/build/vmlinux" 
+}
+
+package_linux318-headers() {
+  pkgdesc="Header files and scripts for building modules for ${pkgbase/linux/Linux} kernel"
+  provides=("linux-headers=$pkgver")
+
+  install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
+
+  cd "${srcdir}/linux-${_basekernel}"
+  install -D -m644 Makefile \
+    "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
+  install -D -m644 kernel/Makefile \
+    "${pkgdir}/usr/lib/modules/${_kernver}/build/kernel/Makefile"
+  install -D -m644 .config \
+    "${pkgdir}/usr/lib/modules/${_kernver}/build/.config"
+
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/include"
+
+  for i in acpi asm-generic config crypto drm generated keys linux math-emu \
+    media net pcmcia scsi sound trace uapi video xen; do
+    cp -a include/${i} "${pkgdir}/usr/lib/modules/${_kernver}/build/include/"
+  done
+
+  # copy arch includes for external modules
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/x86"
+  cp -a arch/x86/include "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/x86/"
+
+  # copy files necessary for later builds, like nvidia and vmware
+  cp Module.symvers "${pkgdir}/usr/lib/modules/${_kernver}/build"
+  cp -a scripts "${pkgdir}/usr/lib/modules/${_kernver}/build"
+
+  # fix permissions on scripts dir
+  chmod og-w -R "${pkgdir}/usr/lib/modules/${_kernver}/build/scripts"
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/.tmp_versions"
+
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/${KARCH}/kernel"
+
+  cp arch/${KARCH}/Makefile "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/${KARCH}/"
+
+  if [ "${CARCH}" = "i686" ]; then
+    cp arch/${KARCH}/Makefile_32.cpu "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/${KARCH}/"
+  fi
+
+  cp arch/${KARCH}/kernel/asm-offsets.s "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/${KARCH}/kernel/"
+
+  # add docbook makefile
+  install -D -m644 Documentation/DocBook/Makefile \
+    "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/DocBook/Makefile"
+
+  # add dm headers
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/md"
+  cp drivers/md/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/md"
+
+  # add inotify.h
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/include/linux"
+  cp include/linux/inotify.h "${pkgdir}/usr/lib/modules/${_kernver}/build/include/linux/"
+
+  # add wireless headers
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/net/mac80211/"
+  cp net/mac80211/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/net/mac80211/"
+
+  # add dvb headers for external modules
+  # in reference to:
+  # http://bugs.archlinux.org/task/9912
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-core"
+  cp drivers/media/dvb-core/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-core/"
+  # and...
+  # http://bugs.archlinux.org/task/11194
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/include/config/dvb/"
+  cp include/config/dvb/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/include/config/dvb/"
+
+  # add dvb headers for http://mcentral.de/hg/~mrec/em28xx-new
+  # in reference to:
+  # http://bugs.archlinux.org/task/13146
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-frontends/"
+  cp drivers/media/dvb-frontends/lgdt330x.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-frontends/"
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/i2c/"
+  cp drivers/media/i2c/msp3400-driver.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/i2c/"
+
+  # add dvb headers
+  # in reference to:
+  # http://bugs.archlinux.org/task/20402
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/usb/dvb-usb"
+  cp drivers/media/usb/dvb-usb/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/usb/dvb-usb/"
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-frontends"
+  cp drivers/media/dvb-frontends/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-frontends/"
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/tuners"
+  cp drivers/media/tuners/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/tuners/"
+
+  # add xfs and shmem for aufs building
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/libxfs"
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/mm"
+  cp fs/xfs/libxfs/xfs_sb.h "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/libxfs/xfs_sb.h"
+
+  # copy in Kconfig files
+  for i in $(find . -name "Kconfig*"); do
+    mkdir -p "${pkgdir}"/usr/lib/modules/${_kernver}/build/`echo ${i} | sed 's|/Kconfig.*||'`
+    cp ${i} "${pkgdir}/usr/lib/modules/${_kernver}/build/${i}"
+  done
+
+  chown -R root.root "${pkgdir}/usr/lib/modules/${_kernver}/build"
+  find "${pkgdir}/usr/lib/modules/${_kernver}/build" -type d -exec chmod 755 {} \;
+
+  # strip scripts directory
+  find "${pkgdir}/usr/lib/modules/${_kernver}/build/scripts" -type f -perm -u+w 2>/dev/null | while read binary ; do
+    case "$(file -bi "${binary}")" in
+      *application/x-sharedlib*) # Libraries (.so)
+        /usr/bin/strip ${STRIP_SHARED} "${binary}";;
+      *application/x-archive*) # Libraries (.a)
+        /usr/bin/strip ${STRIP_STATIC} "${binary}";;
+      *application/x-executable*) # Binaries
+        /usr/bin/strip ${STRIP_BINARIES} "${binary}";;
+    esac
+  done
+
+  # remove unneeded architectures
+  rm -rf "${pkgdir}"/usr/lib/modules/${_kernver}/build/arch/{alpha,arc,arm,arm26,arm64,avr32,blackfin,c6x,cris,frv,h8300,hexagon,ia64,m32r,m68k,m68knommu,metag,mips,microblaze,mn10300,openrisc,parisc,powerpc,ppc,s390,score,sh,sh64,sparc,sparc64,tile,unicore32,um,v850,xtensa}
+}
