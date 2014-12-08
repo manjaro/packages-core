@@ -43,6 +43,22 @@ detectDE()
 
 post_upgrade() {
 
+	# recreate pacman gnupg master key
+	pacman -Qq haveged &> /tmp/cmd1
+	if [ "$(vercmp $2 20141208-1)" -lt 0 ]; then
+		if [ "$(grep 'haveged' /tmp/cmd1)" != "haveged" ]; then
+			msg "Installing haveged"
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm -S haveged
+		fi
+		msg "Recreate pacman gnupg master key ..."
+		systemctl start haveged
+		rm -fr /etc/pacman.d/gnupg
+		pacman-key --init
+		msg "Populate Archlinux and Manjaro gnupg keys ..."
+		pacman-key --populate archlinux manjaro
+	fi
+
 	# get artoo's new signature
 	if [ "$(vercmp $2 20141206-1)" -lt 0 ]; then
 		msg "Get new artoo's signature ..."
