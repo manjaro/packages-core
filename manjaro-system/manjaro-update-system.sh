@@ -44,8 +44,8 @@ detectDE()
 post_upgrade() {
 
 	# recreate pacman gnupg master key
-	pacman -Qq haveged &> /tmp/cmd1
-	if [ "$(vercmp $2 20141208-1)" -lt 0 ]; then
+	if [ "$(vercmp $2 20141210-1)" -lt 0 ]; then
+		pacman -Qq haveged &> /tmp/cmd1
 		if [ "$(grep 'haveged' /tmp/cmd1)" != "haveged" ]; then
 			msg "Installing haveged"
 			rm /var/lib/pacman/db.lck &> /dev/null
@@ -55,6 +55,12 @@ post_upgrade() {
 		systemctl start haveged
 		rm -fr /etc/pacman.d/gnupg
 		pacman-key --init
+		pacman -Ss fontconfig-infinality-ultimate | grep bundle &> /tmp/cmd2
+		if [[ -n "$(cat /tmp/cmd2)" ]]; then
+			msg "Signing infinality keys"
+			pacman-key -r 962DDE58
+			pacman-key --lsign-key 962DDE58
+		fi
 		msg "Populate Archlinux and Manjaro gnupg keys ..."
 		pacman-key --populate archlinux manjaro
 	fi
