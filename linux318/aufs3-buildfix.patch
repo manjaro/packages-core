@@ -1,5 +1,5 @@
 --- aufs3.18-20141215.patch.orig	2014-12-17 20:12:24.718401365 +0100
-+++ aufs3.18-20141215.patch	2014-12-17 20:12:49.243989851 +0100
++++ aufs3.18-20141215.patch	2014-12-17 22:32:47.403221803 +0100
 @@ -5472,7 +5472,7 @@
  +	while (next != &this_parent->d_subdirs) {
  +		struct list_head *tmp = next;
@@ -18,6 +18,33 @@
  +		goto resume;
  +	}
  +
+@@ -5876,7 +5876,7 @@
+ +	struct dentry *d;
+ +
+ +	spin_lock(&inode->i_lock);
+-+	hlist_for_each_entry(d, &inode->i_dentry, d_alias)
+++	hlist_for_each_entry(d, &inode->i_dentry, d_u.d_alias)
+ +		au_dpri_dentry(d);
+ +	spin_unlock(&inode->i_lock);
+ +}
+@@ -9861,7 +9861,7 @@
+ +		dentry = d_find_alias(inode);
+ +	else {
+ +		spin_lock(&inode->i_lock);
+-+		hlist_for_each_entry(d, &inode->i_dentry, d_alias) {
+++		hlist_for_each_entry(d, &inode->i_dentry, d_u.d_alias) {
+ +			spin_lock(&d->d_lock);
+ +			if (!au_test_anon(d)
+ +			    && d->d_parent->d_inode->i_ino == dir_ino) {
+@@ -14012,7 +14012,7 @@
+ +		AuDebugOn(!name);
+ +		au_iigen_dec(inode);
+ +		spin_lock(&inode->i_lock);
+-+		hlist_for_each_entry(d, &inode->i_dentry, d_alias) {
+++		hlist_for_each_entry(d, &inode->i_dentry, d_u.d_alias) {
+ +			spin_lock(&d->d_lock);
+ +			dname = &d->d_name;
+ +			if (dname->len != nlen
 @@ -14179,7 +14179,7 @@
  +
  +	dentry = NULL;

@@ -30,7 +30,7 @@ cd $OLDPWD
 mv *patch* ..
 cd ..
 rm -rf tmp aufs3-standalone
-
+rm aufs3-standalone.patch-old
 
 # the patch is created in ../tmp
 # the other patches needed to compile are in the base directory
