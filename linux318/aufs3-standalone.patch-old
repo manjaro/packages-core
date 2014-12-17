@@ -1,4 +1,4 @@
-aufs3.x-rcN standalone patch
+aufs3.18 standalone patch
 
 diff --git a/fs/inode.c b/fs/inode.c
 index df21e66..c8df03d 100644
@@ -20,18 +20,6 @@ index df21e66..c8df03d 100644
  
  /**
   *	touch_atime	-	update the access time
-diff --git a/fs/namei.c b/fs/namei.c
-index 63fb946..551c0c0 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -277,6 +277,7 @@ int check_acl(struct inode *inode, int mask)
- 
- 	return -EAGAIN;
- }
-+EXPORT_SYMBOL(check_acl);
- 
- /*
-  * This does the basic permission checking
 diff --git a/fs/namespace.c b/fs/namespace.c
 index 5b66b2b..68ff4e4 100644
 --- a/fs/namespace.c

@@ -1,7 +1,7 @@
-aufs3.x-rcN base patch
+aufs3.18 base patch
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 0ff630d..95be609 100644
+index c721042..83801d0 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
 @@ -1795,6 +1795,20 @@ F:	include/linux/audit.h
@@ -67,19 +67,6 @@ index 26753ba..df21e66 100644
  {
  	if (inode->i_op->update_time)
  		return inode->i_op->update_time(inode, time, flags);
-diff --git a/fs/namei.c b/fs/namei.c
-index db5fe86..63fb946 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -250,7 +250,7 @@ void putname(struct filename *name)
- }
- #endif
- 
--static int check_acl(struct inode *inode, int mask)
-+int check_acl(struct inode *inode, int mask)
- {
- #ifdef CONFIG_FS_POSIX_ACL
- 	struct posix_acl *acl;
 diff --git a/fs/splice.c b/fs/splice.c
 index 75c6058..619359a 100644
 --- a/fs/splice.c
@@ -109,18 +96,10 @@ index 75c6058..619359a 100644
  	ssize_t (*splice_read)(struct file *, loff_t *,
  			       struct pipe_inode_info *, size_t, unsigned int);
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 9ab779e..2f923fd 100644
+index 9ab779e..aabcbba 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -2074,6 +2074,7 @@ extern int filp_close(struct file *, fl_owner_t id);
- 
- extern struct filename *getname(const char __user *);
- extern struct filename *getname_kernel(const char *);
-+int check_acl(struct inode *, int);
- 
- enum {
- 	FILE_CREATED = 1,
-@@ -2664,6 +2665,7 @@ extern int inode_change_ok(const struct inode *, struct iattr *);
+@@ -2664,6 +2664,7 @@ extern int inode_change_ok(const struct inode *, struct iattr *);
  extern int inode_newsize_ok(const struct inode *, loff_t offset);
  extern void setattr_copy(struct inode *inode, const struct iattr *attr);
  

@@ -4,8 +4,8 @@
 
 pkgbase=mhwd
 pkgname=('mhwd' 'mhwd-db')
-pkgver=0.5.0
-pkgrel=1
+pkgver=0.5.1
+pkgrel=0
 pkgdesc="Manjaro Linux Hardware Detection"
 arch=('i686' 'x86_64')
 url="http://git.manjaro.org"
@@ -13,7 +13,7 @@ license=('GPL')
 depends=('gcc-libs' 'hwinfo')
 makedepends=('git' 'cmake')
 groups=('base')
-_git=no
+_git=yes
 
 getsource() {
   cd "$srcdir"
@@ -30,6 +30,10 @@ getsource() {
     git clone $2 $1
     if [ "$_git" != "yes" ] ; then
        cd $1 && git checkout -b $pkgver $pkgver
+    else
+       if [ "$1" == "mhwd" ] ; then
+          cd $1 && git checkout development
+       fi
     fi
   fi
 

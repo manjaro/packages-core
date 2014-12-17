@@ -1,7 +1,7 @@
-aufs3.14 standalone patch
+aufs3.14.21+ standalone patch
 
 diff --git a/fs/inode.c b/fs/inode.c
-index bc83168..6dd1207 100644
+index 49960c6..3e6463a 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
 @@ -57,6 +57,7 @@ static struct hlist_head *inode_hashtable __read_mostly;
@@ -21,7 +21,7 @@ index bc83168..6dd1207 100644
  /**
   *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 2ffc5a2..785a51f 100644
+index 75536db..5185c94 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -455,6 +455,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
@@ -32,7 +32,7 @@ index 2ffc5a2..785a51f 100644
  
  /**
   * mnt_drop_write - give up write access to a mount
-@@ -1555,6 +1556,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+@@ -1593,6 +1594,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
  	}
  	return 0;
  }
@@ -113,7 +113,7 @@ index 923fe4a..176b435 100644
  static int fsnotify_mark_destroy(void *ignored)
  {
 diff --git a/fs/open.c b/fs/open.c
-index b9ed8b2..d264557 100644
+index 2ed7325..4e178e4a 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -62,6 +62,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -152,11 +152,23 @@ index f26cbaf..ac02366 100644
  
  /**
   * splice_direct_to_actor - splices data directly between two non-pipes
+diff --git a/fs/xattr.c b/fs/xattr.c
+index 3377dff..1de03c8 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -207,6 +207,7 @@ vfs_getxattr_alloc(struct dentry *dentry, const char *name, char **xattr_value,
+ 	*xattr_value = value;
+ 	return error;
+ }
++EXPORT_SYMBOL_GPL(vfs_getxattr_alloc);
+ 
+ /* Compare an extended attribute value with the given value */
+ int vfs_xattr_cmp(struct dentry *dentry, const char *xattr_name,
 diff --git a/security/commoncap.c b/security/commoncap.c
-index b9d613e..ba3b618 100644
+index 963dc59..65a8e53 100644
 --- a/security/commoncap.c
 +++ b/security/commoncap.c
-@@ -988,9 +988,11 @@ int cap_mmap_addr(unsigned long addr)
+@@ -991,9 +991,11 @@ int cap_mmap_addr(unsigned long addr)
  	}
  	return ret;
  }
@@ -169,7 +181,7 @@ index b9d613e..ba3b618 100644
  }
 +EXPORT_SYMBOL_GPL(cap_mmap_file);
 diff --git a/security/device_cgroup.c b/security/device_cgroup.c
-index d3b6d2c..5076912 100644
+index 6e4e6eb..ffd4259 100644
 --- a/security/device_cgroup.c
 +++ b/security/device_cgroup.c
 @@ -7,6 +7,7 @@
@@ -180,7 +192,7 @@ index d3b6d2c..5076912 100644
  #include <linux/list.h>
  #include <linux/uaccess.h>
  #include <linux/seq_file.h>
-@@ -744,6 +745,7 @@ int __devcgroup_inode_permission(struct inode *inode, int mask)
+@@ -861,6 +862,7 @@ int __devcgroup_inode_permission(struct inode *inode, int mask)
  	return __devcgroup_check_permission(type, imajor(inode), iminor(inode),
  			access);
  }

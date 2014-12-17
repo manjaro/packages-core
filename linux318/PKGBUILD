@@ -11,28 +11,27 @@ pkgname=('linux318' 'linux318-headers')
 _kernelname=-MANJARO
 _basekernel=3.18
 _basever=318
-_aufs=20141208
+_aufs=20141215
 _bfq=v7r6
-pkgver=${_basekernel}.0
-pkgrel=0
+pkgver=${_basekernel}.1
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        #"http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.x-rcN-${_aufs}.patch.bz2"
+        "aufs3.18-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
-        'aufs3-build-fix.patch'
         'tmpfs-ibitmap.patch'
         'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
@@ -44,19 +43,18 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
 )
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
-            #'30d8e0da16ac7cc8be13cd6da72ddc487e8c24fb662caf69da7f6d375fdc1aab'
-            'd7bad621ac62601a6b921b2526955baca92e748faf3cb477dacd4c43e47dd9dd'
-            '1702438dd75b4fc4c6036ef03cd8ab91c754112fc542e9bac27376db4262b54c'
+            '4df87c395c94012544ca297db6608fe8e7c8fb5289641c4bfb4d9d87b6f06968'
+            'f33077ce61eeef1f27cc58b42f7d810e058ead52375c87cd596c4cea3c6c2732'
+            '6da3089f382a647aed699162ddbafc8296d778b3a8eaa4dfd032b0d201d7f90d'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
             # Aufs
-            'aa3d8ccfdfe6116a07cba3ea0216118850cbd4fedb51cb9788559d22f8b8b26d'
-            '98a662d31cf8322c57c1bcd503751b3502aee61dabfa3c717a1b7b243fba1cb7'
-            '388e6caa6c8f22396a5301061a993d9e50b569da22b8a09c0409f6b3e38f2466'
-            '5cb8f08e6e7f9ec41d6ba9db12f2e35eb0060f2d569ab648e6b46cd842601365'
-            '89e4b8a4232ad6b839d8be05fe026d90dc6590c49cd46712193a74376dc7b03b'
-            '5cc1f24b99f23affab874c5ee133305c33c3c0fc17f99eee6dc9f312b1d67b96'
-            'b505de78bc01ef5cb8b53c94ef8b0aa8ffc57b3e7b98a0b8092e89b862ccf1a0'
+            'eda8b1fee6daf8d7520328f334ea2cb8a406ad969f1deb5db9f17f4e724deddf'
+            'cb760ae662398b9ac4adb558140f2b5dbab5e8b2d22b82ef88591bd80c434e2e'
+            'd6c463bcdebde767512fab59002c126fdc9c760ed172251be366e2695e4a9453'
+            'f95ec801925304efe5082db2d631127c9dbf6ec2aeea76151b91cc86a1dae4be'
+            'cf9a7468c538e5e9a8bbd066aafd64fd5d2548ab785ee2db431caf4144b5e988'
+            'aed3f576a6633d631091af1ea968af78397d8e41a30353657fa66c7710328095'
             '819917a7c6aaccb0f90230aab5f7fd0013ffb440945bfb5fa87dab65eafb1d5b'
             '5072430ceee805a916dcb1113c80d96c22a66893dcd360aaffe5fec8fb9dd8ce'
             # Additional Patches
@@ -73,7 +71,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -90,13 +88,12 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.18-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
-  patch -Np1 -i "${srcdir}/aufs3-build-fix.patch"
   patch -Np1 -i "${srcdir}/tmpfs-ibitmap.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
