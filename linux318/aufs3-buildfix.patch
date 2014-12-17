@@ -1,0 +1,29 @@
+--- aufs3.18-20141215.patch.orig	2014-12-17 20:12:24.718401365 +0100
++++ aufs3.18-20141215.patch	2014-12-17 20:12:49.243989851 +0100
+@@ -5472,7 +5472,7 @@
+ +	while (next != &this_parent->d_subdirs) {
+ +		struct list_head *tmp = next;
+ +		struct dentry *dentry = list_entry(tmp, struct dentry,
+-+						   d_u.d_child);
+++						   d_child);
+ +
+ +		next = tmp->next;
+ +		spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
+@@ -5508,7 +5508,7 @@
+ +		this_parent = tmp;
+ +		spin_lock(&this_parent->d_lock);
+ +		rcu_read_unlock();
+-+		next = child->d_u.d_child.next;
+++		next = child->d_child.next;
+ +		goto resume;
+ +	}
+ +
+@@ -14179,7 +14179,7 @@
+ +
+ +	dentry = NULL;
+ +	spin_lock(&parent->d_lock);
+-+	list_for_each_entry(d, &parent->d_subdirs, d_u.d_child) {
+++	list_for_each_entry(d, &parent->d_subdirs, d_child) {
+ +		/* AuDbg("%pd\n", d); */
+ +		spin_lock_nested(&d->d_lock, DENTRY_D_LOCK_NESTED);
+ +		dname = &d->d_name;
