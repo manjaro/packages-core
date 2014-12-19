@@ -3,7 +3,7 @@ index d2e2a8f..f67e50f 100644
 --- a/util/grub.d/10_linux.in
 +++ b/util/grub.d/10_linux.in
 @@ -65,6 +65,12 @@ case x"$GRUB_FS" in
-        ;;
+ 	;;
  esac
  
 +intel_ucode=
@@ -18,10 +18,9 @@ index d2e2a8f..f67e50f 100644
 @@ -136,7 +142,7 @@ EOF
      message="$(gettext_printf "Loading initial ramdisk ...")"
      sed "s/^/$submenu_indentation/" << EOF
-        echo    '$(echo "$message" | grub_quote)'
--       initrd  ${rel_dirname}/${initrd}
-+       initrd  ${intel_ucode} ${rel_dirname}/${initrd}
+ 	echo	'$(echo "$message" | grub_quote)'
+-	initrd	${rel_dirname}/${initrd}
++	initrd	${intel_ucode} ${rel_dirname}/${initrd}
  EOF
    fi
    sed "s/^/$submenu_indentation/" << EOF
-   
