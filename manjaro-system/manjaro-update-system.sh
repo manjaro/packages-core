@@ -43,6 +43,14 @@ detectDE()
 
 post_upgrade() {
 
+
+	# get anex's signature
+	if [ "$(vercmp $2 20141220-1)" -lt 0 ]; then
+		msg "Get anex's signature ..."
+		pacman-key -r A80EBF3E
+		pacman-key --lsign-key A80EBF3E
+	fi
+
 	# recreate pacman gnupg master key
 	if [ "$(vercmp $2 20141210-1)" -lt 0 ]; then
 		pacman -Qq haveged &> /tmp/cmd1
