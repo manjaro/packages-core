@@ -1,0 +1,73 @@
+# arg 1:  the new package version
+# arg 2:  the old package version
+
+RELEASE=
+KERNEL_VERSION=
+KERNEL_BASE=
+BASEVER=
+ARCH=
+
+post_install () {
+  # updating module dependencies
+  echo ">>> Updating module dependencies. Please wait ..."
+  depmod ${KERNEL_VERSION}
+  echo ">>> Generating initial ramdisk, using mkinitcpio.  Please wait..."
+  mkinitcpio -p linux${BASEVER}
+
+  echo ">>> WARNING: AT keyboard support is no longer built into the kernel."
+  echo ">>>          In order to use your keyboard during early init, you MUST"
+  echo ">>>          include the 'keyboard' hook in your mkinitcpio.conf."
+  
+  # update grub.cfg
+  if [ -f /usr/sbin/update-grub ]; then
+      update-grub
+  else
+      echo "WARNING: It seems that grub is not installed - Your system might not boot."
+      echo "Add followed initramfs files to your bootloader config:"
+      echo ">> linux	/boot/vmlinuz-${BASEVER}-${ARCH}"
+      echo ">> initrd	/boot/initramfs-${BASEVER}-${ARCH}.img"
+  fi
+}
+
+post_upgrade() {
+  # reminder notice
+  if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
+      echo "WARNING: /boot appears to be a separate partition but is not mounted."
+  fi
+
+  if [ $(vercmp $2 3.13) -lt 0 ]; then
+    echo ">>> WARNING: AT keyboard support is no longer built into the kernel."
+    echo ">>>          In order to use your keyboard during early init, you MUST"
+    echo ">>>          include the 'keyboard' hook in your mkinitcpio.conf."
+  fi
+  
+  # remove old initcpio
+  rm -f /boot/initramfs-${KERNEL_BASE}*-${ARCH}*.img
+  rm -f /boot/initramfs-${BASEVER}-${ARCH}*.img
+  
+  # updating module dependencies
+  echo ">>> Updating module dependencies. Please wait ..."
+  depmod ${KERNEL_VERSION}
+  echo ">>> Generating initial ramdisk, using mkinitcpio.  Please wait..."
+  mkinitcpio -p linux${BASEVER}
+  
+  # update grub.cfg
+  if [ -f /usr/sbin/update-grub ]; then
+      update-grub
+  else
+      echo "WARNING: It seems that grub is not installed - Your system might not boot."
+      echo "Add followed initramfs files to your bootloader config:"
+      echo ">> linux	/boot/vmlinuz-${BASEVER}-${ARCH}"
+      echo ">> initrd	/boot/initramfs-${BASEVER}-${ARCH}.img"
+  fi
+}
+
+post_remove() {
+  # remove initcpio
+  rm -f /boot/initramfs-${BASEVER}-${ARCH}*.img
+  
+  # update grub.cfg
+  if [ -f /usr/sbin/update-grub ]; then
+      update-grub
+  fi
+}
