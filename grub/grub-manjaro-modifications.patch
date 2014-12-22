@@ -12,13 +12,13 @@ diff --git a/util/grub-mkconfig_lib.in b/util/grub-mkconfig_lib.in
 index a9cf7fc..7eb8950 100644
 --- a/util/grub-mkconfig_lib.in
 +++ b/util/grub-mkconfig_lib.in
-@@ -248,6 +248,9 @@ version_test_gt ()
+@@ -245,6 +245,9 @@ version_test_gt ()
      *.old:*.old) ;;
-     *.old:*) version_test_gt_a="`echo "$version_test_gt_a" | sed -e 's/\.old$//'`" ; version_test_gt_cmp=gt ;;
-     *:*.old) version_test_gt_b="`echo "$version_test_gt_b" | sed -e 's/\.old$//'`" ; version_test_gt_cmp=ge ;;
+     *.old:*) version_test_gt_a="`echo -n "$version_test_gt_a" | sed -e 's/\.old$//'`" ; version_test_gt_cmp=gt ;;
+     *:*.old) version_test_gt_b="`echo -n "$version_test_gt_b" | sed -e 's/\.old$//'`" ; version_test_gt_cmp=ge ;;
 +    *-lts:*-lts) ;;
-+    *-lts:*) version_test_gt_a="`echo "$version_test_gt_a" | sed -e 's/-lts$//'`" ; version_test_gt_cmp=gt ;;
-+    *:*-lts) version_test_gt_b="`echo "$version_test_gt_b" | sed -e 's/-lts$//'`" ; version_test_gt_cmp=ge ;;
++    *-lts:*) version_test_gt_a="`echo -n "$version_test_gt_a" | sed -e 's/-lts$//'`" ; version_test_gt_cmp=gt ;;
++    *:*-lts) version_test_gt_b="`echo -n "$version_test_gt_b" | sed -e 's/-lts$//'`" ; version_test_gt_cmp=ge ;;
    esac
    version_test_numeric "$version_test_gt_a" "$version_test_gt_cmp" "$version_test_gt_b"
    return "$?"
