@@ -1,0 +1,146 @@
+diff -Nur a/doc/pacman.conf.5.txt b/doc/pacman.conf.5.txt
+--- a/doc/pacman.conf.5.txt	2014-09-16 06:55:59.000000000 +0200
++++ b/doc/pacman.conf.5.txt	2014-12-23 11:40:53.613365553 +0100
+@@ -90,6 +90,15 @@
+ 	pacman will ask for confirmation before proceeding. Shell-style glob
+ 	patterns are allowed.
+ 
++*SyncFirst =* package ...::
++	Instructs pacman to check for newer version of these packages before any
++	sync operation. The user will have the choice to either cancel the current
++	operation and upgrade these packages first or go on with the current
++	operation. This option is typically used with the 'pacman' package.
++	*NOTE*: when a `SyncFirst` transaction takes place, no command line flags
++	(e.g. '\--force') are honored. If this is not ideal, disabling `SyncFirst`
++	and performing a manual sync of the involved packages may be required.
++
+ *IgnorePkg =* package ...::
+ 	Instructs pacman to ignore any upgrades for this package when performing
+ 	a '\--sysupgrade'. Shell-style glob patterns are allowed.
+diff -Nur a/etc/pacman.conf.in b/etc/pacman.conf.in
+--- a/etc/pacman.conf.in	2013-04-30 13:05:45.000000000 +0200
++++ b/etc/pacman.conf.in	2014-12-23 11:43:38.039141449 +0100
+@@ -15,6 +15,8 @@
+ #LogFile     = @localstatedir@/log/pacman.log
+ #GPGDir      = @sysconfdir@/pacman.d/gnupg/
+ HoldPkg     = pacman glibc
++# If upgrades are available for these packages they will be asked for first
++SyncFirst   = pacman
+ #XferCommand = /usr/bin/curl -C - -f %u > %o
+ #XferCommand = /usr/bin/wget --passive-ftp -c -O %o %u
+ #CleanMethod = KeepInstalled
+diff -Nur a/src/pacman/conf.c b/src/pacman/conf.c
+--- a/src/pacman/conf.c	2014-12-19 04:48:00.000000000 +0100
++++ b/src/pacman/conf.c	2014-12-23 11:45:05.435334649 +0100
+@@ -132,6 +132,7 @@
+ 	alpm_list_free(oldconfig->explicit_removes);
+ 
+ 	FREELIST(oldconfig->holdpkg);
++	FREELIST(oldconfig->syncfirst);
+ 	FREELIST(oldconfig->ignorepkg);
+ 	FREELIST(oldconfig->ignoregrp);
+ 	FREELIST(oldconfig->assumeinstalled);
+@@ -513,6 +514,8 @@
+ 			setrepeatingoption(value, "IgnoreGroup", &(config->ignoregrp));
+ 		} else if(strcmp(key, "HoldPkg") == 0) {
+ 			setrepeatingoption(value, "HoldPkg", &(config->holdpkg));
++		} else if(strcmp(key, "SyncFirst") == 0) {
++			setrepeatingoption(value, "SyncFirst", &(config->syncfirst));
+ 		} else if(strcmp(key, "CacheDir") == 0) {
+ 			setrepeatingoption(value, "CacheDir", &(config->cachedirs));
+ 		} else if(strcmp(key, "Architecture") == 0) {
+diff -Nur a/src/pacman/conf.h b/src/pacman/conf.h
+--- a/src/pacman/conf.h	2014-10-14 02:44:20.000000000 +0200
++++ b/src/pacman/conf.h	2014-12-23 11:45:38.021824780 +0100
+@@ -99,6 +99,7 @@
+ 	/* select -Sc behavior */
+ 	unsigned short cleanmethod;
+ 	alpm_list_t *holdpkg;
++	alpm_list_t *syncfirst;
+ 	alpm_list_t *ignorepkg;
+ 	alpm_list_t *ignoregrp;
+ 	alpm_list_t *assumeinstalled;
+diff -Nur a/src/pacman/sync.c b/src/pacman/sync.c
+--- a/src/pacman/sync.c	2014-12-19 04:48:00.000000000 +0100
++++ b/src/pacman/sync.c	2014-12-23 11:51:26.049939350 +0100
+@@ -548,6 +548,26 @@
+ 	return ret;
+ }
+ 
++static alpm_list_t *syncfirst(void) {
++	alpm_list_t *i, *res = NULL;
++	alpm_db_t *db_local = alpm_get_localdb(config->handle);
++	alpm_list_t *syncdbs = alpm_get_syncdbs(config->handle);
++
++	for(i = config->syncfirst; i; i = alpm_list_next(i)) {
++		const char *pkgname = i->data;
++		alpm_pkg_t *pkg = alpm_db_get_pkg(db_local, pkgname);
++		if(pkg == NULL) {
++			continue;
++		}
++
++		if(alpm_sync_newversion(pkg, syncdbs)) {
++			res = alpm_list_add(res, strdup(pkgname));
++		}
++	}
++
++	return res;
++}
++
+ static alpm_db_t *get_db(const char *dbname)
+ {
+ 	alpm_list_t *i;
+@@ -959,6 +979,53 @@
+ 		}
+ 	}
+ 
++	/* check for syncfirsts */
++	if(!config->op_s_downloadonly && !config->print) {
++		/* check for newer versions of packages to be upgraded first */
++		alpm_list_t *i, *j, *syncfirsts = syncfirst();
++		if(syncfirsts) {
++			/* Do not ask user if all the -S targets are SyncFirst packages, see FS#15810 */
++			alpm_list_t *targets_diff = alpm_list_diff(targets, syncfirsts, (alpm_list_fn_cmp)strcmp);
++			if(config->op_s_upgrade || targets_diff) {
++				int syncfirst_ret = 1;
++				colon_printf(_("Some packages should be upgraded first...\n"));
++				if(trans_init(0, 1) == 0) {
++					for(i = syncfirsts; i; i = alpm_list_next(i)) {
++						syncfirst_ret = process_targname(alpm_get_syncdbs(config->handle), i->data, 0);
++						if (syncfirst_ret == 1) {
++							break;
++						}
++					}
++				}
++				if (syncfirst_ret == 0) {
++					syncfirst_ret = sync_prepare_execute();
++				} else {
++					trans_release();
++				}
++				if (syncfirst_ret == 0) {
++					/* reinitialize handle to take care of changes */
++					parseconfig(config->configfile);
++					/* remove syncfirsts from targets */
++					alpm_list_t *i = targets;
++					while(i) {
++						for(j = syncfirsts; j; j = alpm_list_next(j)) {
++							if(strcmp(i->data, j->data) == 0) {
++								targets = alpm_list_remove_item(targets, i);
++								break;
++							}
++						}
++						i = i->next;
++					}
++				}
++				printf("\n");
++			} else {
++				pm_printf(ALPM_LOG_DEBUG, "skipping SyncFirst\n");
++			}
++			alpm_list_free(targets_diff);
++			FREELIST(syncfirsts);
++		}
++	}
++
+ 	return sync_trans(targets);
+ }
+ 

@@ -7,14 +7,14 @@
 # Maintainer: Rob McCathie <rob@manjaro.org>
 
 pkgname=pacman
-pkgver=4.1.2
-pkgrel=8
+pkgver=4.2.0
+pkgrel=5
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
 license=('GPL')
 groups=('base' 'base-devel')
-depends=('bash>=4.2.042-2' 'glibc>=2.17-2' 'libarchive>=3.1.2' 'curl>=7.19.4'
+depends=('bash>=4.2.042-2' 'glibc>=2.17-2' 'libarchive>=3.1.2' 'curl>=7.39.0'
          'gpgme' 'pacman-mirrorlist>=20130418' 'archlinux-keyring' 'manjaro-keyring')
 checkdepends=('python2' 'fakechroot')
 makedepends=('asciidoc')
@@ -30,32 +30,32 @@ source=(ftp://ftp.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
         pacman.conf.i686
         pacman.conf.x86_64
         makepkg.conf
-        pacman-updated-locales.patch
-        pacman-remove-sync-first-option.patch
+        pacman-4.2.0-roundup.patch
+        #pacman-updated-locales.patch
+        pacman-sync-first-option.patch
         etc-pacman.d-gnupg.mount
-        pacman-init.service
-        pacman-key-compatibility-with-gnupg-2.1.patch)
+        pacman-init.service)
 
 prepare() {
   cd $srcdir/$pkgname-$pkgver
 
-  patch -p1 -i $srcdir/pacman-key-compatibility-with-gnupg-2.1.patch
-  patch -Rp1 -i $srcdir/pacman-remove-sync-first-option.patch
-  patch -p1 -i $srcdir/pacman-updated-locales.patch
+  patch -p1 -i $srcdir/pacman-4.2.0-roundup.patch
+  patch -p1 -i $srcdir/pacman-sync-first-option.patch
+  #patch -p1 -i $srcdir/pacman-updated-locales.patch
 
   ./configure --prefix=/usr --sysconfdir=/etc \
     --localstatedir=/var --enable-doc \
     --with-scriptlet-shell=/usr/bin/bash \
     --with-ldconfig=/usr/bin/ldconfig
-  rm $srcdir/$pkgname-$pkgver/lib/libalpm/po/*gmo
-  cd $srcdir/$pkgname-$pkgver/lib/libalpm/po/
-  make update-gmo
-  rm $srcdir/$pkgname-$pkgver/scripts/po/*gmo
-  cd $srcdir/$pkgname-$pkgver/scripts/po/
-  make update-gmo
-  rm $srcdir/$pkgname-$pkgver/src/pacman/po/*gmo
-  cd $srcdir/$pkgname-$pkgver/src/pacman/po/
-  make update-gmo
+  #rm $srcdir/$pkgname-$pkgver/lib/libalpm/po/*gmo
+  #cd $srcdir/$pkgname-$pkgver/lib/libalpm/po/
+  #make update-gmo
+  #rm $srcdir/$pkgname-$pkgver/scripts/po/*gmo
+  #cd $srcdir/$pkgname-$pkgver/scripts/po/
+  #make update-gmo
+  #rm $srcdir/$pkgname-$pkgver/src/pacman/po/*gmo
+  #cd $srcdir/$pkgname-$pkgver/src/pacman/po/
+  #make update-gmo
 }
 
 build() {
@@ -118,12 +118,11 @@ package() {
   install -m644 $srcdir/pacman-init.service $pkgdir/usr/lib/systemd/system/pacman-init.service
 }
 
-sha256sums=('7c059b444735ee254cfbd8dc2fac8c5d61453601f8adaf001c7038cdc673334c'
+sha256sums=('941aca897db3218f0cb4036de13422d74212afbcdbf4a7cd7074a7128e196a22'
             '14e13173498bce6b8837f5d635b819ffc8412c164ccac36d6d62207685aed83d'
             '75e55f2ba3aaf76e839c6538df41219f047af7eddc7903ad8c25754db6b2b100'
-            '5506f85799bcdf7f8cb1b5213af815173b4311029b96f1b96b014dea662b3f34'
-            '49b7c61acc82fb9cd3178bfbca01c1c4cbd0eba43b079c122bdc6d6a8e45314f'
-            '4ae031c1110e9e4b05a305856f623b7d15b7915264024a5e7c5f8fcee2032f14'
+            'b2ff89d3e8299cd9e9445119a495da3872bad6ad28b5484e0f1696e7ddde2dba'
+            'f4d8810acf45cf97b241d7baee736854af488cc92668439206e2716dc0646ac2'
+            'feb18bf548343ce6bd60b1e9252ad4b0643c21ac1a53149d93afbd6028a7a37d'
             'b6d14727ec465bb66d0a0358163b1bbfafcb4eaed55a0f57c30aabafae7eed68'
-            'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae'
-            'a6de6cf73e55e326de231056e003efd4af8e0d214492a5e350e9393bac9612ca')
+            'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae')
