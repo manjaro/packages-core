@@ -10,7 +10,7 @@ pkgname=('linux310' 'linux310-headers')
 _kernelname=-MANJARO
 _basekernel=3.10
 _basever=310
-_aufs=20141020 #last version
+_aufs=20141215 #last version
 _bfq=v7r6
 pkgver=${_basekernel}.63
 pkgrel=1
@@ -31,7 +31,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
-        'tmpfs-ibitmap.patch'
+        'tmpfs-idr.patch'
         'vfs-ino.patch'
         'change-default-console-loglevel.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.10/1700_enable-thinkpad-micled.patch'
@@ -47,16 +47,17 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '38dae0be96342934ccaba9863a307b662c69e3220f7f2adbe2f5d82013aa6a17'
             '1fd1a2835badd1243343021eb2338e11eaa07b718503ad6f247225315f4bfe40'
             '581d427a701099f76a535389f1ae175d0d9a1fd34de8d416c36cdedcc136b2cc'
-            '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
+            'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'e8f345a2cf381b1decd2afc37d7848bf17db3a823035a43bf6bb66e9a8853efe'
             # Aufs3
-            '941d1290c2e263bcd85536cd1ba148bee221b4771b66953a1306ac2e0203d13d'
+            'e8f345a2cf381b1decd2afc37d7848bf17db3a823035a43bf6bb66e9a8853efe'
+            '17b6ebf420503f33355e1fe966e52b427897ad70520fe60700719555b063656a'
+            '2b6bfc5cf92af4a4f46eef10837f6e8c49a242164f46937a98b5aaaf75431590'
             '3b8a8a97634c175ebdf1bf9eb13e6c040573d770311f36316531b3cab168471d'
-            '502b9447af266062b8e3b502582ff1a03377fc4f1d3fa3f39c07dbc5b1e67060'
+            'de94707db6c760400ea7dcae7d0f827ea931a19525efe1f4676f0bf301262dc3'
             'acb79184ad9fc14d19c0594271e27eef2b6e1cafec68388962cf75f24e306d3a'
-            '8e22ce525b80901ed3ffc072a4d96f4447a7b22b6d1cb86fb937f4b1035f6b8b'
-            '8b81d9a7d2d4541d4e554fb3f47132035a4fd8daaa867eafbc7cd4ca7e2d90ff'
+            'c6d83de849f843a6d171f01b780fc4c14bfcb8d7ad78acc30546238c1b49cc02'
+            '24ed088936a63925e2df26c0e2ba2cf5bca54f05e384d5b4a5c890c9eb92c3e2'
             '9151b754d8b06fe737c179c75e6229d81cc197fb4ab14baf959dc7f631819a62'
             # Additional kernel patches
             '56bd99e54429a25a144f2d221718b67f516344ffd518fd7dcdd752206ec5be69'
@@ -106,7 +107,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
-  patch -Np1 -i "${srcdir}/tmpfs-ibitmap.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler

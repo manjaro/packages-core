@@ -1,4 +1,4 @@
-aufs3.12.x loopback patch
+aufs3.12.31+ loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
 index 2e229ac..b1cebbe 100644
@@ -258,10 +258,10 @@ index da8b756..28cb7ea 100644
  
  #endif /* __KERNEL__ */
 diff --git a/fs/aufs/super.c b/fs/aufs/super.c
-index 45146eb..fccd7d6 100644
+index 1570747..af97400 100644
 --- a/fs/aufs/super.c
 +++ b/fs/aufs/super.c
-@@ -809,7 +809,10 @@ static const struct super_operations aufs_sop = {
+@@ -812,7 +812,10 @@ static const struct super_operations aufs_sop = {
  	.statfs		= aufs_statfs,
  	.put_super	= aufs_put_super,
  	.sync_fs	= aufs_sync_fs,
@@ -274,7 +274,7 @@ index 45146eb..fccd7d6 100644
  
  /* ---------------------------------------------------------------------- */
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 7c48db7..3b2541f 100644
+index a664a74..becaf7a 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
 @@ -1626,6 +1626,10 @@ struct super_operations {

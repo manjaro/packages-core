@@ -10,7 +10,7 @@ pkgname=('linux312' 'linux312-headers')
 _kernelname=-MANJARO
 _basekernel=3.12
 _basever=312
-_aufs=20141020 #last version
+_aufs=20141215 #last version
 _bfq=v7r6
 pkgver=${_basekernel}.35
 pkgrel=1
@@ -25,13 +25,13 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.12.x-${_aufs}.patch.bz2"
+        "aufs3.12.31+-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
-        'tmpfs-ibitmap.patch'
+        'tmpfs-idr.patch'
         'vfs-ino.patch'
         'change-default-console-loglevel.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/1700_enable-thinkpad-micled.patch'
@@ -54,18 +54,18 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
 )
 sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             'f6740bdd9a58116d26822a9451e73ca3abfeb3eebd480121da3b3d2cd1e6b67f'
-            '68296e8a3f4879ec4751767767b1c4b46263bdaf2b1b297942716e14ab1eb844'
-            '0f6c030360e552dc0f00cb72ede17f225633f6e078a0b14d0c1ec200badaaae7'
-            '0e6dc539d014131b144640cbb38914e3ef91a771de66d5fb4990f7c7ce6a8959'
+            'f5dea12bdfb507eda6f0b509a3c14841c672a095caa2b88a3337c67e8b31d5ed'
+            '76ba9bba53bc2ab937995d26eda7a4259d6da98db8e783bf41b4d0ce148c0752'
+            'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '84429950d4bd3f74181897d7c2ef46638460faae482738ea2f43f52e00370974'
-            '30ec333eb222e5349db27094d2daa39351a3eb43e3dc8fbc90917699821d91eb'
-            'a606eefcb3ddeff6310bad5541855e0852a0d539482e3fe892e914ddac079e7c'
-            '8f2c88254772f8e707e2a8d0fc45ae4ad96c973def672c362bfca094c7b01791'
-            '25ada35ffcafa1ed6287dffe5777cfc776a4e99d8ed839f22dad5b19e3e2da4a'
-            'f6a2ea45df858ad0b2f77bdad379507103c6a00cb0206d4cc14d980349b03d65'
-            '173ede3f735979812010e52a2ad5c9ac326621f3993a9cebf4a2e4c089f035b4'
-            '3979d348824f61e42587939e82b41e47668bb068b47ad08adb92ebbd717622a7'
+            'd59921f8205d425cf446c4242de6e2b2f4dcbd09f0a9d07a76cebdb86c0bf2c4'
+            '9ec3600884cc5664198adb83c5be5e76210d33d379e74f70c89786fbbb3b4c99'
+            '42e1587d18fa050f6882a55b4d6e60bbd431a6763dfa0ddb5e64225284f7ada6'
+            'dbee6ae69992617165432bd2f525a1aa70ad76c8f4355bd80f8a6b1b10c152b5'
+            '93a98f9c50c7ac7d4a8bf8eb7fed1844950d9cf2fb26a7b52034e77b81b928ef'
+            'a7bdf140e8afce7f49537df70eec41fa86d56b105bbdcaa8482a026a1a552fd4'
+            'd6ac3dadcd7264a20a6a6952416ad547b3cdce902e55175ed72680c94a30bd33'
+            '2740ef0f6a04f38eb0e369f154d88ebe64030117774f8581bc00fe89a672a247'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -82,8 +82,7 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             'cbfabd113a1954cd3d6cc1e70c19b95ce36a19e2c92ad93939d4982077178135'
             '155586eef46a8778946927cb334d449d672779e94f97d7da672b433a83aeb40e'
             '114b84d179937e6bb8d60746a78bcea7aa2315dc3d607c957580d892e028c327'
-            '520c83b5232c9f813ba77a03f575a026b55eda9f7530b0b6d92da73a6f7c3c52'
-)
+            '520c83b5232c9f813ba77a03f575a026b55eda9f7530b0b6d92da73a6f7c3c52')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -127,13 +126,13 @@ prepare() {
   patch -Np1 -i "${srcdir}/4-4-microcode-Move_to_a_proper_location.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.12.x-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.12.31+-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
-  patch -Np1 -i "${srcdir}/tmpfs-ibitmap.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler

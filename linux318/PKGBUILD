@@ -11,7 +11,7 @@ pkgname=('linux318' 'linux318-headers')
 _kernelname=-MANJARO
 _basekernel=3.18
 _basever=318
-_aufs=20141215
+_aufs=20150105
 _bfq=v7r6
 pkgver=${_basekernel}.1
 pkgrel=1
@@ -26,15 +26,14 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.18-${_aufs}.patch.bz2"
+        "aufs3.18.1+-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
-        'tmpfs-ibitmap.patch'
+        'tmpfs-idr.patch'
         'vfs-ino.patch'
-        'aufs3-buildfix.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.18.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.18.patch"
@@ -50,15 +49,14 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
             # Aufs
-            'eda8b1fee6daf8d7520328f334ea2cb8a406ad969f1deb5db9f17f4e724deddf'
-            'cb760ae662398b9ac4adb558140f2b5dbab5e8b2d22b82ef88591bd80c434e2e'
-            'd6c463bcdebde767512fab59002c126fdc9c760ed172251be366e2695e4a9453'
-            'f95ec801925304efe5082db2d631127c9dbf6ec2aeea76151b91cc86a1dae4be'
-            'cf9a7468c538e5e9a8bbd066aafd64fd5d2548ab785ee2db431caf4144b5e988'
-            'aed3f576a6633d631091af1ea968af78397d8e41a30353657fa66c7710328095'
-            '819917a7c6aaccb0f90230aab5f7fd0013ffb440945bfb5fa87dab65eafb1d5b'
-            '5072430ceee805a916dcb1113c80d96c22a66893dcd360aaffe5fec8fb9dd8ce'
-            '1badc0bfc6f8ad04e71d1bcb2cc9f715ab1a5b4c3b0ae38a2c28ef2dfbe144a5'
+            '1dc78eefe9762db2f03e270d42752f944176ced66467fb5d59f87528a17bd912'
+            'b569fe74f7b4ef5d166cb2af998b050568d743cc6a890169b8470f27b11dd237'
+            '86c58db07f3f23e7bc357d64de78da69bd44fd61abfbf63bb09c0992b629ac8f'
+            '59890786e5f61db5ffc6699b892ee81e8e1f889ef7f2702582e6323e821431ae'
+            'f94827eea5987b670aa0e56164daf901c4b6dcaafda2bfd8e8d5aee8608b8a18'
+            '1b8ffd2e5ab45d3ec4b09e6aa103e91f4ea818d5bfd762dd999c7809c465e2cf'
+            '206494b3861a35fc147d643a3df946bffa4f20f38254842400f405756ada3ba3'
+            'd81edf79e1261b41c8e082838f48c6e14de6ba5388de805e3ef2a6acf5041497'
             # Additional Patches
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -70,10 +68,6 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
-  cd "${srcdir}"
-  # fix aufs3
-  patch -Np0 -i "${srcdir}/aufs3-buildfix.patch"
-
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
@@ -94,13 +88,13 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.18-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.18.1+-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
-  patch -Np1 -i "${srcdir}/tmpfs-ibitmap.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # fix base_cftypes renaming

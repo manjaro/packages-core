@@ -1,4 +1,4 @@
-aufs3.12.x base patch
+aufs3.12.31+ base patch
 
 diff --git a/MAINTAINERS b/MAINTAINERS
 index ffcaf97..23fbc30 100644
@@ -55,7 +55,7 @@ index c8dac73..2e229ac 100644
  
  static ssize_t loop_attr_show(struct device *dev, char *page,
 diff --git a/fs/file_table.c b/fs/file_table.c
-index e900ca5..ccd02ee 100644
+index 05e2ac1..4b0edb2 100644
 --- a/fs/file_table.c
 +++ b/fs/file_table.c
 @@ -36,7 +36,7 @@ struct files_stat_struct files_stat = {
@@ -85,7 +85,7 @@ index e900ca5..ccd02ee 100644
  /**
   * file_sb_list_add - add a file to the sb's file list
 diff --git a/fs/inode.c b/fs/inode.c
-index b33ba8e..9b24434 100644
+index 1e6e846..43c0b62 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
 @@ -1469,7 +1469,7 @@ static int relatime_need_update(struct vfsmount *mnt, struct inode *inode,
@@ -97,11 +97,24 @@ index b33ba8e..9b24434 100644
  {
  	if (inode->i_op->update_time)
  		return inode->i_op->update_time(inode, time, flags);
+diff --git a/fs/namei.c b/fs/namei.c
+index 3ac674b..c0e0419 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -221,7 +221,7 @@ void putname(struct filename *name)
+ }
+ #endif
+ 
+-static int check_acl(struct inode *inode, int mask)
++int check_acl(struct inode *inode, int mask)
+ {
+ #ifdef CONFIG_FS_POSIX_ACL
+ 	struct posix_acl *acl;
 diff --git a/fs/splice.c b/fs/splice.c
-index 3b7ee65..e147583 100644
+index 84f810d..64e169d 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
-@@ -1093,8 +1093,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
+@@ -1111,8 +1111,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
  /*
   * Attempt to initiate a splice from pipe to file.
   */
@@ -112,7 +125,7 @@ index 3b7ee65..e147583 100644
  {
  	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *,
  				loff_t *, size_t, unsigned int);
-@@ -1110,9 +1110,9 @@ static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+@@ -1128,9 +1128,9 @@ static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
  /*
   * Attempt to initiate a splice from a file to a pipe.
   */
@@ -126,10 +139,18 @@ index 3b7ee65..e147583 100644
  	ssize_t (*splice_read)(struct file *, loff_t *,
  			       struct pipe_inode_info *, size_t, unsigned int);
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 164d2a9..7c48db7 100644
+index 164d2a9..a664a74 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -2596,6 +2596,7 @@ extern int inode_change_ok(const struct inode *, struct iattr *);
+@@ -2023,6 +2023,7 @@ extern struct file * dentry_open(const struct path *, int, const struct cred *);
+ extern int filp_close(struct file *, fl_owner_t id);
+ 
+ extern struct filename *getname(const char __user *);
++int check_acl(struct inode *, int);
+ 
+ enum {
+ 	FILE_CREATED = 1,
+@@ -2596,6 +2597,7 @@ extern int inode_change_ok(const struct inode *, struct iattr *);
  extern int inode_newsize_ok(const struct inode *, loff_t offset);
  extern void setattr_copy(struct inode *inode, const struct iattr *attr);
  

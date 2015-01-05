@@ -67,6 +67,19 @@ index 4bcdad3..bc83168 100644
  {
  	if (inode->i_op->update_time)
  		return inode->i_op->update_time(inode, time, flags);
+diff --git a/fs/namei.c b/fs/namei.c
+index 3531dee..cb2ad0d 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -220,7 +220,7 @@ void putname(struct filename *name)
+ }
+ #endif
+ 
+-static int check_acl(struct inode *inode, int mask)
++int check_acl(struct inode *inode, int mask)
+ {
+ #ifdef CONFIG_FS_POSIX_ACL
+ 	struct posix_acl *acl;
 diff --git a/fs/splice.c b/fs/splice.c
 index 46a08f7..719ca3e 100644
 --- a/fs/splice.c
@@ -96,10 +109,18 @@ index 46a08f7..719ca3e 100644
  	ssize_t (*splice_read)(struct file *, loff_t *,
  			       struct pipe_inode_info *, size_t, unsigned int);
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 121f11f..39bf86d 100644
+index 121f11f..04e5e53 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -2657,6 +2657,7 @@ extern int inode_change_ok(const struct inode *, struct iattr *);
+@@ -2078,6 +2078,7 @@ extern struct file * dentry_open(const struct path *, int, const struct cred *);
+ extern int filp_close(struct file *, fl_owner_t id);
+ 
+ extern struct filename *getname(const char __user *);
++int check_acl(struct inode *, int);
+ 
+ enum {
+ 	FILE_CREATED = 1,
+@@ -2657,6 +2658,7 @@ extern int inode_change_ok(const struct inode *, struct iattr *);
  extern int inode_newsize_ok(const struct inode *, loff_t offset);
  extern void setattr_copy(struct inode *inode, const struct iattr *attr);
  
