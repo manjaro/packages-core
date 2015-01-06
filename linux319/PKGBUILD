@@ -13,7 +13,7 @@ _basekernel=3.19
 _basever=319
 _aufs=20150105
 _bfq=v7r6
-_rc=rc2
+_rc=rc3
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -43,10 +43,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekerne
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('0a87dc1b2e0dace8f3d74c2ab0f405662c432204aa0f277a088afa9f91623815'
+sha256sums=('fbe6e14708bb5d69d033d81565bf98433f46ebb89eea5c822edd9e5533011744'
             #'4df87c395c94012544ca297db6608fe8e7c8fb5289641c4bfb4d9d87b6f06968'
-            '2fcc27603b1b977f4a57f92e410d45115ee8c8e2af7ad8b16afba1d9e4ca62f0'
-            'f03ac35394b9c3aac172ef6e801856d22a35049a65a86d22de79323a95651abc'
+            '4943f9a5c9a82548fabcf794edfb03f7a9a8aa0c5e8533bfa125e7c182d2b581'
+            'e87e5dbb44a4f23190b8998dd2e231b4cd8cb88c43abd88aae42659f8e80caf4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
             # Aufs
@@ -87,6 +87,9 @@ prepare() {
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
+
+  # fix aufs3
+  sed -i -e 's|f_dentry|f_path.dentry|g' "${srcdir}/aufs3-loopback.patch"
 
   # add aufs3 support
   patch -Np1 -i "${srcdir}/aufs3.x-rcN-${_aufs}.patch"

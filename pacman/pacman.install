@@ -16,29 +16,35 @@ post_upgrade() {
     if [ "$(vercmp $2 3.0.2)" -lt 0 ]; then
         _resetbackups
     fi
-    if [ "$(vercmp $2 3.5.0)" -lt 0 ]; then
-        _warnupgrade
-    fi
-    if [ ! -f "etc/pacman.d/gnupg/pubring.gpg" ] || [ "$(vercmp $2 4.0.3-3)" -lt 0 ]; then
+    if [ ! -f "/etc/pacman.d/gnupg/pubring.gpg" ] || [ "$(vercmp $2 4.0.3-3)" -lt 0 ]; then
         _check_pubring
     fi
-    if [ "x`cat /etc/pacman.conf | grep manjaro-system`" == "x" ]; then
-        sed -i -e 's/HoldPkg     = pacman glibc/HoldPkg     = pacman glibc manjaro-system/g' /etc/pacman.conf
-        sed -i -e 's/SyncFirst   = pacman/SyncFirst   = manjaro-system pacman/g' /etc/pacman.conf
-    fi
-    if [ "$(vercmp $2 4.1.0-2)" -lt 0 ]; then
-        msg "You had an old pacman.conf. We updated it for you."
-        msg "You can find your old pacman.conf saved as \`/etc/pacman-old-${PACMAN_OLD}.conf\`"
-        mv /etc/pacman.conf /etc/pacman-old-${PACMAN_OLD}.conf
-        mv /etc/pacman.conf.pacnew /etc/pacman.conf
-        if [ ! -f "usr/bin/pacman-mirrors" ]; then
-           msg "Your current mirrorlist was saved as \`/etc/pacman.d/mirrorlist-old-${PACMAN_OLD}\`"
-           msg "A generic mirrorlist, set to our default server, was generated!"
-           msg "Use \`pacman-mirrors\` to generate and update your pacman mirrorlist."
+    if [ "$(vercmp $2 4.2.0-4)" -lt 0 ]; then
+        if [ -f "/etc/pacman.conf.pacnew" ]; then
+           mv /etc/pacman.conf /etc/pacman-old-${PACMAN_OLD}.conf
+           mv /etc/pacman.conf.pacnew /etc/pacman.conf
+           msg "You had an old pacman.conf. We updated it for you."
+           msg "You can find your old pacman.conf saved as \`/etc/pacman-old-${PACMAN_OLD}.conf\`"
+        fi
+        if [ ! -f "/usr/bin/pacman-mirrors" ]; then
            mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist-old-${PACMAN_OLD}
            echo '# file generated due pacman update' > /etc/pacman.d/mirrorlist
            echo 'Server = http://mirror.dacentec.com/manjaro/stable/$repo/$arch' >> /etc/pacman.d/mirrorlist
+           msg "Your current mirrorlist was saved as \`/etc/pacman.d/mirrorlist-old-${PACMAN_OLD}\`"
+           msg "A generic mirrorlist, set to our default server, was generated!"
+           msg "Use \`pacman-mirrors\` to generate and update your pacman mirrorlist."
         fi
+        rm /var/lib/pacman/db.lck &> /dev/null
+        pacman-db-upgrade
+    fi
+    if [ "x`cat /etc/pacman.conf | grep manjaro-system`" == "x" ]; then
+        sed -i -e 's|^.*HoldPkg.*|HoldPkg      = pacman glibc manjaro-system|g' /etc/pacman.conf
+        sed -i -e 's|^.*SyncFirst.*|SyncFirst    = manjaro-system|g' /etc/pacman.conf
+        msg "Added manjaro-system to SyncFirst line in \`/etc/pacman.conf\`"
+    fi
+    if [ "x`cat /etc/pacman.conf | grep SyncFirst | cut -d= -f2 | grep pacman`" != "x" ]; then
+        sed -i -e 's|^.*SyncFirst.*|SyncFirst    = manjaro-system|g' /etc/pacman.conf
+        msg "Removed pacman from SyncFirst line in \`/etc/pacman.conf\`"
     fi
 }
 
@@ -50,12 +56,6 @@ _check_pubring() {
     msg "To import the data required by pacman for package verification run:"
     msg "\`pacman-key --init; pacman-key --populate archlinux manjaro\`"
     msg "See: https://www.archlinux.org/news/having-pacman-verify-packages"
-}
-
-_warnupgrade() {
-    msg "The pacman database format has changed as of pacman 3.5.0."
-    msg "You will need to run \`pacman-db-upgrade\` as root."
-    msg ""
 }
 
 _resetbackups() {

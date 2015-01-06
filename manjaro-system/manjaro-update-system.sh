@@ -43,7 +43,6 @@ detectDE()
 
 post_upgrade() {
 
-
 	# get anex's signature
 	if [ "$(vercmp $2 20141220-1)" -lt 0 ]; then
 		msg "Get anex's signature ..."
@@ -143,7 +142,7 @@ post_upgrade() {
 		msg "Get ayceman's signature ..."
 		pacman-key -r 604F8BA2
 		pacman-key --lsign-key 604F8BA2
-		sed -i -e s'|^.*SyncFirst.*|SyncFirst = manjaro-system pacman|g' /etc/pacman.conf
+		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = manjaro-system|g' /etc/pacman.conf
 	fi
 	
 	# fix kwallet
