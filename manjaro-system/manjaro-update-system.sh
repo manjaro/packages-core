@@ -43,6 +43,22 @@ detectDE()
 
 post_upgrade() {
 
+	if [ "$(vercmp $2 20150107-7)" -lt 0 ]; then
+		pamacupr=$(ps -e | grep pamac-updater)
+		pamacmgr=$(ps -e | grep pamac-manager)
+		if [ ! -z "$pamacupr" ] || [ ! -z "$pamacmgr" ]; then
+			msg "Pamac-Updater has frozen here."
+			msg "We will close this application in 10s."
+			msg " "
+			msg "Use Pacman in a terminal to complete the update."
+			msg "Update from a terminal using: 'sudo pacman -Syyu'"
+			rm /var/lib/pacman/db.lck &> /dev/null
+			sleep 10s
+			killall pamac-updater &> /dev/null
+			killall pamac-manager &> /dev/null
+		fi
+	fi
+
 	# get anex's signature
 	if [ "$(vercmp $2 20141220-1)" -lt 0 ]; then
 		msg "Get anex's signature ..."
