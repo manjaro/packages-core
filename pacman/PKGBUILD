@@ -8,7 +8,7 @@
 
 pkgname=pacman
 pkgver=4.2.0
-pkgrel=4
+pkgrel=5
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
@@ -116,6 +116,10 @@ package() {
   install -dm755 $pkgdir/usr/lib/systemd/system/
   install -m644 $srcdir/etc-pacman.d-gnupg.mount $pkgdir/usr/lib/systemd/system/etc-pacman.d-gnupg.mount
   install -m644 $srcdir/pacman-init.service $pkgdir/usr/lib/systemd/system/pacman-init.service
+
+  # fake libalpm.so.8 so pamac don't break
+  ln -s libalpm.so.9.0.0 $pkgdir/usr/lib/libalpm.so.8
+  ln -s libalpm.so.9.0.0 $pkgdir/usr/lib/libalpm.so.8.0.0
 }
 
 sha256sums=('941aca897db3218f0cb4036de13422d74212afbcdbf4a7cd7074a7128e196a22'
