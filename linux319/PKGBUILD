@@ -13,7 +13,7 @@ _basekernel=3.19
 _basever=319
 _aufs=20150105
 _bfq=v7r6
-_rc=rc3
+_rc=rc4
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -43,13 +43,11 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekerne
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('fbe6e14708bb5d69d033d81565bf98433f46ebb89eea5c822edd9e5533011744'
-            #'4df87c395c94012544ca297db6608fe8e7c8fb5289641c4bfb4d9d87b6f06968'
-            '4943f9a5c9a82548fabcf794edfb03f7a9a8aa0c5e8533bfa125e7c182d2b581'
-            'e87e5dbb44a4f23190b8998dd2e231b4cd8cb88c43abd88aae42659f8e80caf4'
+sha256sums=('565c83be4fe102a72fecd32a33ab98a11890db7eba7892957dc030e0840149a1'
+            'b588f05da0d4762e321deb521a0c21de8c7116d41cd1457a2e1f348d69a3871b'
+            '49837ada9e790e76a1f36b8abe693a618bc15ca301c95f674e43c6604a231db6'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            # Aufs
             'f95bbc450f77bb3451b6d15be7163417de88f70375680b40fbc8bbe4119f637c'
             '4ddf3957b196c2113cb5668fd0adccbdc9b0c21302cc44c839570934d3ae17f5'
             '6962c870ecd1b3aacb505d584035ef319bc53578182310f7bc0b315e739b4377'
@@ -58,14 +56,11 @@ sha256sums=('fbe6e14708bb5d69d033d81565bf98433f46ebb89eea5c822edd9e5533011744'
             '00bbef92734228c8300d7c6e140ff8c81373809fbfce8b063b9b885481882800'
             '7f59ba3cbc952aeb630c15718661e0183c3bc8d523ef488297065115891a9c0c'
             '134a378395412e3cb638795f667ef14c3b01d11bc464844e9007b3fa23224091'
-            # Additional Patches
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            # BFQ
             '616294ccad2106cec1812fd1f1e94795b8bcf5ad7cc0c4adbc42dda82c0c59bc'
             '71ddfda78d006b8ef1ac611be1672fa6f23e5acaa7963802bf91e0ad01c9e7e8'
             '4f761d9ec34b9b9b5206be7d1e4e6e2e90a1c8f4c3953cade573995ee2f5471f'
-            # Arch Patches
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
