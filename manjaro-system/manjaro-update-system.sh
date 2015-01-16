@@ -49,10 +49,14 @@ post_upgrade() {
 		if [ ! -z "$pamacupr" ] || [ ! -z "$pamacmgr" ]; then
 			rm /var/lib/pacman/db.lck &> /dev/null
 			pacman -S --noconfirm pamac
+			echo '#!/bin/bash' > pamac-fix
+			echo 'sleep 5s && nohup pamac-updater >/dev/null 2>&1 &' >> pamac-fix
+			echo 'rm pamac-fix' >> pamac-fix
+			chmod 755 pamac-fix
+			nohup ./pamac-fix >/dev/null 2>&1 &
 			killall pamac-updater &> /dev/null
 			killall pamac-manager &> /dev/null
 			killall pamac-tray &> /dev/null
-			nohup pamac-tray & nohup pamac-updater &
 		fi
 	fi
 
