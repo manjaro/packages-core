@@ -47,11 +47,11 @@ post_upgrade() {
 		pamacupr=$(ps -e | grep pamac-updater)
 		pamacmgr=$(ps -e | grep pamac-manager)
 		if [ ! -z "$pamacupr" ] || [ ! -z "$pamacmgr" ]; then
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman -S --noconfirm pamac
 			killall pamac-updater &> /dev/null
 			killall pamac-manager &> /dev/null
 			killall pamac-tray &> /dev/null
-			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman -S --noconfirm pamac
 			nohup pamac-tray & nohup pamac-updater &
 		fi
 	fi
