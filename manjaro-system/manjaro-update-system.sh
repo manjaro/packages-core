@@ -52,7 +52,7 @@ post_upgrade() {
 			killall pamac-tray &> /dev/null
 			rm /var/lib/pacman/db.lck &> /dev/null
 			pacman -S --noconfirm pamac
-			nohup pamac-tray & nohup pamac-updater
+			nohup pamac-tray & nohup pamac-updater &
 		fi
 	fi
 
