@@ -54,6 +54,19 @@ index 66e8c3b..ec278ac 100644
  /* loop sysfs attributes */
  
  static ssize_t loop_attr_show(struct device *dev, char *page,
+diff --git a/fs/dcache.c b/fs/dcache.c
+index 58d57da..0d04dfe 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -1060,7 +1060,7 @@ enum d_walk_ret {
+  *
+  * The @enter() and @finish() callbacks are called with d_lock held.
+  */
+-static void d_walk(struct dentry *parent, void *data,
++void d_walk(struct dentry *parent, void *data,
+ 		   enum d_walk_ret (*enter)(void *, struct dentry *),
+ 		   void (*finish)(void *))
+ {
 diff --git a/fs/inode.c b/fs/inode.c
 index e846a32..49960c6 100644
 --- a/fs/inode.c

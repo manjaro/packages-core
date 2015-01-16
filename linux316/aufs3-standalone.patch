@@ -1,5 +1,17 @@
 aufs3.16 standalone patch
 
+diff --git a/fs/dcache.c b/fs/dcache.c
+index 0ea8c4a..2c22125 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -1161,6 +1161,7 @@ rename_retry:
+ 	seq = 1;
+ 	goto again;
+ }
++EXPORT_SYMBOL_GPL(d_walk);
+ 
+ /*
+  * Search for at least 1 mount point in the dentry's subdirs.
 diff --git a/fs/inode.c b/fs/inode.c
 index b225c0f..73259c8 100644
 --- a/fs/inode.c
