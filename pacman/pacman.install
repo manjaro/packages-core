@@ -4,8 +4,8 @@ msg() {
     ALL_OFF="\e[1;0m"
     BOLD="\e[1;1m"
     GREEN="${BOLD}\e[1;32m"
-	local mesg=$1; shift
-	printf "${GREEN}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+    local mesg=$1; shift
+    printf "${GREEN}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
 }
 
 # arg 1:  the new package version
@@ -45,17 +45,17 @@ post_upgrade() {
     if [ "$(vercmp $2 4.2.0-6)" -lt 0 ]; then
         rm /var/lib/pacman/db.lck &> /dev/null
         pacman-db-upgrade
-		pamacupr=$(ps -e | grep pamac-updater)
-		pamacmgr=$(ps -e | grep pamac-manager)
-		if [ ! -z "$pamacupr" ] || [ ! -z "$pamacmgr" ]; then
-			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman -S --noconfirm manjaro-system
-			pacman -S --noconfirm pamac
-			nohup sleep 4s >/dev/null 2>&1 && DISPLAY=:0.0 nohup pamac-updater >/dev/null 2>&1 &
-			killall pamac-updater &> /dev/null
-			killall pamac-manager &> /dev/null
-			killall pamac-tray &> /dev/null
-		fi
+        pamacupr=$(ps -e | grep pamac-updater)
+        pamacmgr=$(ps -e | grep pamac-manager)
+        if [ ! -z "$pamacupr" ] || [ ! -z "$pamacmgr" ]; then
+            rm /var/lib/pacman/db.lck &> /dev/null
+            pacman -S --noconfirm manjaro-system
+            pacman -S --noconfirm pamac
+            nohup sleep 4s >/dev/null 2>&1 && DISPLAY=:0.0 nohup pamac-updater >/dev/null 2>&1 &
+            killall pamac-updater &> /dev/null
+            killall pamac-manager &> /dev/null
+            killall pamac-tray &> /dev/null
+        fi
     fi
 }
 
