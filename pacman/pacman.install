@@ -33,10 +33,6 @@ post_upgrade() {
            echo 'Server = http://mirror.dacentec.com/manjaro/stable/$repo/$arch' >> /etc/pacman.d/mirrorlist
         fi
     fi
-    if [ "$(vercmp $2 4.2.0-6)" -lt 0 ]; then
-        rm /var/lib/pacman/db.lck &> /dev/null
-        pacman-db-upgrade
-    fi
     if [ "x`cat /etc/pacman.conf | grep manjaro-system`" == "x" ]; then
         sed -i -e 's|^.*HoldPkg.*|HoldPkg      = pacman glibc manjaro-system|g' /etc/pacman.conf
         sed -i -e 's|^.*SyncFirst.*|SyncFirst    = manjaro-system|g' /etc/pacman.conf
@@ -45,6 +41,25 @@ post_upgrade() {
     if [ "x`cat /etc/pacman.conf | grep SyncFirst | cut -d= -f2 | grep pacman`" != "x" ]; then
         sed -i -e 's|^.*SyncFirst.*|SyncFirst    = manjaro-system|g' /etc/pacman.conf
         msg "Removed pacman from SyncFirst line in \`/etc/pacman.conf\`"
+    fi
+    if [ "$(vercmp $2 4.2.0-6)" -lt 0 ]; then
+        rm /var/lib/pacman/db.lck &> /dev/null
+        pacman-db-upgrade
+		pamacupr=$(ps -e | grep pamac-updater)
+		pamacmgr=$(ps -e | grep pamac-manager)
+		if [ ! -z "$pamacupr" ] || [ ! -z "$pamacmgr" ]; then
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman -S --noconfirm manjaro-system
+			pacman -S --noconfirm pamac
+			echo '#!/bin/bash' > pamac-fix
+			echo 'sleep 5s && nohup pamac-updater >/dev/null 2>&1 &' >> pamac-fix
+			echo 'rm pamac-fix' >> pamac-fix
+			chmod 755 pamac-fix
+			nohup ./pamac-fix >/dev/null 2>&1 &
+			killall pamac-updater &> /dev/null
+			killall pamac-manager &> /dev/null
+			killall pamac-tray &> /dev/null
+		fi
     fi
 }
 

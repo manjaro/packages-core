@@ -43,23 +43,6 @@ detectDE()
 
 post_upgrade() {
 
-	if [ "$(vercmp $2 20150107-7)" -lt 0 ]; then
-		pamacupr=$(ps -e | grep pamac-updater)
-		pamacmgr=$(ps -e | grep pamac-manager)
-		if [ ! -z "$pamacupr" ] || [ ! -z "$pamacmgr" ]; then
-			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman -S --noconfirm pamac
-			echo '#!/bin/bash' > pamac-fix
-			echo 'sleep 5s && nohup pamac-updater >/dev/null 2>&1 &' >> pamac-fix
-			echo 'rm pamac-fix' >> pamac-fix
-			chmod 755 pamac-fix
-			nohup ./pamac-fix >/dev/null 2>&1 &
-			killall pamac-updater &> /dev/null
-			killall pamac-manager &> /dev/null
-			killall pamac-tray &> /dev/null
-		fi
-	fi
-
 	# get anex's signature
 	if [ "$(vercmp $2 20141220-1)" -lt 0 ]; then
 		msg "Get anex's signature ..."
