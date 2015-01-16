@@ -51,11 +51,11 @@ post_upgrade() {
 			rm /var/lib/pacman/db.lck &> /dev/null
 			pacman -S --noconfirm manjaro-system
 			pacman -S --noconfirm pamac
-			echo '#!/bin/bash' > pamac-fix
-			echo 'sleep 5s && nohup pamac-updater >/dev/null 2>&1 &' >> pamac-fix
-			echo 'rm pamac-fix' >> pamac-fix
-			chmod 755 pamac-fix
-			nohup ./pamac-fix >/dev/null 2>&1 &
+			echo '#!/bin/bash' > /tmp/pamac-fix
+			echo 'sleep 4s >/dev/null 2>&1 && DISPLAY=:0.0 nohup pamac-updater >/dev/null 2>&1 &' >> /tmp/pamac-fix
+			echo 'rm /tmp/pamac-fix' >> /tmp/pamac-fix
+			chmod 755 /tmp/pamac-fix
+			nohup /tmp/pamac-fix >/dev/null 2>&1 &
 			killall pamac-updater &> /dev/null
 			killall pamac-manager &> /dev/null
 			killall pamac-tray &> /dev/null
