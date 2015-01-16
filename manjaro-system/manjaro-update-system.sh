@@ -47,15 +47,12 @@ post_upgrade() {
 		pamacupr=$(ps -e | grep pamac-updater)
 		pamacmgr=$(ps -e | grep pamac-manager)
 		if [ ! -z "$pamacupr" ] || [ ! -z "$pamacmgr" ]; then
-			msg "Pamac-Updater has frozen here."
-			msg "We will close this application in 10s."
-			msg " "
-			msg "Use Pacman in a terminal to complete the update."
-			msg "Update from a terminal using: 'sudo pacman -Syyu'"
-			rm /var/lib/pacman/db.lck &> /dev/null
-			sleep 10s
 			killall pamac-updater &> /dev/null
 			killall pamac-manager &> /dev/null
+			killall pamac-tray &> /dev/null
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman -S --noconfirm pamac
+			nohup pamac-tray & nohup pamac-updater
 		fi
 	fi
 
