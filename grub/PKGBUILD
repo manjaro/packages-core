@@ -18,7 +18,7 @@ _UNIFONT_VER="6.3.20131217"
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.02.beta2
-pkgrel=8.1
+pkgrel=8.2
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -45,7 +45,7 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         "grub-${_pkgver}-${pkgrel}.tar.gz::http://git.savannah.gnu.org/cgit/grub.git/snapshot/grub-${_SNAPSHOT}.tar.gz"
         "grub-extras::git+git://git.sv.gnu.org/grub-extras.git#branch=master"
         "http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz"
-        "http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz.sig"
+        #"http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz.sig"
         'grub-add-GRUB_COLOR_variables.patch'
         'grub-manjaro-modifications.patch'
         'grub-intel-ucode.patch'
@@ -55,12 +55,12 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'grub.cfg'
         'update-grub')
 
-sha256sums=('SKIP'
+sha256sums=('21a368b4d9ac5d42f623b37b7704d31ecd210078e4254ff714a92354340e69a1'
             'SKIP'
             '6dc2596a0cec08f36de7fb066f12015b572456c90d4e06ddc7b399a3e50b5f89'
-            'SKIP'
+            #'SKIP'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
-            '2733bb7febbf04ca535beb8e9f0c0306774475378bb8bef34496c28edb9cfa11'
+            '05a47838301b898eb8f1e0cd43256e1fa226b69b42696b3b078baa180510e68c'
             'f62734e61f4e5c566ee5de4470746e2c6e9a407ce97d0bdb5915a3e3be85d5ae'
             '2b74814338675589118c0febbde2ae178d02c53fa599b2148b06e67d166c7f56'
             'b20172d7f753cf6a636595b37406b3070cd30d33072c15aea4a50a02ba4c85a5'
@@ -93,12 +93,6 @@ prepare() {
 	
 	msg "Fix DejaVuSans.ttf location so that grub-mkfont can create *.pf2 files for starfield theme"
 	sed 's|/usr/share/fonts/dejavu|/usr/share/fonts/dejavu /usr/share/fonts/TTF|g' -i "${srcdir}/grub-${_pkgver}/configure.ac"
-	
-	msg "Fix mkinitcpio 'rw' FS#36275"
-	sed 's| ro | rw |g' -i "${srcdir}/grub-${_pkgver}/util/grub.d/10_linux.in"
-	
-	msg "Fix OS naming FS#33393"
-	sed 's|GNU/Linux|Linux|' -i "${srcdir}/grub-${_pkgver}/util/grub.d/10_linux.in"
 	
 	# msg "autogen.sh requires python (2/3). since bzr is in makedepends, use python2 and no need to pull python3"
 	# sed 's|python |python2 |g' -i "${srcdir}/grub-${_pkgver}/autogen.sh"

@@ -26,6 +26,18 @@ diff --git a/util/grub.d/10_linux.in b/util/grub.d/10_linux.in
 index 00d1931..f403585 100644
 --- a/util/grub.d/10_linux.in
 +++ b/util/grub.d/10_linux.in
+@@ -29,9 +29,9 @@ export TEXTDOMAINDIR="@localedir@"
+ CLASS="--class gnu-linux --class gnu --class os"
+ 
+ if [ "x${GRUB_DISTRIBUTOR}" = "x" ] ; then
+-  OS=GNU/Linux
++  OS=Linux
+ else
+-  OS="${GRUB_DISTRIBUTOR} GNU/Linux"
++  OS="${GRUB_DISTRIBUTOR} Linux"
+   CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr 'A-Z' 'a-z' | cut -d' ' -f1|LC_ALL=C sed 's,[^[:alnum:]_],_,g') ${CLASS}"
+ fi
+ 
 @@ -86,9 +86,11 @@ linux_entry ()
    if [ x$type != xsimple ] ; then
        case $type in
@@ -40,7 +52,7 @@ index 00d1931..f403585 100644
        esac
        if [ x"$title" = x"$GRUB_ACTUAL_DEFAULT" ] || [ x"Previous Linux versions>$title" = x"$GRUB_ACTUAL_DEFAULT" ]; then
  	  replacement_title="$(echo "Advanced options for ${OS}" | sed 's,>,>>,g')>$(echo "$title" | sed 's,>,>>,g')"
-@@ -94,7 +96,7 @@ linux_entry ()
+@@ -100,7 +102,7 @@ linux_entry ()
    else
        echo "menuentry '$(echo "$os" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
    fi      
@@ -49,7 +61,7 @@ index 00d1931..f403585 100644
        save_default_entry | grub_add_tab
    fi
  
-@@ -126,7 +128,8 @@ linux_entry ()
+@@ -132,10 +134,11 @@ linux_entry ()
      fi
      printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
    fi
@@ -58,8 +70,12 @@ index 00d1931..f403585 100644
 +  message="$(gettext_printf "Loading Linux %s ..." "${version}")"
    sed "s/^/$submenu_indentation/" << EOF
  	echo	'$(echo "$message" | grub_quote)'
- 	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro ${args}
-@@ -190,7 +190,15 @@ while [ "x$list" != "x" ] ; do
+-	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro ${args}
++	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} rw ${args}
+ EOF
+   if test -n "${initrd}" ; then
+     # TRANSLATORS: ramdisk isn't identifier. Should be translated.
+@@ -190,7 +193,19 @@ while [ "x$list" != "x" ] ; do
    alt_version=`echo $version | sed -e "s,\.old$,,g"`
    linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
  
@@ -68,6 +84,10 @@ index 00d1931..f403585 100644
 +    if test -e "${dirname}/${kbasename}.kver" ; then
 + 	version="$(cat ${dirname}/${kbasename}.kver)"
 +    fi
++    kbasename2="`echo "${basename}" | sed -e 's,vmlinuz-,linux-,g'`"
++    if test -e "${dirname}/${kbasename2}.kver" ; then
++ 	version="$(cat ${dirname}/${kbasename2}.kver)"
++    fi
 +  fi
 +
    initrd=
@@ -75,7 +95,7 @@ index 00d1931..f403585 100644
    for i in "initrd.img-${version}" "initrd-${version}.img" "initrd-${version}.gz" \
  	   "initrd-${version}" "initramfs-${version}.img" \
  	   "initrd.img-${alt_version}" "initrd-${alt_version}.img" \
-@@ -192,7 +201,8 @@ while [ "x$list" != "x" ] ; do
+@@ -198,7 +213,8 @@ while [ "x$list" != "x" ] ; do
  	   "initramfs-genkernel-${version}" \
  	   "initramfs-genkernel-${alt_version}" \
  	   "initramfs-genkernel-${GENKERNEL_ARCH}-${version}" \
@@ -85,7 +105,7 @@ index 00d1931..f403585 100644
      if test -e "${dirname}/${i}" ; then
        initrd="$i"
        break
-@@ -236,6 +246,17 @@ while [ "x$list" != "x" ] ; do
+@@ -242,6 +258,17 @@ while [ "x$list" != "x" ] ; do
  
    linux_entry "${OS}" "${version}" advanced \
                "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
