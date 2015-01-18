@@ -56,10 +56,18 @@ post_upgrade() {
 		if [ "$(grep 'haveged' /tmp/cmd1)" != "haveged" ]; then
 			msg "Installing haveged"
 			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman --noconfirm -S haveged
+			if [[ -d /run/systemd ]];then
+				pacman --noconfirm -S haveged
+			else
+				pacman --noconfirm -S haveged-openrc
+			fi
 		fi
 		msg "Recreate pacman gnupg master key ..."
-		systemctl start haveged
+		if [[ -d /run/systemd ]];then
+			systemctl start haveged
+		else
+			rc-service haveged start
+		fi
 		rm -fr /etc/pacman.d/gnupg
 		pacman-key --init
 		pacman -Ss fontconfig-infinality-ultimate | grep bundle &> /tmp/cmd2
