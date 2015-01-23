@@ -12,7 +12,7 @@ _basekernel=3.13
 _basever=313
 _aufs=20141215 #last version
 _bfq=v7r6
-_subver=13
+_subver=14
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -32,6 +32,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
+        'aufs313-3.13.11.14.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         'change-default-console-loglevel.patch'
@@ -62,6 +63,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.13.11.11.patch'
         '3.13.11.12.patch'
         '3.13.11.13.patch'
+        '3.13.11.14.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
@@ -72,16 +74,15 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '08a4adfa723f2f6183650dcd83a5bf2b84ad2b9ff2622f518eff3eec4bd11f79'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            # Aufs3
             '5cf296a809ca049c46cdc0afe8b56650aeed217d28a0f4f4e6a4883f09f277bf'
             '6526e580f0dcae792e25d479f899efbcb719d42c5e26bc8b7f1c62013e758de7'
             'a10ad70335728c66057b62003d525e993e8953d794eb8f57a84172092fd14aa8'
             'd46a79928dc9f641a8a1661ff1e220de1115b5370cd9e25b96d8eb0b24cf3363'
             '0209ccd3580c947221d98656668f91b3685bb1313f4d8c581f806ee39acfa6d0'
             '7ffe4b511d94a301075e22ce03aafceefe83141deb46d729a0f72aa2da62d65f'
+            'c72c54daa583872c4718f3dfab9c4b45f34a039384b9cd69df9f053d4ade4089'
             '1172bde2bbda9315d2e136268c030572bd9dbd9331bf128644208fc07c6c783d'
             '21a8ba24035c27e1b48892e62f194258bcb01db65033ef274242b80ba09a9db8'
-            # Additional patches
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -90,14 +91,12 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '8221a084ebdaa506d7f8f2864b383d2d4403ead9f6aedafcb683e287a517f831'
             'd16446fa063490b17e8a656ac5b4ecce35a947112d7d78b29997757cea51e1fe'
             '55fb9010e1bcecb2300b0f13aa47b341d69d23d964ddb74f48e4139539ec52f7'
-            # Archlinux patches
             '64ea8f87d8131841c6d2edec646c08e35bd6965555ff16100725a566186264dc'
             '49b947c76b8c4d17fed80a45342e43e4bbd1c2085a43b43c237a8a0d27a51e74'
             'df5c98b5719b97accbee16d387b81781cd9694801cf1f1d831fdf5069942fda1'
             'ed41c98da84dc0003777edca3101d4923be76701d6b494cd7c512a4da39de710'
             'b54af31bf32ea47dd47c48113481cc3288c04d844f5b4814663b108f43f415a7'
             '1e1dc0c380fcfadfe46d396f3efade08c90f53d74fac7037edcfe9bc0a3c8d56'
-            # Additional kernel patches
             '6a6345d662198a93c44a55283140a2ce6ac24e591df697cac6ada2c92e841229'
             'c3f0eaa8611fc032c12b5c2349a69c75325cba6df2e4e2665beeda3c6b5445d7'
             'd3e605552ce4d1649e23dc2bcffcd98d9d14b23ac836b6218e7a672b45921477'
@@ -110,11 +109,10 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '14681de36c7bb82f4da2531a6a800e211625f6c93e1949ff5fa4b1b3cd1cf9ee'
             'f21d78c1b5e5a5c072a4e8ea9ea3fed3332a7f57155905a3617d1aac1c7acdff'
             'cbd5d443315932800363d1a8881534ea5982fa730a50ee899e1e50922a5ff6a8'
-            # BFQ
+            '6c0f5bd3e40e30f5c28e70b6995c16be06f938797f21740b04e8cc1e87d68005'
             '378fc47ba4ef2d45dc1092acd63077192c5dcb590a06f00e18e1a7a1faf551ce'
             '1a4a273306b6a67d643cb5353729dd18f27a12003c86970eff6a85aaad5ca5d1'
-            '3c46b6e7badc50b8415976689abc674f5243df7dcbdaef063acc71af59858249'
-)
+            '3c46b6e7badc50b8415976689abc674f5243df7dcbdaef063acc71af59858249')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -135,6 +133,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.13.11.11.patch"
   patch -p1 -i "${srcdir}/3.13.11.12.patch"
   patch -p1 -i "${srcdir}/3.13.11.13.patch"
+  patch -p1 -i "${srcdir}/3.13.11.14.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -185,6 +184,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
+  patch -Np2 -i "${srcdir}/aufs313-3.13.11.14.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
