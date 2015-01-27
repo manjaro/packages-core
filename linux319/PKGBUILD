@@ -12,8 +12,8 @@ _kernelname=-MANJARO
 _basekernel=3.19
 _basever=319
 _aufs=20150105
-_bfq=v7r6
-_rc=rc5
+_bfq=v7r7
+_rc=rc6
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -43,9 +43,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekerne
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('dc82c554177bcc0648f453936cee3630ec545c7aa142a5cdc23445fc59fb2bd8'
-            'b588f05da0d4762e321deb521a0c21de8c7116d41cd1457a2e1f348d69a3871b'
-            '49837ada9e790e76a1f36b8abe693a618bc15ca301c95f674e43c6604a231db6'
+sha256sums=('502f139103c7534d1a74746e35bf96cf62f3e57fbbc6ef21fcc8f882a04b8b12'
+            'c1864af87ee4148aebfb4b6683450f638e397ba8f7c7e1dc8894f28ca2cc62f6'
+            '74c42aee22e8026c56780b4e9c14e11feae67f72743503d96a19795de425963f'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
             'f95bbc450f77bb3451b6d15be7163417de88f70375680b40fbc8bbe4119f637c'
@@ -58,9 +58,9 @@ sha256sums=('dc82c554177bcc0648f453936cee3630ec545c7aa142a5cdc23445fc59fb2bd8'
             '134a378395412e3cb638795f667ef14c3b01d11bc464844e9007b3fa23224091'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '616294ccad2106cec1812fd1f1e94795b8bcf5ad7cc0c4adbc42dda82c0c59bc'
-            '71ddfda78d006b8ef1ac611be1672fa6f23e5acaa7963802bf91e0ad01c9e7e8'
-            '4f761d9ec34b9b9b5206be7d1e4e6e2e90a1c8f4c3953cade573995ee2f5471f'
+            '75a43175fb6f289215669a7aff23a86459bcf966303a24b4013a42da53fad035'
+            '68045bcff777bc175e9f17ba46e0a8b13450c4546c6c9db3d9b9e2ed31af812d'
+            'cda196f911af55f8c26e711040a66637aed03df9dfdc149aaf7fdbecf1bb19da'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
