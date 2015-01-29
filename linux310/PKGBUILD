@@ -11,8 +11,8 @@ _kernelname=-MANJARO
 _basekernel=3.10
 _basever=310
 _aufs=20141215 #last version
-_bfq=v7r6
-pkgver=${_basekernel}.65
+_bfq=v7r7
+pkgver=${_basekernel}.66
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -44,7 +44,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch")
 
 sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
-            '3c2ecfed2df84c961e7fc971ca65e4d31dcb934d94023b25dd5b1efe41de94ad'
+            '7203e96528296be7f0dc6fe8f79467887cda8b9cead9f426d12201f6d245cc43'
             '1fd1a2835badd1243343021eb2338e11eaa07b718503ad6f247225315f4bfe40'
             '581d427a701099f76a535389f1ae175d0d9a1fd34de8d416c36cdedcc136b2cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -63,9 +63,9 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '59ad742a02bc24d58bc06eee584175a164cb82550b905ba9f402a6dc399d3ed1'
             'daa75228a4c45a925cc5dbfeba884aa696a973a26af7695adc198c396474cbd5'
             '9d7e80e30a60137b9b88dc37d17c65c6834c4e455e9be8db80d98238dfabb1a1'
-            '2792c31a88f872ea3c2d52ff9b8a2eb1c9efa5397d06dd8287e4cf68dd16107a'
-            'b2d7c0063741e7be08839dfe33f2033beb94fd0fdde1908e5938a314a6aa0482'
-            'bb5a27b8a282107d03648f05383449002625e52a653f397256f0eec5d6f8b01d')
+            '7e6a68b324f117ea3134729bd7f10a6064c3315557957fe84e0a41c0c8ea8d61'
+            '096a4453295eefa0d8acdeb874ad359d26c4dfef842b4b9ff8449e062d54f843'
+            '6ec3d2c03f0425f9d5a13ebbb44e3840baeba8085ca0a08c087b05226c2f49b9')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"

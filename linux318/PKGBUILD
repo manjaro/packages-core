@@ -12,8 +12,8 @@ _kernelname=-MANJARO
 _basekernel=3.18
 _basever=318
 _aufs=20150106
-_bfq=v7r6
-pkgver=${_basekernel}.3
+_bfq=v7r7
+pkgver=${_basekernel}.4
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -41,10 +41,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.18.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.18.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
-        '0001-drm-i915-Disallow-pin-ioctl-completely-for-kms-drive.patch'
 )
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
-            '564eed0dfd7aadeec97566da6d09f8636b6335882139cf6d42e45381276bb2d0'
+            '57c74ba5266bb10be335a89d30480739b3de67b5a72b3e0b0d37a27775b1862a'
             'f33077ce61eeef1f27cc58b42f7d810e058ead52375c87cd596c4cea3c6c2732'
             '6da3089f382a647aed699162ddbafc8296d778b3a8eaa4dfd032b0d201d7f90d'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -59,11 +58,10 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             '5072430ceee805a916dcb1113c80d96c22a66893dcd360aaffe5fec8fb9dd8ce'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '616294ccad2106cec1812fd1f1e94795b8bcf5ad7cc0c4adbc42dda82c0c59bc'
-            '71ddfda78d006b8ef1ac611be1672fa6f23e5acaa7963802bf91e0ad01c9e7e8'
-            '4f761d9ec34b9b9b5206be7d1e4e6e2e90a1c8f4c3953cade573995ee2f5471f'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '0bda45a3ef0f2780bbe588f2e53ab2b79814d29e9c6fc7bfff3b0dbdaa9e710d')
+            '75a43175fb6f289215669a7aff23a86459bcf966303a24b4013a42da53fad035'
+            '68045bcff777bc175e9f17ba46e0a8b13450c4546c6c9db3d9b9e2ed31af812d'
+            'cda196f911af55f8c26e711040a66637aed03df9dfdc149aaf7fdbecf1bb19da'
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -80,9 +78,6 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
-
-  # fix #43143
-  patch -p1 -i "${srcdir}/0001-drm-i915-Disallow-pin-ioctl-completely-for-kms-drive.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
