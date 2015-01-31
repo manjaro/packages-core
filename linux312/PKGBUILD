@@ -11,8 +11,8 @@ _kernelname=-MANJARO
 _basekernel=3.12
 _basever=312
 _aufs=20141215 #last version
-_bfq=v7r6
-pkgver=${_basekernel}.36
+_bfq=v7r7
+pkgver=${_basekernel}.37
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -33,6 +33,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
+        'aufs312-3.12.37.patch'
         'change-default-console-loglevel.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/2700_ThinkPad-30-brightness-control-fix.patch'
@@ -53,7 +54,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.12.0.patch"
 )
 sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
-            '04afb146762e59e818dfc811edbcfb578ce350d7b29a9ab2182c86c89bfc7a7f'
+            '56a9eafe0db1a8723b74f4654759c8f678ecb04411b9cdd1f633fd5d7f28d802'
             'f5dea12bdfb507eda6f0b509a3c14841c672a095caa2b88a3337c67e8b31d5ed'
             '76ba9bba53bc2ab937995d26eda7a4259d6da98db8e783bf41b4d0ce148c0752'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -66,6 +67,7 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             'a7bdf140e8afce7f49537df70eec41fa86d56b105bbdcaa8482a026a1a552fd4'
             'd6ac3dadcd7264a20a6a6952416ad547b3cdce902e55175ed72680c94a30bd33'
             '2740ef0f6a04f38eb0e369f154d88ebe64030117774f8581bc00fe89a672a247'
+            '5ea190a1b72c509723e1ba02a086d740e0362051142f2c652153f737552aa587'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -80,9 +82,9 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             'd8d6745a165e7f1608d8c298e49c8c2fee5a5d6c61c5b80d63a8dc7913ff8dc8'
             'b6f366ed2100ccab99029f61c39c0781ad4863f537381626196ed43b4b115a21'
             'cbfabd113a1954cd3d6cc1e70c19b95ce36a19e2c92ad93939d4982077178135'
-            '155586eef46a8778946927cb334d449d672779e94f97d7da672b433a83aeb40e'
-            '114b84d179937e6bb8d60746a78bcea7aa2315dc3d607c957580d892e028c327'
-            '520c83b5232c9f813ba77a03f575a026b55eda9f7530b0b6d92da73a6f7c3c52')
+            'ef00dfd04a3a22faa6443c47e07746678a56f6bb72277b50a784b9a57ca540c9'
+            '768c704c85fb9bf818b22f40ace594a95464f6cff97409959dd851c8f64f6993'
+            'c8032c87a844fe11056e39abc40c55cfbcb6503e04258101bdafa9fa87dd0f46')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -134,6 +136,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
+  patch -Np2 -i "${srcdir}/aufs312-3.12.37.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"

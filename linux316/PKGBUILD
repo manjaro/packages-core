@@ -32,7 +32,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
-        'tmpfs-ibitmap.patch'
+        'tmpfs-idr.patch'
         'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
@@ -61,7 +61,7 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'ab07069e5a446042e6bdd11bc57ca5d5d7a0300beaf965b32b9f675ccbd9101d'
             'a8252ad22195cba7cb78bb047ad82297e1ee7b391a45d14d70ab7b2a6c29cb7a'
             '89b699bdf92d26fedcdb10dfd1ff26ba3d439a3695508e2e0282ec7836fc016e'
-            '819917a7c6aaccb0f90230aab5f7fd0013ffb440945bfb5fa87dab65eafb1d5b'
+            '52b568d5504c88b3025ceed4620b35ff4c7a249bc0310bbbaf31c21c1cdf7899'
             'a728d65b64f1e7bc29ef1887341383af4da98ee1ab553e5e521c3cb3e725583d'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -112,7 +112,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
-  patch -Np1 -i "${srcdir}/tmpfs-ibitmap.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
   patch -Np2 -i "${srcdir}/aufs316-3.16.7.4.patch"
 
