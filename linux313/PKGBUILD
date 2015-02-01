@@ -11,7 +11,7 @@ _kernelname=-MANJARO
 _basekernel=3.13
 _basever=313
 _aufs=20141215 #last version
-_bfq=v7r6
+_bfq=v7r7
 _subver=14
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
@@ -39,11 +39,6 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.11/1700_enable-thinkpad-micled.patch'
         '2700_ThinkPad-30-brightness-control-fix.patch'
         'criu-no-expert.patch'
-        # AMD fixes
-        '1-4-ramdisk-Export_relocated_ramdisk_VA.patch::https://lkml.org/lkml/diff/2013/12/5/621/1'
-        '2-4-microcode-Share_native_MSR_accessing_variants.patch::https://lkml.org/lkml/diff/2013/12/5/620/1'
-        '3-4-microcode-AMD-Fix_early_ucode_loading.patch::https://lkml.org/lkml/diff/2013/12/5/626/1'
-        '4-4-microcode-Move_to_a_proper_location.patch::https://lkml.org/lkml/diff/2013/12/5/698/1'
         # ARCH patches
         '0001-Bluetooth-allocate-static-minor-for-vhci.patch'
         '0001-syscalls.h-use-gcc-alias-instead-of-assembler-aliase.patch'
@@ -168,12 +163,6 @@ prepare() {
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
-
-  # add AMD fixes
-  patch -Np1 -i "${srcdir}/1-4-ramdisk-Export_relocated_ramdisk_VA.patch"
-  patch -Np1 -i "${srcdir}/2-4-microcode-Share_native_MSR_accessing_variants.patch"
-  patch -Np1 -i "${srcdir}/3-4-microcode-AMD-Fix_early_ucode_loading.patch"
-  patch -Np1 -i "${srcdir}/4-4-microcode-Move_to_a_proper_location.patch"
 
   # add aufs3 support
   patch -Np1 -i "${srcdir}/aufs3.13-${_aufs}.patch"
