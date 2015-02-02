@@ -13,7 +13,7 @@ _basekernel=3.19
 _basever=319
 _aufs=20150105
 _bfq=v7r7
-_rc=rc6
+_rc=rc7
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -37,13 +37,13 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekerne
         'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.18.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.18.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.18.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.18.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.18.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.18.0.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.18.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.18.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/3.18.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.18.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.18.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.18.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('502f139103c7534d1a74746e35bf96cf62f3e57fbbc6ef21fcc8f882a04b8b12'
+sha256sums=('3de13b01c7f0421e4949a9a9ff48f982b33e87d0fde7998f08bd6dbf9e95fd00'
             'c1864af87ee4148aebfb4b6683450f638e397ba8f7c7e1dc8894f28ca2cc62f6'
             '74c42aee22e8026c56780b4e9c14e11feae67f72743503d96a19795de425963f'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'

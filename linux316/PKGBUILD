@@ -11,8 +11,8 @@ _kernelname=-MANJARO
 _basekernel=3.16
 _basever=316
 _aufs=20150105
-_bfq=v7r6
-_subver=4
+_bfq=v7r7
+_subver=5
 pkgver=${_basekernel}.7.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -34,11 +34,12 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'aufs3-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
+        'aufs316-3.16.7.4.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.16.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.16.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.16.0.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.16.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.16.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         'compal-laptop-hwmon-fix.patch'
@@ -47,8 +48,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.16.7.2.patch'
         '3.16.7.3.patch'
         '3.16.7.4.patch'
-        'aufs316-3.16.7.4.patch'
-)
+        '3.16.7.5.patch')
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
             '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
@@ -63,18 +63,19 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '89b699bdf92d26fedcdb10dfd1ff26ba3d439a3695508e2e0282ec7836fc016e'
             '52b568d5504c88b3025ceed4620b35ff4c7a249bc0310bbbaf31c21c1cdf7899'
             'a728d65b64f1e7bc29ef1887341383af4da98ee1ab553e5e521c3cb3e725583d'
+            '59f34c00c0846377ebf5bc6934a73bb98a71ee33ae93cd2b3b8415dff71d857a'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '4cbc984edb2c8c49c5cca36bcd5cd3fdeeb43194eb696c6ca9b0b504342b59d0'
-            'e729d86fdcf72e5f61fdc862f952ed247f5b1663644af2630a02e6dab600277c'
-            '8bc574b02f056977ab547d265e499a8d18a84de82c3a67e5871e4e9bc11c2862'
+            '550a109df159d799bec3888aa6916c3e622199e262d0d4142c38ad13cbb23bae'
+            '933983de82f7e408ffb50cc66a0a1a4e9e92c328ca735af679ef228e8cdb8a8e'
+            '74b342cddd3d8c998adcea7547a55a4b098104ae1b122e12403fe461e94addd0'
             '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
             'f36f61a0a72bcb0a9c04264343503bfbf927c9ea0db819e66734a3933b060588'
             '09f073a606dd4e66e24dd999562879f0664587ac93bab793fcad18dc5d680caa'
             'd911f7773b06f0a6c6dee3f9366a15d6c83033a3c40ab7cb156da633342c6136'
             'b22d9c52fd58cdfbfce8650091ebd384300653c1e8f2add6a60778476ce79190'
             'a5ec32f3dfdd54b771586b56e6cf06f3026957176eef7e147b043b94f2c9ea49'
-            '59f34c00c0846377ebf5bc6934a73bb98a71ee33ae93cd2b3b8415dff71d857a')
+            'e94a8aa92df4b331c0837cae622e1a620bd8d97bd77b021b78ad363c42a242fd')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -87,6 +88,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.16.7.2.patch"
   patch -p1 -i "${srcdir}/3.16.7.3.patch"
   patch -p1 -i "${srcdir}/3.16.7.4.patch"
+  patch -p1 -i "${srcdir}/3.16.7.5.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
