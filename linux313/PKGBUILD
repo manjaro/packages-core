@@ -12,7 +12,7 @@ _basekernel=3.13
 _basever=313
 _aufs=20141215 #last version
 _bfq=v7r7
-_subver=14
+_subver=15
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -59,9 +59,10 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.13.11.12.patch'
         '3.13.11.13.patch'
         '3.13.11.14.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
+        '3.13.11.15.patch'
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
 )
 sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '0c481b0abee4ba6779fe168f98dcca6481a033d393d66ff6b9caaed7f0307231'
@@ -82,10 +83,6 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             '45b8a7a87e995bf3cbb79f9008672724527c3794cb51024718faedeb072b674a'
-            '0bde8ac782976b7ffd029cd8bf924447730bf4efdd6eddf5b3cd98a074f15fa3'
-            '8221a084ebdaa506d7f8f2864b383d2d4403ead9f6aedafcb683e287a517f831'
-            'd16446fa063490b17e8a656ac5b4ecce35a947112d7d78b29997757cea51e1fe'
-            '55fb9010e1bcecb2300b0f13aa47b341d69d23d964ddb74f48e4139539ec52f7'
             '64ea8f87d8131841c6d2edec646c08e35bd6965555ff16100725a566186264dc'
             '49b947c76b8c4d17fed80a45342e43e4bbd1c2085a43b43c237a8a0d27a51e74'
             'df5c98b5719b97accbee16d387b81781cd9694801cf1f1d831fdf5069942fda1'
@@ -105,9 +102,10 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             'f21d78c1b5e5a5c072a4e8ea9ea3fed3332a7f57155905a3617d1aac1c7acdff'
             'cbd5d443315932800363d1a8881534ea5982fa730a50ee899e1e50922a5ff6a8'
             '6c0f5bd3e40e30f5c28e70b6995c16be06f938797f21740b04e8cc1e87d68005'
-            '378fc47ba4ef2d45dc1092acd63077192c5dcb590a06f00e18e1a7a1faf551ce'
-            '1a4a273306b6a67d643cb5353729dd18f27a12003c86970eff6a85aaad5ca5d1'
-            '3c46b6e7badc50b8415976689abc674f5243df7dcbdaef063acc71af59858249')
+            'a7408d0688f351372527535f097d0cd6896205f5b106105b4ad55c65718bb0c2'
+            'e8fec7a0ca0331b5461fd012de62083733ab1078f19ebeee5f435ca100594cee'
+            'f20ea80b307864b18d39e698a118015031ac0597167dc4a64a3a79847c2724e7'
+            'd16eb5a3cb1a189b333ad54efaeb98c02bcfbf77fadf65e915e1f2308f1bba1d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -129,6 +127,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.13.11.12.patch"
   patch -p1 -i "${srcdir}/3.13.11.13.patch"
   patch -p1 -i "${srcdir}/3.13.11.14.patch"
+  patch -p1 -i "${srcdir}/3.13.11.15.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
