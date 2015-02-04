@@ -6,7 +6,7 @@
 # Contributor: Rob McCathie <rob@manjaro.org>
 
 pkgname=manjaro-keyring
-pkgver=20141220
+pkgver=20150204
 pkgrel=1
 pkgdesc='Manjaro PGP keyring'
 arch=('any')
@@ -18,12 +18,11 @@ source=('Makefile'
         'manjaro-revoked'
         'manjaro-trusted')
 sha256sums=('ac8fed4c8dbb910bb4fb3c01cb63de00d6b25ac79734ea5c933706aff6f9c950'
-            '0dfd273a3d5fe3e2888352da670af11255a7b61a3e385972b9fa4258dc6592f2'
+            '7068df49e1a621325bcc80f15900c77ecb9505c4d0795da981e19728b26ce358'
             'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
             'cb09a52eb1b3fb73eec9e793e6e24b9a17dd10a25cdfc3b184acb23aab877440')
 
 package() {
-	#cd "${srcdir}/${pkgname}-${pkgver}"
 	cd "${srcdir}"
 	make PREFIX=/usr DESTDIR=${pkgdir} install
 }
