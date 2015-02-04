@@ -43,6 +43,14 @@ detectDE()
 
 post_upgrade() {
 
+	# update rob's signature
+	if [ "$(vercmp $2 20150204-1)" -lt 0 ]; then
+		msg "Update Rob's signature ..."
+		# running dirmngr helps prevent pacman-key from failing to connect to servers
+		dirmngr </dev/null
+		pacman-key --refresh-keys 5C0102A6
+	fi
+
 	# get anex's signature
 	if [ "$(vercmp $2 20141220-1)" -lt 0 ]; then
 		msg "Get anex's signature ..."
