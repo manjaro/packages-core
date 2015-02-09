@@ -43,6 +43,23 @@ detectDE()
 
 post_upgrade() {
 
+	# add workaround for filesystem regression in some kernels
+	# see also: https://github.com/manjaro/packages-core/issues/8
+	kernels=$(mhwd-kernel -li | grep '*' | cut -d ' ' -f 5)
+	modules=$(cat /etc/mkinitcpio.conf | grep MODULES= | grep -v '#' | cut -d '"' -f2)
+	if [ "$(echo $modules | grep crc32c)" == "" ]; then
+		for kernel in $kernels
+		do
+		case $kernel in
+			linux310|linux312|linux314)
+			msg "Adding workaround for filesystem issue to $kernel"
+			sed -i -e "s/^MODULES=.*/MODULES=\"$modules crc32c\"/g" /etc/mkinitcpio.conf
+			mkinitcpio -p $kernel
+			;;
+		esac
+		done
+	fi
+
 	# update rob's signature
 	if [ "$(vercmp $2 20150204-1)" -lt 0 ]; then
 		msg "Update Rob's signature ..."
