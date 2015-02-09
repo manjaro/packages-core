@@ -1,5 +1,5 @@
 pkgname=locale-info
-pkgver=2.20
+pkgver=2.21
 pkgrel=1
 pkgdesc="Locale informations"
 arch=('any')
@@ -8,13 +8,11 @@ license=('GPL' 'LGPL')
 groups=('base')
 depends=("glibc=${pkgver}")
 
-source=(http://ftp.gnu.org/gnu/libc/glibc-${pkgver}.tar.xz{,.sig}
+source=(http://ftp.gnu.org/gnu/libc/glibc-${pkgver}.tar.xz
         localeinfo.sh)
 
-sha256sums=('f84b6d42aecc288d593c397b0a3d02260a33ee686bce0c634eb9b32798f36ba5'
-            'SKIP'
+sha256sums=('aeeb362437965a5d3f40b151094ca79def04a115bd363fdd4a9a0c69482923b8'
             '3c96d41a85f3b83debe4133cc922b08904960e15bff38ad9600ef4093d0c4646')
-
 
 build() {
   cd ${srcdir}
