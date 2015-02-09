@@ -11,17 +11,16 @@ pkgname=('linux319' 'linux319-headers')
 _kernelname=-MANJARO
 _basekernel=3.19
 _basever=319
-_aufs=20150105
+_aufs=20150126
 _bfq=v7r7
-_rc=rc7
-pkgver=${_basekernel}${_rc}
+pkgver=${_basekernel}.0
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
-source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
         #"http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -43,16 +42,16 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-${_basekerne
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('3de13b01c7f0421e4949a9a9ff48f982b33e87d0fde7998f08bd6dbf9e95fd00'
-            'c1864af87ee4148aebfb4b6683450f638e397ba8f7c7e1dc8894f28ca2cc62f6'
-            '74c42aee22e8026c56780b4e9c14e11feae67f72743503d96a19795de425963f'
+sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
+            'fa6ee9b4659c0eb066d29540c0ad433893c4c753060f0df602df37717d9e6d7d'
+            '4ce45b55b4b081846f5e2d5299b1a04766901e175b77252eee2d8ed1398df0af'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'f95bbc450f77bb3451b6d15be7163417de88f70375680b40fbc8bbe4119f637c'
-            '4ddf3957b196c2113cb5668fd0adccbdc9b0c21302cc44c839570934d3ae17f5'
+            'a467385f815fc86a0bc96de3d031e72d963280596b7b1b2c373fa6bf00ed6fc1'
+            'cbab7c89d2e80fd7464b1ee2efedd3f0dceea0a0ebcd49a7b9d7ee86ffc7a9f9'
             '6962c870ecd1b3aacb505d584035ef319bc53578182310f7bc0b315e739b4377'
-            '8dbc0116f705d2064fb8522a0133ba3dff5b87b361eee9e41143d53674f22ab7'
-            'd9246160e4eaa3eccb81ba36676cea3b37d4439a29610e4ca8e2bea451c41e32'
+            '9d71382b48bb695a3f371673e4dd56b728ae6730693bfe335aaa9cac249c0e23'
+            'd4f15b6586509674b9d03bdac6443b18ffa47bf8592fbc90c70d42559698aa73'
             '00bbef92734228c8300d7c6e140ff8c81373809fbfce8b063b9b885481882800'
             '7f59ba3cbc952aeb630c15718661e0183c3bc8d523ef488297065115891a9c0c'
             '134a378395412e3cb638795f667ef14c3b01d11bc464844e9007b3fa23224091'
@@ -64,7 +63,7 @@ sha256sums=('3de13b01c7f0421e4949a9a9ff48f982b33e87d0fde7998f08bd6dbf9e95fd00'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
@@ -139,7 +138,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -152,7 +151,7 @@ package_linux319() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -218,7 +217,7 @@ package_linux319-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
