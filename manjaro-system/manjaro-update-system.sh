@@ -43,6 +43,22 @@ detectDE()
 
 post_upgrade() {
 
+	# dropbox returns to normal
+	pacman -Qq dropbox3 &> /tmp/cmd1
+	pacman -Qq dropbox2 &> /tmp/cmd2
+	if [ "$(grep 'dropbox3' /tmp/cmd1)" == "dropbox3" ]; then
+		msg "Replacing dropbox3 with dropbox ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -Rdd dropbox3
+		pacman --noconfirm -S dropbox
+	fi
+	if [ "$(grep 'dropbox2' /tmp/cmd2)" == "dropbox2" ]; then
+		msg "Replacing dropbox2 with dropbox ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -Rdd dropbox2
+		pacman --noconfirm -S dropbox
+	fi
+
 	# update rob's signature
 	if [ "$(vercmp $2 20150204-1)" -lt 0 ]; then
 		msg "Update Rob's signature ..."
