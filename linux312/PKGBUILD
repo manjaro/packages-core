@@ -12,8 +12,8 @@ _basekernel=3.12
 _basever=312
 _aufs=20141215 #last version
 _bfq=v7r7
-pkgver=${_basekernel}.37
-pkgrel=2
+pkgver=${_basekernel}.38
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -46,11 +46,10 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'sunrpc-replace-gssd_running-with-more-reliable-check.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.12.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.12.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.12.0.patch"
-        'crypto-add-missing-crypto-module-aliases-to-crc32c.c.patch')
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.12.0.patch")
 
 sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
-            '56a9eafe0db1a8723b74f4654759c8f678ecb04411b9cdd1f633fd5d7f28d802'
+            '318dd43ac8ff3d424a00723f2bd727edf793f7a19180b8923f4901b6db423c52'
             'f5dea12bdfb507eda6f0b509a3c14841c672a095caa2b88a3337c67e8b31d5ed'
             '76ba9bba53bc2ab937995d26eda7a4259d6da98db8e783bf41b4d0ce148c0752'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -76,17 +75,13 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             'cbfabd113a1954cd3d6cc1e70c19b95ce36a19e2c92ad93939d4982077178135'
             'ef00dfd04a3a22faa6443c47e07746678a56f6bb72277b50a784b9a57ca540c9'
             '768c704c85fb9bf818b22f40ace594a95464f6cff97409959dd851c8f64f6993'
-            'c8032c87a844fe11056e39abc40c55cfbcb6503e04258101bdafa9fa87dd0f46'
-            'a54e8db981d3fbdc820bb42b023ca22106ce6438715ff9799cba51edf2fdeb59')
+            'c8032c87a844fe11056e39abc40c55cfbcb6503e04258101bdafa9fa87dd0f46')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
-
-  # fix crypto issue
-  patch -p1 -i "${srcdir}/crypto-add-missing-crypto-module-aliases-to-crc32c.c.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
