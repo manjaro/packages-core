@@ -7,8 +7,8 @@
 # Maintainer: Rob McCathie <rob@manjaro.org>
 
 pkgname=pacman
-pkgver=4.2.0
-pkgrel=6.4
+pkgver=4.2.1
+pkgrel=1
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
@@ -25,11 +25,10 @@ replaces=('pacman-contrib' 'pacman-init')
 backup=(etc/pacman.conf etc/makepkg.conf)
 install=pacman.install
 options=('strip' 'debug')
-source=(ftp://ftp.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
+source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
         pacman.conf.i686
         pacman.conf.x86_64
         makepkg.conf
-        pacman-4.2.0-roundup.patch
         #pacman-updated-locales.patch
         pacman-sync-first-option.patch
         etc-pacman.d-gnupg.mount
@@ -37,9 +36,6 @@ source=(ftp://ftp.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
 
 prepare() {
   cd $srcdir/$pkgname-$pkgver
-
-  # v4.2.0-13-gacc639a
-  patch -p1 -i $srcdir/pacman-4.2.0-roundup.patch
 
   # Manjaro patches
   patch -p1 -i $srcdir/pacman-sync-first-option.patch
@@ -123,11 +119,10 @@ package() {
   install -m644 $srcdir/pacman-init.service $pkgdir/usr/lib/systemd/system/pacman-init.service
 }
 
-sha256sums=('941aca897db3218f0cb4036de13422d74212afbcdbf4a7cd7074a7128e196a22'
+sha256sums=('a142593c409ef21f6fde0075c7649a58a8ee0edbd2af3f82e4dc05cfc1d0b545'
             '40a3914d2f04dad7835e8ef64c8e0ad4c8cf4e1d664b29156765c7c4a1fe2f69'
             '6fc6a198e853f7bff64ddef853edf2779d7d6f8518a9d3fda620d99513114850'
             'd6b8f47a6d14822eb9b8d72c759aedc4b06c9a005199caa581d235e410aa3d74'
-            'f4d8810acf45cf97b241d7baee736854af488cc92668439206e2716dc0646ac2'
             'feb18bf548343ce6bd60b1e9252ad4b0643c21ac1a53149d93afbd6028a7a37d'
             'b6d14727ec465bb66d0a0358163b1bbfafcb4eaed55a0f57c30aabafae7eed68'
             'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae')
