@@ -43,7 +43,7 @@ detectDE()
 
 post_upgrade() {
 	
-	# dropbox returns to normal
+	# steam replacement
 	pacman -Qq steam &> /tmp/cmd1
 	if [ "$(grep 'steam' /tmp/cmd1)" == "steam" ]; then
 		msg "Replacing steam with steam-manjaro ..."
