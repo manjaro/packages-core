@@ -43,7 +43,7 @@ detectDE()
 
 post_upgrade() {
 	
-	# dropbox returns to normal
+	# steam replacement
 	pacman -Qq steam &> /tmp/cmd1
 	pacman -Qq steam-native &> /tmp/cmd2
 	if [[ "$(grep 'steam' /tmp/cmd1)" == "steam" && "$(grep 'steam-native' /tmp/cmd2)" == "steam-native" ]]; then
