@@ -42,7 +42,16 @@ detectDE()
 }
 
 post_upgrade() {
-
+	
+	# dropbox returns to normal
+	pacman -Qq steam &> /tmp/cmd1
+	if [ "$(grep 'steam' /tmp/cmd1)" == "steam" ]; then
+		msg "Replacing steam with steam-manjaro ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -Rdd steam
+		pacman --noconfirm -S steam-manjaro
+	fi
+	
 	# dropbox returns to normal
 	pacman -Qq dropbox3 &> /tmp/cmd1
 	pacman -Qq dropbox2 &> /tmp/cmd2
