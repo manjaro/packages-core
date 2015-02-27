@@ -45,7 +45,14 @@ post_upgrade() {
 	
 	# dropbox returns to normal
 	pacman -Qq steam &> /tmp/cmd1
-	if [ "$(grep 'steam' /tmp/cmd1)" == "steam" ]; then
+	pacman -Qq steam-native &> /tmp/cmd2
+	if [[ "$(grep 'steam' /tmp/cmd1)" == "steam" && "$(grep 'steam-native' /tmp/cmd2)" == "steam-native" ]]; then
+		msg "Replacing steam and steam-native with steam-manjaro ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -Rdd steam steam-native
+		pacman --noconfirm -S steam-manjaro
+	fi        
+	if [[ "$(grep 'steam' /tmp/cmd1)" == "steam" && "$(grep 'steam-native' /tmp/cmd2)" == *"not"* ]]; then
 		msg "Replacing steam with steam-manjaro ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman --noconfirm -Rdd steam
