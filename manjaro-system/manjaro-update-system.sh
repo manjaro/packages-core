@@ -42,7 +42,26 @@ detectDE()
 }
 
 post_upgrade() {
-	
+	# lxsession replacement
+	pacman -Qq xfce4-session &> /tmp/cmd1
+	pacman -Qq lxsession &> /tmp/cmd2
+	if [[ "$(grep 'xfce4-session' /tmp/cmd1)" == "xfce4-session" && "$(grep 'lxsession' /tmp/cmd2)" == "lxsession" ]]; then
+		msg "Removing lxsession ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -Rdd lxsession
+	fi
+
+	# ligthdm-gtk3-greeter replacement
+	pacman -Qq lightdm-gtk3-greeter &> /tmp/cmd1
+	if [[ "$(grep 'lightdm-gtk3-greeter' /tmp/cmd1)" == "lightdm-gtk3-greeter" ]]; then
+		msg "Replacing lightdm-gtk3-greeter with lightdm-gtk-greeter ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -Rdd lightdm-gtk3-greeter
+		pacman --noconfirm -S lightdm-gtk-greeter
+		rm /etc/lightdm/lightdm-gtk-greeter.conf
+		cp /etc/lightdm/lightdm-gtk-greeter.conf.pacsave /etc/lightdm/lightdm-gtk-greeter.conf
+	fi
+
 	# steam replacement
 	pacman -Qq steam &> /tmp/cmd1
 	pacman -Qq steam-native &> /tmp/cmd2
@@ -51,7 +70,7 @@ post_upgrade() {
 		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman --noconfirm -Rdd steam steam-native
 		pacman --noconfirm -S steam-manjaro
-	fi        
+	fi     
 	if [[ "$(grep 'steam' /tmp/cmd1)" == "steam" && "$(grep 'steam-native' /tmp/cmd2)" == *"not"* ]]; then
 		msg "Replacing steam with steam-manjaro ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
