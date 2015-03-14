@@ -45,10 +45,15 @@ post_upgrade() {
 	# lxsession replacement
 	pacman -Qq xfce4-session &> /tmp/cmd1
 	pacman -Qq lxsession &> /tmp/cmd2
+	pacman -Qq lxde-common &> /tmp/cmd3
 	if [[ "$(grep 'xfce4-session' /tmp/cmd1)" == "xfce4-session" && "$(grep 'lxsession' /tmp/cmd2)" == "lxsession" ]]; then
-		msg "Removing lxsession ..."
-		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -Rdd lxsession
+		if [[ "$(grep 'lxde-common' /tmp/cmd3)" == "lxde-common" ]]; then
+			msg "Warning: You're running LXDE and XFCE. Please fix polkit-client issues on your own."
+		else
+			msg "Removing lxsession ..."
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm -Rdd lxsession
+		fi
 	fi
 
 	# ligthdm-gtk3-greeter replacement
