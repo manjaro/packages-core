@@ -1,4 +1,4 @@
-aufs3.x-rcN mmap patch
+aufs3.19 mmap patch
 
 diff --git a/fs/buffer.c b/fs/buffer.c
 index 20805db..363569f 100644
@@ -84,10 +84,10 @@ index 599ec2e..de6cd6e 100644
  		ino = inode->i_ino;
  		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 80fc92a..1928e78 100644
+index dd5ea30..445d798 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -1222,6 +1222,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
+@@ -1224,6 +1224,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
  }
  #endif
  
@@ -230,7 +230,7 @@ index a271adc..29a932f 100644
  	return error;
  }
 diff --git a/mm/memory.c b/mm/memory.c
-index 54f3a9b..7af6962 100644
+index 2c3536c..444bb1d 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2157,7 +2157,7 @@ reuse:
@@ -322,10 +322,10 @@ index 992a167..ce1915b 100644
  				goto out;
  			down_read(&mm->mmap_sem);
 diff --git a/mm/nommu.c b/mm/nommu.c
-index b51eadf..7d7a4d1 100644
+index 28bd8c4..3c0ace2 100644
 --- a/mm/nommu.c
 +++ b/mm/nommu.c
-@@ -658,7 +658,7 @@ static void __put_nommu_region(struct vm_region *region)
+@@ -659,7 +659,7 @@ static void __put_nommu_region(struct vm_region *region)
  		up_write(&nommu_region_sem);
  
  		if (region->vm_file)
@@ -334,7 +334,7 @@ index b51eadf..7d7a4d1 100644
  
  		/* IO memory and memory shared directly out of the pagecache
  		 * from ramfs/tmpfs mustn't be released here */
-@@ -823,7 +823,7 @@ static void delete_vma(struct mm_struct *mm, struct vm_area_struct *vma)
+@@ -824,7 +824,7 @@ static void delete_vma(struct mm_struct *mm, struct vm_area_struct *vma)
  	if (vma->vm_ops && vma->vm_ops->close)
  		vma->vm_ops->close(vma);
  	if (vma->vm_file)
@@ -343,7 +343,7 @@ index b51eadf..7d7a4d1 100644
  	put_nommu_region(vma->vm_region);
  	kmem_cache_free(vm_area_cachep, vma);
  }
-@@ -1374,7 +1374,7 @@ unsigned long do_mmap_pgoff(struct file *file,
+@@ -1375,7 +1375,7 @@ unsigned long do_mmap_pgoff(struct file *file,
  					goto error_just_free;
  				}
  			}
@@ -352,7 +352,7 @@ index b51eadf..7d7a4d1 100644
  			kmem_cache_free(vm_region_jar, region);
  			region = pregion;
  			result = start;
-@@ -1450,10 +1450,10 @@ error_just_free:
+@@ -1451,10 +1451,10 @@ error_just_free:
  	up_write(&nommu_region_sem);
  error:
  	if (region->vm_file)
