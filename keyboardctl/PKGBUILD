@@ -1,7 +1,7 @@
 #
 # maintainer: Philip Müller <philm[at]manjaro[dog]org>
 
-pkgname=('keyboardctl' 'ckbcomp')
+pkgname=('keyboardctl')
 pkgver=0.1.6
 pkgrel=1
 arch=('any')
@@ -15,20 +15,10 @@ sha256sums=('SKIP')
 
 package_keyboardctl() {
   pkgdesc="Manjaro Linux keymap setup program"
-  depends=('ckbcomp' 'systemd')
+  depends=('ckbcomp')
   backup=('etc/keyboard.conf')
   install=keyboardctl.install
   cd ${srcdir}/${pkgname}
   make DESTDIR="$pkgdir" install
   rm "$pkgdir"/usr/bin/ckbcomp
-}
-
-package_ckbcomp() {
-  pkgdesc="Compile a XKB keyboard description to a keymap suitable for loadkeys or kbdcontrol "
-  depends=('kbd' 'xkeyboard-config')
-  conflicts=('console-setup')
-  replaces=('console-setup')
-  provides=('console-setup')
-  cd ${srcdir}/keyboardctl
-  install -D -m 0755 bin/ckbcomp "$pkgdir"/usr/bin/ckbcomp
 }
