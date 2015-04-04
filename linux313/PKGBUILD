@@ -12,7 +12,7 @@ _basekernel=3.13
 _basever=313
 _aufs=20141215 #last version
 _bfq=v7r7
-_subver=17
+_subver=18
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -62,6 +62,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.13.11.15.patch'
         '3.13.11.16.patch'
         '3.13.11.17.patch'
+        '3.13.11.18.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
@@ -107,6 +108,7 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             'a7408d0688f351372527535f097d0cd6896205f5b106105b4ad55c65718bb0c2'
             'f8dee9331938c51812c1a50865753ee143df888eab27f8802f219b5b7208b134'
             'e96975705bbaa1c46bf57798cacae3711f933967b7b1ced8aff6047e10a2d70f'
+            '7a1fe72faf184f4481b952616fd7ffa417dc38c0d76d254d166a615afa6e9edc'
             'e8fec7a0ca0331b5461fd012de62083733ab1078f19ebeee5f435ca100594cee'
             'f20ea80b307864b18d39e698a118015031ac0597167dc4a64a3a79847c2724e7'
             'd16eb5a3cb1a189b333ad54efaeb98c02bcfbf77fadf65e915e1f2308f1bba1d')
@@ -134,6 +136,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.13.11.15.patch"
   patch -p1 -i "${srcdir}/3.13.11.16.patch"
   patch -p1 -i "${srcdir}/3.13.11.17.patch"
+  patch -p1 -i "${srcdir}/3.13.11.18.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
