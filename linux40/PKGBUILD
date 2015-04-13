@@ -6,27 +6,27 @@
 # Maintainer: Guinux <guillaume@manjaro.org>
 # Maintainer: Rob McCathie <rob@manjaro.org>
 
-pkgbase=linux319
-pkgname=('linux319' 'linux319-headers')
+pkgbase=linux40
+pkgname=('linux40' 'linux40-headers')
 _kernelname=-MANJARO
-_basekernel=3.19
-_basever=319
-_aufs=20150323
+_basekernel=4.0
+_basever=40
+_aufs=20150406
 _bfq=v7r7
-pkgver=${_basekernel}.3
+pkgver=${_basekernel}.0
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
-source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.19-${_aufs}.patch.bz2"
+        "aufs3.x-rcN-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
@@ -42,32 +42,31 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
-            'cd9474b61b859d68f83ff0b769bafef8489d2090e0a933d2a7e5f76a23cc071a'
-            'fa6ee9b4659c0eb066d29540c0ad433893c4c753060f0df602df37717d9e6d7d'
-            '4ce45b55b4b081846f5e2d5299b1a04766901e175b77252eee2d8ed1398df0af'
+sha256sums=('0f2f7d44979bc8f71c4fc5d3308c03499c26a824dd311fdf6eef4dee0d7d5991'
+            'a93db37d3b10893b1d2fe4118ec8ba861a38f9bb782a9417b0f6b5af9ce86ae7'
+            '0b448eb5819b9845ce1c7d93dcde68132ebab2a4096b4c30bbdd453e31ef0695'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
-            'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            'cc0388cc053cfcfc82a6dbdc75a5936aa6006da5090fa54a8df17ef1ce5b6366'
-            '0a01083e27244b576a795cdf589be3f9f2983637fd518d9c55191ae7807f70e2'
-            'b056b1927376bddc6a5ab8b5f2bb8566a54b89aa58a4c7749206c19eb55ea62f'
-            '5a1432c49c4b57b1687bb85b780472d1b1bfa43c06957ef9ac6e6cfe2bb1bede'
-            '149d97d81e564a075aa244141131430ab84835f5d25d216f26fa2ea8b6312f19'
-            '2844e223c08783b277286f7624968d4b7aa51907a1d3a57aedb3d4fff5274ed7'
-            '1f009751593946e9e35baaeab01816d92f2b0bd5beae70dcbdd6a2865cc56b80'
-            '134a378395412e3cb638795f667ef14c3b01d11bc464844e9007b3fa23224091'
+            '78243bb197add869e3cf89fc7dd20261edd78cab752ecd2a0f4b90c713ac6899'
+            '5d47f77a71925d39095169c561da1c7f1bd7ed01a65dfbe2735433bf0806b7ae'
+            'd7f3be4bd8bbac2c48787790f78e30fb8a512eccfa2730897479139c7de512d7'
+            '40278abe6fe455ef886c7a1c9a034694ace94e0a04a64a8c6b23254cb5d28221'
+            '74a3fbe96e6f6b9512d6607ebd98f9185a75bfa1531937fb21f8eab05587b4f1'
+            '054951e78b9bbfe4e0a8ad1f0a61f85db70c62aac42e276e6e1e92abf616e2d7'
+            '5543d03973e67c3cca4005f9b0132b244a1a3bf0f35664b42c6f3702218edc78'
+            '1b9e18d44c81594a30f8e1557a461886c73f74c69549f6f8d1aef28e87bfee7f'
+            'f87cda11c2429059413fb88d530c8b1659926892d42329a708bcfe0c65e98584'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '75a43175fb6f289215669a7aff23a86459bcf966303a24b4013a42da53fad035'
-            '68045bcff777bc175e9f17ba46e0a8b13450c4546c6c9db3d9b9e2ed31af812d'
-            'cda196f911af55f8c26e711040a66637aed03df9dfdc149aaf7fdbecf1bb19da'
+            'fac4a507a7a16948a0069be784624f87effeb0b7992507104c7db81c190c93e2'
+            '621d4877d992f353ec6d9f977377552077aeebe85c47e65716e99d699af5cb11'
+            '1509740239a2f5b623bc05b3b9efbfd4e2fa75029503e0770a274f7e7c59d79f'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${pkgver}"
+  #patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -87,7 +86,7 @@ prepare() {
   sed -i -e 's|f_dentry|f_path.dentry|g' "${srcdir}/aufs3-loopback.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.19-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.x-rcN-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
@@ -145,7 +144,7 @@ build() {
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
 }
 
-package_linux319() {
+package_linux40() {
   pkgdesc="The ${pkgbase/linux/Linux} kernel and modules"
   depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
   optdepends=('crda: to set the correct wireless channels of your country')
@@ -212,7 +211,7 @@ package_linux319() {
   install -D -m644 vmlinux "${pkgdir}/usr/lib/modules/${_kernver}/build/vmlinux" 
 }
 
-package_linux319-headers() {
+package_linux40-headers() {
   pkgdesc="Header files and scripts for building modules for ${pkgbase/linux/Linux} kernel"
   provides=("linux-headers=$pkgver")
 

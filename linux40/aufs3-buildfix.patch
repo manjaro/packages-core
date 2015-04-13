@@ -1,0 +1,783 @@
+--- aufs3.18-20141215.patch.orig	2014-12-17 20:12:24.718401000 +0100
++++ aufs3.18-20141215.patch	2014-12-21 10:52:24.173452188 +0100
+@@ -2258,7 +2258,7 @@
+ +	    && au_br_writable(add_branch->br_perm)
+ +	    && !au_test_fs_bad_xino(h_dentry->d_sb)
+ +	    && add_branch->br_xino.xi_file
+-+	    && add_branch->br_xino.xi_file->f_dentry->d_parent == h_dentry)
+++	    && add_branch->br_xino.xi_file->f_path.dentry->d_parent == h_dentry)
+ +		au_xino_brid_set(sb, add_branch->br_id);
+ +
+ +out:
+@@ -2487,7 +2487,7 @@
+ +	struct au_hfile *hfile;
+ +
+ +	err = 0;
+-+	root = IS_ROOT(file->f_dentry);
+++	root = IS_ROOT(file->f_path.dentry);
+ +	if (root) {
+ +		get_file(file);
+ +		to_free[*idx] = file;
+@@ -2880,13 +2880,13 @@
+ +
+ +long au_ibusy_ioctl(struct file *file, unsigned long arg)
+ +{
+-+	return au_ibusy(file->f_dentry->d_sb, (void __user *)arg);
+++	return au_ibusy(file->f_path.dentry->d_sb, (void __user *)arg);
+ +}
+ +
+ +#ifdef CONFIG_COMPAT
+ +long au_ibusy_compat_ioctl(struct file *file, unsigned long arg)
+ +{
+-+	return au_ibusy(file->f_dentry->d_sb, compat_ptr(arg));
+++	return au_ibusy(file->f_path.dentry->d_sb, compat_ptr(arg));
+ +}
+ +#endif
+ +
+@@ -3741,7 +3741,7 @@
+ +		AuLabel(last hole);
+ +
+ +		err = 1;
+-+		if (au_test_nfs(dst->f_dentry->d_sb)) {
+++		if (au_test_nfs(dst->f_path.dentry->d_sb)) {
+ +			/* nfs requires this step to make last hole */
+ +			/* is this only nfs? */
+ +			do {
+@@ -3777,7 +3777,7 @@
+ +	char *buf;
+ +
+ +	err = -ENOMEM;
+-+	blksize = dst->f_dentry->d_sb->s_blocksize;
+++	blksize = dst->f_path.dentry->d_sb->s_blocksize;
+ +	if (!blksize || PAGE_SIZE < blksize)
+ +		blksize = PAGE_SIZE;
+ +	AuDbg("blksize %lu\n", blksize);
+@@ -4486,7 +4486,7 @@
+ +	h_d_start = NULL;
+ +	if (file) {
+ +		h_d_start = hdp[0 + cpg->bsrc].hd_dentry;
+-+		hdp[0 + cpg->bsrc].hd_dentry = au_hf_top(file)->f_dentry;
+++		hdp[0 + cpg->bsrc].hd_dentry = au_hf_top(file)->f_path.dentry;
+ +	}
+ +	flags_orig = cpg->flags;
+ +	cpg->flags = !AuCpup_DTIME;
+@@ -4596,7 +4596,7 @@
+ +		au_set_h_iptr(dir, bdst, au_igrab(h_tmpdir), /*flags*/0);
+ +
+ +		if (file)
+-+			h_dentry = au_hf_top(file)->f_dentry;
+++			h_dentry = au_hf_top(file)->f_path.dentry;
+ +		else
+ +			h_dentry = au_h_dptr(dentry, au_dbstart(dentry));
+ +		mutex_lock_nested(&h_tmpdir->i_mutex, AuLsc_I_PARENT3);
+@@ -5078,7 +5078,7 @@
+ +
+ +	err = -ENOENT;
+ +	xf = NULL;
+-+	name = &file->f_dentry->d_name;
+++	name = &file->f_path.dentry->d_name;
+ +	if (unlikely(name->len < sizeof(DbgaufsXi_PREFIX)
+ +		     || memcmp(name->name, DbgaufsXi_PREFIX,
+ +			       sizeof(DbgaufsXi_PREFIX) - 1)))
+@@ -5472,7 +5472,7 @@
+ +	while (next != &this_parent->d_subdirs) {
+ +		struct list_head *tmp = next;
+ +		struct dentry *dentry = list_entry(tmp, struct dentry,
+-+						   d_u.d_child);
+++						   d_child);
+ +
+ +		next = tmp->next;
+ +		spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
+@@ -5508,7 +5508,7 @@
+ +		this_parent = tmp;
+ +		spin_lock(&this_parent->d_lock);
+ +		rcu_read_unlock();
+-+		next = child->d_u.d_child.next;
+++		next = child->d_child.next;
+ +		goto resume;
+ +	}
+ +
+@@ -5876,7 +5876,7 @@
+ +	struct dentry *d;
+ +
+ +	spin_lock(&inode->i_lock);
+-+	hlist_for_each_entry(d, &inode->i_dentry, d_alias)
+++	hlist_for_each_entry(d, &inode->i_dentry, d_u.d_alias)
+ +		au_dpri_dentry(d);
+ +	spin_unlock(&inode->i_lock);
+ +}
+@@ -5945,16 +5945,16 @@
+ +	}
+ +	a[0] = 0;
+ +	if (bindex < 0
+-+	    && file->f_dentry
+-+	    && au_test_aufs(file->f_dentry->d_sb)
+++	    && file->f_path.dentry
+++	    && au_test_aufs(file->f_path.dentry->d_sb)
+ +	    && au_fi(file))
+ +		snprintf(a, sizeof(a), ", gen %d, mmapped %d",
+ +			 au_figen(file), atomic_read(&au_fi(file)->fi_mmapped));
+ +	dpri("f%d: mode 0x%x, flags 0%o, cnt %ld, v %llu, pos %llu%s\n",
+ +	     bindex, file->f_mode, file->f_flags, (long)file_count(file),
+ +	     file->f_version, file->f_pos, a);
+-+	if (file->f_dentry)
+-+		do_pri_dentry(bindex, file->f_dentry);
+++	if (file->f_path.dentry)
+++		do_pri_dentry(bindex, file->f_path.dentry);
+ +	return 0;
+ +}
+ +
+@@ -5967,7 +5967,7 @@
+ +	int err;
+ +
+ +	err = do_pri_file(-1, file);
+-+	if (err || !file->f_dentry || !au_test_aufs(file->f_dentry->d_sb))
+++	if (err || !file->f_path.dentry || !au_test_aufs(file->f_path.dentry->d_sb))
+ +		return;
+ +
+ +	finfo = au_fi(file);
+@@ -8485,7 +8485,7 @@
+ +	struct file *h_file;
+ +
+ +	/* open all lower dirs */
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	bstart = au_dbstart(dentry);
+ +	for (bindex = au_fbstart(file); bindex < bstart; bindex++)
+ +		au_set_h_fptr(file, bindex, NULL);
+@@ -8530,7 +8530,7 @@
+ +	FiMustWriteLock(file);
+ +
+ +	err = 0;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	file->f_version = dentry->d_inode->i_version;
+ +	bindex = au_dbstart(dentry);
+ +	au_set_fbstart(file, bindex);
+@@ -8571,7 +8571,7 @@
+ +	struct au_fidir *fidir;
+ +
+ +	err = -ENOMEM;
+-+	sb = file->f_dentry->d_sb;
+++	sb = file->f_path.dentry->d_sb;
+ +	si_read_lock(sb, AuLock_FLUSH);
+ +	fidir = au_fidir_alloc(sb);
+ +	if (fidir) {
+@@ -8595,7 +8595,7 @@
+ +	fidir = finfo->fi_hdir;
+ +	if (fidir) {
+ +		au_sphl_del(&finfo->fi_hlist,
+-+			    &au_sbi(file->f_dentry->d_sb)->si_files);
+++			    &au_sbi(file->f_path.dentry->d_sb)->si_files);
+ +		vdir_cache = fidir->fd_vdir_cache; /* lock-free */
+ +		if (vdir_cache)
+ +			au_vdir_free(vdir_cache);
+@@ -8682,7 +8682,7 @@
+ +	if (unlikely(err))
+ +		goto out;
+ +
+-+	sb = file->f_dentry->d_sb;
+++	sb = file->f_path.dentry->d_sb;
+ +	inode = file_inode(file);
+ +	bend = au_fbend_dir(file);
+ +	for (bindex = au_fbstart(file); !err && bindex <= bend; bindex++) {
+@@ -8709,7 +8709,7 @@
+ +	struct mutex *mtx;
+ +
+ +	err = 0;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	mtx = &dentry->d_inode->i_mutex;
+ +	mutex_lock(mtx);
+ +	sb = dentry->d_sb;
+@@ -8741,7 +8741,7 @@
+ +
+ +	AuDbg("%pD, ctx{%pf, %llu}\n", file, ctx->actor, ctx->pos);
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	inode = dentry->d_inode;
+ +	IMustLock(inode);
+ +
+@@ -9861,7 +9861,7 @@
+ +		dentry = d_find_alias(inode);
+ +	else {
+ +		spin_lock(&inode->i_lock);
+-+		hlist_for_each_entry(d, &inode->i_dentry, d_alias) {
+++		hlist_for_each_entry(d, &inode->i_dentry, d_u.d_alias) {
+ +			spin_lock(&d->d_lock);
+ +			if (!au_test_anon(d)
+ +			    && d->d_parent->d_inode->i_ino == dir_ino) {
+@@ -11116,7 +11116,7 @@
+ +	if (unlikely(err))
+ +		goto out;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	di_write_lock_child(dentry);
+ +	err = au_cmoo(dentry);
+ +	di_downgrade_lock(dentry, AuLock_IR);
+@@ -11128,7 +11128,7 @@
+ +	if (!err) {
+ +		finfo->fi_file = file;
+ +		au_sphl_add(&finfo->fi_hlist,
+-+			    &au_sbi(file->f_dentry->d_sb)->si_files);
+++			    &au_sbi(file->f_path.dentry->d_sb)->si_files);
+ +	}
+ +	fi_write_unlock(file);
+ +	if (unlikely(err)) {
+@@ -11147,7 +11147,7 @@
+ +	struct dentry *dentry;
+ +	struct file *h_file, *h_file_tmp;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	bstart = au_dbstart(dentry);
+ +	h_file_tmp = NULL;
+ +	if (au_fbstart(file) == bstart) {
+@@ -11207,7 +11207,7 @@
+ +	struct dentry *h_dentry;
+ +	struct au_hdentry *hdp;
+ +
+-+	dinfo = au_di(file->f_dentry);
+++	dinfo = au_di(file->f_path.dentry);
+ +	AuRwMustWriteLock(&dinfo->di_rwsem);
+ +
+ +	bstart = dinfo->di_bstart;
+@@ -11229,7 +11229,7 @@
+ +	struct inode *inode, *h_inode;
+ +	struct dentry *h_dentry, *hi_wh;
+ +	struct au_cp_generic cpg = {
+-+		.dentry	= file->f_dentry,
+++		.dentry	= file->f_path.dentry,
+ +		.bdst	= bcpup,
+ +		.bsrc	= -1,
+ +		.len	= len,
+@@ -11273,7 +11273,7 @@
+ +	struct super_block *sb;
+ +	struct file *h_file;
+ +	struct au_cp_generic cpg = {
+-+		.dentry	= file->f_dentry,
+++		.dentry	= file->f_path.dentry,
+ +		.bdst	= -1,
+ +		.bsrc	= -1,
+ +		.len	= len,
+@@ -11311,7 +11311,7 @@
+ +	if (unlikely(err))
+ +		goto out_dgrade;
+ +
+-+	h_dentry = au_hf_top(file)->f_dentry;
+++	h_dentry = au_hf_top(file)->f_path.dentry;
+ +	dbstart = au_dbstart(cpg.dentry);
+ +	if (dbstart <= cpg.bdst) {
+ +		h_dentry = au_h_dptr(cpg.dentry, cpg.bdst);
+@@ -11394,7 +11394,7 @@
+ +	struct inode *inode;
+ +	struct super_block *sb;
+ +	struct au_cp_generic cpg = {
+-+		.dentry	= file->f_dentry,
+++		.dentry	= file->f_path.dentry,
+ +		.bdst	= -1,
+ +		.bsrc	= -1,
+ +		.len	= -1,
+@@ -11465,7 +11465,7 @@
+ +
+ +	FiMustWriteLock(file);
+ +
+-+	sb = file->f_dentry->d_sb;
+++	sb = file->f_path.dentry->d_sb;
+ +	finfo = au_fi(file);
+ +	fidir = finfo->fi_hdir;
+ +	AuDebugOn(!fidir);
+@@ -11496,7 +11496,7 @@
+ +	}
+ +
+ +	p = fidir->fd_hfile;
+-+	if (!au_test_mmapped(file) && !d_unlinked(file->f_dentry)) {
+++	if (!au_test_mmapped(file) && !d_unlinked(file->f_path.dentry)) {
+ +		bend = au_sbend(sb);
+ +		for (finfo->fi_btop = 0; finfo->fi_btop <= bend;
+ +		     finfo->fi_btop++, p++)
+@@ -11536,7 +11536,7 @@
+ +	struct au_finfo *finfo;
+ +	struct au_hfile *hfile;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	finfo = au_fi(file);
+ +	if (!finfo->fi_hdir) {
+ +		hfile = &finfo->fi_htop;
+@@ -11586,7 +11586,7 @@
+ +	struct inode *inode;
+ +
+ +	err = 0;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	inode = dentry->d_inode;
+ +	sigen = au_sigen(dentry->d_sb);
+ +	fi_write_lock(file);
+@@ -12054,13 +12054,13 @@
+ +	if (val) {
+ +		FiMustWriteLock(file);
+ +		hf->hf_file = val;
+-+		hf->hf_br = au_sbr(file->f_dentry->d_sb, bindex);
+++		hf->hf_br = au_sbr(file->f_path.dentry->d_sb, bindex);
+ +	}
+ +}
+ +
+ +void au_update_figen(struct file *file)
+ +{
+-+	atomic_set(&au_fi(file)->fi_generation, au_digen(file->f_dentry));
+++	atomic_set(&au_fi(file)->fi_generation, au_digen(file->f_path.dentry));
+ +	/* smp_mb(); */ /* atomic_set */
+ +}
+ +
+@@ -12111,7 +12111,7 @@
+ +{
+ +	struct au_finfo *finfo;
+ +
+-+	au_nfiles_dec(file->f_dentry->d_sb);
+++	au_nfiles_dec(file->f_path.dentry->d_sb);
+ +
+ +	finfo = au_fi(file);
+ +	AuDebugOn(finfo->fi_hdir);
+@@ -12135,7 +12135,7 @@
+ +	struct dentry *dentry;
+ +
+ +	err = -ENOMEM;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	finfo = au_cache_alloc_finfo();
+ +	if (unlikely(!finfo))
+ +		goto out;
+@@ -12200,7 +12200,7 @@
+ +	FiMustWriteLock(file);
+ +
+ +	err = 0;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	finfo = au_fi(file);
+ +	memset(&finfo->fi_htop, 0, sizeof(finfo->fi_htop));
+ +	atomic_set(&finfo->fi_mmapped, 0);
+@@ -12235,7 +12235,7 @@
+ +	AuDbg("%pD, f_flags 0x%x, f_mode 0x%x\n",
+ +	      file, vfsub_file_flags(file), file->f_mode);
+ +
+-+	sb = file->f_dentry->d_sb;
+++	sb = file->f_path.dentry->d_sb;
+ +	si_read_lock(sb, AuLock_FLUSH);
+ +	err = au_do_open(file, au_do_open_nondir, /*fidir*/NULL);
+ +	si_read_unlock(sb);
+@@ -12248,7 +12248,7 @@
+ +	aufs_bindex_t bindex;
+ +
+ +	finfo = au_fi(file);
+-+	au_sphl_del(&finfo->fi_hlist, &au_sbi(file->f_dentry->d_sb)->si_files);
+++	au_sphl_del(&finfo->fi_hlist, &au_sbi(file->f_path.dentry->d_sb)->si_files);
+ +	bindex = finfo->fi_btop;
+ +	if (bindex >= 0)
+ +		au_set_h_fptr(file, bindex, NULL);
+@@ -12293,7 +12293,7 @@
+ +	struct file *h_file;
+ +	struct super_block *sb;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	si_read_lock(sb, AuLock_FLUSH | AuLock_NOPLMW);
+ +	err = au_reval_and_lock_fdi(file, au_reopen_nondir, /*wlock*/0);
+@@ -12353,7 +12353,7 @@
+ +	struct file *h_file;
+ +	char __user *buf = (char __user *)ubuf;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	inode = dentry->d_inode;
+ +	au_mtx_and_read_lock(inode);
+@@ -12373,7 +12373,7 @@
+ +	bstart = au_fbstart(file);
+ +	h_file = au_hf_top(file);
+ +	get_file(h_file);
+-+	h_inode = h_file->f_dentry->d_inode;
+++	h_inode = h_file->f_path.dentry->d_inode;
+ +	blks = h_inode->i_blocks;
+ +	au_unpin(&pin);
+ +	di_read_unlock(dentry, AuLock_IR);
+@@ -12446,7 +12446,7 @@
+ +	struct super_block *sb;
+ +
+ +	file = kio->ki_filp;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	si_read_lock(sb, AuLock_FLUSH | AuLock_NOPLMW);
+ +	err = au_reval_and_lock_fdi(file, au_reopen_nondir, /*wlock*/0);
+@@ -12482,7 +12482,7 @@
+ +	struct super_block *sb;
+ +
+ +	file = kio->ki_filp;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	inode = dentry->d_inode;
+ +	au_mtx_and_read_lock(inode);
+@@ -12502,7 +12502,7 @@
+ +	bstart = au_fbstart(file);
+ +	h_file = au_hf_top(file);
+ +	get_file(h_file);
+-+	h_inode = h_file->f_dentry->d_inode;
+++	h_inode = h_file->f_path.dentry->d_inode;
+ +	blks = h_inode->i_blocks;
+ +	au_unpin(&pin);
+ +	di_read_unlock(dentry, AuLock_IR);
+@@ -12533,7 +12533,7 @@
+ +	struct dentry *dentry;
+ +	struct super_block *sb;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	si_read_lock(sb, AuLock_FLUSH | AuLock_NOPLMW);
+ +	err = au_reval_and_lock_fdi(file, au_reopen_nondir, /*wlock*/0);
+@@ -12544,7 +12544,7 @@
+ +	h_file = au_hf_top(file);
+ +	get_file(h_file);
+ +	if (au_test_loopback_kthread()) {
+-+		au_warn_loopback(h_file->f_dentry->d_sb);
+++		au_warn_loopback(h_file->f_path.dentry->d_sb);
+ +		if (file->f_mapping != h_file->f_mapping) {
+ +			file->f_mapping = h_file->f_mapping;
+ +			smp_mb(); /* unnecessary? */
+@@ -12578,7 +12578,7 @@
+ +	struct super_block *sb;
+ +	struct file *h_file;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	inode = dentry->d_inode;
+ +	au_mtx_and_read_lock(inode);
+@@ -12598,7 +12598,7 @@
+ +	bstart = au_fbstart(file);
+ +	h_file = au_hf_top(file);
+ +	get_file(h_file);
+-+	h_inode = h_file->f_dentry->d_inode;
+++	h_inode = h_file->f_path.dentry->d_inode;
+ +	blks = h_inode->i_blocks;
+ +	au_unpin(&pin);
+ +	di_read_unlock(dentry, AuLock_IR);
+@@ -12630,7 +12630,7 @@
+ +	struct inode *inode;
+ +	struct file *h_file;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	inode = dentry->d_inode;
+ +	au_mtx_and_read_lock(inode);
+@@ -12654,7 +12654,7 @@
+ +	fi_write_unlock(file);
+ +
+ +	lockdep_off();
+-+	err = do_fallocate(h_file, mode, offset, len);
+++	err = vfs_fallocate(h_file, mode, offset, len);
+ +	lockdep_on();
+ +	ii_write_lock_child(inode);
+ +	au_cpup_attr_timesizes(inode);
+@@ -12739,7 +12739,7 @@
+ +
+ +	AuDbgVmRegion(file, vma);
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	lockdep_off();
+ +	si_read_lock(sb, AuLock_NOPLMW);
+@@ -12809,7 +12809,7 @@
+ +	struct file *h_file;
+ +	struct super_block *sb;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	inode = dentry->d_inode;
+ +	sb = dentry->d_sb;
+ +	mutex_lock(&inode->i_mutex);
+@@ -12856,7 +12856,7 @@
+ +	struct file *file, *h_file;
+ +
+ +	file = kio->ki_filp;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	inode = dentry->d_inode;
+ +	au_mtx_and_read_lock(inode);
+ +
+@@ -12910,7 +12910,7 @@
+ +	struct dentry *dentry;
+ +	struct super_block *sb;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	si_read_lock(sb, AuLock_FLUSH | AuLock_NOPLMW);
+ +	err = au_reval_and_lock_fdi(file, au_reopen_nondir, /*wlock*/0);
+@@ -14012,7 +14012,7 @@
+ +		AuDebugOn(!name);
+ +		au_iigen_dec(inode);
+ +		spin_lock(&inode->i_lock);
+-+		hlist_for_each_entry(d, &inode->i_dentry, d_alias) {
+++		hlist_for_each_entry(d, &inode->i_dentry, d_u.d_alias) {
+ +			spin_lock(&d->d_lock);
+ +			dname = &d->d_name;
+ +			if (dname->len != nlen
+@@ -14179,7 +14179,7 @@
+ +
+ +	dentry = NULL;
+ +	spin_lock(&parent->d_lock);
+-+	list_for_each_entry(d, &parent->d_subdirs, d_u.d_child) {
+++	list_for_each_entry(d, &parent->d_subdirs, d_child) {
+ +		/* AuDbg("%pd\n", d); */
+ +		spin_lock_nested(&d->d_lock, DENTRY_D_LOCK_NESTED);
+ +		dname = &d->d_name;
+@@ -16026,7 +16026,7 @@
+ +			goto out;
+ +	}
+ +
+-+	fd = get_unused_fd();
+++	fd = get_unused_fd_flags(0);
+ +	err = fd;
+ +	if (unlikely(fd < 0))
+ +		goto out;
+@@ -16110,7 +16110,7 @@
+ +		break;
+ +
+ +	case AUFS_CTL_FHSM_FD:
+-+		dentry = file->f_dentry;
+++		dentry = file->f_path.dentry;
+ +		if (IS_ROOT(dentry))
+ +			err = au_fhsm_fd(dentry->d_sb, arg);
+ +		else
+@@ -16133,7 +16133,7 @@
+ +
+ +	switch (cmd) {
+ +	case AUFS_CTL_MVDOWN:
+-+		err = au_mvdown(file->f_dentry, (void __user *)arg);
+++		err = au_mvdown(file->f_path.dentry, (void __user *)arg);
+ +		break;
+ +
+ +	case AUFS_CTL_WBR_FD:
+@@ -17301,7 +17301,7 @@
+ +	    && inode
+ +	    && S_ISDIR(inode->i_mode)) {
+ +		atomic_inc(&inode->i_count);
+-+		ret = d_materialise_unique(dentry, inode);
+++		ret = d_splice_alias(inode, dentry);
+ +		if (!IS_ERR(ret))
+ +			ii_write_unlock(inode);
+ +	}
+@@ -20172,7 +20172,7 @@
+ +	if (!backing_file)
+ +		return 0;
+ +
+-+	h_adding = backing_file->f_dentry;
+++	h_adding = backing_file->f_path.dentry;
+ +	/*
+ +	 * h_adding can be local NFS.
+ +	 * in this case aufs cannot detect the loop.
+@@ -22379,7 +22379,7 @@
+ +		goto out;
+ +
+ +	err = -EINVAL;
+-+	if (unlikely(file->f_dentry->d_sb == sb)) {
+++	if (unlikely(file->f_path.dentry->d_sb == sb)) {
+ +		fput(file);
+ +		pr_err("%s must be outside\n", args[0].from);
+ +		goto out;
+@@ -23007,7 +23007,7 @@
+ +		au_xino_brid_set(sb, -1);
+ +
+ +		/* safe d_parent access */
+-+		parent = opt->xino.file->f_dentry->d_parent;
+++		parent = opt->xino.file->f_path.dentry->d_parent;
+ +		root = sb->s_root;
+ +		bend = au_sbend(sb);
+ +		for (bindex = 0; bindex <= bend; bindex++) {
+@@ -24087,7 +24087,7 @@
+ +
+ +	/* We should pretend an error happened. */
+ +	mask = POLLERR /* | POLLIN | POLLOUT */;
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	sb = dentry->d_sb;
+ +	si_read_lock(sb, AuLock_FLUSH | AuLock_NOPLMW);
+ +	err = au_reval_and_lock_fdi(file, au_reopen_nondir, /*wlock*/0);
+@@ -24543,7 +24543,7 @@
+ +	if (unlikely(err))
+ +		goto out;
+ +
+-+	dentry = file->f_dentry;
+++	dentry = file->f_path.dentry;
+ +	inode = dentry->d_inode;
+ +#if 1
+ +	mutex_lock(&inode->i_mutex);
+@@ -24627,7 +24627,7 @@
+ +	err = 0;
+ +	nent = rdu->nent;
+ +	u = &rdu->ent;
+-+	sb = file->f_dentry->d_sb;
+++	sb = file->f_path.dentry->d_sb;
+ +	si_read_lock(sb, AuLock_FLUSH);
+ +	while (nent-- > 0) {
+ +		/* unnecessary to support mmap_sem since this is a dir */
+@@ -25638,7 +25638,7 @@
+ +		hdp = au_di(sb->s_root)->di_hdentry;
+ +		h_root = hdp[0 + bindex].hd_dentry;
+ +	}
+-+	d = f->f_dentry;
+++	d = f->f_path.dentry;
+ +	name = &d->d_name;
+ +	/* safe ->d_parent because the file is unlinked */
+ +	if (d->d_parent == h_root
+@@ -27595,13 +27595,13 @@
+ +
+ +long au_brinfo_ioctl(struct file *file, unsigned long arg)
+ +{
+-+	return au_brinfo(file->f_dentry->d_sb, (void __user *)arg);
+++	return au_brinfo(file->f_path.dentry->d_sb, (void __user *)arg);
+ +}
+ +
+ +#ifdef CONFIG_COMPAT
+ +long au_brinfo_compat_ioctl(struct file *file, unsigned long arg)
+ +{
+-+	return au_brinfo(file->f_dentry->d_sb, compat_ptr(arg));
+++	return au_brinfo(file->f_path.dentry->d_sb, compat_ptr(arg));
+ +}
+ +#endif
+ +
+@@ -28209,7 +28209,7 @@
+ +	struct super_block *sb;
+ +	int err;
+ +
+-+	sb = file->f_dentry->d_sb;
+++	sb = file->f_path.dentry->d_sb;
+ +	SiMustAnyLock(sb);
+ +
+ +	err = -ENOMEM;
+@@ -28303,7 +28303,7 @@
+ +	const unsigned char shwh = !!au_ftest_fillvdir(arg->flags, SHWH);
+ +
+ +	arg->err = 0;
+-+	sb = arg->file->f_dentry->d_sb;
+++	sb = arg->file->f_path.dentry->d_sb;
+ +	au_fset_fillvdir(arg->flags, CALLED);
+ +	/* smp_mb(); */
+ +	if (nlen <= AUFS_WH_PFX_LEN
+@@ -28312,7 +28312,7 @@
+ +		    || au_nhash_test_known_wh(&arg->whlist, name, nlen))
+ +			goto out; /* already exists or whiteouted */
+ +
+-+		sb = arg->file->f_dentry->d_sb;
+++		sb = arg->file->f_path.dentry->d_sb;
+ +		arg->err = au_ino(sb, arg->bindex, h_ino, d_type, &ino);
+ +		if (!arg->err) {
+ +			if (unlikely(nlen > AUFS_MAX_NAMELEN))
+@@ -28402,7 +28402,7 @@
+ +	struct super_block *sb;
+ +
+ +	file = arg->file;
+-+	sb = file->f_dentry->d_sb;
+++	sb = file->f_path.dentry->d_sb;
+ +	SiMustAnyLock(sb);
+ +
+ +	rdhash = au_sbi(sb)->si_rdhash;
+@@ -29208,7 +29208,7 @@
+ +
+ +	err = 0;
+ +	if (file->f_op->flush) {
+-+		if (!au_test_nfs(file->f_dentry->d_sb))
+++		if (!au_test_nfs(file->f_path.dentry->d_sb))
+ +			err = file->f_op->flush(file, id);
+ +		else {
+ +			lockdep_off();
+@@ -32455,7 +32455,7 @@
+ +
+ +#if 0 /* reserved for future use */
+ +	if (err > 0)
+-+		fsnotify_access(file->f_dentry);
+++		fsnotify_access(file->f_path.dentry);
+ +#endif
+ +
+ +	return err;
+@@ -32484,7 +32484,7 @@
+ +
+ +#if 0 /* reserved for future use */
+ +	if (err > 0)
+-+		fsnotify_modify(file->f_dentry);
+++		fsnotify_modify(file->f_path.dentry);
+ +#endif
+ +
+ +	return err;
+@@ -32552,7 +32552,7 @@
+ +	struct path path;
+ +	int err;
+ +
+-+	base = base_file->f_dentry;
+++	base = base_file->f_path.dentry;
+ +	parent = base->d_parent; /* dir inode is locked */
+ +	dir = parent->d_inode;
+ +	IMustLock(dir);
+@@ -32635,7 +32635,7 @@
+ +		ldir->hdir = au_hi(sb->s_root->d_inode, bindex);
+ +		au_hn_imtx_lock_nested(ldir->hdir, AuLsc_I_PARENT);
+ +	} else {
+-+		ldir->parent = dget_parent(xino->f_dentry);
+++		ldir->parent = dget_parent(xino->f_path.dentry);
+ +		ldir->mtx = &ldir->parent->d_inode->i_mutex;
+ +		mutex_lock_nested(ldir->mtx, AuLsc_I_PARENT);
+ +	}
+@@ -33157,7 +33157,7 @@
+ +	}
+ +
+ +	/* keep file count */
+-+	h_parent = dget_parent(file->f_dentry);
+++	h_parent = dget_parent(file->f_path.dentry);
+ +	h_dir = h_parent->d_inode;
+ +	mutex_lock_nested(&h_dir->i_mutex, AuLsc_I_PARENT);
+ +	/* mnt_want_write() is unnecessary here */
+@@ -33172,7 +33172,7 @@
+ +	}
+ +
+ +	err = -EINVAL;
+-+	d = file->f_dentry;
+++	d = file->f_path.dentry;
+ +	if (unlikely(sb == d->d_sb)) {
+ +		if (!silent)
+ +			pr_err("%s must be outside\n", fname);
+@@ -33605,14 +33605,14 @@
+ +
+ +	err = 0;
+ +	sbinfo = au_sbi(sb);
+-+	parent = dget_parent(xino->file->f_dentry);
+++	parent = dget_parent(xino->file->f_path.dentry);
+ +	if (remount) {
+ +		skip = 0;
+-+		dname = &xino->file->f_dentry->d_name;
+++		dname = &xino->file->f_path.dentry->d_name;
+ +		cur_xino = sbinfo->si_xib;
+ +		if (cur_xino) {
+-+			cur_parent = dget_parent(cur_xino->f_dentry);
+-+			cur_name = &cur_xino->f_dentry->d_name;
+++			cur_parent = dget_parent(cur_xino->f_path.dentry);
+++			cur_name = &cur_xino->f_path.dentry->d_name;
+ +			skip = (cur_parent == parent
+ +				&& au_qstreq(dname, cur_name));
+ +			dput(cur_parent);
+@@ -33689,7 +33689,7 @@
+ +		file = au_xino_create(sb, AUFS_XINO_DEFPATH, /*silent*/0);
+ +		if (IS_ERR(file))
+ +			goto out;
+-+		h_sb = file->f_dentry->d_sb;
+++		h_sb = file->f_path.dentry->d_sb;
+ +		if (unlikely(au_test_fs_bad_xino(h_sb))) {
+ +			pr_err("xino doesn't support %s(%s)\n",
+ +			       AUFS_XINO_DEFPATH, au_sbtype(h_sb));
