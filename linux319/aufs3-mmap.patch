@@ -367,7 +367,7 @@ index 28bd8c4..3c0ace2 100644
  	return ret;
 diff --git a/mm/prfile.c b/mm/prfile.c
 new file mode 100644
-index 0000000..fc708d2
+index 0000000..6c145eb
 --- /dev/null
 +++ b/mm/prfile.c
 @@ -0,0 +1,86 @@
@@ -393,7 +393,7 @@ index 0000000..fc708d2
 +#ifdef PRFILE_TRACE
 +	if (pr)
 +		pr_info("%s:%d: %s, %p\n", func, line, func2,
-+			f ? (char *)f->f_dentry->d_name.name : "(null)");
++			f ? (char *)f->f_path.dentry->d_name.name : "(null)");
 +#endif
 +}
 +
