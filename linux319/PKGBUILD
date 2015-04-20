@@ -170,9 +170,9 @@ package_linux319() {
 
   # add kernel version
   if [ "${CARCH}" = "x86_64" ]; then
-     echo "${pkgver}-${pkgrel}-MANJARO x64" > "${pkgdir}/boot/vmlinuz-${_basekernel}-${CARCH}.kver"
+     echo "${pkgver}-${pkgrel}-MANJARO x64" > "${pkgdir}/boot/${pkgbase}-${CARCH}.kver"
   else
-     echo "${pkgver}-${pkgrel}-MANJARO x32" > "${pkgdir}/boot/vmlinuz-${_basekernel}-${CARCH}.kver"
+     echo "${pkgver}-${pkgrel}-MANJARO x32" > "${pkgdir}/boot/${pkgbase}-${CARCH}.kver"
   fi
 
   # set correct depmod command for install

@@ -75,7 +75,7 @@ index 00d1931..f403585 100644
  EOF
    if test -n "${initrd}" ; then
      # TRANSLATORS: ramdisk isn't identifier. Should be translated.
-@@ -190,7 +193,19 @@ while [ "x$list" != "x" ] ; do
+@@ -190,7 +190,27 @@ while [ "x$list" != "x" ] ; do
    alt_version=`echo $version | sed -e "s,\.old$,,g"`
    linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
  
@@ -87,6 +87,14 @@ index 00d1931..f403585 100644
 +    kbasename2="`echo "${basename}" | sed -e 's,vmlinuz-,linux-,g'`"
 +    if test -e "${dirname}/${kbasename2}.kver" ; then
 + 	version="$(cat ${dirname}/${kbasename2}.kver)"
++    fi
++    kbasename3="`echo "${basename}" | sed -e 's,vmlinuz-,linux,g' | sed -e 's,\.,,g'`"
++    if test -e "${dirname}/${kbasename3}.kver" ; then
++ 	version="$(cat ${dirname}/${kbasename3}.kver)"
++    fi
++    kbasename4="`echo "${basename}" | sed -e 's,vmlinuz-,linux-,g' | sed -e 's,\.,,g'`"
++    if test -e "${dirname}/${kbasename4}.kver" ; then
++ 	version="$(cat ${dirname}/${kbasename4}.kver)"
 +    fi
 +  fi
 +
