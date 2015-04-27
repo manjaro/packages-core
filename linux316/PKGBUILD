@@ -10,9 +10,9 @@ pkgname=('linux316' 'linux316-headers')
 _kernelname=-MANJARO
 _basekernel=3.16
 _basever=316
-_aufs=20150330
+_aufs=20150427
 _bfq=v7r7
-_subver=9
+_subver=10
 pkgver=${_basekernel}.7.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -35,6 +35,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         'aufs316-3.16.7.4.patch'
+        '0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
@@ -52,23 +53,25 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.16.7.6.patch'
         '3.16.7.7.patch'
         '3.16.7.8.patch'
-        '3.16.7.9.patch')
+        '3.16.7.9.patch'
+        '3.16.7.10.patch')
 
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
             '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
-            'd3be8e800b7fa0ab82700a61f7c85e4fe351f1b73688120a9a465bd34b473b19'
-            '9b844e6f1bb8eb2bca2380b560c6a1e27a878f588848a39e6dc258471a88f682'
+            '45602d7b1e3d10edfa174f7af904d310c5e5305e9464ebed5369728c4af891a2'
+            '31ffc60195e9298476009d354e4ea8302791a55df61f3b0a4f8729869f71a607'
             'e205c445e9ac4e296f11b40d9cd4f6a8e9f9bc2161ff5529bbc0ff7b9b2d0304'
             'a91c5affffb9e24cf0e34e1ab1c9e593219f67ef81834e0e4e9572281ef760c0'
-            'e74c2e82261652a25e009aeeb46265582d85d15e3b2e0d2df7e11d9bdd445bf2'
+            '1f1dd23d8699e6f2ab5e6c4577346a67d2667e27603e660c8a2b36e79c6e5389'
             'a8252ad22195cba7cb78bb047ad82297e1ee7b391a45d14d70ab7b2a6c29cb7a'
             '89b699bdf92d26fedcdb10dfd1ff26ba3d439a3695508e2e0282ec7836fc016e'
             '52b568d5504c88b3025ceed4620b35ff4c7a249bc0310bbbaf31c21c1cdf7899'
             'a728d65b64f1e7bc29ef1887341383af4da98ee1ab553e5e521c3cb3e725583d'
             '59f34c00c0846377ebf5bc6934a73bb98a71ee33ae93cd2b3b8415dff71d857a'
+            'ddbc218347b06db757212e337488a1a940e2adc29522c0a4e39887075ea88be1'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             '550a109df159d799bec3888aa6916c3e622199e262d0d4142c38ad13cbb23bae'
@@ -84,7 +87,8 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '0b4d08eb76bbeb52359ea20a8c4cfd2f0a7f35f6f5c891f03f09b2c4b42bd75e'
             'e803f19a4cea764d502e5e82c76a9405fd4fd0fc4b01a5367990a72bc268d8eb'
             '32e5716e9fd5a659655f5cbfdc91abca928d3db1279e0fba94de287aa83ca257'
-            'b3c54a957d03af43371921e7d893d613a1bb6fc2dd56a49955c0fcf1d59194c5')
+            'b3c54a957d03af43371921e7d893d613a1bb6fc2dd56a49955c0fcf1d59194c5'
+            'dcbc8ad53dbdf83f889f05c7d03ff78119dfa3c10786d165b44c5f37cfb80f1d')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -102,6 +106,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.16.7.7.patch"
   patch -p1 -i "${srcdir}/3.16.7.8.patch"
   patch -p1 -i "${srcdir}/3.16.7.9.patch"
+  patch -p1 -i "${srcdir}/3.16.7.10.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -115,6 +120,9 @@ prepare() {
 
   # #41458 fix hwmon for compal-laptop module
   patch -p1 -i "${srcdir}/compal-laptop-hwmon-fix.patch"
+
+  # https://github.com/manjaro/packages-core/issues/9
+  patch -Np1 -i "${srcdir}/0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
@@ -196,7 +204,7 @@ package_linux316() {
 
   mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot}
   make LOCALVERSION= INSTALL_MOD_PATH="${pkgdir}" modules_install
-  cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${_basever}-${CARCH}"
+  cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${_basekernel}-${CARCH}"
 
   # add kernel version
   if [ "${CARCH}" = "x86_64" ]; then
@@ -219,9 +227,9 @@ package_linux316() {
   # install mkinitcpio preset file for kernel
   install -D -m644 "${srcdir}/${pkgname}.preset" "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
   sed \
-    -e "s|ALL_kver=.*|ALL_kver=\"/boot/vmlinuz-${_basever}-${CARCH}\"|g" \
-    -e "s|default_image=.*|default_image=\"/boot/initramfs-${_basever}-${CARCH}.img\"|g" \
-    -e "s|fallback_image=.*|fallback_image=\"/boot/initramfs-${_basever}-${CARCH}-fallback.img\"|g" \
+    -e "s|ALL_kver=.*|ALL_kver=\"/boot/vmlinuz-${_basekernel}-${CARCH}\"|g" \
+    -e "s|default_image=.*|default_image=\"/boot/initramfs-${_basekernel}-${CARCH}.img\"|g" \
+    -e "s|fallback_image=.*|fallback_image=\"/boot/initramfs-${_basekernel}-${CARCH}-fallback.img\"|g" \
     -i "${pkgdir}/etc/mkinitcpio.d/${pkgname}.preset"
 
   # remove build and source links
