@@ -12,7 +12,7 @@ _basekernel=3.10
 _basever=310
 _aufs=20141215 #last version
 _bfq=v7r7
-pkgver=${_basekernel}.75
+pkgver=${_basekernel}.76
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -31,6 +31,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
+        'aufs310-3.10.76.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         '0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch'
@@ -45,7 +46,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch")
 
 sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
-            'b0ff6e17971109a87bd0eb484a8752c9b9071fb2d55ae2cc863bb7dd02440a61'
+            '0882a31148e5305d7f54925393d1e63afd271aa6770638a0c78b3d4322d69cee'
             '1fd1a2835badd1243343021eb2338e11eaa07b718503ad6f247225315f4bfe40'
             '581d427a701099f76a535389f1ae175d0d9a1fd34de8d416c36cdedcc136b2cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -56,6 +57,7 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             'de94707db6c760400ea7dcae7d0f827ea931a19525efe1f4676f0bf301262dc3'
             'acb79184ad9fc14d19c0594271e27eef2b6e1cafec68388962cf75f24e306d3a'
             'c6d83de849f843a6d171f01b780fc4c14bfcb8d7ad78acc30546238c1b49cc02'
+            '3952c547344ae6498cecee3a1e762b575e1e6dfe08ef933f905eda6f9ceaa691'
             '24ed088936a63925e2df26c0e2ba2cf5bca54f05e384d5b4a5c890c9eb92c3e2'
             '9151b754d8b06fe737c179c75e6229d81cc197fb4ab14baf959dc7f631819a62'
             'ddbc218347b06db757212e337488a1a940e2adc29522c0a4e39887075ea88be1'
@@ -109,6 +111,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
+  patch -Np1 -i "${srcdir}/aufs310-3.10.76.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"

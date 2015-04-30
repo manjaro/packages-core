@@ -11,9 +11,9 @@ pkgname=('linux40' 'linux40-headers')
 _kernelname=-MANJARO
 _basekernel=4.0
 _basever=40
-_aufs=20150406
+_aufs=20150427
 _bfq=v7r7
-pkgver=${_basekernel}.0
+pkgver=${_basekernel}.1
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -21,52 +21,55 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.x-rcN-${_aufs}.patch.bz2"
-        'aufs3-base.patch'
-        'aufs3-kbuild.patch'
-        'aufs3-loopback.patch'
-        'aufs3-mmap.patch'
-        'aufs3-standalone.patch'
+        "aufs4.0-${_aufs}.patch.bz2"
+        'aufs4-base.patch'
+        'aufs4-kbuild.patch'
+        'aufs4-loopback.patch'
+        'aufs4-mmap.patch'
+        'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
+        '0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.19.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.19.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/3.19.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.19.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.19.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.19.0.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.0.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.0.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.0.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.0.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.0.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.0.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
 sha256sums=('0f2f7d44979bc8f71c4fc5d3308c03499c26a824dd311fdf6eef4dee0d7d5991'
-            'a93db37d3b10893b1d2fe4118ec8ba861a38f9bb782a9417b0f6b5af9ce86ae7'
-            '0b448eb5819b9845ce1c7d93dcde68132ebab2a4096b4c30bbdd453e31ef0695'
+            '9b4b47eb6584dc39aaa5db46843b83f7c60975abecbda4dc106a8722eabe96fb'
+            '212255cac2331ba9a6251c4af43f2827dd9b9128366e0061df89780634ce2599'
+            '759486324b47017f6bbc2ff4747a51d3f7f146ef8cfcd5f6746957ab954818b0'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
-            '78243bb197add869e3cf89fc7dd20261edd78cab752ecd2a0f4b90c713ac6899'
-            '5d47f77a71925d39095169c561da1c7f1bd7ed01a65dfbe2735433bf0806b7ae'
-            'd7f3be4bd8bbac2c48787790f78e30fb8a512eccfa2730897479139c7de512d7'
-            '40278abe6fe455ef886c7a1c9a034694ace94e0a04a64a8c6b23254cb5d28221'
-            '74a3fbe96e6f6b9512d6607ebd98f9185a75bfa1531937fb21f8eab05587b4f1'
-            '054951e78b9bbfe4e0a8ad1f0a61f85db70c62aac42e276e6e1e92abf616e2d7'
-            '5543d03973e67c3cca4005f9b0132b244a1a3bf0f35664b42c6f3702218edc78'
+            '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
+            '981e9583c1bc5af03185479b5a8c5ec60dd080332d6981084bd9d33512eb15af'
+            '292d167ef761909aa2a946ab1be8c9c8e5f3db9d324b7a535a8a465afd64f0fd'
+            '4663d93da003f79ff06c0e9aab491241ec03a6a5b6466f0b9daa8a24cf98966a'
+            '87b44e96253b6981b6cf856d9fe1ae957727e9411bc3d6289648acad36c3df12'
+            'b822793210e12c5fbc75020cf96b54a61b2f80c0a951faf8ca73c4d18ca74bcd'
+            'f0481243f931f65575af130e0145d3e9d79829a3b01379bbd6455dcbbf5bbe67'
             '1b9e18d44c81594a30f8e1557a461886c73f74c69549f6f8d1aef28e87bfee7f'
             'f87cda11c2429059413fb88d530c8b1659926892d42329a708bcfe0c65e98584'
+            'ddbc218347b06db757212e337488a1a940e2adc29522c0a4e39887075ea88be1'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            'fac4a507a7a16948a0069be784624f87effeb0b7992507104c7db81c190c93e2'
-            '621d4877d992f353ec6d9f977377552077aeebe85c47e65716e99d699af5cb11'
-            '1509740239a2f5b623bc05b3b9efbfd4e2fa75029503e0770a274f7e7c59d79f'
+            'ff13786f79587cfc7016f0d287b82cfd79d21d00082e7fc0c954582e26c7243e'
+            '940a0aa5b790f06e9b15ad9fc91b8cecc6e7f4bdbdbcc584fd1508d9d431c5ea'
+            'e8b5df967de0e91bfbec7a8acd39e8967ea51e090090c5d7888b408d16cce6bb'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -78,20 +81,23 @@ prepare() {
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
 
+  # https://github.com/manjaro/packages-core/issues/9
+  patch -Np1 -i "${srcdir}/0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch"
+
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
-  # fix aufs3
-  sed -i -e 's|f_dentry|f_path.dentry|g' "${srcdir}/aufs3-loopback.patch"
+  # fix aufs4
+  sed -i -e 's|f_dentry|f_path.dentry|g' "${srcdir}/aufs4-loopback.patch"
 
-  # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.x-rcN-${_aufs}.patch"
-  patch -Np1 -i "${srcdir}/aufs3-base.patch"
-  patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
-  patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
-  patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
-  patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
+  # add aufs4 support
+  patch -Np1 -i "${srcdir}/aufs4.0-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
@@ -160,7 +166,7 @@ package_linux40() {
 
   mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot}
   make LOCALVERSION= INSTALL_MOD_PATH="${pkgdir}" modules_install
-  cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${_basever}-${CARCH}"
+  cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${_basekernel}-${CARCH}"
 
   # add kernel version
   if [ "${CARCH}" = "x86_64" ]; then
@@ -183,9 +189,9 @@ package_linux40() {
   # install mkinitcpio preset file for kernel
   install -D -m644 "${srcdir}/${pkgname}.preset" "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
   sed \
-    -e "s|ALL_kver=.*|ALL_kver=\"/boot/vmlinuz-${_basever}-${CARCH}\"|g" \
-    -e "s|default_image=.*|default_image=\"/boot/initramfs-${_basever}-${CARCH}.img\"|g" \
-    -e "s|fallback_image=.*|fallback_image=\"/boot/initramfs-${_basever}-${CARCH}-fallback.img\"|g" \
+    -e "s|ALL_kver=.*|ALL_kver=\"/boot/vmlinuz-${_basekernel}-${CARCH}\"|g" \
+    -e "s|default_image=.*|default_image=\"/boot/initramfs-${_basekernel}-${CARCH}.img\"|g" \
+    -e "s|fallback_image=.*|fallback_image=\"/boot/initramfs-${_basekernel}-${CARCH}-fallback.img\"|g" \
     -i "${pkgdir}/etc/mkinitcpio.d/${pkgname}.preset"
 
   # remove build and source links
