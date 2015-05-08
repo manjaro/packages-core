@@ -10,9 +10,9 @@ pkgname=('linux314' 'linux314-headers')
 _kernelname=-MANJARO
 _basekernel=3.14
 _basever=314
-_aufs=20150427
+_aufs=20150504
 _bfq=v7r7
-pkgver=${_basekernel}.40
+pkgver=${_basekernel}.41
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -25,13 +25,12 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.14.21+-${_aufs}.patch.bz2"
+        "aufs3.14.40+-${_aufs}.patch.bz2"
         'aufs3-base.patch'
         'aufs3-kbuild.patch'
         'aufs3-loopback.patch'
         'aufs3-mmap.patch'
         'aufs3-standalone.patch'
-        'aufs314-3.14.40.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         '0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch'
@@ -48,19 +47,18 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '0006-genksyms-fix-typeof-handling.patch')
 
 sha256sums=('61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa'
-            '6334031465a7cdf8187c86016ba63e1adc58c892910f2c3703c70eaae2fdbafe'
+            '64b3131606ff534ee27f61323ca1cc9693545edf4871bdbcb2bfa299ce5efca9'
             '4944f0d297c7fd6daf236bf560ad46c6828378963ceb1b2be6f1fe4689d024ff'
             '58603326aed2ae7e6eb1e1551d78e7ce5898982e28392f8ea968dd2091b3179e'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '45602d7b1e3d10edfa174f7af904d310c5e5305e9464ebed5369728c4af891a2'
-            'a0d727f33204d88e4b7cabb285531f9f51e06326b01edebf4d93b067c3ca5862'
-            '3cccbe9367739b11325e9736b2050abe711705e22843ac105db264684c26c3fb'
-            'be7ac3101340588e5ae5e9e7346ea0614eea4faa9259159e9a89ff5cc7388c03'
-            '49824c147299fdecb076244b3ea75a0237c92fa2518b22b872a8000dd563315e'
-            '59e8cd20341ca77bb189453f1f45cdca3b4c9a92aad93c0bf5165c888ee775a7'
-            'e4a9d51800ad1f509254499879b463c1a2858118c012d91e970618773f1c98e2'
-            '4fd810afe04249c87dcc67e21788a23db73685ef5422aaee4265cbeeb11ccf84'
-            'bb8f84039ac3dddaf7f67f33a93c99d8e78abc73df61ba0752147f21a006b85c'
+            'e672518e36a53fd2ca5a8ff9fa738e0fe548a67d69b93d9e71cc81dd84efb535'
+            'd9b3328614eea633b111c0682ca4b1098953aad7906a1d59fba609840dd04301'
+            '8efc53c7db48e3fc52b8897fb269147600abf1565b71fb9c057ef91976596669'
+            'd3751dce9a79377fbeedc6717114c4ddf79a4489a5e248d136bdbf375788e52e'
+            'e5ef9dc0a6068701490a223e0853c62400b46a3c0fcb72db250359edd9458f45'
+            '6a500d92e7640ea75a569b30d7aef227f590cb5eed5dc3be12d9b8615f10a851'
+            '8a779afccd404f6c933b173b5910845a592512ea2a432c74f37bb33b257eded9'
             'b7297d17642b1ed027fe7d76f5f07aa6d4df8ba4cb107647c07f9a093c94a0c6'
             'ddbc218347b06db757212e337488a1a940e2adc29522c0a4e39887075ea88be1'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
@@ -109,7 +107,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.14.21+-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs3.14.40+-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs3-base.patch"
   patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
@@ -117,7 +115,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
-  patch -Np1 -i "${srcdir}/aufs314-3.14.40.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"

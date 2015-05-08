@@ -1,7 +1,7 @@
-aufs3.14.21+ standalone patch
+aufs3.14.40+ standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 0d04dfe..90e400a 100644
+index 3214ccd..92e5f72 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
 @@ -1164,6 +1164,7 @@ rename_retry:
@@ -33,7 +33,7 @@ index 49960c6..3e6463a 100644
  /**
   *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 75536db..5185c94 100644
+index 039f380..778cb1b 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -455,6 +455,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
@@ -44,7 +44,7 @@ index 75536db..5185c94 100644
  
  /**
   * mnt_drop_write - give up write access to a mount
-@@ -1593,6 +1594,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+@@ -1600,6 +1601,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
  	}
  	return 0;
  }
