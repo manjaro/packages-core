@@ -1,0 +1,12 @@
+--- mkinitcpio-nfs-utils-0.3/ipconfig/dhcp_proto.c	2012-03-25 23:12:36.000000000 +0200
++++ mkinitcpio-nfs-utils-0.3/ipconfig/dhcp_proto.c	2015-05-09 09:32:37.434212660 +0200
+@@ -176,7 +176,8 @@ static int dhcp_send(struct netdev *dev,
+ 	bootp.hlen	= dev->hwlen;
+ 	bootp.xid	= dev->bootp.xid;
+ 	bootp.ciaddr	= INADDR_ANY;
+-	bootp.yiaddr	= dev->ip_addr;
++	bootp.yiaddr	= INADDR_ANY; 
++	bootp.flags	= htons(0x800);
+ 	bootp.giaddr	= INADDR_ANY;
+ 	bootp.secs	= htons(time(NULL) - dev->open_time);
+ 	memcpy(bootp.chaddr, dev->hwaddr, 16);
