@@ -3,12 +3,12 @@
 
 pkgname=mkinitcpio-nfs-utils
 pkgver=0.3
-pkgrel=5.2
+pkgrel=5.3
 pkgdesc="ipconfig and nfsmount tools for NFS root support in mkinitcpio"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/"
 license=('GPL2')
-depends=('glibc' 'curl')
+depends=('glibc')
 source=("https://sources.archlinux.org/other/mkinitcpio/$pkgname-$pkgver.tar.xz"
         'nfsmount-fix-wrong-umount-path.patch'
 	'ipconfig-fix-pxe-boot.patch'
@@ -17,7 +17,7 @@ source=("https://sources.archlinux.org/other/mkinitcpio/$pkgname-$pkgver.tar.xz"
 sha256sums=('d290d489844fae100ca7b848b8eef40078124ff373203086bacc07329d1e8939'
             '6edb239f3d541b8ddee816e2d18bfb3ee1d3f5f8827769674cc8bf2a7ce38f21'
             '668a6512aa193ac3d714f0a179243fab0d7ea43715e25430e523db3e1c41d821'
-            'fbc07d7f4b29124104096604e9e9dadfadfc10821cb220e7b711f546f7a9b00e'
+            'ce9f021763c020b9b62a761974437fd1e9e894df3effc58e71671bf83b061255'
             '29a5a4a9ebd61bfa1afbb8dcaf2187e487ee1f34b1979a85a853fa2acbeb510e')
 
 build() {
