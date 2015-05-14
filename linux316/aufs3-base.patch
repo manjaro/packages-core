@@ -108,6 +108,18 @@ index f5cb9ba..9ba380c 100644
  {
  	ssize_t (*splice_read)(struct file *, loff_t *,
  			       struct pipe_inode_info *, size_t, unsigned int);
+diff --git a/include/linux/file.h b/include/linux/file.h
+index 4d69123..62cffc0 100644
+--- a/include/linux/file.h
++++ b/include/linux/file.h
+@@ -19,6 +19,7 @@ struct dentry;
+ struct path;
+ extern struct file *alloc_file(struct path *, fmode_t mode,
+ 	const struct file_operations *fop);
++extern struct file *get_empty_filp(void);
+ 
+ static inline void fput_light(struct file *file, int fput_needed)
+ {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
 index e11d60c..2f32b35 100644
 --- a/include/linux/fs.h

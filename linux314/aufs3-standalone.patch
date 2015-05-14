@@ -12,6 +12,26 @@ index 3214ccd..92e5f72 100644
  
  /*
   * Search for at least 1 mount point in the dentry's subdirs.
+diff --git a/fs/file_table.c b/fs/file_table.c
+index 79ecae6..15ca9fc 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -148,6 +148,7 @@ over:
+ 	}
+ 	return ERR_PTR(-ENFILE);
+ }
++EXPORT_SYMBOL_GPL(get_empty_filp);
+ 
+ /**
+  * alloc_file - allocate and initialize a 'struct file'
+@@ -344,6 +345,7 @@ void put_filp(struct file *file)
+ 		file_free(file);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(put_filp);
+ 
+ void __init files_init(unsigned long mempages)
+ { 
 diff --git a/fs/inode.c b/fs/inode.c
 index 49960c6..3e6463a 100644
 --- a/fs/inode.c
@@ -125,7 +145,7 @@ index 923fe4a..176b435 100644
  static int fsnotify_mark_destroy(void *ignored)
  {
 diff --git a/fs/open.c b/fs/open.c
-index 2ed7325..4e178e4a 100644
+index 2ed7325..671e923 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -62,6 +62,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -144,6 +164,14 @@ index 2ed7325..4e178e4a 100644
  
  SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
  {
+@@ -662,6 +664,7 @@ int open_check_o_direct(struct file *f)
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(open_check_o_direct);
+ 
+ static int do_dentry_open(struct file *f,
+ 			  int (*open)(struct inode *, struct file *),
 diff --git a/fs/splice.c b/fs/splice.c
 index f26cbaf..ac02366 100644
 --- a/fs/splice.c
