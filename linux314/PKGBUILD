@@ -33,7 +33,6 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        '0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch'
         'change-default-console-loglevel.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.14/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.14/2700_ThinkPad-30-brightness-control-fix.patch'
@@ -61,7 +60,6 @@ sha256sums=('61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa'
             '4daf390f8f2e538d476da0b022d38355c1fb1a840a9cc17ef830855cd25f16b6'
             '8a779afccd404f6c933b173b5910845a592512ea2a432c74f37bb33b257eded9'
             'b7297d17642b1ed027fe7d76f5f07aa6d4df8ba4cb107647c07f9a093c94a0c6'
-            '9ad7b27d05483a581e4884dd57b2363ee2aa8d03a058acd4cc645dc6fd67396d'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -103,9 +101,6 @@ prepare() {
   # Fix generation of symbol CRCs
   # http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=dc53324060f324e8af6867f57bf4891c13c6ef18
   patch -p1 -i "${srcdir}/0006-genksyms-fix-typeof-handling.patch"
-
-  # https://github.com/manjaro/packages-core/issues/9
-  patch -Np1 -i "${srcdir}/0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
