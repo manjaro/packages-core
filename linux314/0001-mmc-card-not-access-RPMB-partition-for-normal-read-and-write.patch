@@ -76,27 +76,3 @@ index 452782b..4b79592 100644
  static int mmc_blk_issue_discard_rq(struct mmc_queue *mq, struct request *req)
  {
  	struct mmc_blk_data *md = mq->data;
-diff --git a/drivers/mmc/card/queue.c b/drivers/mmc/card/queue.c
-index 3e049c1..6ceede0 100644
---- a/drivers/mmc/card/queue.c
-+++ b/drivers/mmc/card/queue.c
-@@ -38,7 +38,7 @@ static int mmc_prep_request(struct request_queue *q, struct request *req)
- 		return BLKPREP_KILL;
- 	}
- 
--	if (mq && mmc_card_removed(mq->card))
-+	if (mq && (mmc_card_removed(mq->card) || mmc_access_rpmb(mq)))
- 		return BLKPREP_KILL;
- 
- 	req->cmd_flags |= REQ_DONTPREP;
-diff --git a/drivers/mmc/card/queue.h b/drivers/mmc/card/queue.h
-index 5752d50..99e6521 100644
---- a/drivers/mmc/card/queue.h
-+++ b/drivers/mmc/card/queue.h
-@@ -73,4 +73,6 @@ extern void mmc_queue_bounce_post(struct mmc_queue_req *);
- extern int mmc_packed_init(struct mmc_queue *, struct mmc_card *);
- extern void mmc_packed_clean(struct mmc_queue *);
- 
-+extern int mmc_access_rpmb(struct mmc_queue *);
-+
- #endif

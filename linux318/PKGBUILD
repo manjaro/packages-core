@@ -11,9 +11,9 @@ pkgname=('linux318' 'linux318-headers')
 _kernelname=-MANJARO
 _basekernel=3.18
 _basever=318
-_aufs=20150511
+_aufs=20150525
 _bfq=v7r7
-pkgver=${_basekernel}.13
+pkgver=${_basekernel}.14
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -42,14 +42,15 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.18.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.18.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
+	'md-raid0-fix-restore-to-sector-variable-in-raid0_mak.patch'
 )
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
-            'd9191eb7fa47e95c81945e561cdf35bb12fcdd2bbf12f37f60533cbf57be429c'
+            '488ac8f9fb1bcc5670d2222a4f382ca4e4950c4489bc5217c244b787d2ac8974'
             'f33077ce61eeef1f27cc58b42f7d810e058ead52375c87cd596c4cea3c6c2732'
             '6da3089f382a647aed699162ddbafc8296d778b3a8eaa4dfd032b0d201d7f90d'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '1b456a7cc385d9df21851f8a180b12c169111fbf1ecbce5e73166447806fdf6a'
-            'c4a71785e11cbb486da57cb7e25144738ce0cce859d8bc34b27b930922597055'
+            'e5624878a45e0afdb00407fedd13356896a1ff95e5fb6dc406ca61834d6d17c9'
             '298f04f7a00c58de42e4ce1e70703781b07d4f282e6b70e2572b9c7941abda61'
             '86c58db07f3f23e7bc357d64de78da69bd44fd61abfbf63bb09c0992b629ac8f'
             'd0b14e6aedf2ef1bd38e5ac8e234564b213874e3c21dd5af9aebab25a81e030b'
@@ -63,13 +64,17 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             '75a43175fb6f289215669a7aff23a86459bcf966303a24b4013a42da53fad035'
             '68045bcff777bc175e9f17ba46e0a8b13450c4546c6c9db3d9b9e2ed31af812d'
             'cda196f911af55f8c26e711040a66637aed03df9dfdc149aaf7fdbecf1bb19da'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            'bc83293e64653d60793708a0e277741f57c018f5ea3551a8aff3a220df917ceb')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # https://bugzilla.kernel.org/show_bug.cgi?id=98501
+  patch -Np1 -i "${srcdir}/md-raid0-fix-restore-to-sector-variable-in-raid0_mak.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
