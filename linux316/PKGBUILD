@@ -10,11 +10,11 @@ pkgname=('linux316' 'linux316-headers')
 _kernelname=-MANJARO
 _basekernel=3.16
 _basever=316
-_aufs=20150511
+_aufs=20150525
 _bfq=v7r7
-_subver=11
+_subver=12
 pkgver=${_basekernel}.7.${_subver}
-pkgrel=1
+pkgrel=0
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -35,7 +35,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         'aufs316-3.16.7.4.patch'
-        '0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
@@ -54,7 +53,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.16.7.8.patch'
         '3.16.7.9.patch'
         '3.16.7.10.patch'
-        '3.16.7.11.patch')
+        '3.16.7.11.patch'
+        '3.16.7.12-review.patch::http://kernel.ubuntu.com/git/ubuntu/linux.git/patch/?id=c6ea4217976fa94b55811a02472ba667c2f6ab2e&id2=56a11552bca52866348e6a159f10ecae2d3f2c25'
+        '3.16.7.12-review2.patch::http://kernel.ubuntu.com/git/ubuntu/linux.git/patch/?id=f09ab4d2936f7c74bb5b89b24a00f182e48e6811')
 
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
@@ -62,7 +63,7 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '45602d7b1e3d10edfa174f7af904d310c5e5305e9464ebed5369728c4af891a2'
-            '25fab7dacb39877fb2295258d3b1290377955c6e2a02c78d38da1251b62d2783'
+            'ba6b29adc5fc26f01c488cf2b71304e8b5bf1ecf68f8ef26897e9ce16d3333d8'
             'e216874f79dd2757eb385a2753dd828b7445bac03372bc5061ced717565a56d1'
             'a91c5affffb9e24cf0e34e1ab1c9e593219f67ef81834e0e4e9572281ef760c0'
             '3fb8f655d55d20fcf43da250a50e8bcdbf57b08957d65870e95c9cb1a59b6cca'
@@ -71,7 +72,6 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '52b568d5504c88b3025ceed4620b35ff4c7a249bc0310bbbaf31c21c1cdf7899'
             'a728d65b64f1e7bc29ef1887341383af4da98ee1ab553e5e521c3cb3e725583d'
             '59f34c00c0846377ebf5bc6934a73bb98a71ee33ae93cd2b3b8415dff71d857a'
-            'ddbc218347b06db757212e337488a1a940e2adc29522c0a4e39887075ea88be1'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             '550a109df159d799bec3888aa6916c3e622199e262d0d4142c38ad13cbb23bae'
@@ -88,7 +88,9 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '32e5716e9fd5a659655f5cbfdc91abca928d3db1279e0fba94de287aa83ca257'
             'b3c54a957d03af43371921e7d893d613a1bb6fc2dd56a49955c0fcf1d59194c5'
             'dcbc8ad53dbdf83f889f05c7d03ff78119dfa3c10786d165b44c5f37cfb80f1d'
-            'ed94355e3a6d802b6f4b9470dc8850ebe1131a08c61a7656ab3404b9d73957bb')
+            'ed94355e3a6d802b6f4b9470dc8850ebe1131a08c61a7656ab3404b9d73957bb'
+            'e141b2bdf2613ed1b6c167189f6f7d1d5065f26ee73edb1a6d486179633e5581'
+            '6e59646d94973bcd41d81d6637789c5bdd88f99be6ca559fb56f1d81cd331d2f')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -108,6 +110,8 @@ prepare() {
   patch -p1 -i "${srcdir}/3.16.7.9.patch"
   patch -p1 -i "${srcdir}/3.16.7.10.patch"
   patch -p1 -i "${srcdir}/3.16.7.11.patch"
+  patch -p1 -i "${srcdir}/3.16.7.12-review.patch"
+  patch -p1 -i "${srcdir}/3.16.7.12-review2.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -118,9 +122,6 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
-
-  # https://github.com/manjaro/packages-core/issues/9
-  patch -Np1 -i "${srcdir}/0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
