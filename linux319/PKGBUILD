@@ -11,17 +11,18 @@ pkgname=('linux319' 'linux319-headers')
 _kernelname=-MANJARO
 _basekernel=3.19
 _basever=319
-_aufs=20150511
+_aufs=20150525
 _bfq=v7r7
-pkgver=${_basekernel}.8
-pkgrel=1
+_subver=1
+pkgver=${_basekernel}.8.${_subver}
+pkgrel=0
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${_basekernel}.8.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -34,7 +35,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'aufs3-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        '0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.19.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.19.patch"
@@ -42,6 +42,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.19.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.19.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
+        # Additional patches
+        '3.19.8.1-review.patch::http://kernel.ubuntu.com/git/ubuntu/linux.git/patch/?id=f09ab4d2936f7c74bb5b89b24a00f182e48e6811&id2=fcf4fe0e3e820408890ae137a684e56010c55f99'
 )
 sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '2e4f01c2ce7ccb2ffee1722724df0a2c2ad6ba5fa74218aa816bda19f3ddcf5d'
@@ -49,7 +51,7 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             'fd9b059ff1c172071b6c04e42d10b39c228f332d6ce67009a672d635445aecf5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '45602d7b1e3d10edfa174f7af904d310c5e5305e9464ebed5369728c4af891a2'
-            'ce3c78095db36a9c02ffed5a41840c7a4b7f028e960ed47a86d9424160d38bc3'
+            'a2465e58142ea3688be9914a47077e03c89754ecd0ddc201d1e1a89d32551531'
             '2a011ded0cd9b3372543bc1cd7a42b55a8ac7aca1ca59326a884ed53681f776a'
             'b056b1927376bddc6a5ab8b5f2bb8566a54b89aa58a4c7749206c19eb55ea62f'
             '673e0a473240b4d35c73ad56d370adf833b643acb99a7422e7d551aedfaf11a9'
@@ -57,19 +59,22 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '0b45ea1e0eb0bca8d34afddd2205761ca479f015e9d1d6edc07cbd5c225f1897'
             '1f009751593946e9e35baaeab01816d92f2b0bd5beae70dcbdd6a2865cc56b80'
             '134a378395412e3cb638795f667ef14c3b01d11bc464844e9007b3fa23224091'
-            'ddbc218347b06db757212e337488a1a940e2adc29522c0a4e39887075ea88be1'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             '75a43175fb6f289215669a7aff23a86459bcf966303a24b4013a42da53fad035'
             '68045bcff777bc175e9f17ba46e0a8b13450c4546c6c9db3d9b9e2ed31af812d'
             'cda196f911af55f8c26e711040a66637aed03df9dfdc149aaf7fdbecf1bb19da'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            'b09ad0c4f0f1ae68b7afb728510c6ec5e4c5063467554f94c528bb67fd7f85bb')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${_basekernel}.8"
+
+  # add extended stable patch(es)
+  patch -p1 -i "${srcdir}/3.19.8.1-review.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -80,9 +85,6 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
-
-  # https://github.com/manjaro/packages-core/issues/9
-  patch -Np1 -i "${srcdir}/0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
@@ -120,7 +122,7 @@ prepare() {
   fi
 
   # set extraversion to pkgrel
-  sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
+  sed -ri "s|^(EXTRAVERSION =).*|\1 .${_subver}-${pkgrel}|" Makefile
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh

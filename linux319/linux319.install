@@ -13,6 +13,9 @@ post_install () {
   echo "    by Greg Kroah-Hartman. It is recommend to move on to linux40-series."
   echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux40'"
   echo "    "
+  echo "    The Ubuntu kernel team will be providing extended stable support for the"
+  echo "    Linux 3.19 kernel until July 2016."
+  echo "    "
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod ${KERNEL_VERSION}
@@ -39,6 +42,9 @@ post_upgrade() {
   echo ">>> NOTE, 3.19.8 was the last maintained maintenance release"
   echo "    by Greg Kroah-Hartman. It is recommend to move on to linux40-series."
   echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux40'"
+  echo "    "
+  echo "    The Ubuntu kernel team will be providing extended stable support for the"
+  echo "    Linux 3.19 kernel until July 2016."
   echo "    "
   # reminder notice
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
