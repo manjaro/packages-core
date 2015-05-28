@@ -14,7 +14,7 @@ _aufs=20150525
 _bfq=v7r7
 _subver=12
 pkgver=${_basekernel}.7.${_subver}
-pkgrel=0
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -54,8 +54,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.16.7.9.patch'
         '3.16.7.10.patch'
         '3.16.7.11.patch'
-        '3.16.7.12-review.patch::http://kernel.ubuntu.com/git/ubuntu/linux.git/patch/?id=c6ea4217976fa94b55811a02472ba667c2f6ab2e&id2=56a11552bca52866348e6a159f10ecae2d3f2c25'
-        '3.16.7.12-review2.patch::http://kernel.ubuntu.com/git/ubuntu/linux.git/patch/?id=f09ab4d2936f7c74bb5b89b24a00f182e48e6811')
+        '3.16.7.12.patch'
+        '3.16.7.12-gcc5-1_2.patch::http://kernel.ubuntu.com/git/ubuntu/linux.git/patch/?id=c446a15eb2d7dfc432c1a70c5d32bc17ff9a9614'
+        '3.16.7.12-gcc5-2_2.patch::http://kernel.ubuntu.com/git/ubuntu/linux.git/patch/?id=2bf2d29e27b24241136669540b69a7d2a4f71b1d&id2=17a9ad2b5ebe669595e959518ef6dc2378a92b4b')
 
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
@@ -89,8 +90,9 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'b3c54a957d03af43371921e7d893d613a1bb6fc2dd56a49955c0fcf1d59194c5'
             'dcbc8ad53dbdf83f889f05c7d03ff78119dfa3c10786d165b44c5f37cfb80f1d'
             'ed94355e3a6d802b6f4b9470dc8850ebe1131a08c61a7656ab3404b9d73957bb'
-            'e141b2bdf2613ed1b6c167189f6f7d1d5065f26ee73edb1a6d486179633e5581'
-            '6e59646d94973bcd41d81d6637789c5bdd88f99be6ca559fb56f1d81cd331d2f')
+            '806e59b121cc129dd04c307ed38d68b390d525c9a76d6f15a57268c1e7914a84'
+            'f66fc17d7e88adcc59912eaff894bbe73cd00aac240f003644ae233a3ea0eb21'
+            '11674b20c91a2409d66df09ea34db15c947ae538e2fc588e530237096d6f3d9c')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -110,8 +112,9 @@ prepare() {
   patch -p1 -i "${srcdir}/3.16.7.9.patch"
   patch -p1 -i "${srcdir}/3.16.7.10.patch"
   patch -p1 -i "${srcdir}/3.16.7.11.patch"
-  patch -p1 -i "${srcdir}/3.16.7.12-review.patch"
-  patch -p1 -i "${srcdir}/3.16.7.12-review2.patch"
+  patch -p1 -i "${srcdir}/3.16.7.12.patch"
+  patch -p1 -i "${srcdir}/3.16.7.12-gcc5-1_2.patch"
+  patch -p1 -i "${srcdir}/3.16.7.12-gcc5-2_2.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
