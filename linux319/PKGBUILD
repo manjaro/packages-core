@@ -15,7 +15,7 @@ _aufs=20150525
 _bfq=v7r7
 _subver=1
 pkgver=${_basekernel}.8.${_subver}
-pkgrel=0
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -43,7 +43,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Additional patches
-        '3.19.8.1-review.patch::http://kernel.ubuntu.com/git/ubuntu/linux.git/patch/?id=f09ab4d2936f7c74bb5b89b24a00f182e48e6811&id2=fcf4fe0e3e820408890ae137a684e56010c55f99'
+        '3.19.8.1.patch'
 )
 sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '2e4f01c2ce7ccb2ffee1722724df0a2c2ad6ba5fa74218aa816bda19f3ddcf5d'
@@ -65,7 +65,7 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '68045bcff777bc175e9f17ba46e0a8b13450c4546c6c9db3d9b9e2ed31af812d'
             'cda196f911af55f8c26e711040a66637aed03df9dfdc149aaf7fdbecf1bb19da'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'b09ad0c4f0f1ae68b7afb728510c6ec5e4c5063467554f94c528bb67fd7f85bb')
+            'e5e2e9e57ef2f2780b0a8324d66bbca9d25986421911d7430d99e437444e3c78')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -74,7 +74,7 @@ prepare() {
   patch -p1 -i "${srcdir}/patch-${_basekernel}.8"
 
   # add extended stable patch(es)
-  patch -p1 -i "${srcdir}/3.19.8.1-review.patch"
+  patch -p1 -i "${srcdir}/3.19.8.1.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
