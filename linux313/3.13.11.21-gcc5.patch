@@ -1,0 +1,371 @@
+From foo@baz Sat May 23 13:26:23 PDT 2015
+Date: Sat, 23 May 2015 13:26:23 -0700
+To: Greg KH <gregkh@linuxfoundation.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: staging: wlags49_h2: fix extern inline functions
+
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+Patch not upstream as this driver is deleted there.
+
+Fix up some "extern inline" functions as they break the build when using
+a "modern" complier (i.e. gcc5).
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/staging/wlags49_h2/wl_internal.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/staging/wlags49_h2/wl_internal.h
++++ b/drivers/staging/wlags49_h2/wl_internal.h
+@@ -1013,7 +1013,7 @@ static inline void wl_unlock(struct wl_p
+ /* Interrupt enable disable functions                               */
+ /********************************************************************/
+ 
+-extern inline void wl_act_int_on(struct wl_private *lp)
++static inline void wl_act_int_on(struct wl_private *lp)
+ {
+ 	/*
+ 	 * Only do something when the driver is handling
+@@ -1025,7 +1025,7 @@ extern inline void wl_act_int_on(struct
+ 	}
+ }
+ 
+-extern inline void wl_act_int_off(struct wl_private *lp)
++static inline void wl_act_int_off(struct wl_private *lp)
+ {
+ 	/*
+ 	 * Only do something when the driver is handling
+From 6d91857d4826b382b3fd4fad95f52713be646f96 Mon Sep 17 00:00:00 2001
+From: Behan Webster <behanw@converseincode.com>
+Date: Wed, 29 Oct 2014 15:42:20 -0700
+Subject: staging, rtl8192e, LLVMLinux: Change extern inline to static inline
+
+From: Behan Webster <behanw@converseincode.com>
+
+commit 6d91857d4826b382b3fd4fad95f52713be646f96 upstream.
+
+With compilers which follow the C99 standard (like modern versions of gcc and
+clang), "extern inline" does the opposite thing from older versions of gcc
+(emits code for an externally linkable version of the inline function).
+
+"static inline" does the intended behavior in all cases instead.
+
+Signed-off-by: Behan Webster <behanw@converseincode.com>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/staging/rtl8192e/rtllib.h         |    4 ++--
+ drivers/staging/rtl8192e/rtllib_softmac.c |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/staging/rtl8192e/rtllib.h
++++ b/drivers/staging/rtl8192e/rtllib.h
+@@ -2943,12 +2943,12 @@ void rtllib_softmac_scan_syncro(struct r
+ 
+ extern const long rtllib_wlan_frequencies[];
+ 
+-extern inline void rtllib_increment_scans(struct rtllib_device *ieee)
++static inline void rtllib_increment_scans(struct rtllib_device *ieee)
+ {
+ 	ieee->scans++;
+ }
+ 
+-extern inline int rtllib_get_scans(struct rtllib_device *ieee)
++static inline int rtllib_get_scans(struct rtllib_device *ieee)
+ {
+ 	return ieee->scans;
+ }
+--- a/drivers/staging/rtl8192e/rtllib_softmac.c
++++ b/drivers/staging/rtl8192e/rtllib_softmac.c
+@@ -341,7 +341,7 @@ inline void softmac_ps_mgmt_xmit(struct
+ 	}
+ }
+ 
+-inline struct sk_buff *rtllib_probe_req(struct rtllib_device *ieee)
++static inline struct sk_buff *rtllib_probe_req(struct rtllib_device *ieee)
+ {
+ 	unsigned int len, rate_len;
+ 	u8 *tag;
+From 0c9f3a65c5eb7fe1fc611a22eb8a8b71ea865998 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 5 Jun 2014 22:48:15 +0200
+Subject: staging: rtl8712, rtl8712: avoid lots of build warnings
+
+From: Arnd Bergmann <arnd@arndb.de>
+
+commit 0c9f3a65c5eb7fe1fc611a22eb8a8b71ea865998 upstream.
+
+The rtl8712 driver has an 'extern inline' function that contains an
+'if', which causes lots of warnings with CONFIG_PROFILE_ALL_BRANCHES
+overriding the definition of 'if':
+
+drivers/staging/rtl8712/ieee80211.h:759:229: warning: '______f' is static but declared in inline function 'ieee80211_get_hdrlen' which is not static [enabled by default]
+
+This changes the driver to use 'static inline' instead, which happens
+to be the correct annotation anyway.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Florian Schilhabel <florian.c.schilhabel@googlemail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/staging/rtl8187se/ieee80211/ieee80211.h |    4 ++--
+ drivers/staging/rtl8192u/ieee80211/ieee80211.h  |   10 +++++-----
+ drivers/staging/rtl8712/ieee80211.h             |    4 ++--
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+--- a/drivers/staging/rtl8187se/ieee80211/ieee80211.h
++++ b/drivers/staging/rtl8187se/ieee80211/ieee80211.h
+@@ -1460,12 +1460,12 @@ extern void ieee80211_sta_ps_send_null_f
+ 
+ extern const long ieee80211_wlan_frequencies[];
+ 
+-extern inline void ieee80211_increment_scans(struct ieee80211_device *ieee)
++static inline void ieee80211_increment_scans(struct ieee80211_device *ieee)
+ {
+ 	ieee->scans++;
+ }
+ 
+-extern inline int ieee80211_get_scans(struct ieee80211_device *ieee)
++static inline int ieee80211_get_scans(struct ieee80211_device *ieee)
+ {
+ 	return ieee->scans;
+ }
+--- a/drivers/staging/rtl8192u/ieee80211/ieee80211.h
++++ b/drivers/staging/rtl8192u/ieee80211/ieee80211.h
+@@ -2250,7 +2250,7 @@ static inline void *ieee80211_priv(struc
+ 	return ((struct ieee80211_device *)netdev_priv(dev))->priv;
+ }
+ 
+-extern inline int ieee80211_is_empty_essid(const char *essid, int essid_len)
++static inline int ieee80211_is_empty_essid(const char *essid, int essid_len)
+ {
+ 	/* Single white space is for Linksys APs */
+ 	if (essid_len == 1 && essid[0] == ' ')
+@@ -2266,7 +2266,7 @@ extern inline int ieee80211_is_empty_ess
+ 	return 1;
+ }
+ 
+-extern inline int ieee80211_is_valid_mode(struct ieee80211_device *ieee, int mode)
++static inline int ieee80211_is_valid_mode(struct ieee80211_device *ieee, int mode)
+ {
+ 	/*
+ 	 * It is possible for both access points and our device to support
+@@ -2292,7 +2292,7 @@ extern inline int ieee80211_is_valid_mod
+ 	return 0;
+ }
+ 
+-extern inline int ieee80211_get_hdrlen(u16 fc)
++static inline int ieee80211_get_hdrlen(u16 fc)
+ {
+ 	int hdrlen = IEEE80211_3ADDR_LEN;
+ 
+@@ -2578,12 +2578,12 @@ void ieee80211_softmac_scan_syncro(struc
+ 
+ extern const long ieee80211_wlan_frequencies[];
+ 
+-extern inline void ieee80211_increment_scans(struct ieee80211_device *ieee)
++static inline void ieee80211_increment_scans(struct ieee80211_device *ieee)
+ {
+ 	ieee->scans++;
+ }
+ 
+-extern inline int ieee80211_get_scans(struct ieee80211_device *ieee)
++static inline int ieee80211_get_scans(struct ieee80211_device *ieee)
+ {
+ 	return ieee->scans;
+ }
+--- a/drivers/staging/rtl8712/ieee80211.h
++++ b/drivers/staging/rtl8712/ieee80211.h
+@@ -734,7 +734,7 @@ enum ieee80211_state {
+ #define IEEE_G            (1<<2)
+ #define IEEE_MODE_MASK    (IEEE_A|IEEE_B|IEEE_G)
+ 
+-extern inline int ieee80211_is_empty_essid(const char *essid, int essid_len)
++static inline int ieee80211_is_empty_essid(const char *essid, int essid_len)
+ {
+ 	/* Single white space is for Linksys APs */
+ 	if (essid_len == 1 && essid[0] == ' ')
+@@ -748,7 +748,7 @@ extern inline int ieee80211_is_empty_ess
+ 	return 1;
+ }
+ 
+-extern inline int ieee80211_get_hdrlen(u16 fc)
++static inline int ieee80211_get_hdrlen(u16 fc)
+ {
+ 	int hdrlen = 24;
+ 
+From 62ec95f86d2850b7ce6d73fb236a6fcf48411aea Mon Sep 17 00:00:00 2001
+From: Behan Webster <behanw@converseincode.com>
+Date: Wed, 29 Oct 2014 15:42:21 -0700
+Subject: staging, rtl8192e, LLVMLinux: Remove unused inline prototype
+
+From: Behan Webster <behanw@converseincode.com>
+
+commit 62ec95f86d2850b7ce6d73fb236a6fcf48411aea upstream.
+
+rtllib_probe_req is defined as "static inline" in rtllib_softmac.c however it
+is declared differently as "extern inline" in rtllib_softmac.h. Since it isn't
+used outside of the scope of rtllib_softmac, it makes sense to remove the
+incorrect declaration.
+
+Signed-off-by: Behan Webster <behanw@converseincode.com>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/staging/rtl8192e/rtllib.h |    1 -
+ 1 file changed, 1 deletion(-)
+
+--- a/drivers/staging/rtl8192e/rtllib.h
++++ b/drivers/staging/rtl8192e/rtllib.h
+@@ -2761,7 +2761,6 @@ extern void rtllib_stop_scan(struct rtll
+ extern bool rtllib_act_scanning(struct rtllib_device *ieee, bool sync_scan);
+ extern void rtllib_stop_scan_syncro(struct rtllib_device *ieee);
+ extern void rtllib_start_scan_syncro(struct rtllib_device *ieee, u8 is_mesh);
+-extern inline struct sk_buff *rtllib_probe_req(struct rtllib_device *ieee);
+ extern u8 MgntQuery_MgntFrameTxRate(struct rtllib_device *ieee);
+ extern void rtllib_sta_ps_send_null_frame(struct rtllib_device *ieee,
+ 					  short pwr);
+From 51b97e354ba9fce1890cf38ecc754aa49677fc89 Mon Sep 17 00:00:00 2001
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
+Date: Mon, 20 Oct 2014 12:23:12 +0300
+Subject: kernel: use the gnu89 standard explicitly
+
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
+
+commit 51b97e354ba9fce1890cf38ecc754aa49677fc89 upstream.
+
+Sasha Levin reports:
+ "gcc5 changes the default standard to c11, which makes kernel build
+  unhappy
+
+  Explicitly define the kernel standard to be gnu89 which should keep
+  everything working exactly like it was before gcc5"
+
+There are multiple small issues with the new default, but the biggest
+issue seems to be that the old - and very useful - GNU extension to
+allow a cast in front of an initializer has gone away.
+
+Patch updated by Kirill:
+ "I'm pretty sure all gcc versions you can build kernel with supports
+  -std=gnu89.  cc-option is redunrant.
+
+  We also need to adjust HOSTCFLAGS otherwise allmodconfig fails for me"
+
+Note by Andrew Pinski:
+ "Yes it was reported and both problems relating to this extension has
+  been added to gnu99 and gnu11.  Though there are other issues with the
+  kernel dealing with extern inline have different semantics between
+  gnu89 and gnu99/11"
+
+End result: we may be able to move up to a newer stdc model eventually,
+but right now the newer models have some annoying deficiencies, so the
+traditional "gnu89" model ends up being the preferred one.
+
+Signed-off-by: Sasha Levin <sasha.levin@oracle.com>
+Singed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ Makefile |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/Makefile
++++ b/Makefile
+@@ -244,7 +244,7 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH"
+ 
+ HOSTCC       = gcc
+ HOSTCXX      = g++
+-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
+ HOSTCXXFLAGS = -O2
+ 
+ # Decide whether to build built-in, modular, or both.
+@@ -382,7 +382,9 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstric
+ 		   -fno-strict-aliasing -fno-common \
+ 		   -Werror-implicit-function-declaration \
+ 		   -Wno-format-security \
+-		   -fno-delete-null-pointer-checks
++		   -fno-delete-null-pointer-checks \
++		   -std=gnu89
++
+ KBUILD_AFLAGS_KERNEL :=
+ KBUILD_CFLAGS_KERNEL :=
+ KBUILD_AFLAGS   := -D__ASSEMBLY__
+From 9493c2422cae272d6f1f567cbb424195defe4176 Mon Sep 17 00:00:00 2001
+From: Chen Gang <gang.chen.5i5j@gmail.com>
+Date: Sat, 1 Nov 2014 19:46:12 +0800
+Subject: qla2xxx: remove redundant declaration in 'qla_gbl.h'
+
+From: Chen Gang <gang.chen.5i5j@gmail.com>
+
+commit 9493c2422cae272d6f1f567cbb424195defe4176 upstream.
+
+Remove 2 redundant extern inline functions: qla8044_set_qsnt_ready() and
+qla8044_need_reset_handler(). At present, within upstream next kernel
+source code, they are only used within "drivers/scsi/qla2xxx/qla_nx2.c".
+
+The related error and warnings (with allmodconfig under tile):
+
+    CC [M]  drivers/scsi/qla2xxx/qla_nx2.o
+  drivers/scsi/qla2xxx/qla_nx2.c:1633:1: error: static declaration of 'qla8044_need_reset_handler' follows non-static declaration
+   qla8044_need_reset_handler(struct scsi_qla_host *vha)
+   ^
+  In file included from drivers/scsi/qla2xxx/qla_def.h:3706:0,
+                   from drivers/scsi/qla2xxx/qla_nx2.c:11:
+  drivers/scsi/qla2xxx/qla_gbl.h:756:20: note: previous declaration of 'qla8044_need_reset_handler' was here
+   extern inline void qla8044_need_reset_handler(struct scsi_qla_host *vha);
+                      ^
+  drivers/scsi/qla2xxx/qla_gbl.h:756:20: warning: inline function 'qla8044_need_reset_handler' declared but never defined
+  make[3]: *** [drivers/scsi/qla2xxx/qla_nx2.o] Error 1
+  make[2]: *** [drivers/scsi/qla2xxx] Error 2
+  make[1]: *** [drivers/scsi] Error 2
+  make: *** [drivers] Error 2
+
+    CC [M]  drivers/scsi/qla2xxx/qla_tmpl.o
+  In file included from drivers/scsi/qla2xxx/qla_def.h:3706:0,
+                   from drivers/scsi/qla2xxx/qla_tmpl.c:7:
+  drivers/scsi/qla2xxx/qla_gbl.h:755:20: warning: inline function 'qla8044_set_qsnt_ready' declared but never defined
+   extern inline void qla8044_set_qsnt_ready(struct scsi_qla_host *vha);
+                    ^
+
+Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+Acked-by: Saurav Kashyap <saurav.kashyap@qlogic.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/scsi/qla2xxx/qla_gbl.h |    2 --
+ drivers/scsi/qla2xxx/qla_nx2.c |    2 +-
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+--- a/drivers/scsi/qla2xxx/qla_gbl.h
++++ b/drivers/scsi/qla2xxx/qla_gbl.h
+@@ -728,8 +728,6 @@ extern void qla8044_set_idc_dontreset(st
+ extern int qla8044_rd_direct(struct scsi_qla_host *vha, const uint32_t crb_reg);
+ extern void qla8044_wr_direct(struct scsi_qla_host *vha,
+ 			      const uint32_t crb_reg, const uint32_t value);
+-extern inline void qla8044_set_qsnt_ready(struct scsi_qla_host *vha);
+-extern inline void qla8044_need_reset_handler(struct scsi_qla_host *vha);
+ extern int qla8044_device_state_handler(struct scsi_qla_host *vha);
+ extern void qla8044_clear_qsnt_ready(struct scsi_qla_host *vha);
+ extern void qla8044_clear_drv_active(struct qla_hw_data *);
+--- a/drivers/scsi/qla2xxx/qla_nx2.c
++++ b/drivers/scsi/qla2xxx/qla_nx2.c
+@@ -146,7 +146,7 @@ qla8044_rmw_crb_reg(struct scsi_qla_host
+ 	return;
+ }
+ 
+-inline void
++static inline void
+ qla8044_set_qsnt_ready(struct scsi_qla_host *vha)
+ {
+ 	uint32_t qsnt_state;
