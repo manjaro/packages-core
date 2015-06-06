@@ -12,7 +12,7 @@ _basekernel=3.10
 _basever=310
 _aufs=20141215 #last version
 _bfq=v7r7
-pkgver=${_basekernel}.79
+pkgver=${_basekernel}.80
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -35,6 +35,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         'change-default-console-loglevel.patch'
+        'apm-asmlinkage.patch::http://kernel.opensuse.org/cgit/kernel/patch/?id=54c2f3fdb941204cad136024c7b854b7ad112ab6'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.10/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.10/2700_ThinkPad-30-brightness-control-fix.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.10/4500_nouveau-video-output-control-Kconfig.patch'
@@ -45,7 +46,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch")
 
 sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
-            'eae8e6a2dacff2dca6b2a91ac2dbb16e88fe4371276b7c5322aaa381f09c3966'
+            '83116a94209d367fe93ffcd8031a98269279661675550d019c79cc684d420907'
             '1fd1a2835badd1243343021eb2338e11eaa07b718503ad6f247225315f4bfe40'
             '581d427a701099f76a535389f1ae175d0d9a1fd34de8d416c36cdedcc136b2cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -60,6 +61,7 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '24ed088936a63925e2df26c0e2ba2cf5bca54f05e384d5b4a5c890c9eb92c3e2'
             '9151b754d8b06fe737c179c75e6229d81cc197fb4ab14baf959dc7f631819a62'
             '56bd99e54429a25a144f2d221718b67f516344ffd518fd7dcdd752206ec5be69'
+            '8d76b789d9a85cfaa92e3b3a5b13a42e00c01e3ac809f5fe49aa659b33465b58'
             '8ef4a6c16e3d0df0c211fef7875089eda3821db4b1335cac79ca02511a4d6f5c'
             '9d7eab1ffec60f2b0d2121221d957f17a02918d95f11ea52902c227df5105e25'
             '59ad742a02bc24d58bc06eee584175a164cb82550b905ba9f402a6dc399d3ed1'
@@ -74,6 +76,9 @@ prepare() {
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # fix https://github.com/manjaro/packages-core/issues/13
+  patch -p1 -i "${srcdir}/apm-asmlinkage.patch"
 
   # fix zram
   patch -p1 -i "${srcdir}/3.10.13-Revert-zram-use-zram--lock-to-protect-zram_free_page-in-swap-free-notify-path.patch"
