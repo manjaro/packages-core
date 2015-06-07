@@ -36,6 +36,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'vfs-ino.patch'
         'change-default-console-loglevel.patch'
         'apm-asmlinkage.patch::http://kernel.opensuse.org/cgit/kernel/patch/?id=54c2f3fdb941204cad136024c7b854b7ad112ab6'
+        'lguest-asmlinkage.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/drivers/lguest/x86/core.c?id=cdd77e87eae52b7251acc5990207a1c4500a84ce'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.10/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.10/2700_ThinkPad-30-brightness-control-fix.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.10/4500_nouveau-video-output-control-Kconfig.patch'
@@ -62,6 +63,7 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '9151b754d8b06fe737c179c75e6229d81cc197fb4ab14baf959dc7f631819a62'
             '56bd99e54429a25a144f2d221718b67f516344ffd518fd7dcdd752206ec5be69'
             '8d76b789d9a85cfaa92e3b3a5b13a42e00c01e3ac809f5fe49aa659b33465b58'
+            'd8110b08354c2b941c8ecf428d9011b9da01230c72a2e42dac66428f0965a626'
             '8ef4a6c16e3d0df0c211fef7875089eda3821db4b1335cac79ca02511a4d6f5c'
             '9d7eab1ffec60f2b0d2121221d957f17a02918d95f11ea52902c227df5105e25'
             '59ad742a02bc24d58bc06eee584175a164cb82550b905ba9f402a6dc399d3ed1'
@@ -78,7 +80,9 @@ prepare() {
   patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # fix https://github.com/manjaro/packages-core/issues/13
+  # seems to be gcc5 issues
   patch -p1 -i "${srcdir}/apm-asmlinkage.patch"
+  patch -p1 -i "${srcdir}/lguest-asmlinkage.patch"
 
   # fix zram
   patch -p1 -i "${srcdir}/3.10.13-Revert-zram-use-zram--lock-to-protect-zram_free_page-in-swap-free-notify-path.patch"
