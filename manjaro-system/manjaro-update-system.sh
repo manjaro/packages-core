@@ -42,6 +42,16 @@ detectDE()
 }
 
 post_upgrade() {
+	# add missing xdg-user-dirs
+	pacman -Qq xdg-user-dirs &> /tmp/cmd1
+	if [ "$(vercmp $2 20150615-1)" -lt 0 ]; then
+		if [[ "$(grep 'xdg-user-dirs' /tmp/cmd1)" != "xdg-user-dirs" ]]; then
+			msg "Installing xdg-user-dirs ..."
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm -S xdg-user-dirs
+		fi
+	fi
+
 	# lxsession replacement
 	pacman -Qq xfce4-session &> /tmp/cmd1
 	pacman -Qq lxsession &> /tmp/cmd2

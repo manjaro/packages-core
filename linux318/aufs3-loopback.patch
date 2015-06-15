@@ -196,13 +196,13 @@ index 90df5d6..cb91822 100644
  	unsigned	lo_blocksize;
  	void		*key_data; 
 diff --git a/fs/aufs/f_op.c b/fs/aufs/f_op.c
-index e2f74f3d..6d2fe31 100644
+index 441099c..0fa53c6 100644
 --- a/fs/aufs/f_op.c
 +++ b/fs/aufs/f_op.c
-@@ -373,7 +373,7 @@ static ssize_t aufs_splice_read(struct file *file, loff_t *ppos,
- 	err = -EINVAL;
- 	h_file = au_hf_top(file);
- 	get_file(h_file);
+@@ -406,7 +406,7 @@ static ssize_t aufs_splice_read(struct file *file, loff_t *ppos,
+ 	if (IS_ERR(h_file))
+ 		goto out;
+ 
 -	if (au_test_loopback_kthread()) {
 +	if (0 && au_test_loopback_kthread()) {
  		au_warn_loopback(h_file->f_dentry->d_sb);
