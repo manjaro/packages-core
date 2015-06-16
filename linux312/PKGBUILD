@@ -12,7 +12,7 @@ _basekernel=3.12
 _basever=312
 _aufs=20141215 #last version
 _bfq=v7r7
-pkgver=${_basekernel}.43
+pkgver=${_basekernel}.44
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -35,6 +35,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'vfs-ino.patch'
         'aufs312-3.12.37.patch'
         'change-default-console-loglevel.patch'
+        'lguest-asmlinkage.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/drivers/lguest/x86/core.c?id=cdd77e87eae52b7251acc5990207a1c4500a84ce'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.12/2700_ThinkPad-30-brightness-control-fix.patch'
         'criu-no-expert.patch'
@@ -49,7 +50,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.12.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.12.0.patch")
 
 sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
-            '96ce65b950e484ba7abdfb5f7a69ee954c05d00cd4e3a1627b9fe6d742e04a34'
+            '3a3c1ca0e1ad33f381de9e42df70db96ec88073651eaa00d135869bcf3d424ad'
             'f5dea12bdfb507eda6f0b509a3c14841c672a095caa2b88a3337c67e8b31d5ed'
             '76ba9bba53bc2ab937995d26eda7a4259d6da98db8e783bf41b4d0ce148c0752'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -64,6 +65,7 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             '2740ef0f6a04f38eb0e369f154d88ebe64030117774f8581bc00fe89a672a247'
             '5ea190a1b72c509723e1ba02a086d740e0362051142f2c652153f737552aa587'
             'd633a2039877c00302f32738099ee53e0275350a8f73691ecb107fb9735db5a9'
+            'd8110b08354c2b941c8ecf428d9011b9da01230c72a2e42dac66428f0965a626'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'daa75228a4c45a925cc5dbfeba884aa696a973a26af7695adc198c396474cbd5'
@@ -82,6 +84,10 @@ prepare() {
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # fix https://github.com/manjaro/packages-core/issues/13
+  # seems to be gcc5 issues
+  patch -p1 -i "${srcdir}/lguest-asmlinkage.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
