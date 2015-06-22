@@ -68,7 +68,7 @@ index 246eae8..dfd0875 100644
  	struct mm_walk walk = {};
  	struct mempolicy *pol;
 diff --git a/fs/proc/task_nommu.c b/fs/proc/task_nommu.c
-index 599ec2e..de6cd6e 100644
+index 599ec2e..1740207 100644
 --- a/fs/proc/task_nommu.c
 +++ b/fs/proc/task_nommu.c
 @@ -160,7 +160,10 @@ static int nommu_vma_show(struct seq_file *m, struct vm_area_struct *vma,
@@ -78,20 +78,19 @@ index 599ec2e..de6cd6e 100644
 -		struct inode *inode = file_inode(vma->vm_file);
 +		struct inode *inode;
 +
-+		file = vma_pr_or_file(file);
++		file = vma_pr_or_file(vma);
 +		inode = file_inode(file);
  		dev = inode->i_sb->s_dev;
  		ino = inode->i_ino;
  		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index dd5ea30..445d798 100644
+index dd5ea30..aa4c14d 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
 @@ -1224,6 +1224,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
  }
  #endif
  
-+#ifdef CONFIG_MMU
 +extern void vma_do_file_update_time(struct vm_area_struct *, const char[], int);
 +extern struct file *vma_do_pr_or_file(struct vm_area_struct *, const char[],
 +				      int);
@@ -104,14 +103,15 @@ index dd5ea30..445d798 100644
 +							  __LINE__)
 +#define vma_get_file(vma)		vma_do_get_file(vma, __func__, __LINE__)
 +#define vma_fput(vma)			vma_do_fput(vma, __func__, __LINE__)
-+#else
++
++#ifndef CONFIG_MMU
 +extern struct file *vmr_do_pr_or_file(struct vm_region *, const char[], int);
 +extern void vmr_do_fput(struct vm_region *, const char[], int);
 +
 +#define vmr_pr_or_file(region)		vmr_do_pr_or_file(region, __func__, \
 +							  __LINE__)
 +#define vmr_fput(region)		vmr_do_fput(region, __func__, __LINE__)
-+#endif /* CONFIG_MMU */
++#endif /* !CONFIG_MMU */
 +
  extern int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write);
  extern int access_remote_vm(struct mm_struct *mm, unsigned long addr,
@@ -367,7 +367,7 @@ index 28bd8c4..3c0ace2 100644
  	return ret;
 diff --git a/mm/prfile.c b/mm/prfile.c
 new file mode 100644
-index 0000000..6c145eb
+index 0000000..6aa5ab5
 --- /dev/null
 +++ b/mm/prfile.c
 @@ -0,0 +1,86 @@
@@ -397,7 +397,6 @@ index 0000000..6c145eb
 +#endif
 +}
 +
-+#ifdef CONFIG_MMU
 +void vma_do_file_update_time(struct vm_area_struct *vma, const char func[],
 +			     int line)
 +{
@@ -437,7 +436,8 @@ index 0000000..6c145eb
 +	if (f && pr)
 +		fput(pr);
 +}
-+#else
++
++#ifndef CONFIG_MMU
 +struct file *vmr_do_pr_or_file(struct vm_region *region, const char func[],
 +			       int line)
 +{
@@ -456,4 +456,4 @@ index 0000000..6c145eb
 +	if (f && pr)
 +		fput(pr);
 +}
-+#endif /* CONFIG_MMU */
++#endif /* !CONFIG_MMU */

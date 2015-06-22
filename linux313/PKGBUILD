@@ -12,7 +12,7 @@ _basekernel=3.13
 _basever=313
 _aufs=20141215 #last version
 _bfq=v7r7
-_subver=21
+_subver=22
 pkgver=${_basekernel}.11.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -39,7 +39,6 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.11/1700_enable-thinkpad-micled.patch'
         '2700_ThinkPad-30-brightness-control-fix.patch'
         'criu-no-expert.patch'
-        '0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch'
         # ARCH patches
         '0001-Bluetooth-allocate-static-minor-for-vhci.patch'
         '0001-syscalls.h-use-gcc-alias-instead-of-assembler-aliase.patch'
@@ -67,7 +66,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.13.11.19.patch'
         '3.13.11.20.patch'
         '3.13.11.21.patch'
-        '3.13.11.21-gcc5.patch'
+        '3.13.11.22.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.13.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.13.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.13.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.13.0.patch"
@@ -91,7 +90,6 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             '45b8a7a87e995bf3cbb79f9008672724527c3794cb51024718faedeb072b674a'
-            'ddbc218347b06db757212e337488a1a940e2adc29522c0a4e39887075ea88be1'
             '64ea8f87d8131841c6d2edec646c08e35bd6965555ff16100725a566186264dc'
             '49b947c76b8c4d17fed80a45342e43e4bbd1c2085a43b43c237a8a0d27a51e74'
             'df5c98b5719b97accbee16d387b81781cd9694801cf1f1d831fdf5069942fda1'
@@ -118,7 +116,7 @@ sha256sums=('4d5e5eee5f276424c32e9591f1b6c971baedc7b49f28ce03d1f48b1e5d6226a2'
             '5dc65b0716f019d61fd1a3de4fa357ab6b94d0d341745271c24903ae4abc76be'
             '57a9cdc870c37e835d46c0a37e7309b50d7d4fa9932f16b7f620f687f3f44171'
             '1cf09a763fbc4605df163e6c8e3a4edb31f1d78176a4c43f2d7abecdd74612f7'
-            '274b72dfd18bdedbaaabf39e65c42aa00c1575ed7f5b3f8b5423c2f3760590e8'
+            'db731369ae77265a1bbe610d57b0c73e06b8cd521cde72e4015bd67120115d3b'
             'e8fec7a0ca0331b5461fd012de62083733ab1078f19ebeee5f435ca100594cee'
             'f20ea80b307864b18d39e698a118015031ac0597167dc4a64a3a79847c2724e7'
             'd16eb5a3cb1a189b333ad54efaeb98c02bcfbf77fadf65e915e1f2308f1bba1d')
@@ -150,7 +148,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.13.11.19.patch"
   patch -p1 -i "${srcdir}/3.13.11.20.patch"
   patch -p1 -i "${srcdir}/3.13.11.21.patch"
-  patch -p1 -i "${srcdir}/3.13.11.21-gcc5.patch"
+  patch -p1 -i "${srcdir}/3.13.11.22.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -181,9 +179,6 @@ prepare() {
 
   # Fix vhci warning in kmod (to restore every kernel maintainer's sanity)
   patch -p1 -i "${srcdir}/0001-Bluetooth-allocate-static-minor-for-vhci.patch"
-
-  # https://github.com/manjaro/packages-core/issues/9
-  patch -Np1 -i "${srcdir}/0001-mmc-card-not-access-RPMB-partition-for-normal-read-and-write.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
