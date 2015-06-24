@@ -11,18 +11,16 @@ pkgname=('linux41' 'linux41-headers')
 _kernelname=-MANJARO
 _basekernel=4.1
 _basever=41
-_aufs=20150608
+_aufs=20150622
 _bfq=v7r7
-_rc=rc8
-pkgver=${_basekernel}${_rc}
-pkgrel=1
+pkgver=${_basekernel}.0
+pkgrel=0
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
-source=("https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
-        #"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -44,16 +42,16 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekerne
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('5cc4290dcab4127c149e1749f28a6a27ed9bf13b4d545e778c898f7ca5a24445'
+sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'a87bf62ec865a7c7731134d80bb195cd3dda3864a5900924b0c1847598d845c8'
             '0457cb16345144bdf41e17ce7ac964adcacf6ea9934068b2e0c8b473695b4cb4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            'b987c558d9b675380ac78069ac0fd47f952ca17d6e11580f56bcae04a2d08cf9'
-            '20d35544a4db1d9437f0bc02efc8d902e98dbac9a42cfd00f3a9499821583ae1'
+            '7a8d63f3efa5e02a8649c173b3b74dd0d40bd60f90de2e347f328c630f813305'
+            'e1615ea222c20885eac6491fe77b939ab514e33765f7c69a7308205b87b5b722'
             'dc33720b412202597fe7361abaf6c5e41b691184a47f70d1e46873b46149216d'
-            '9f030fdf8d81c2688d5e016213871852f0c2218939d6be689a4ceb4704d138aa'
-            '6414cf10dd79976312897fdf3f69ceaf898d2f6e588178ce13d38a12b5b853cc'
+            '19e2097152491e880e501ec7cd7046e801ee828bfb4db17efe84d387cc7eb4d0'
+            '50a76a365a70ba075db39cd442f3d06b8676474ea91e9f52dbab0abbc2318726'
             '533a351e26979c3b10851d855b81b2e20572f32217a0edd43ec96f4bece7cf72'
             '7528e18b6d416445794af5bdbd780d7f3a5a71681fa3d1fd992214ebd62beb7d'
             '9129c349305fa1d003bd47fdf11a768a69805c852a3c269af5a04f0d6f50eeea'
@@ -65,7 +63,7 @@ sha256sums=('5cc4290dcab4127c149e1749f28a6a27ed9bf13b4d545e778c898f7ca5a24445'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}-"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
@@ -140,7 +138,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}-"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -153,7 +151,7 @@ package_linux41() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}-"
 
   KARCH=x86
 
@@ -219,7 +217,7 @@ package_linux41-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}-"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
