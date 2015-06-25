@@ -41,6 +41,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.0.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.0.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
+        'http://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/queue-4.1/x86-boot-fix-overflow-warning-with-32-bit-binutils.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'a87bf62ec865a7c7731134d80bb195cd3dda3864a5900924b0c1847598d845c8'
@@ -60,13 +61,15 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'ff13786f79587cfc7016f0d287b82cfd79d21d00082e7fc0c954582e26c7243e'
             '940a0aa5b790f06e9b15ad9fc91b8cecc6e7f4bdbdbcc584fd1508d9d431c5ea'
             'e8b5df967de0e91bfbec7a8acd39e8967ea51e090090c5d7888b408d16cce6bb'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            'f5e638384154a01367d46f134f4b7b5513250ca8bc80d4b1564238a9eec1d808')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/x86-boot-fix-overflow-warning-with-32-bit-binutils.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
