@@ -42,6 +42,13 @@ detectDE()
 }
 
 post_upgrade() {
+	# fix the eudev/eudev-systemdcompat upgrade with libgudev split from systemd
+	pacman -Qq eudev-systemdcompat &> /tmp/cmd1
+	if [ "$(vercmp $2 211-1)" -lt 0 ] && \
+		[ "$(grep 'eudev-systemdcompat' /tmp/cmd1)" == "eudev-systemdcompat" ];then
+		pacman --noconfirm -Syu libgudev &> /dev/null
+	fi
+
 	# add missing xdg-user-dirs
 	pacman -Qq xdg-user-dirs &> /tmp/cmd1
 	if [ "$(vercmp $2 20150615-1)" -lt 0 ]; then
