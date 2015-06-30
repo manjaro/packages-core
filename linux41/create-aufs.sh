@@ -5,7 +5,7 @@ rm -Rf aufs4-standalone
 git clone git://github.com/sfjro/aufs4-standalone.git aufs4-standalone
 cd aufs4-standalone
 git branch -r
-git checkout origin/aufs4.x-rcN
+git checkout origin/aufs4.1
 
 # modify what you want
 
