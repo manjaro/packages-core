@@ -33,6 +33,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'aufs3-standalone.patch'
         'aufs310-3.10.76.patch'
         'aufs310-3.10.83.patch'
+        'aufs310-3.10.83-2.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         'change-default-console-loglevel.patch'
@@ -61,6 +62,7 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             'c6d83de849f843a6d171f01b780fc4c14bfcb8d7ad78acc30546238c1b49cc02'
             '3952c547344ae6498cecee3a1e762b575e1e6dfe08ef933f905eda6f9ceaa691'
             '06ac1d57cad8f3c98fcdbf26bddee3ccdb9064665f13f5c54603f5206c343a3b'
+            '0b101ce888f5de0341736ff118ca38507100cacae6b2f4b7dd452c1bf66b8c73'
             '24ed088936a63925e2df26c0e2ba2cf5bca54f05e384d5b4a5c890c9eb92c3e2'
             '9151b754d8b06fe737c179c75e6229d81cc197fb4ab14baf959dc7f631819a62'
             '56bd99e54429a25a144f2d221718b67f516344ffd518fd7dcdd752206ec5be69'
@@ -76,12 +78,12 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '6ec3d2c03f0425f9d5a13ebbb44e3840baeba8085ca0a08c087b05226c2f49b9')
 
 prepare() {
-  cd "${srcdir}"
   # fix aufs patches
   rm ${srcdir}/aufs3-base.patch
   rm ${srcdir}/aufs3-standalone.patch
-  cp -f ../aufs3-base.patch ${srcdir}/aufs3-base.patch
-  cp -f ../aufs3-standalone.patch ${srcdir}/aufs3-standalone.patch
+  cp -f ${startdir}/aufs3-base.patch ${srcdir}/aufs3-base.patch
+  cp -f ${startdir}/aufs3-standalone.patch ${srcdir}/aufs3-standalone.patch
+  cd "${srcdir}"
   patch -Np0 -i "${srcdir}/aufs310-3.10.83.patch"
 
   cd "${srcdir}/linux-${_basekernel}"
@@ -126,6 +128,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
   patch -Np1 -i "${srcdir}/aufs310-3.10.76.patch"
+  patch -Np1 -i "${srcdir}/aufs310-3.10.83-2.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
