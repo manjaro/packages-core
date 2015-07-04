@@ -1,0 +1,66 @@
+--- aufs3-base-orig.patch	2015-01-05 10:30:26.589688000 +0100
++++ aufs3-base.patch	2015-07-04 10:32:51.420729249 +0200
+@@ -25,19 +25,6 @@ index 48c7480..75518fe 100644
+  AUXILIARY DISPLAY DRIVERS
+  M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
+  W:	http://miguelojeda.es/auxdisplay.htm
+-diff --git a/fs/file_table.c b/fs/file_table.c
+-index 485dc0e..8db8096 100644
+---- a/fs/file_table.c
+-+++ b/fs/file_table.c
+-@@ -36,7 +36,7 @@ struct files_stat_struct files_stat = {
+- 	.max_files = NR_FILE
+- };
+- 
+--DEFINE_STATIC_LGLOCK(files_lglock);
+-+DEFINE_LGLOCK(files_lglock);
+- 
+- /* SLAB cache for file structures */
+- static struct kmem_cache *filp_cachep __read_mostly;
+ diff --git a/fs/inode.c b/fs/inode.c
+ index 00d5fc3..f324521 100644
+ --- a/fs/inode.c
+--- aufs3-standalone.orig.patch	2015-01-05 10:30:26.633043000 +0100
++++ aufs3-standalone.patch	2015-07-04 10:36:12.838062796 +0200
+@@ -1,26 +1,5 @@
+ aufs3.10.x standalone patch
+ 
+-diff --git a/fs/file_table.c b/fs/file_table.c
+-index 8db8096..e271e28 100644
+---- a/fs/file_table.c
+-+++ b/fs/file_table.c
+-@@ -37,6 +37,7 @@ struct files_stat_struct files_stat = {
+- };
+- 
+- DEFINE_LGLOCK(files_lglock);
+-+EXPORT_SYMBOL_GPL(files_lglock);
+- 
+- /* SLAB cache for file structures */
+- static struct kmem_cache *filp_cachep __read_mostly;
+-@@ -405,6 +406,8 @@ void file_sb_list_del(struct file *file)
+- 	}
+- }
+- 
+-+EXPORT_SYMBOL_GPL(file_sb_list_del);
+-+
+- #ifdef CONFIG_SMP
+- 
+- /*
+ diff --git a/fs/inode.c b/fs/inode.c
+ index f324521..bff7670 100644
+ --- a/fs/inode.c
+@@ -57,14 +36,6 @@ diff --git a/fs/namespace.c b/fs/namespa
+ index a45ba4f..f32874b 100644
+ --- a/fs/namespace.c
+ +++ b/fs/namespace.c
+-@@ -54,6 +54,7 @@ EXPORT_SYMBOL_GPL(fs_kobj);
+-  * tree or hash is modified or when a vfsmount structure is modified.
+-  */
+- DEFINE_BRLOCK(vfsmount_lock);
+-+EXPORT_SYMBOL_GPL(vfsmount_lock);
+- 
+- static inline unsigned long hash(struct vfsmount *mnt, struct dentry *dentry)
+- {
+ @@ -427,6 +428,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
+  	mnt_dec_writers(real_mount(mnt));
+  	preempt_enable();
