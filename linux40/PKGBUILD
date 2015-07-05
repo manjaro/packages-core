@@ -12,9 +12,9 @@ _kernelname=-MANJARO
 _basekernel=4.0
 _basever=40
 _aufs=20150622
-_bfq=v7r7
+_bfq=v7r8
 pkgver=${_basekernel}.7
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -41,6 +41,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.0.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.0.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
+        '0001-block-loop-convert-to-per-device-workqueue.patch'
+        '0002-block-loop-avoiding-too-many-pending-per-work-I-O.patch'
 )
 sha256sums=('0f2f7d44979bc8f71c4fc5d3308c03499c26a824dd311fdf6eef4dee0d7d5991'
             'c6deb2cda4d87fc2e09442e31f3e6e70e54962744c3a4d2653a8fda381442de0'
@@ -58,10 +60,12 @@ sha256sums=('0f2f7d44979bc8f71c4fc5d3308c03499c26a824dd311fdf6eef4dee0d7d5991'
             'f87cda11c2429059413fb88d530c8b1659926892d42329a708bcfe0c65e98584'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            'ff13786f79587cfc7016f0d287b82cfd79d21d00082e7fc0c954582e26c7243e'
-            '940a0aa5b790f06e9b15ad9fc91b8cecc6e7f4bdbdbcc584fd1508d9d431c5ea'
-            'e8b5df967de0e91bfbec7a8acd39e8967ea51e090090c5d7888b408d16cce6bb'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+            'b0648f9fca9b155c3a7195008acd6fb8f1a644c6a8743050f3ee96e1245b88d9'
+            'f1389d30e08cc1fab638407289743d15efcde4dac63f9e3052b0df9c0880ef57'
+            'fd7f55a254217e1b57558a6288cc2aab28f7c62d7d0b8db09b598382d5bce618'
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            '0682df710e8d23f0d420b3b01fbfe409b3911940b1a379b78d9f4a5ac8590386'
+            'af42b1456caee0b0db8f3cc770c78083b40159260b99db4930e503ac7824eacc')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -73,6 +77,11 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # Fix deadlock with stacked loop devices (FS#45129)
+  # http://marc.info/?l=linux-kernel&m=143280649731902&w=2
+  patch -Np1 -i ../0001-block-loop-convert-to-per-device-workqueue.patch
+  patch -Np1 -i ../0002-block-loop-avoiding-too-many-pending-per-work-I-O.patch
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
