@@ -14,7 +14,7 @@ _basever=41
 _aufs=20150629
 _bfq=v7r8
 pkgver=${_basekernel}.3
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -45,6 +45,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-block-loop-avoiding-too-many-pending-per-work-I-O.patch'
         '0003-bluetooth-btbcm-allow-btbcm_read_verbose_config-to-f.patch'
         '0004-bitmap-enable-booting-for-dm-md-raid1.patch'
+        # Manjaro Patches
+        '0001-revert-Fix-cache_get_priv_group-for-Intel-processors.patch::https://github.com/torvalds/linux/commit/37dea8c52cacb4439eb183ad736747bb678d2a5d.patch'
+        '0002-revert-Move-cacheinfo-sysfs-code-to-generic-infrastructure.patch::https://github.com/torvalds/linux/commit/0d55ba46bfbee64fd2b492b87bfe2ec172e7b056.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'b949517b832af2fc90c57a35e475340f32c186f391cbdbfbe0aba7720dbb0b3e'
@@ -69,7 +72,9 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '9e1d3fd95d768a46353593f6678513839cedb98ee66e83d9323233104ec3b23f'
             'bbe3631c737ed8329a1b7a9610cc0a07330c14194da5e9afec7705e7f37eeb81'
             '08f69d122021e1d13c31e5987c23021916a819846c47247b3f1cee2ef99d7f82'
-            '959c4d71b5dc50434eeecf3a8608758f57f111c6e999289c435b13fc8c6be5f0')
+            '959c4d71b5dc50434eeecf3a8608758f57f111c6e999289c435b13fc8c6be5f0'
+            '792562ca4bf0985142feedbd513e05afe7c0d9153cb40b66b7725342c1635c67'
+            'a13f78e3921da4e076da0f8676937640c95a6a5cfcb7520a4ecc057059018a6a')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -95,6 +100,13 @@ prepare() {
   # Fix kernel oops when booting with root on RAID1 LVM (FS#45548)
   # https://bugzilla.kernel.org/show_bug.cgi?id=100491#c24
   patch -Np1 -i ../0004-bitmap-enable-booting-for-dm-md-raid1.patch
+
+  # Fix kernel panic on AMD chipset (i686)
+  # https://github.com/manjaro/packages-core/issues/14
+  sed -i -e 's|CONFIG_SMP|CONFIG_X86_HT|g' arch/x86/kernel/cpu/intel_cacheinfo.c
+  patch -Rp1 -i ../0001-revert-Fix-cache_get_priv_group-for-Intel-processors.patch
+  patch -Rp1 -i ../0002-revert-Move-cacheinfo-sysfs-code-to-generic-infrastructure.patch
+  sed -i -e 's|CONFIG_X86_HT|CONFIG_SMP|g' arch/x86/kernel/cpu/intel_cacheinfo.c
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
