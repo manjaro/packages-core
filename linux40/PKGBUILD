@@ -92,9 +92,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
-  # fix aufs4
-  sed -i -e 's|f_dentry|f_path.dentry|g' "${srcdir}/aufs4-loopback.patch"
-
   # add aufs4 support
   patch -Np1 -i "${srcdir}/aufs4.0-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
