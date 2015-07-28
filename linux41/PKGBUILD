@@ -46,8 +46,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0003-bluetooth-btbcm-allow-btbcm_read_verbose_config-to-f.patch'
         '0004-bitmap-enable-booting-for-dm-md-raid1.patch'
         # Manjaro Patches
-        '0001-x86-cacheinfo-fix-NULL-pointer-dereference-in-the-error-cleanup-path.patch::https://lkml.org/lkml/diff/2015/7/26/16/1'
-        '0002-x86-cacheinfo-fix-cache_shared_cpu_map_remove.patch::https://lkml.org/lkml/diff/2015/7/26/20/1'
+        '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'b949517b832af2fc90c57a35e475340f32c186f391cbdbfbe0aba7720dbb0b3e'
@@ -73,8 +72,7 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'bbe3631c737ed8329a1b7a9610cc0a07330c14194da5e9afec7705e7f37eeb81'
             '08f69d122021e1d13c31e5987c23021916a819846c47247b3f1cee2ef99d7f82'
             '959c4d71b5dc50434eeecf3a8608758f57f111c6e999289c435b13fc8c6be5f0'
-            '76075617f435feb7888d1484858a90f5135cebb3b2cbbf5c053241c1b8a73d3d'
-            '4bb224e03e9e23310b709e8f93c02a90ba90f636141048fc4886cfba199336fb')
+            'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -104,8 +102,7 @@ prepare() {
   # Fix Regression with 'x86/cacheinfo: Move cacheinfo sysfs code to generic infrastructure' on AMD i686
   # https://github.com/manjaro/packages-core/issues/14
   # https://bugzilla.kernel.org/show_bug.cgi?id=101971
-  patch -Np1 -i ../0001-x86-cacheinfo-fix-NULL-pointer-dereference-in-the-error-cleanup-path.patch
-  patch -Np1 -i ../0002-x86-cacheinfo-fix-cache_shared_cpu_map_remove.patch
+  patch -Np1 -i ../0001-cpu-cacheinfo-fix-teardown-path.patch
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
