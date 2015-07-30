@@ -1,0 +1,83 @@
+--- aufs3-base.patch.orig	2015-07-30 20:26:07.155197159 +0200
++++ aufs3-base.patch	2015-07-30 20:27:22.276068993 +0200
+@@ -54,36 +54,6 @@ index c8dac73..2e229ac 100644
+  /* loop sysfs attributes */
+  
+  static ssize_t loop_attr_show(struct device *dev, char *page,
+-diff --git a/fs/file_table.c b/fs/file_table.c
+-index 05e2ac1..4b0edb2 100644
+---- a/fs/file_table.c
+-+++ b/fs/file_table.c
+-@@ -36,7 +36,7 @@ struct files_stat_struct files_stat = {
+- 	.max_files = NR_FILE
+- };
+- 
+--DEFINE_STATIC_LGLOCK(files_lglock);
+-+DEFINE_LGLOCK(files_lglock);
+- 
+- /* SLAB cache for file structures */
+- static struct kmem_cache *filp_cachep __read_mostly;
+-@@ -360,7 +360,7 @@ static inline int file_list_cpu(struct file *file)
+- }
+- 
+- /* helper for file_sb_list_add to reduce ifdefs */
+--static inline void __file_sb_list_add(struct file *file, struct super_block *sb)
+-+inline void __file_sb_list_add(struct file *file, struct super_block *sb)
+- {
+- 	struct list_head *list;
+- #ifdef CONFIG_SMP
+-@@ -373,6 +373,7 @@ static inline void __file_sb_list_add(struct file *file, struct super_block *sb)
+- #endif
+- 	list_add(&file->f_u.fu_list, list);
+- }
+-+EXPORT_SYMBOL(__file_sb_list_add);
+- 
+- /**
+-  * file_sb_list_add - add a file to the sb's file list
+ diff --git a/fs/inode.c b/fs/inode.c
+ index 1e6e846..43c0b62 100644
+ --- a/fs/inode.c
+--- aufs3-standalone.patch.orig	2015-07-30 20:13:57.468095565 +0200
++++ aufs3-standalone.patch	2015-07-30 20:20:03.806962470 +0200
+@@ -1,26 +1,4 @@
+ aufs3.12.31+ standalone patch
+-
+-diff --git a/fs/file_table.c b/fs/file_table.c
+-index 4b0edb2..83a9932 100644
+---- a/fs/file_table.c
+-+++ b/fs/file_table.c
+-@@ -37,6 +37,7 @@ struct files_stat_struct files_stat = {
+- };
+- 
+- DEFINE_LGLOCK(files_lglock);
+-+EXPORT_SYMBOL_GPL(files_lglock);
+- 
+- /* SLAB cache for file structures */
+- static struct kmem_cache *filp_cachep __read_mostly;
+-@@ -410,6 +411,8 @@ void file_sb_list_del(struct file *file)
+- 	}
+- }
+- 
+-+EXPORT_SYMBOL_GPL(file_sb_list_del);
+-+
+- #ifdef CONFIG_SMP
+- 
+- /*
+ diff --git a/fs/inode.c b/fs/inode.c
+ index 43c0b62..fe72299 100644
+ --- a/fs/inode.c
+@@ -57,14 +35,6 @@ diff --git a/fs/namespace.c b/fs/namespa
+ index 4ea2b73..8992624 100644
+ --- a/fs/namespace.c
+ +++ b/fs/namespace.c
+-@@ -54,6 +54,7 @@ EXPORT_SYMBOL_GPL(fs_kobj);
+-  * tree or hash is modified or when a vfsmount structure is modified.
+-  */
+- DEFINE_BRLOCK(vfsmount_lock);
+-+EXPORT_SYMBOL_GPL(vfsmount_lock);
+- 
+- static inline unsigned long hash(struct vfsmount *mnt, struct dentry *dentry)
+- {
+ @@ -427,6 +428,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
+  	mnt_dec_writers(real_mount(mnt));
+  	preempt_enable();

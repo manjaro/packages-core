@@ -1,0 +1,71 @@
+--- a/fs/aufs/vfsub.h
++++ b/fs/aufs/vfsub.h
+@@ -32,7 +32,6 @@
+ 
+ /* copied from linux/fs/internal.h */
+ /* todo: BAD approach!! */
+-extern struct lglock vfsmount_lock;
+ extern void __mnt_drop_write(struct vfsmount *);
+ extern spinlock_t inode_sb_list_lock;
+ 
+-/* copied from linux/fs/file_table.c */
+-extern struct lglock files_lglock;
+-#ifdef CONFIG_SMP
+-/*
+- * These macros iterate all files on all CPUs for a given superblock.
+- * files_lglock must be held globally.
+- */
+-#define do_file_list_for_each_entry(__sb, __file)		\
+-{								\
+-	int i;							\
+-	for_each_possible_cpu(i) {				\
+-		struct list_head *list;				\
+-		list = per_cpu_ptr((__sb)->s_files, i);		\
+-		list_for_each_entry((__file), list, f_u.fu_list)
+-
+-#define while_file_list_for_each_entry				\
+-	}							\
+-}
+-
+-#else
+-
+-#define do_file_list_for_each_entry(__sb, __file)		\
+-{								\
+-	struct list_head *list;					\
+-	list = &(sb)->s_files;					\
+-	list_for_each_entry((__file), list, f_u.fu_list)
+-
+-#define while_file_list_for_each_entry				\
+-}
+-#endif
+-
+-/* ---------------------------------------------------------------------- */
+-
+ /* lock subclass for lower inode */
+ /* default MAX_LOCKDEP_SUBCLASSES(8) is not enough */
+ /* reduce? gave up. */
+--- a/fs/aufs/export.c
++++ b/fs/aufs/export.c
+@@ -301,9 +301,9 @@
+ 	};
+ 
+ 	get_fs_root(current->fs, &root);
+-	br_read_lock(&vfsmount_lock);
++	rcu_read_lock();
+ 	err = iterate_mounts(au_compare_mnt, &args, root.mnt);
+-	br_read_unlock(&vfsmount_lock);
++	rcu_read_unlock();
+ 	path_put(&root);
+ 	AuDebugOn(!err);
+ 	AuDebugOn(!args.mnt);
+--- a/fs/aufs/dcsub.c
++++ b/fs/aufs/dcsub.c
+@@ -197,7 +197,7 @@
+ 		goto out;
+ 
+ 	/*
+-	 * vfsmount_lock is unnecessary since this is a traverse in a single
++	 * RCU for vfsmount is unnecessary since this is a traverse in a single
+ 	 * mount
+ 	 */
+ 	while (!IS_ROOT(dentry)) {

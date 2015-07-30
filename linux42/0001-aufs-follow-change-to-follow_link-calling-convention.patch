@@ -1,0 +1,56 @@
+>From 4a59b42745a0cb8faf91e71977f65574e6820414 Mon Sep 17 00:00:00 2001
+From: Andy Whitcroft <apw@canonical.com>
+Date: Wed, 29 Jul 2015 14:49:45 +0100
+Subject: [PATCH] aufs: follow change to follow_link() calling convention
+
+Signed-off-by: Andy Whitcroft <apw@canonical.com>
+---
+ fs/aufs/i_op.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
+
+diff --git a/fs/aufs/i_op.c b/fs/aufs/i_op.c
+index 17364e4..312f24d 100644
+--- a/fs/aufs/i_op.c
++++ b/fs/aufs/i_op.c
+@@ -1288,7 +1288,7 @@ out:
+ 	return err;
+ }
+ 
+-static void *aufs_follow_link(struct dentry *dentry, struct nameidata *nd)
++static const char *aufs_follow_link(struct dentry *dentry, void **cookie)
+ {
+ 	int err;
+ 	mm_segment_t old_fs;
+@@ -1317,9 +1317,9 @@ static void *aufs_follow_link(struct dentry *dentry, struct nameidata *nd)
+ 
+ 	if (err >= 0) {
+ 		buf.k[err] = 0;
++
+ 		/* will be freed by put_link */
+-		nd_set_link(nd, buf.k);
+-		return NULL; /* success */
++		return *cookie = buf.k;
+ 	}
+ 
+ out_name:
+@@ -1329,14 +1329,10 @@ out:
+ 	return ERR_PTR(err);
+ }
+ 
+-static void aufs_put_link(struct dentry *dentry __maybe_unused,
+-			  struct nameidata *nd, void *cookie __maybe_unused)
++static void aufs_put_link(struct inode *inode __maybe_unused, void *cookie)
+ {
+-	char *p;
+-
+-	p = nd_get_link(nd);
+-	if (!IS_ERR_OR_NULL(p))
+-		free_page((unsigned long)p);
++	if (!IS_ERR_OR_NULL(cookie))
++		free_page((unsigned long)cookie);
+ }
+ 
+ /* ---------------------------------------------------------------------- */
+-- 
+2.4.6
+
