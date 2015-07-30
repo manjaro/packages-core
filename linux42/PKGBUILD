@@ -47,8 +47,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}-${_r
         'change-default-console-loglevel.patch'
 )
 sha256sums=('54d0d64d8df025cc9771cd702352345f8027a388c59c253851e1c657c8a86305'
-            '0eec27502f4af0ab1095b049625fc505e50a7c7dbde940fbc3d6b31a989a0a13'
-            '8c91f2d0a334624b326b9ee6d394a1294adadbc565a36643e2dc1ae48d3d0809'
+            '04ad5cc1c45ffe65b4a1088879a9f19b2d81104d016ecaf1050af151ce19efc8'
+            'fad968f2d602badf05786f9389455200167dfc56034ef8deb1cd1d25f0a12e84'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             'e02f77f3223808cc18bc7a310711815645f436e219c0879c37d05e56d5b43cc5'
@@ -95,9 +95,9 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
   patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/0001-aufs-follow-change-to-follow_link-calling-convention.patch"
   patch -Np1 -i "${srcdir}/0001-UBUNTU-aufs4-aufs4-loopback.patch.patch"
