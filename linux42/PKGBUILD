@@ -45,6 +45,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}-${_r
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.1.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
+        # Manjaro Patches
+        '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
 )
 sha256sums=('54d0d64d8df025cc9771cd702352345f8027a388c59c253851e1c657c8a86305'
             '04ad5cc1c45ffe65b4a1088879a9f19b2d81104d016ecaf1050af151ce19efc8'
@@ -66,7 +68,8 @@ sha256sums=('54d0d64d8df025cc9771cd702352345f8027a388c59c253851e1c657c8a86305'
             'ec0ca3c8051ea6d9a27a450998af8162464c224299deefc29044172940e96975'
             'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -83,6 +86,11 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # Fix Regression with 'x86/cacheinfo: Move cacheinfo sysfs code to generic infrastructure' on AMD i686
+  # https://github.com/manjaro/packages-core/issues/14
+  # https://bugzilla.kernel.org/show_bug.cgi?id=101971
+  patch -Np1 -i ../0001-cpu-cacheinfo-fix-teardown-path.patch
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
