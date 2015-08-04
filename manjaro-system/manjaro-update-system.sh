@@ -42,6 +42,13 @@ detectDE()
 }
 
 post_upgrade() {
+	# fix oberon's signature
+	if [ "$(vercmp $2 20150804-1)" -lt 0 ]; then
+		msg "Get oberon's signature ..."
+		pacman-key -r 663CA268
+		pacman-key --lsign-key 663CA268
+	fi
+
 	# fix the eudev/eudev-systemdcompat upgrade with libgudev split from systemd
 	pacman -Qq eudev-systemdcompat &> /tmp/cmd1
 	if [ "$(vercmp $2 211-1)" -lt 0 ] && \
@@ -301,9 +308,9 @@ post_upgrade() {
 			pacman --noconfirm -S freeimage
 		fi
 	fi
-	# fix dcells signature
+	# fix dcell's signature
 	if [ "$(vercmp $2 20140525-1)" -lt 0 ]; then
-		msg "Get dcells signature ..."
+		msg "Get dcell's signature ..."
 		pacman-key -r 5C0102A6
 		pacman-key --lsign-key 5C0102A6
 	fi
@@ -336,9 +343,9 @@ post_upgrade() {
 	   fi
 	fi
 
-	# fix korrodes signature
+	# fix korrode's signature
 	if [ "$(vercmp $2 20140212-1)" -lt 0 ]; then
-		msg "Get korrodes signature ..."
+		msg "Get korrode's signature ..."
 		pacman-key -r 5C0102A6
 		pacman-key --lsign-key 5C0102A6
 	fi
