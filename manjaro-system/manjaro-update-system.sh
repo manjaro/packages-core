@@ -131,13 +131,6 @@ post_upgrade() {
 		pacman-key --refresh-keys 5C0102A6
 	fi
 
-	# get anex's signature
-	if [ "$(vercmp $2 20141220-1)" -lt 0 ]; then
-		msg "Get anex's signature ..."
-		pacman-key -r A80EBF3E
-		pacman-key --lsign-key A80EBF3E
-	fi
-
 	# recreate pacman gnupg master key
 	if [ "$(vercmp $2 20141210-1)" -lt 0 ]; then
 		pacman -Qq haveged &> /tmp/cmd1
@@ -307,12 +300,6 @@ post_upgrade() {
 			rm /usr/lib/libfreeimageplus.so.3
 			pacman --noconfirm -S freeimage
 		fi
-	fi
-	# fix dcell's signature
-	if [ "$(vercmp $2 20140525-1)" -lt 0 ]; then
-		msg "Get dcell's signature ..."
-		pacman-key -r 5C0102A6
-		pacman-key --lsign-key 5C0102A6
 	fi
 
 	# xorg downgrade
