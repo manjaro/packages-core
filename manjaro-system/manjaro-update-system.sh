@@ -43,7 +43,9 @@ detectDE()
 
 post_upgrade() {
 	# fix oberon's signature
-	if [ "$(vercmp $2 20150804-1)" -lt 0 ]; then
+	if [ "$(vercmp $2 20150814-1)" -lt 0 ]; then
+		# running dirmngr helps prevent pacman-key from failing to connect to servers
+		dirmngr </dev/null
 		msg "Get oberon's signature ..."
 		pacman-key -r 663CA268
 		pacman-key --lsign-key 663CA268
