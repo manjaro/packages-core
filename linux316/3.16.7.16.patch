@@ -1,0 +1,4584 @@
+diff --git a/Documentation/devicetree/bindings/spi/spi_pl022.txt b/Documentation/devicetree/bindings/spi/spi_pl022.txt
+index 22ed6797216d..4d1673ca8cf8 100644
+--- a/Documentation/devicetree/bindings/spi/spi_pl022.txt
++++ b/Documentation/devicetree/bindings/spi/spi_pl022.txt
+@@ -4,9 +4,9 @@ Required properties:
+ - compatible : "arm,pl022", "arm,primecell"
+ - reg : Offset and length of the register set for the device
+ - interrupts : Should contain SPI controller interrupt
++- num-cs : total number of chipselects
+ 
+ Optional properties:
+-- num-cs : total number of chipselects
+ - cs-gpios : should specify GPIOs used for chipselects.
+   The gpios will be referred to as reg = <index> in the SPI child nodes.
+   If unspecified, a single SPI device without a chip select can be used.
+diff --git a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
+index c600e2f44a62..a2b03386e239 100644
+--- a/Documentation/kbuild/makefiles.txt
++++ b/Documentation/kbuild/makefiles.txt
+@@ -976,6 +976,14 @@ When kbuild executes, the following steps are followed (roughly):
+ 	$(KBUILD_ARFLAGS) set by the top level Makefile to "D" (deterministic
+ 	mode) if this option is supported by $(AR).
+ 
++    ARCH_CPPFLAGS, ARCH_AFLAGS, ARCH_CFLAGS   Overrides the kbuild defaults
++
++	These variables are appended to the KBUILD_CPPFLAGS,
++	KBUILD_AFLAGS, and KBUILD_CFLAGS, respectively, after the
++	top-level Makefile has set any other flags. This provides a
++	means for an architecture to override the defaults.
++
++
+ --- 6.2 Add prerequisites to archheaders:
+ 
+ 	The archheaders: rule is used to generate header files that
+diff --git a/Makefile b/Makefile
+index 7fb85a24d17c..093419a63d5c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 3
+ PATCHLEVEL = 16
+ SUBLEVEL = 7
+-EXTRAVERSION =-ckt15
++EXTRAVERSION =-ckt16
+ NAME = Museum of Fishiegoodies
+ 
+ # *DOCUMENTATION*
+@@ -755,10 +755,11 @@ endif
+ 
+ include $(srctree)/scripts/Makefile.extrawarn
+ 
+-# Add user supplied CPPFLAGS, AFLAGS and CFLAGS as the last assignments
+-KBUILD_CPPFLAGS += $(KCPPFLAGS)
+-KBUILD_AFLAGS += $(KAFLAGS)
+-KBUILD_CFLAGS += $(KCFLAGS)
++# Add any arch overrides and user supplied CPPFLAGS, AFLAGS and CFLAGS as the
++# last assignments
++KBUILD_CPPFLAGS += $(ARCH_CPPFLAGS) $(KCPPFLAGS)
++KBUILD_AFLAGS   += $(ARCH_AFLAGS)   $(KAFLAGS)
++KBUILD_CFLAGS   += $(ARCH_CFLAGS)   $(KCFLAGS)
+ 
+ # Use --build-id when available.
+ LDFLAGS_BUILD_ID = $(patsubst -Wl$(comma)%,%,\
+diff --git a/arch/arc/Makefile b/arch/arc/Makefile
+index 8c0b1aa56f7e..429279bc3028 100644
+--- a/arch/arc/Makefile
++++ b/arch/arc/Makefile
+@@ -44,7 +44,8 @@ endif
+ 
+ ifndef CONFIG_CC_OPTIMIZE_FOR_SIZE
+ # Generic build system uses -O2, we want -O3
+-cflags-y  += -O3
++# Note: No need to add to cflags-y as that happens anyways
++ARCH_CFLAGS += -O3
+ endif
+ 
+ # small data is default for elf32 tool-chain. If not usable, disable it
+diff --git a/arch/arc/include/asm/ptrace.h b/arch/arc/include/asm/ptrace.h
+index 1bfeec2c0558..2a58af7a2e3a 100644
+--- a/arch/arc/include/asm/ptrace.h
++++ b/arch/arc/include/asm/ptrace.h
+@@ -63,7 +63,7 @@ struct callee_regs {
+ 	long r25, r24, r23, r22, r21, r20, r19, r18, r17, r16, r15, r14, r13;
+ };
+ 
+-#define instruction_pointer(regs)	((regs)->ret)
++#define instruction_pointer(regs)	(unsigned long)((regs)->ret)
+ #define profile_pc(regs)		instruction_pointer(regs)
+ 
+ /* return 1 if user mode or 0 if kernel mode */
+diff --git a/arch/arm/boot/dts/imx23.dtsi b/arch/arm/boot/dts/imx23.dtsi
+index bbcfb5a19c77..0cb8b0b11c3f 100644
+--- a/arch/arm/boot/dts/imx23.dtsi
++++ b/arch/arm/boot/dts/imx23.dtsi
+@@ -435,6 +435,7 @@
+ 				interrupts = <36 37 38 39 40 41 42 43 44>;
+ 				status = "disabled";
+ 				clocks = <&clks 26>;
++				#io-channel-cells = <1>;
+ 			};
+ 
+ 			spdif@80054000 {
+diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
+index 1f88db06b133..0e09af35f69a 100644
+--- a/arch/arm/mm/dma-mapping.c
++++ b/arch/arm/mm/dma-mapping.c
+@@ -2013,7 +2013,7 @@ static int extend_iommu_mapping(struct dma_iommu_mapping *mapping)
+ {
+ 	int next_bitmap;
+ 
+-	if (mapping->nr_bitmaps > mapping->extensions)
++	if (mapping->nr_bitmaps >= mapping->extensions)
+ 		return -EINVAL;
+ 
+ 	next_bitmap = mapping->nr_bitmaps;
+diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
+index 51706d6dd5b0..c65062a6ff23 100644
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -1931,10 +1931,10 @@ void per_cpu_trap_init(bool is_boot_cpu)
+ 	BUG_ON(current->mm);
+ 	enter_lazy_tlb(&init_mm, current);
+ 
+-		/* Boot CPU's cache setup in setup_arch(). */
+-		if (!is_boot_cpu)
+-			cpu_cache_init();
+-		tlb_init();
++	/* Boot CPU's cache setup in setup_arch(). */
++	if (!is_boot_cpu)
++		cpu_cache_init();
++	tlb_init();
+ 	TLBMISS_HANDLER_SETUP();
+ }
+ 
+diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
+index 93b9ca42e5c0..8a7f7732db1f 100644
+--- a/arch/s390/kernel/process.c
++++ b/arch/s390/kernel/process.c
+@@ -195,7 +195,7 @@ asmlinkage void execve_tail(void)
+ {
+ 	current->thread.fp_regs.fpc = 0;
+ 	if (MACHINE_HAS_IEEE)
+-		asm volatile("sfpc %0,%0" : : "d" (0));
++		asm volatile("sfpc %0" : : "d" (0));
+ }
+ 
+ /*
+diff --git a/arch/s390/kernel/sclp.S b/arch/s390/kernel/sclp.S
+index a41f2c99dcc8..a0c4e7652647 100644
+--- a/arch/s390/kernel/sclp.S
++++ b/arch/s390/kernel/sclp.S
+@@ -277,6 +277,8 @@ ENTRY(_sclp_print_early)
+ 	jno	.Lesa2
+ 	ahi	%r15,-80
+ 	stmh	%r6,%r15,96(%r15)		# store upper register halves
++	basr	%r13,0
++	lmh	%r0,%r15,.Lzeroes-.(%r13)	# clear upper register halves
+ .Lesa2:
+ #endif
+ 	lr	%r10,%r2			# save string pointer
+@@ -300,6 +302,8 @@ ENTRY(_sclp_print_early)
+ #endif
+ 	lm	%r6,%r15,120(%r15)		# restore registers
+ 	br	%r14
++.Lzeroes:
++	.fill	64,4,0
+ 
+ .LwritedataS4:
+ 	.long	0x00760005			# SCLP command for write data
+diff --git a/arch/tile/kernel/setup.c b/arch/tile/kernel/setup.c
+index 112ababa9e55..d8a9df999da3 100644
+--- a/arch/tile/kernel/setup.c
++++ b/arch/tile/kernel/setup.c
+@@ -1144,7 +1144,7 @@ static void __init load_hv_initrd(void)
+ 
+ void __init free_initrd_mem(unsigned long begin, unsigned long end)
+ {
+-	free_bootmem(__pa(begin), end - begin);
++	free_bootmem_late(__pa(begin), end - begin);
+ }
+ 
+ static int __init setup_initrd(char *str)
+diff --git a/arch/x86/kernel/entry_64.S b/arch/x86/kernel/entry_64.S
+index 94aa18a9cc11..79565bd80cc2 100644
+--- a/arch/x86/kernel/entry_64.S
++++ b/arch/x86/kernel/entry_64.S
+@@ -1423,19 +1423,7 @@ ENTRY(error_exit)
+ 	CFI_ENDPROC
+ END(error_exit)
+ 
+-/*
+- * Test if a given stack is an NMI stack or not.
+- */
+-	.macro test_in_nmi reg stack nmi_ret normal_ret
+-	cmpq %\reg, \stack
+-	ja \normal_ret
+-	subq $EXCEPTION_STKSZ, %\reg
+-	cmpq %\reg, \stack
+-	jb \normal_ret
+-	jmp \nmi_ret
+-	.endm
+-
+-	/* runs on exception stack */
++/* Runs on exception stack */
+ ENTRY(nmi)
+ 	INTR_FRAME
+ 	PARAVIRT_ADJUST_EXCEPTION_FRAME
+@@ -1456,11 +1444,12 @@ ENTRY(nmi)
+ 	 *  If the variable is not set and the stack is not the NMI
+ 	 *  stack then:
+ 	 *    o Set the special variable on the stack
+-	 *    o Copy the interrupt frame into a "saved" location on the stack
+-	 *    o Copy the interrupt frame into a "copy" location on the stack
++	 *    o Copy the interrupt frame into an "outermost" location on the
++	 *      stack
++	 *    o Copy the interrupt frame into an "iret" location on the stack
+ 	 *    o Continue processing the NMI
+ 	 *  If the variable is set or the previous stack is the NMI stack:
+-	 *    o Modify the "copy" location to jump to the repeate_nmi
++	 *    o Modify the "iret" location to jump to the repeat_nmi
+ 	 *    o return back to the first NMI
+ 	 *
+ 	 * Now on exit of the first NMI, we first clear the stack variable
+@@ -1469,52 +1458,194 @@ ENTRY(nmi)
+ 	 * a nested NMI that updated the copy interrupt stack frame, a
+ 	 * jump will be made to the repeat_nmi code that will handle the second
+ 	 * NMI.
++	 *
++	 * However, espfix prevents us from directly returning to userspace
++	 * with a single IRET instruction.  Similarly, IRET to user mode
++	 * can fault.  We therefore handle NMIs from user space like
++	 * other IST entries.
+ 	 */
+ 
+ 	/* Use %rdx as out temp variable throughout */
+ 	pushq_cfi %rdx
+ 	CFI_REL_OFFSET rdx, 0
+ 
++	testb	$3, CS-RIP+8(%rsp)
++	jz	.Lnmi_from_kernel
++
+ 	/*
+-	 * If %cs was not the kernel segment, then the NMI triggered in user
+-	 * space, which means it is definitely not nested.
++	 * NMI from user mode.  We need to run on the thread stack, but we
++	 * can't go through the normal entry paths: NMIs are masked, and
++	 * we don't want to enable interrupts, because then we'll end
++	 * up in an awkward situation in which IRQs are on but NMIs
++	 * are off.
+ 	 */
+-	cmpl $__KERNEL_CS, 16(%rsp)
+-	jne first_nmi
++
++	SWAPGS
++	cld
++	movq	%rsp, %rdx
++	movq	PER_CPU_VAR(kernel_stack), %rsp
++	addq	$KERNEL_STACK_OFFSET, %rsp
++	pushq	5*8(%rdx)	/* pt_regs->ss */
++	pushq	4*8(%rdx)	/* pt_regs->rsp */
++	pushq	3*8(%rdx)	/* pt_regs->flags */
++	pushq	2*8(%rdx)	/* pt_regs->cs */
++	pushq	1*8(%rdx)	/* pt_regs->rip */
++	pushq   $-1		/* pt_regs->orig_ax */
++	pushq   %rdi		/* pt_regs->di */
++	pushq   %rsi		/* pt_regs->si */
++	pushq   (%rdx)		/* pt_regs->dx */
++	pushq   %rcx		/* pt_regs->cx */
++	pushq   %rax		/* pt_regs->ax */
++	pushq   %r8		/* pt_regs->r8 */
++	pushq   %r9		/* pt_regs->r9 */
++	pushq   %r10		/* pt_regs->r10 */
++	pushq   %r11		/* pt_regs->r11 */
++	pushq	%rbx		/* pt_regs->rbx */
++	pushq	%rbp		/* pt_regs->rbp */
++	pushq	%r12		/* pt_regs->r12 */
++	pushq	%r13		/* pt_regs->r13 */
++	pushq	%r14		/* pt_regs->r14 */
++	pushq	%r15		/* pt_regs->r15 */
++
++	/*
++	 * At this point we no longer need to worry about stack damage
++	 * due to nesting -- we're on the normal thread stack and we're
++	 * done with the NMI stack.
++	 */
++
++	movq	%rsp, %rdi
++	movq	$-1, %rsi
++	call	do_nmi
++
++	/*
++	 * Return back to user mode.  We must *not* do the normal exit
++	 * work, because we don't want to enable interrupts.  Fortunately,
++	 * do_nmi doesn't modify pt_regs.
++	 */
++	SWAPGS
+ 
+ 	/*
+-	 * Check the special variable on the stack to see if NMIs are
+-	 * executing.
++	 * Open-code the entire return process for compatibility with varying
++	 * register layouts across different kernel versions.
++	 */
++	addq	$6*8, %rsp	/* skip bx, bp, and r12-r15 */
++	popq	%r11		/* pt_regs->r11 */
++	popq	%r10		/* pt_regs->r10 */
++	popq	%r9		/* pt_regs->r9 */
++	popq	%r8		/* pt_regs->r8 */
++	popq	%rax		/* pt_regs->ax */
++	popq	%rcx		/* pt_regs->cx */
++	popq	%rdx		/* pt_regs->dx */
++	popq	%rsi		/* pt_regs->si */
++	popq	%rdi		/* pt_regs->di */
++	addq	$8, %rsp	/* skip orig_ax */
++	INTERRUPT_RETURN
++
++.Lnmi_from_kernel:
++	/*
++	 * Here's what our stack frame will look like:
++	 * +---------------------------------------------------------+
++	 * | original SS                                             |
++	 * | original Return RSP                                     |
++	 * | original RFLAGS                                         |
++	 * | original CS                                             |
++	 * | original RIP                                            |
++	 * +---------------------------------------------------------+
++	 * | temp storage for rdx                                    |
++	 * +---------------------------------------------------------+
++	 * | "NMI executing" variable                                |
++	 * +---------------------------------------------------------+
++	 * | iret SS          } Copied from "outermost" frame        |
++	 * | iret Return RSP  } on each loop iteration; overwritten  |
++	 * | iret RFLAGS      } by a nested NMI to force another     |
++	 * | iret CS          } iteration if needed.                 |
++	 * | iret RIP         }                                      |
++	 * +---------------------------------------------------------+
++	 * | outermost SS          } initialized in first_nmi;       |
++	 * | outermost Return RSP  } will not be changed before      |
++	 * | outermost RFLAGS      } NMI processing is done.         |
++	 * | outermost CS          } Copied to "iret" frame on each  |
++	 * | outermost RIP         } iteration.                      |
++	 * +---------------------------------------------------------+
++	 * | pt_regs                                                 |
++	 * +---------------------------------------------------------+
++	 *
++	 * The "original" frame is used by hardware.  Before re-enabling
++	 * NMIs, we need to be done with it, and we need to leave enough
++	 * space for the asm code here.
++	 *
++	 * We return by executing IRET while RSP points to the "iret" frame.
++	 * That will either return for real or it will loop back into NMI
++	 * processing.
++	 *
++	 * The "outermost" frame is copied to the "iret" frame on each
++	 * iteration of the loop, so each iteration starts with the "iret"
++	 * frame pointing to the final return target.
++	 */
++
++	/*
++	 * Determine whether we're a nested NMI.
++	 *
++	 * If we interrupted kernel code between repeat_nmi and
++	 * end_repeat_nmi, then we are a nested NMI.  We must not
++	 * modify the "iret" frame because it's being written by
++	 * the outer NMI.  That's okay: the outer NMI handler is
++	 * about to about to call do_nmi anyway, so we can just
++	 * resume the outer NMI.
++	 */
++
++	movq	$repeat_nmi, %rdx
++	cmpq	8(%rsp), %rdx
++	ja	1f
++	movq	$end_repeat_nmi, %rdx
++	cmpq	8(%rsp), %rdx
++	ja	nested_nmi_out
++1:
++
++	/*
++	 * Now check "NMI executing".  If it's set, then we're nested.
++	 * This will not detect if we interrupted an outer NMI just
++	 * before IRET.
+ 	 */
+ 	cmpl $1, -8(%rsp)
+ 	je nested_nmi
+ 
+ 	/*
+-	 * Now test if the previous stack was an NMI stack.
+-	 * We need the double check. We check the NMI stack to satisfy the
+-	 * race when the first NMI clears the variable before returning.
+-	 * We check the variable because the first NMI could be in a
+-	 * breakpoint routine using a breakpoint stack.
++	 * Now test if the previous stack was an NMI stack.  This covers
++	 * the case where we interrupt an outer NMI after it clears
++	 * "NMI executing" but before IRET.  We need to be careful, though:
++	 * there is one case in which RSP could point to the NMI stack
++	 * despite there being no NMI active: naughty userspace controls
++	 * RSP at the very beginning of the SYSCALL targets.  We can
++	 * pull a fast one on naughty userspace, though: we program
++	 * SYSCALL to mask DF, so userspace cannot cause DF to be set
++	 * if it controls the kernel's RSP.  We set DF before we clear
++	 * "NMI executing".
+ 	 */
+-	lea 6*8(%rsp), %rdx
+-	test_in_nmi rdx, 4*8(%rsp), nested_nmi, first_nmi
++	lea	6*8(%rsp), %rdx
++	/* Compare the NMI stack (rdx) with the stack we came from (4*8(%rsp)) */
++	cmpq	%rdx, 4*8(%rsp)
++	/* If the stack pointer is above the NMI stack, this is a normal NMI */
++	ja	first_nmi
++	subq	$EXCEPTION_STKSZ, %rdx
++	cmpq	%rdx, 4*8(%rsp)
++	/* If it is below the NMI stack, it is a normal NMI */
++	jb	first_nmi
++
++	/* Ah, it is within the NMI stack. */
++
++	testb	$(X86_EFLAGS_DF >> 8), (3*8 + 1)(%rsp)
++	jz	first_nmi	/* RSP was user controlled. */
++
+ 	CFI_REMEMBER_STATE
+ 
++	/* This is a nested NMI. */
++
+ nested_nmi:
+ 	/*
+-	 * Do nothing if we interrupted the fixup in repeat_nmi.
+-	 * It's about to repeat the NMI handler, so we are fine
+-	 * with ignoring this one.
++	 * Modify the "iret" frame to point to repeat_nmi, forcing another
++	 * iteration of NMI handling.
+ 	 */
+-	movq $repeat_nmi, %rdx
+-	cmpq 8(%rsp), %rdx
+-	ja 1f
+-	movq $end_repeat_nmi, %rdx
+-	cmpq 8(%rsp), %rdx
+-	ja nested_nmi_out
+-
+-1:
+-	/* Set up the interrupted NMIs stack to jump to repeat_nmi */
+ 	leaq -1*8(%rsp), %rdx
+ 	movq %rdx, %rsp
+ 	CFI_ADJUST_CFA_OFFSET 1*8
+@@ -1533,60 +1664,23 @@ nested_nmi_out:
+ 	popq_cfi %rdx
+ 	CFI_RESTORE rdx
+ 
+-	/* No need to check faults here */
++	/* We are returning to kernel mode, so this cannot result in a fault. */
+ 	INTERRUPT_RETURN
+ 
+ 	CFI_RESTORE_STATE
+ first_nmi:
+-	/*
+-	 * Because nested NMIs will use the pushed location that we
+-	 * stored in rdx, we must keep that space available.
+-	 * Here's what our stack frame will look like:
+-	 * +-------------------------+
+-	 * | original SS             |
+-	 * | original Return RSP     |
+-	 * | original RFLAGS         |
+-	 * | original CS             |
+-	 * | original RIP            |
+-	 * +-------------------------+
+-	 * | temp storage for rdx    |
+-	 * +-------------------------+
+-	 * | NMI executing variable  |
+-	 * +-------------------------+
+-	 * | copied SS               |
+-	 * | copied Return RSP       |
+-	 * | copied RFLAGS           |
+-	 * | copied CS               |
+-	 * | copied RIP              |
+-	 * +-------------------------+
+-	 * | Saved SS                |
+-	 * | Saved Return RSP        |
+-	 * | Saved RFLAGS            |
+-	 * | Saved CS                |
+-	 * | Saved RIP               |
+-	 * +-------------------------+
+-	 * | pt_regs                 |
+-	 * +-------------------------+
+-	 *
+-	 * The saved stack frame is used to fix up the copied stack frame
+-	 * that a nested NMI may change to make the interrupted NMI iret jump
+-	 * to the repeat_nmi. The original stack frame and the temp storage
+-	 * is also used by nested NMIs and can not be trusted on exit.
+-	 */
+-	/* Do not pop rdx, nested NMIs will corrupt that part of the stack */
++	/* Restore rdx. */
+ 	movq (%rsp), %rdx
+ 	CFI_RESTORE rdx
+ 
+-	/* Set the NMI executing variable on the stack. */
++	/* Set "NMI executing" on the stack. */
+ 	pushq_cfi $1
+ 
+-	/*
+-	 * Leave room for the "copied" frame
+-	 */
++	/* Leave room for the "iret" frame */
+ 	subq $(5*8), %rsp
+ 	CFI_ADJUST_CFA_OFFSET 5*8
+ 
+-	/* Copy the stack frame to the Saved frame */
++	/* Copy the "original" frame to the "outermost" frame */
+ 	.rept 5
+ 	pushq_cfi 11*8(%rsp)
+ 	.endr
+@@ -1594,6 +1688,7 @@ first_nmi:
+ 
+ 	/* Everything up to here is safe from nested NMIs */
+ 
++repeat_nmi:
+ 	/*
+ 	 * If there was a nested NMI, the first NMI's iret will return
+ 	 * here. But NMIs are still enabled and we can take another
+@@ -1602,16 +1697,21 @@ first_nmi:
+ 	 * it will just return, as we are about to repeat an NMI anyway.
+ 	 * This makes it safe to copy to the stack frame that a nested
+ 	 * NMI will update.
+-	 */
+-repeat_nmi:
+-	/*
+-	 * Update the stack variable to say we are still in NMI (the update
+-	 * is benign for the non-repeat case, where 1 was pushed just above
+-	 * to this very stack slot).
++	 *
++	 * RSP is pointing to "outermost RIP".  gsbase is unknown, but, if
++	 * we're repeating an NMI, gsbase has the same value that it had on
++	 * the first iteration.  paranoid_entry will load the kernel
++	 * gsbase if needed before we call do_nmi.
++	 *
++	 * Set "NMI executing" in case we came back here via IRET.
+ 	 */
+ 	movq $1, 10*8(%rsp)
+ 
+-	/* Make another copy, this one may be modified by nested NMIs */
++	/*
++	 * Copy the "outermost" frame to the "iret" frame.  NMIs that nest
++	 * here must not modify the "iret" frame while we're writing to
++	 * it or it will end up containing garbage.
++	 */
+ 	addq $(10*8), %rsp
+ 	CFI_ADJUST_CFA_OFFSET -10*8
+ 	.rept 5
+@@ -1622,9 +1722,9 @@ repeat_nmi:
+ end_repeat_nmi:
+ 
+ 	/*
+-	 * Everything below this point can be preempted by a nested
+-	 * NMI if the first NMI took an exception and reset our iret stack
+-	 * so that we repeat another NMI.
++	 * Everything below this point can be preempted by a nested NMI.
++	 * If this happens, then the inner NMI will change the "iret"
++	 * frame to point back to repeat_nmi.
+ 	 */
+ 	pushq_cfi $-1		/* ORIG_RAX: no syscall to restart */
+ 	subq $ORIG_RAX-R15, %rsp
+@@ -1639,39 +1739,35 @@ end_repeat_nmi:
+ 	call save_paranoid
+ 	DEFAULT_FRAME 0
+ 
+-	/*
+-	 * Save off the CR2 register. If we take a page fault in the NMI then
+-	 * it could corrupt the CR2 value. If the NMI preempts a page fault
+-	 * handler before it was able to read the CR2 register, and then the
+-	 * NMI itself takes a page fault, the page fault that was preempted
+-	 * will read the information from the NMI page fault and not the
+-	 * origin fault. Save it off and restore it if it changes.
+-	 * Use the r12 callee-saved register.
+-	 */
+-	movq %cr2, %r12
+-
+ 	/* paranoidentry do_nmi, 0; without TRACE_IRQS_OFF */
+ 	movq %rsp,%rdi
+ 	movq $-1,%rsi
+ 	call do_nmi
+ 
+-	/* Did the NMI take a page fault? Restore cr2 if it did */
+-	movq %cr2, %rcx
+-	cmpq %rcx, %r12
+-	je 1f
+-	movq %r12, %cr2
+-1:
+-	
+ 	testl %ebx,%ebx				/* swapgs needed? */
+ 	jnz nmi_restore
+ nmi_swapgs:
+ 	SWAPGS_UNSAFE_STACK
+ nmi_restore:
+-	/* Pop the extra iret frame at once */
++
+ 	RESTORE_ALL 6*8
+ 
+-	/* Clear the NMI executing stack variable */
+-	movq $0, 5*8(%rsp)
++	/*
++	 * Clear "NMI executing".  Set DF first so that we can easily
++	 * distinguish the remaining code between here and IRET from
++	 * the SYSCALL entry and exit paths.  On a native kernel, we
++	 * could just inspect RIP, but, on paravirt kernels,
++	 * INTERRUPT_RETURN can translate into a jump into a
++	 * hypercall page.
++	 */
++	std
++	movq	$0, 5*8(%rsp)		/* clear "NMI executing" */
++
++	/*
++	 * INTERRUPT_RETURN reads the "iret" frame and exits the NMI
++	 * stack in a single instruction.  We are returning to kernel
++	 * mode, so this cannot result in a fault.
++	 */
+ 	jmp irq_return
+ 	CFI_ENDPROC
+ END(nmi)
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index c3e985d1751c..d05bd2e2ee91 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -408,15 +408,15 @@ static void default_do_nmi(struct pt_regs *regs)
+ NOKPROBE_SYMBOL(default_do_nmi);
+ 
+ /*
+- * NMIs can hit breakpoints which will cause it to lose its
+- * NMI context with the CPU when the breakpoint does an iret.
+- */
+-#ifdef CONFIG_X86_32
+-/*
+- * For i386, NMIs use the same stack as the kernel, and we can
+- * add a workaround to the iret problem in C (preventing nested
+- * NMIs if an NMI takes a trap). Simply have 3 states the NMI
+- * can be in:
++ * NMIs can page fault or hit breakpoints which will cause it to lose
++ * its NMI context with the CPU when the breakpoint or page fault does an IRET.
++ *
++ * As a result, NMIs can nest if NMIs get unmasked due an IRET during
++ * NMI processing.  On x86_64, the asm glue protects us from nested NMIs
++ * if the outer NMI came from kernel mode, but we can still nest if the
++ * outer NMI came from user mode.
++ *
++ * To handle these nested NMIs, we have three states:
+  *
+  *  1) not running
+  *  2) executing
+@@ -430,15 +430,14 @@ NOKPROBE_SYMBOL(default_do_nmi);
+  * (Note, the latch is binary, thus multiple NMIs triggering,
+  *  when one is running, are ignored. Only one NMI is restarted.)
+  *
+- * If an NMI hits a breakpoint that executes an iret, another
+- * NMI can preempt it. We do not want to allow this new NMI
+- * to run, but we want to execute it when the first one finishes.
+- * We set the state to "latched", and the exit of the first NMI will
+- * perform a dec_return, if the result is zero (NOT_RUNNING), then
+- * it will simply exit the NMI handler. If not, the dec_return
+- * would have set the state to NMI_EXECUTING (what we want it to
+- * be when we are running). In this case, we simply jump back
+- * to rerun the NMI handler again, and restart the 'latched' NMI.
++ * If an NMI executes an iret, another NMI can preempt it. We do not
++ * want to allow this new NMI to run, but we want to execute it when the
++ * first one finishes.  We set the state to "latched", and the exit of
++ * the first NMI will perform a dec_return, if the result is zero
++ * (NOT_RUNNING), then it will simply exit the NMI handler. If not, the
++ * dec_return would have set the state to NMI_EXECUTING (what we want it
++ * to be when we are running). In this case, we simply jump back to
++ * rerun the NMI handler again, and restart the 'latched' NMI.
+  *
+  * No trap (breakpoint or page fault) should be hit before nmi_restart,
+  * thus there is no race between the first check of state for NOT_RUNNING
+@@ -461,49 +460,36 @@ enum nmi_states {
+ static DEFINE_PER_CPU(enum nmi_states, nmi_state);
+ static DEFINE_PER_CPU(unsigned long, nmi_cr2);
+ 
+-#define nmi_nesting_preprocess(regs)					\
+-	do {								\
+-		if (this_cpu_read(nmi_state) != NMI_NOT_RUNNING) {	\
+-			this_cpu_write(nmi_state, NMI_LATCHED);		\
+-			return;						\
+-		}							\
+-		this_cpu_write(nmi_state, NMI_EXECUTING);		\
+-		this_cpu_write(nmi_cr2, read_cr2());			\
+-	} while (0);							\
+-	nmi_restart:
+-
+-#define nmi_nesting_postprocess()					\
+-	do {								\
+-		if (unlikely(this_cpu_read(nmi_cr2) != read_cr2()))	\
+-			write_cr2(this_cpu_read(nmi_cr2));		\
+-		if (this_cpu_dec_return(nmi_state))			\
+-			goto nmi_restart;				\
+-	} while (0)
+-#else /* x86_64 */
++#ifdef CONFIG_X86_64
+ /*
+- * In x86_64 things are a bit more difficult. This has the same problem
+- * where an NMI hitting a breakpoint that calls iret will remove the
+- * NMI context, allowing a nested NMI to enter. What makes this more
+- * difficult is that both NMIs and breakpoints have their own stack.
+- * When a new NMI or breakpoint is executed, the stack is set to a fixed
+- * point. If an NMI is nested, it will have its stack set at that same
+- * fixed address that the first NMI had, and will start corrupting the
+- * stack. This is handled in entry_64.S, but the same problem exists with
+- * the breakpoint stack.
++ * In x86_64, we need to handle breakpoint -> NMI -> breakpoint.  Without
++ * some care, the inner breakpoint will clobber the outer breakpoint's
++ * stack.
+  *
+- * If a breakpoint is being processed, and the debug stack is being used,
+- * if an NMI comes in and also hits a breakpoint, the stack pointer
+- * will be set to the same fixed address as the breakpoint that was
+- * interrupted, causing that stack to be corrupted. To handle this case,
+- * check if the stack that was interrupted is the debug stack, and if
+- * so, change the IDT so that new breakpoints will use the current stack
+- * and not switch to the fixed address. On return of the NMI, switch back
+- * to the original IDT.
++ * If a breakpoint is being processed, and the debug stack is being
++ * used, if an NMI comes in and also hits a breakpoint, the stack
++ * pointer will be set to the same fixed address as the breakpoint that
++ * was interrupted, causing that stack to be corrupted. To handle this
++ * case, check if the stack that was interrupted is the debug stack, and
++ * if so, change the IDT so that new breakpoints will use the current
++ * stack and not switch to the fixed address. On return of the NMI,
++ * switch back to the original IDT.
+  */
+ static DEFINE_PER_CPU(int, update_debug_stack);
++#endif
+ 
+-static inline void nmi_nesting_preprocess(struct pt_regs *regs)
++dotraplinkage notrace void
++do_nmi(struct pt_regs *regs, long error_code)
+ {
++	if (this_cpu_read(nmi_state) != NMI_NOT_RUNNING) {
++		this_cpu_write(nmi_state, NMI_LATCHED);
++		return;
++	}
++	this_cpu_write(nmi_state, NMI_EXECUTING);
++	this_cpu_write(nmi_cr2, read_cr2());
++nmi_restart:
++
++#ifdef CONFIG_X86_64
+ 	/*
+ 	 * If we interrupted a breakpoint, it is possible that
+ 	 * the nmi handler will have breakpoints too. We need to
+@@ -514,22 +500,8 @@ static inline void nmi_nesting_preprocess(struct pt_regs *regs)
+ 		debug_stack_set_zero();
+ 		this_cpu_write(update_debug_stack, 1);
+ 	}
+-}
+-
+-static inline void nmi_nesting_postprocess(void)
+-{
+-	if (unlikely(this_cpu_read(update_debug_stack))) {
+-		debug_stack_reset();
+-		this_cpu_write(update_debug_stack, 0);
+-	}
+-}
+ #endif
+ 
+-dotraplinkage notrace void
+-do_nmi(struct pt_regs *regs, long error_code)
+-{
+-	nmi_nesting_preprocess(regs);
+-
+ 	nmi_enter();
+ 
+ 	inc_irq_stat(__nmi_count);
+@@ -539,8 +511,17 @@ do_nmi(struct pt_regs *regs, long error_code)
+ 
+ 	nmi_exit();
+ 
+-	/* On i386, may loop back to preprocess */
+-	nmi_nesting_postprocess();
++#ifdef CONFIG_X86_64
++	if (unlikely(this_cpu_read(update_debug_stack))) {
++		debug_stack_reset();
++		this_cpu_write(update_debug_stack, 0);
++	}
++#endif
++
++	if (unlikely(this_cpu_read(nmi_cr2) != read_cr2()))
++		write_cr2(this_cpu_read(nmi_cr2));
++	if (this_cpu_dec_return(nmi_state))
++		goto nmi_restart;
+ }
+ NOKPROBE_SYMBOL(do_nmi);
+ 
+diff --git a/block/bio-integrity.c b/block/bio-integrity.c
+index 9e241063a616..f56d85b6c5e3 100644
+--- a/block/bio-integrity.c
++++ b/block/bio-integrity.c
+@@ -51,7 +51,7 @@ struct bio_integrity_payload *bio_integrity_alloc(struct bio *bio,
+ 	unsigned long idx = BIO_POOL_NONE;
+ 	unsigned inline_vecs;
+ 
+-	if (!bs) {
++	if (!bs || !bs->bio_integrity_pool) {
+ 		bip = kmalloc(sizeof(struct bio_integrity_payload) +
+ 			      sizeof(struct bio_vec) * nr_vecs, gfp_mask);
+ 		inline_vecs = nr_vecs;
+@@ -100,7 +100,7 @@ void bio_integrity_free(struct bio *bio)
+ 	if (bip->bip_owns_buf)
+ 		kfree(bip->bip_buf);
+ 
+-	if (bs) {
++	if (bs && bs->bio_integrity_pool) {
+ 		if (bip->bip_slab != BIO_POOL_NONE)
+ 			bvec_free(bs->bvec_integrity_pool, bip->bip_vec,
+ 				  bip->bip_slab);
+diff --git a/block/bio.c b/block/bio.c
+index 0ec61c9e536c..6467e6afdcd9 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -1820,8 +1820,9 @@ EXPORT_SYMBOL(bio_endio_nodec);
+  * Allocates and returns a new bio which represents @sectors from the start of
+  * @bio, and updates @bio to represent the remaining sectors.
+  *
+- * The newly allocated bio will point to @bio's bi_io_vec; it is the caller's
+- * responsibility to ensure that @bio is not freed before the split.
++ * Unless this is a discard request the newly allocated bio will point
++ * to @bio's bi_io_vec; it is the caller's responsibility to ensure that
++ * @bio is not freed before the split.
+  */
+ struct bio *bio_split(struct bio *bio, int sectors,
+ 		      gfp_t gfp, struct bio_set *bs)
+@@ -1831,7 +1832,15 @@ struct bio *bio_split(struct bio *bio, int sectors,
+ 	BUG_ON(sectors <= 0);
+ 	BUG_ON(sectors >= bio_sectors(bio));
+ 
+-	split = bio_clone_fast(bio, gfp, bs);
++	/*
++	 * Discards need a mutable bio_vec to accommodate the payload
++	 * required by the DSM TRIM and UNMAP commands.
++	 */
++	if (bio->bi_rw & REQ_DISCARD)
++		split = bio_clone_bioset(bio, gfp, bs);
++	else
++		split = bio_clone_fast(bio, gfp, bs);
++
+ 	if (!split)
+ 		return NULL;
+ 
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 28d227c5ca77..efc4fa54372a 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -716,8 +716,12 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
+ 		return -EINVAL;
+ 
+ 	disk = get_gendisk(MKDEV(major, minor), &part);
+-	if (!disk || part)
++	if (!disk)
+ 		return -EINVAL;
++	if (part) {
++		put_disk(disk);
++		return -EINVAL;
++	}
+ 
+ 	rcu_read_lock();
+ 	spin_lock_irq(disk->queue->queue_lock);
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index a554b2e17cd4..c9707bcf430c 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4173,9 +4173,10 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
+ 	{ "ST3320[68]13AS",	"SD1[5-9]",	ATA_HORKAGE_NONCQ |
+ 						ATA_HORKAGE_FIRMWARE_WARN },
+ 
+-	/* Seagate Momentus SpinPoint M8 seem to have FPMDA_AA issues */
++	/* drives which fail FPDMA_AA activation (some may freeze afterwards) */
+ 	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
+ 	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
++	{ "VB0250EAVER",	"HPG7",		ATA_HORKAGE_BROKEN_FPDMA_AA },
+ 
+ 	/* Blacklist entries taken from Silicon Image 3124/3132
+ 	   Windows driver .inf file - also several Linux problem reports */
+@@ -4226,11 +4227,14 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
+ 	/* devices that don't properly handle queued TRIM commands */
+ 	{ "Micron_M500_*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM, },
+ 	{ "Crucial_CT*M500*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM, },
+-	{ "Micron_M5[15]0*",		"MU01",	ATA_HORKAGE_NO_NCQ_TRIM, },
++	{ "Micron_M5[15]0_*",		"MU01",	ATA_HORKAGE_NO_NCQ_TRIM, },
+ 	{ "Crucial_CT*M550*",		"MU01",	ATA_HORKAGE_NO_NCQ_TRIM, },
+ 	{ "Crucial_CT*MX100*",		"MU01", ATA_HORKAGE_NO_NCQ_TRIM, },
+ 	{ "Samsung SSD 8*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM, },
+ 
++	/* devices that don't properly handle TRIM commands */
++	{ "SuperSSpeed S238*",		NULL,	ATA_HORKAGE_NOTRIM, },
++
+ 	/*
+ 	 * Some WD SATA-I drives spin up and down erratically when the link
+ 	 * is put into the slumber mode.  We don't have full list of the
+@@ -4535,7 +4539,8 @@ static unsigned int ata_dev_set_xfermode(struct ata_device *dev)
+ 	else /* In the ancient relic department - skip all of this */
+ 		return 0;
+ 
+-	err_mask = ata_exec_internal(dev, &tf, NULL, DMA_NONE, NULL, 0, 0);
++	/* On some disks, this command causes spin-up, so we need longer timeout */
++	err_mask = ata_exec_internal(dev, &tf, NULL, DMA_NONE, NULL, 0, 15000);
+ 
+ 	DPRINTK("EXIT, err_mask=%x\n", err_mask);
+ 	return err_mask;
+diff --git a/drivers/ata/libata-pmp.c b/drivers/ata/libata-pmp.c
+index 7ccc084bf1df..85aa76116a30 100644
+--- a/drivers/ata/libata-pmp.c
++++ b/drivers/ata/libata-pmp.c
+@@ -460,6 +460,13 @@ static void sata_pmp_quirks(struct ata_port *ap)
+ 				       ATA_LFLAG_NO_SRST |
+ 				       ATA_LFLAG_ASSUME_ATA;
+ 		}
++	} else if (vendor == 0x11ab && devid == 0x4140) {
++		/* Marvell 4140 quirks */
++		ata_for_each_link(link, ap, EDGE) {
++			/* port 4 is for SEMB device and it doesn't like SRST */
++			if (link->pmp == 4)
++				link->flags |= ATA_LFLAG_DISABLED;
++		}
+ 	}
+ }
+ 
+diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
+index 72691fd93948..30af1877fcea 100644
+--- a/drivers/ata/libata-scsi.c
++++ b/drivers/ata/libata-scsi.c
+@@ -2514,7 +2514,8 @@ static unsigned int ata_scsiop_read_cap(struct ata_scsi_args *args, u8 *rbuf)
+ 		rbuf[14] = (lowest_aligned >> 8) & 0x3f;
+ 		rbuf[15] = lowest_aligned;
+ 
+-		if (ata_id_has_trim(args->id)) {
++		if (ata_id_has_trim(args->id) &&
++		    !(dev->horkage & ATA_HORKAGE_NOTRIM)) {
+ 			rbuf[14] |= 0x80; /* TPE */
+ 
+ 			if (ata_id_has_zero_after_trim(args->id))
+diff --git a/drivers/bluetooth/ath3k.c b/drivers/bluetooth/ath3k.c
+index 5b19c4384ec5..af9959e0d3a1 100644
+--- a/drivers/bluetooth/ath3k.c
++++ b/drivers/bluetooth/ath3k.c
+@@ -107,6 +107,7 @@ static const struct usb_device_id ath3k_table[] = {
+ 	{ USB_DEVICE(0x0cf3, 0xe003) },
+ 	{ USB_DEVICE(0x0CF3, 0xE004) },
+ 	{ USB_DEVICE(0x0CF3, 0xE005) },
++	{ USB_DEVICE(0x0CF3, 0xE006) },
+ 	{ USB_DEVICE(0x13d3, 0x3362) },
+ 	{ USB_DEVICE(0x13d3, 0x3375) },
+ 	{ USB_DEVICE(0x13d3, 0x3393) },
+@@ -165,6 +166,7 @@ static const struct usb_device_id ath3k_blist_tbl[] = {
+ 	{ USB_DEVICE(0x0CF3, 0x817a), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x0cf3, 0xe004), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x0cf3, 0xe005), .driver_info = BTUSB_ATH3012 },
++	{ USB_DEVICE(0x0cf3, 0xe006), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x0cf3, 0xe003), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x13d3, 0x3362), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x13d3, 0x3375), .driver_info = BTUSB_ATH3012 },
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 41abfa124c34..0ff80ad6464b 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -197,6 +197,7 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_DEVICE(0x0cf3, 0xe003), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x0cf3, 0xe004), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x0cf3, 0xe005), .driver_info = BTUSB_ATH3012 },
++	{ USB_DEVICE(0x0cf3, 0xe006), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x13d3, 0x3362), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x13d3, 0x3375), .driver_info = BTUSB_ATH3012 },
+ 	{ USB_DEVICE(0x13d3, 0x3393), .driver_info = BTUSB_ATH3012 },
+diff --git a/drivers/crypto/omap-des.c b/drivers/crypto/omap-des.c
+index b8bc84be8741..54c7ea58a968 100644
+--- a/drivers/crypto/omap-des.c
++++ b/drivers/crypto/omap-des.c
+@@ -536,9 +536,6 @@ static int omap_des_crypt_dma_stop(struct omap_des_dev *dd)
+ 	dmaengine_terminate_all(dd->dma_lch_in);
+ 	dmaengine_terminate_all(dd->dma_lch_out);
+ 
+-	dma_unmap_sg(dd->dev, dd->in_sg, dd->in_sg_len, DMA_TO_DEVICE);
+-	dma_unmap_sg(dd->dev, dd->out_sg, dd->out_sg_len, DMA_FROM_DEVICE);
+-
+ 	return err;
+ }
+ 
+diff --git a/drivers/gpu/drm/drm_crtc.c b/drivers/gpu/drm/drm_crtc.c
+index fe94cc10cd35..ee96912e0824 100644
+--- a/drivers/gpu/drm/drm_crtc.c
++++ b/drivers/gpu/drm/drm_crtc.c
+@@ -2382,8 +2382,11 @@ int drm_mode_setcrtc(struct drm_device *dev, void *data,
+ 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+ 		return -EINVAL;
+ 
+-	/* For some reason crtc x/y offsets are signed internally. */
+-	if (crtc_req->x > INT_MAX || crtc_req->y > INT_MAX)
++	/*
++	 * Universal plane src offsets are only 16.16, prevent havoc for
++	 * drivers using universal plane code internally.
++	 */
++	if (crtc_req->x & 0xffff0000 || crtc_req->y & 0xffff0000)
+ 		return -ERANGE;
+ 
+ 	drm_modeset_lock_all(dev);
+diff --git a/drivers/gpu/drm/i915/intel_uncore.c b/drivers/gpu/drm/i915/intel_uncore.c
+index 28ac6156ec1d..5334c770714b 100644
+--- a/drivers/gpu/drm/i915/intel_uncore.c
++++ b/drivers/gpu/drm/i915/intel_uncore.c
+@@ -863,10 +863,12 @@ int i915_reg_read_ioctl(struct drm_device *dev,
+ 	struct drm_i915_private *dev_priv = dev->dev_private;
+ 	struct drm_i915_reg_read *reg = data;
+ 	struct register_whitelist const *entry = whitelist;
++	unsigned size;
++	u64 offset;
+ 	int i, ret = 0;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(whitelist); i++, entry++) {
+-		if (entry->offset == reg->offset &&
++		if (entry->offset == (reg->offset & -entry->size) &&
+ 		    (1 << INTEL_INFO(dev)->gen & entry->gen_bitmask))
+ 			break;
+ 	}
+@@ -874,23 +876,33 @@ int i915_reg_read_ioctl(struct drm_device *dev,
+ 	if (i == ARRAY_SIZE(whitelist))
+ 		return -EINVAL;
+ 
++	/* We use the low bits to encode extra flags as the register should
++	 * be naturally aligned (and those that are not so aligned merely
++	 * limit the available flags for that register).
++	 */
++	offset = entry->offset;
++	size = entry->size;
++	size |= reg->offset ^ offset;
++
+ 	intel_runtime_pm_get(dev_priv);
+ 
+-	switch (entry->size) {
++	switch (size) {
++	case 8 | 1:
++		reg->val = I915_READ64_2x32(offset, offset+4);
++		break;
+ 	case 8:
+-		reg->val = I915_READ64(reg->offset);
++		reg->val = I915_READ64(offset);
+ 		break;
+ 	case 4:
+-		reg->val = I915_READ(reg->offset);
++		reg->val = I915_READ(offset);
+ 		break;
+ 	case 2:
+-		reg->val = I915_READ16(reg->offset);
++		reg->val = I915_READ16(offset);
+ 		break;
+ 	case 1:
+-		reg->val = I915_READ8(reg->offset);
++		reg->val = I915_READ8(offset);
+ 		break;
+ 	default:
+-		WARN_ON(1);
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+diff --git a/drivers/gpu/drm/radeon/cik.c b/drivers/gpu/drm/radeon/cik.c
+index 6bdaa9500f78..19c9925b17ed 100644
+--- a/drivers/gpu/drm/radeon/cik.c
++++ b/drivers/gpu/drm/radeon/cik.c
+@@ -7501,23 +7501,27 @@ restart_ih:
+ 		case 1: /* D1 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D1 vblank */
+-				if (rdev->irq.stat_regs.cik.disp_int & LB_D1_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[0]) {
+-						drm_handle_vblank(rdev->ddev, 0);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[0]))
+-						radeon_crtc_handle_vblank(rdev, 0);
+-					rdev->irq.stat_regs.cik.disp_int &= ~LB_D1_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D1 vblank\n");
++				if (!(rdev->irq.stat_regs.cik.disp_int & LB_D1_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[0]) {
++					drm_handle_vblank(rdev->ddev, 0);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[0]))
++					radeon_crtc_handle_vblank(rdev, 0);
++				rdev->irq.stat_regs.cik.disp_int &= ~LB_D1_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D1 vblank\n");
++
+ 				break;
+ 			case 1: /* D1 vline */
+-				if (rdev->irq.stat_regs.cik.disp_int & LB_D1_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int &= ~LB_D1_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D1 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int & LB_D1_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int &= ~LB_D1_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D1 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -7527,23 +7531,27 @@ restart_ih:
+ 		case 2: /* D2 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D2 vblank */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont & LB_D2_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[1]) {
+-						drm_handle_vblank(rdev->ddev, 1);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[1]))
+-						radeon_crtc_handle_vblank(rdev, 1);
+-					rdev->irq.stat_regs.cik.disp_int_cont &= ~LB_D2_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D2 vblank\n");
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont & LB_D2_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[1]) {
++					drm_handle_vblank(rdev->ddev, 1);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[1]))
++					radeon_crtc_handle_vblank(rdev, 1);
++				rdev->irq.stat_regs.cik.disp_int_cont &= ~LB_D2_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D2 vblank\n");
++
+ 				break;
+ 			case 1: /* D2 vline */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont & LB_D2_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont &= ~LB_D2_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D2 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont & LB_D2_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont &= ~LB_D2_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D2 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -7553,23 +7561,27 @@ restart_ih:
+ 		case 3: /* D3 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D3 vblank */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont2 & LB_D3_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[2]) {
+-						drm_handle_vblank(rdev->ddev, 2);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[2]))
+-						radeon_crtc_handle_vblank(rdev, 2);
+-					rdev->irq.stat_regs.cik.disp_int_cont2 &= ~LB_D3_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D3 vblank\n");
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont2 & LB_D3_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[2]) {
++					drm_handle_vblank(rdev->ddev, 2);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[2]))
++					radeon_crtc_handle_vblank(rdev, 2);
++				rdev->irq.stat_regs.cik.disp_int_cont2 &= ~LB_D3_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D3 vblank\n");
++
+ 				break;
+ 			case 1: /* D3 vline */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont2 & LB_D3_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont2 &= ~LB_D3_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D3 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont2 & LB_D3_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont2 &= ~LB_D3_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D3 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -7579,23 +7591,27 @@ restart_ih:
+ 		case 4: /* D4 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D4 vblank */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont3 & LB_D4_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[3]) {
+-						drm_handle_vblank(rdev->ddev, 3);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[3]))
+-						radeon_crtc_handle_vblank(rdev, 3);
+-					rdev->irq.stat_regs.cik.disp_int_cont3 &= ~LB_D4_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D4 vblank\n");
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont3 & LB_D4_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[3]) {
++					drm_handle_vblank(rdev->ddev, 3);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[3]))
++					radeon_crtc_handle_vblank(rdev, 3);
++				rdev->irq.stat_regs.cik.disp_int_cont3 &= ~LB_D4_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D4 vblank\n");
++
+ 				break;
+ 			case 1: /* D4 vline */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont3 & LB_D4_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont3 &= ~LB_D4_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D4 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont3 & LB_D4_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont3 &= ~LB_D4_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D4 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -7605,23 +7621,27 @@ restart_ih:
+ 		case 5: /* D5 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D5 vblank */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont4 & LB_D5_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[4]) {
+-						drm_handle_vblank(rdev->ddev, 4);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[4]))
+-						radeon_crtc_handle_vblank(rdev, 4);
+-					rdev->irq.stat_regs.cik.disp_int_cont4 &= ~LB_D5_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D5 vblank\n");
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont4 & LB_D5_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[4]) {
++					drm_handle_vblank(rdev->ddev, 4);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[4]))
++					radeon_crtc_handle_vblank(rdev, 4);
++				rdev->irq.stat_regs.cik.disp_int_cont4 &= ~LB_D5_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D5 vblank\n");
++
+ 				break;
+ 			case 1: /* D5 vline */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont4 & LB_D5_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont4 &= ~LB_D5_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D5 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont4 & LB_D5_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont4 &= ~LB_D5_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D5 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -7631,23 +7651,27 @@ restart_ih:
+ 		case 6: /* D6 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D6 vblank */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont5 & LB_D6_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[5]) {
+-						drm_handle_vblank(rdev->ddev, 5);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[5]))
+-						radeon_crtc_handle_vblank(rdev, 5);
+-					rdev->irq.stat_regs.cik.disp_int_cont5 &= ~LB_D6_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D6 vblank\n");
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont5 & LB_D6_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[5]) {
++					drm_handle_vblank(rdev->ddev, 5);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[5]))
++					radeon_crtc_handle_vblank(rdev, 5);
++				rdev->irq.stat_regs.cik.disp_int_cont5 &= ~LB_D6_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D6 vblank\n");
++
+ 				break;
+ 			case 1: /* D6 vline */
+-				if (rdev->irq.stat_regs.cik.disp_int_cont5 & LB_D6_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont5 &= ~LB_D6_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D6 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont5 & LB_D6_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont5 &= ~LB_D6_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D6 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -7666,46 +7690,58 @@ restart_ih:
+ 		case 42: /* HPD hotplug */
+ 			switch (src_data) {
+ 			case 0:
+-				if (rdev->irq.stat_regs.cik.disp_int & DC_HPD1_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int &= ~DC_HPD1_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD1\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int & DC_HPD1_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int &= ~DC_HPD1_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD1\n");
++
+ 				break;
+ 			case 1:
+-				if (rdev->irq.stat_regs.cik.disp_int_cont & DC_HPD2_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont &= ~DC_HPD2_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD2\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont & DC_HPD2_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont &= ~DC_HPD2_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD2\n");
++
+ 				break;
+ 			case 2:
+-				if (rdev->irq.stat_regs.cik.disp_int_cont2 & DC_HPD3_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont2 &= ~DC_HPD3_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD3\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont2 & DC_HPD3_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont2 &= ~DC_HPD3_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD3\n");
++
+ 				break;
+ 			case 3:
+-				if (rdev->irq.stat_regs.cik.disp_int_cont3 & DC_HPD4_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont3 &= ~DC_HPD4_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD4\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont3 & DC_HPD4_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont3 &= ~DC_HPD4_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD4\n");
++
+ 				break;
+ 			case 4:
+-				if (rdev->irq.stat_regs.cik.disp_int_cont4 & DC_HPD5_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont4 &= ~DC_HPD5_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD5\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont4 & DC_HPD5_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont4 &= ~DC_HPD5_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD5\n");
++
+ 				break;
+ 			case 5:
+-				if (rdev->irq.stat_regs.cik.disp_int_cont5 & DC_HPD6_INTERRUPT) {
+-					rdev->irq.stat_regs.cik.disp_int_cont5 &= ~DC_HPD6_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD6\n");
+-				}
++				if (!(rdev->irq.stat_regs.cik.disp_int_cont5 & DC_HPD6_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.cik.disp_int_cont5 &= ~DC_HPD6_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD6\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+diff --git a/drivers/gpu/drm/radeon/evergreen.c b/drivers/gpu/drm/radeon/evergreen.c
+index 5428b692f9a2..76b12cc441e8 100644
+--- a/drivers/gpu/drm/radeon/evergreen.c
++++ b/drivers/gpu/drm/radeon/evergreen.c
+@@ -4790,7 +4790,7 @@ restart_ih:
+ 		return IRQ_NONE;
+ 
+ 	rptr = rdev->ih.rptr;
+-	DRM_DEBUG("r600_irq_process start: rptr %d, wptr %d\n", rptr, wptr);
++	DRM_DEBUG("evergreen_irq_process start: rptr %d, wptr %d\n", rptr, wptr);
+ 
+ 	/* Order reading of wptr vs. reading of IH ring data */
+ 	rmb();
+@@ -4808,23 +4808,27 @@ restart_ih:
+ 		case 1: /* D1 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D1 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int & LB_D1_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[0]) {
+-						drm_handle_vblank(rdev->ddev, 0);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[0]))
+-						radeon_crtc_handle_vblank(rdev, 0);
+-					rdev->irq.stat_regs.evergreen.disp_int &= ~LB_D1_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D1 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int & LB_D1_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: D1 vblank - IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[0]) {
++					drm_handle_vblank(rdev->ddev, 0);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[0]))
++					radeon_crtc_handle_vblank(rdev, 0);
++				rdev->irq.stat_regs.evergreen.disp_int &= ~LB_D1_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D1 vblank\n");
++
+ 				break;
+ 			case 1: /* D1 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int & LB_D1_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int &= ~LB_D1_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D1 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int & LB_D1_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: D1 vline - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int &= ~LB_D1_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D1 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -4834,23 +4838,27 @@ restart_ih:
+ 		case 2: /* D2 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D2 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont & LB_D2_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[1]) {
+-						drm_handle_vblank(rdev->ddev, 1);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[1]))
+-						radeon_crtc_handle_vblank(rdev, 1);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont &= ~LB_D2_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D2 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont & LB_D2_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: D2 vblank - IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[1]) {
++					drm_handle_vblank(rdev->ddev, 1);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[1]))
++					radeon_crtc_handle_vblank(rdev, 1);
++				rdev->irq.stat_regs.evergreen.disp_int_cont &= ~LB_D2_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D2 vblank\n");
++
+ 				break;
+ 			case 1: /* D2 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont & LB_D2_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont &= ~LB_D2_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D2 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont & LB_D2_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: D2 vline - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont &= ~LB_D2_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D2 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -4860,23 +4868,27 @@ restart_ih:
+ 		case 3: /* D3 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D3 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont2 & LB_D3_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[2]) {
+-						drm_handle_vblank(rdev->ddev, 2);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[2]))
+-						radeon_crtc_handle_vblank(rdev, 2);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~LB_D3_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D3 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont2 & LB_D3_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: D3 vblank - IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[2]) {
++					drm_handle_vblank(rdev->ddev, 2);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[2]))
++					radeon_crtc_handle_vblank(rdev, 2);
++				rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~LB_D3_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D3 vblank\n");
++
+ 				break;
+ 			case 1: /* D3 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont2 & LB_D3_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~LB_D3_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D3 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont2 & LB_D3_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: D3 vline - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~LB_D3_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D3 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -4886,23 +4898,27 @@ restart_ih:
+ 		case 4: /* D4 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D4 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont3 & LB_D4_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[3]) {
+-						drm_handle_vblank(rdev->ddev, 3);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[3]))
+-						radeon_crtc_handle_vblank(rdev, 3);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~LB_D4_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D4 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont3 & LB_D4_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: D4 vblank - IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[3]) {
++					drm_handle_vblank(rdev->ddev, 3);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[3]))
++					radeon_crtc_handle_vblank(rdev, 3);
++				rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~LB_D4_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D4 vblank\n");
++
+ 				break;
+ 			case 1: /* D4 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont3 & LB_D4_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~LB_D4_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D4 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont3 & LB_D4_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: D4 vline - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~LB_D4_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D4 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -4912,23 +4928,27 @@ restart_ih:
+ 		case 5: /* D5 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D5 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont4 & LB_D5_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[4]) {
+-						drm_handle_vblank(rdev->ddev, 4);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[4]))
+-						radeon_crtc_handle_vblank(rdev, 4);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~LB_D5_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D5 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont4 & LB_D5_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: D5 vblank - IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[4]) {
++					drm_handle_vblank(rdev->ddev, 4);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[4]))
++					radeon_crtc_handle_vblank(rdev, 4);
++				rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~LB_D5_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D5 vblank\n");
++
+ 				break;
+ 			case 1: /* D5 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont4 & LB_D5_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~LB_D5_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D5 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont4 & LB_D5_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: D5 vline - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~LB_D5_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D5 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -4938,23 +4958,27 @@ restart_ih:
+ 		case 6: /* D6 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D6 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont5 & LB_D6_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[5]) {
+-						drm_handle_vblank(rdev->ddev, 5);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[5]))
+-						radeon_crtc_handle_vblank(rdev, 5);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~LB_D6_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D6 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont5 & LB_D6_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: D6 vblank - IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[5]) {
++					drm_handle_vblank(rdev->ddev, 5);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[5]))
++					radeon_crtc_handle_vblank(rdev, 5);
++				rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~LB_D6_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D6 vblank\n");
++
+ 				break;
+ 			case 1: /* D6 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont5 & LB_D6_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~LB_D6_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D6 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont5 & LB_D6_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: D6 vline - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~LB_D6_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D6 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -4973,46 +4997,52 @@ restart_ih:
+ 		case 42: /* HPD hotplug */
+ 			switch (src_data) {
+ 			case 0:
+-				if (rdev->irq.stat_regs.evergreen.disp_int & DC_HPD1_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int &= ~DC_HPD1_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD1\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int & DC_HPD1_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int &= ~DC_HPD1_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD1\n");
+ 				break;
+ 			case 1:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont & DC_HPD2_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont &= ~DC_HPD2_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD2\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont & DC_HPD2_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont &= ~DC_HPD2_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD2\n");
+ 				break;
+ 			case 2:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont2 & DC_HPD3_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~DC_HPD3_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD3\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont2 & DC_HPD3_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~DC_HPD3_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD3\n");
+ 				break;
+ 			case 3:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont3 & DC_HPD4_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~DC_HPD4_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD4\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont3 & DC_HPD4_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~DC_HPD4_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD4\n");
+ 				break;
+ 			case 4:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont4 & DC_HPD5_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~DC_HPD5_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD5\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont4 & DC_HPD5_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~DC_HPD5_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD5\n");
+ 				break;
+ 			case 5:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont5 & DC_HPD6_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~DC_HPD6_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD6\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont5 & DC_HPD6_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~DC_HPD6_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD6\n");
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -5022,46 +5052,52 @@ restart_ih:
+ 		case 44: /* hdmi */
+ 			switch (src_data) {
+ 			case 0:
+-				if (rdev->irq.stat_regs.evergreen.afmt_status1 & AFMT_AZ_FORMAT_WTRIG) {
+-					rdev->irq.stat_regs.evergreen.afmt_status1 &= ~AFMT_AZ_FORMAT_WTRIG;
+-					queue_hdmi = true;
+-					DRM_DEBUG("IH: HDMI0\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.afmt_status1 & AFMT_AZ_FORMAT_WTRIG))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.afmt_status1 &= ~AFMT_AZ_FORMAT_WTRIG;
++				queue_hdmi = true;
++				DRM_DEBUG("IH: HDMI0\n");
+ 				break;
+ 			case 1:
+-				if (rdev->irq.stat_regs.evergreen.afmt_status2 & AFMT_AZ_FORMAT_WTRIG) {
+-					rdev->irq.stat_regs.evergreen.afmt_status2 &= ~AFMT_AZ_FORMAT_WTRIG;
+-					queue_hdmi = true;
+-					DRM_DEBUG("IH: HDMI1\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.afmt_status2 & AFMT_AZ_FORMAT_WTRIG))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.afmt_status2 &= ~AFMT_AZ_FORMAT_WTRIG;
++				queue_hdmi = true;
++				DRM_DEBUG("IH: HDMI1\n");
+ 				break;
+ 			case 2:
+-				if (rdev->irq.stat_regs.evergreen.afmt_status3 & AFMT_AZ_FORMAT_WTRIG) {
+-					rdev->irq.stat_regs.evergreen.afmt_status3 &= ~AFMT_AZ_FORMAT_WTRIG;
+-					queue_hdmi = true;
+-					DRM_DEBUG("IH: HDMI2\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.afmt_status3 & AFMT_AZ_FORMAT_WTRIG))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.afmt_status3 &= ~AFMT_AZ_FORMAT_WTRIG;
++				queue_hdmi = true;
++				DRM_DEBUG("IH: HDMI2\n");
+ 				break;
+ 			case 3:
+-				if (rdev->irq.stat_regs.evergreen.afmt_status4 & AFMT_AZ_FORMAT_WTRIG) {
+-					rdev->irq.stat_regs.evergreen.afmt_status4 &= ~AFMT_AZ_FORMAT_WTRIG;
+-					queue_hdmi = true;
+-					DRM_DEBUG("IH: HDMI3\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.afmt_status4 & AFMT_AZ_FORMAT_WTRIG))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.afmt_status4 &= ~AFMT_AZ_FORMAT_WTRIG;
++				queue_hdmi = true;
++				DRM_DEBUG("IH: HDMI3\n");
+ 				break;
+ 			case 4:
+-				if (rdev->irq.stat_regs.evergreen.afmt_status5 & AFMT_AZ_FORMAT_WTRIG) {
+-					rdev->irq.stat_regs.evergreen.afmt_status5 &= ~AFMT_AZ_FORMAT_WTRIG;
+-					queue_hdmi = true;
+-					DRM_DEBUG("IH: HDMI4\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.afmt_status5 & AFMT_AZ_FORMAT_WTRIG))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.afmt_status5 &= ~AFMT_AZ_FORMAT_WTRIG;
++				queue_hdmi = true;
++				DRM_DEBUG("IH: HDMI4\n");
+ 				break;
+ 			case 5:
+-				if (rdev->irq.stat_regs.evergreen.afmt_status6 & AFMT_AZ_FORMAT_WTRIG) {
+-					rdev->irq.stat_regs.evergreen.afmt_status6 &= ~AFMT_AZ_FORMAT_WTRIG;
+-					queue_hdmi = true;
+-					DRM_DEBUG("IH: HDMI5\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.afmt_status6 & AFMT_AZ_FORMAT_WTRIG))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.afmt_status6 &= ~AFMT_AZ_FORMAT_WTRIG;
++				queue_hdmi = true;
++				DRM_DEBUG("IH: HDMI5\n");
+ 				break;
+ 			default:
+ 				DRM_ERROR("Unhandled interrupt: %d %d\n", src_id, src_data);
+diff --git a/drivers/gpu/drm/radeon/r600.c b/drivers/gpu/drm/radeon/r600.c
+index 5e31413fb454..9eab1f172d33 100644
+--- a/drivers/gpu/drm/radeon/r600.c
++++ b/drivers/gpu/drm/radeon/r600.c
+@@ -3866,23 +3866,27 @@ restart_ih:
+ 		case 1: /* D1 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D1 vblank */
+-				if (rdev->irq.stat_regs.r600.disp_int & LB_D1_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[0]) {
+-						drm_handle_vblank(rdev->ddev, 0);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[0]))
+-						radeon_crtc_handle_vblank(rdev, 0);
+-					rdev->irq.stat_regs.r600.disp_int &= ~LB_D1_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D1 vblank\n");
++				if (!(rdev->irq.stat_regs.r600.disp_int & LB_D1_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: D1 vblank - IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[0]) {
++					drm_handle_vblank(rdev->ddev, 0);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[0]))
++					radeon_crtc_handle_vblank(rdev, 0);
++				rdev->irq.stat_regs.r600.disp_int &= ~LB_D1_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D1 vblank\n");
++
+ 				break;
+ 			case 1: /* D1 vline */
+-				if (rdev->irq.stat_regs.r600.disp_int & LB_D1_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.r600.disp_int &= ~LB_D1_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D1 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.disp_int & LB_D1_VLINE_INTERRUPT))
++				    DRM_DEBUG("IH: D1 vline - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.disp_int &= ~LB_D1_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D1 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -3892,23 +3896,27 @@ restart_ih:
+ 		case 5: /* D2 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D2 vblank */
+-				if (rdev->irq.stat_regs.r600.disp_int & LB_D2_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[1]) {
+-						drm_handle_vblank(rdev->ddev, 1);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[1]))
+-						radeon_crtc_handle_vblank(rdev, 1);
+-					rdev->irq.stat_regs.r600.disp_int &= ~LB_D2_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D2 vblank\n");
++				if (!(rdev->irq.stat_regs.r600.disp_int & LB_D2_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: D2 vblank - IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[1]) {
++					drm_handle_vblank(rdev->ddev, 1);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[1]))
++					radeon_crtc_handle_vblank(rdev, 1);
++				rdev->irq.stat_regs.r600.disp_int &= ~LB_D2_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D2 vblank\n");
++
+ 				break;
+ 			case 1: /* D1 vline */
+-				if (rdev->irq.stat_regs.r600.disp_int & LB_D2_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.r600.disp_int &= ~LB_D2_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D2 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.disp_int & LB_D2_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: D2 vline - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.disp_int &= ~LB_D2_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D2 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -3926,46 +3934,53 @@ restart_ih:
+ 		case 19: /* HPD/DAC hotplug */
+ 			switch (src_data) {
+ 			case 0:
+-				if (rdev->irq.stat_regs.r600.disp_int & DC_HPD1_INTERRUPT) {
+-					rdev->irq.stat_regs.r600.disp_int &= ~DC_HPD1_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD1\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.disp_int & DC_HPD1_INTERRUPT))
++					DRM_DEBUG("IH: HPD1 - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.disp_int &= ~DC_HPD1_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD1\n");
+ 				break;
+ 			case 1:
+-				if (rdev->irq.stat_regs.r600.disp_int & DC_HPD2_INTERRUPT) {
+-					rdev->irq.stat_regs.r600.disp_int &= ~DC_HPD2_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD2\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.disp_int & DC_HPD2_INTERRUPT))
++					DRM_DEBUG("IH: HPD2 - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.disp_int &= ~DC_HPD2_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD2\n");
+ 				break;
+ 			case 4:
+-				if (rdev->irq.stat_regs.r600.disp_int_cont & DC_HPD3_INTERRUPT) {
+-					rdev->irq.stat_regs.r600.disp_int_cont &= ~DC_HPD3_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD3\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.disp_int_cont & DC_HPD3_INTERRUPT))
++					DRM_DEBUG("IH: HPD3 - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.disp_int_cont &= ~DC_HPD3_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD3\n");
+ 				break;
+ 			case 5:
+-				if (rdev->irq.stat_regs.r600.disp_int_cont & DC_HPD4_INTERRUPT) {
+-					rdev->irq.stat_regs.r600.disp_int_cont &= ~DC_HPD4_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD4\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.disp_int_cont & DC_HPD4_INTERRUPT))
++					DRM_DEBUG("IH: HPD4 - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.disp_int_cont &= ~DC_HPD4_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD4\n");
+ 				break;
+ 			case 10:
+-				if (rdev->irq.stat_regs.r600.disp_int_cont2 & DC_HPD5_INTERRUPT) {
+-					rdev->irq.stat_regs.r600.disp_int_cont2 &= ~DC_HPD5_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD5\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.disp_int_cont2 & DC_HPD5_INTERRUPT))
++					DRM_DEBUG("IH: HPD5 - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.disp_int_cont2 &= ~DC_HPD5_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD5\n");
+ 				break;
+ 			case 12:
+-				if (rdev->irq.stat_regs.r600.disp_int_cont2 & DC_HPD6_INTERRUPT) {
+-					rdev->irq.stat_regs.r600.disp_int_cont2 &= ~DC_HPD6_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD6\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.disp_int_cont2 & DC_HPD6_INTERRUPT))
++					DRM_DEBUG("IH: HPD6 - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.disp_int_cont2 &= ~DC_HPD6_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD6\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -3975,18 +3990,22 @@ restart_ih:
+ 		case 21: /* hdmi */
+ 			switch (src_data) {
+ 			case 4:
+-				if (rdev->irq.stat_regs.r600.hdmi0_status & HDMI0_AZ_FORMAT_WTRIG) {
+-					rdev->irq.stat_regs.r600.hdmi0_status &= ~HDMI0_AZ_FORMAT_WTRIG;
+-					queue_hdmi = true;
+-					DRM_DEBUG("IH: HDMI0\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.hdmi0_status & HDMI0_AZ_FORMAT_WTRIG))
++					DRM_DEBUG("IH: HDMI0 - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.hdmi0_status &= ~HDMI0_AZ_FORMAT_WTRIG;
++				queue_hdmi = true;
++				DRM_DEBUG("IH: HDMI0\n");
++
+ 				break;
+ 			case 5:
+-				if (rdev->irq.stat_regs.r600.hdmi1_status & HDMI0_AZ_FORMAT_WTRIG) {
+-					rdev->irq.stat_regs.r600.hdmi1_status &= ~HDMI0_AZ_FORMAT_WTRIG;
+-					queue_hdmi = true;
+-					DRM_DEBUG("IH: HDMI1\n");
+-				}
++				if (!(rdev->irq.stat_regs.r600.hdmi1_status & HDMI0_AZ_FORMAT_WTRIG))
++					DRM_DEBUG("IH: HDMI1 - IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.r600.hdmi1_status &= ~HDMI0_AZ_FORMAT_WTRIG;
++				queue_hdmi = true;
++				DRM_DEBUG("IH: HDMI1\n");
++
+ 				break;
+ 			default:
+ 				DRM_ERROR("Unhandled interrupt: %d %d\n", src_id, src_data);
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index e5ed5ee9d832..ca470fb17aa4 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -1484,11 +1484,21 @@ int radeon_suspend_kms(struct drm_device *dev, bool suspend, bool fbcon)
+ 		drm_helper_connector_dpms(connector, DRM_MODE_DPMS_OFF);
+ 	}
+ 
+-	/* unpin the front buffers */
++	/* unpin the front buffers and cursors */
+ 	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
++		struct radeon_crtc *radeon_crtc = to_radeon_crtc(crtc);
+ 		struct radeon_framebuffer *rfb = to_radeon_framebuffer(crtc->primary->fb);
+ 		struct radeon_bo *robj;
+ 
++		if (radeon_crtc->cursor_bo) {
++			struct radeon_bo *robj = gem_to_radeon_bo(radeon_crtc->cursor_bo);
++			r = radeon_bo_reserve(robj, false);
++			if (r == 0) {
++				radeon_bo_unpin(robj);
++				radeon_bo_unreserve(robj);
++			}
++		}
++
+ 		if (rfb == NULL || rfb->obj == NULL) {
+ 			continue;
+ 		}
+@@ -1554,6 +1564,7 @@ int radeon_resume_kms(struct drm_device *dev, bool resume, bool fbcon)
+ {
+ 	struct drm_connector *connector;
+ 	struct radeon_device *rdev = dev->dev_private;
++	struct drm_crtc *crtc;
+ 	int r;
+ 
+ 	if (dev->switch_power_state == DRM_SWITCH_POWER_OFF)
+@@ -1593,6 +1604,27 @@ int radeon_resume_kms(struct drm_device *dev, bool resume, bool fbcon)
+ 
+ 	radeon_restore_bios_scratch_regs(rdev);
+ 
++	/* pin cursors */
++	list_for_each_entry(crtc, &dev->mode_config.crtc_list, head) {
++		struct radeon_crtc *radeon_crtc = to_radeon_crtc(crtc);
++
++		if (radeon_crtc->cursor_bo) {
++			struct radeon_bo *robj = gem_to_radeon_bo(radeon_crtc->cursor_bo);
++			r = radeon_bo_reserve(robj, false);
++			if (r == 0) {
++				/* Only 27 bit offset for legacy cursor */
++				r = radeon_bo_pin_restricted(robj,
++							     RADEON_GEM_DOMAIN_VRAM,
++							     ASIC_IS_AVIVO(rdev) ?
++							     0 : 1 << 27,
++							     &radeon_crtc->cursor_addr);
++				if (r != 0)
++					DRM_ERROR("Failed to pin cursor BO (%d)\n", r);
++				radeon_bo_unreserve(robj);
++			}
++		}
++	}
++
+ 	/* init dig PHYs, disp eng pll */
+ 	if (rdev->is_atom_bios) {
+ 		radeon_atom_encoder_init(rdev);
+diff --git a/drivers/gpu/drm/radeon/radeon_gart.c b/drivers/gpu/drm/radeon/radeon_gart.c
+index 2e723651069b..4259a1fa323f 100644
+--- a/drivers/gpu/drm/radeon/radeon_gart.c
++++ b/drivers/gpu/drm/radeon/radeon_gart.c
+@@ -249,8 +249,10 @@ void radeon_gart_unbind(struct radeon_device *rdev, unsigned offset,
+ 			}
+ 		}
+ 	}
+-	mb();
+-	radeon_gart_tlb_flush(rdev);
++	if (rdev->gart.ptr) {
++		mb();
++		radeon_gart_tlb_flush(rdev);
++	}
+ }
+ 
+ /**
+@@ -292,8 +294,10 @@ int radeon_gart_bind(struct radeon_device *rdev, unsigned offset,
+ 			}
+ 		}
+ 	}
+-	mb();
+-	radeon_gart_tlb_flush(rdev);
++	if (rdev->gart.ptr) {
++		mb();
++		radeon_gart_tlb_flush(rdev);
++	}
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/radeon/si.c b/drivers/gpu/drm/radeon/si.c
+index 5040fac05655..22330f6c7737 100644
+--- a/drivers/gpu/drm/radeon/si.c
++++ b/drivers/gpu/drm/radeon/si.c
+@@ -6173,23 +6173,27 @@ restart_ih:
+ 		case 1: /* D1 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D1 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int & LB_D1_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[0]) {
+-						drm_handle_vblank(rdev->ddev, 0);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[0]))
+-						radeon_crtc_handle_vblank(rdev, 0);
+-					rdev->irq.stat_regs.evergreen.disp_int &= ~LB_D1_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D1 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int & LB_D1_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[0]) {
++					drm_handle_vblank(rdev->ddev, 0);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[0]))
++					radeon_crtc_handle_vblank(rdev, 0);
++				rdev->irq.stat_regs.evergreen.disp_int &= ~LB_D1_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D1 vblank\n");
++
+ 				break;
+ 			case 1: /* D1 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int & LB_D1_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int &= ~LB_D1_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D1 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int & LB_D1_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int &= ~LB_D1_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D1 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -6199,23 +6203,27 @@ restart_ih:
+ 		case 2: /* D2 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D2 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont & LB_D2_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[1]) {
+-						drm_handle_vblank(rdev->ddev, 1);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[1]))
+-						radeon_crtc_handle_vblank(rdev, 1);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont &= ~LB_D2_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D2 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont & LB_D2_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[1]) {
++					drm_handle_vblank(rdev->ddev, 1);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[1]))
++					radeon_crtc_handle_vblank(rdev, 1);
++				rdev->irq.stat_regs.evergreen.disp_int_cont &= ~LB_D2_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D2 vblank\n");
++
+ 				break;
+ 			case 1: /* D2 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont & LB_D2_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont &= ~LB_D2_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D2 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont & LB_D2_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont &= ~LB_D2_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D2 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -6225,23 +6233,27 @@ restart_ih:
+ 		case 3: /* D3 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D3 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont2 & LB_D3_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[2]) {
+-						drm_handle_vblank(rdev->ddev, 2);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[2]))
+-						radeon_crtc_handle_vblank(rdev, 2);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~LB_D3_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D3 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont2 & LB_D3_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[2]) {
++					drm_handle_vblank(rdev->ddev, 2);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[2]))
++					radeon_crtc_handle_vblank(rdev, 2);
++				rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~LB_D3_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D3 vblank\n");
++
+ 				break;
+ 			case 1: /* D3 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont2 & LB_D3_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~LB_D3_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D3 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont2 & LB_D3_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~LB_D3_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D3 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -6251,23 +6263,27 @@ restart_ih:
+ 		case 4: /* D4 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D4 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont3 & LB_D4_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[3]) {
+-						drm_handle_vblank(rdev->ddev, 3);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[3]))
+-						radeon_crtc_handle_vblank(rdev, 3);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~LB_D4_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D4 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont3 & LB_D4_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[3]) {
++					drm_handle_vblank(rdev->ddev, 3);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[3]))
++					radeon_crtc_handle_vblank(rdev, 3);
++				rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~LB_D4_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D4 vblank\n");
++
+ 				break;
+ 			case 1: /* D4 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont3 & LB_D4_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~LB_D4_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D4 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont3 & LB_D4_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~LB_D4_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D4 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -6277,23 +6293,27 @@ restart_ih:
+ 		case 5: /* D5 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D5 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont4 & LB_D5_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[4]) {
+-						drm_handle_vblank(rdev->ddev, 4);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[4]))
+-						radeon_crtc_handle_vblank(rdev, 4);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~LB_D5_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D5 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont4 & LB_D5_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[4]) {
++					drm_handle_vblank(rdev->ddev, 4);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[4]))
++					radeon_crtc_handle_vblank(rdev, 4);
++				rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~LB_D5_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D5 vblank\n");
++
+ 				break;
+ 			case 1: /* D5 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont4 & LB_D5_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~LB_D5_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D5 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont4 & LB_D5_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~LB_D5_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D5 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -6303,23 +6323,27 @@ restart_ih:
+ 		case 6: /* D6 vblank/vline */
+ 			switch (src_data) {
+ 			case 0: /* D6 vblank */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont5 & LB_D6_VBLANK_INTERRUPT) {
+-					if (rdev->irq.crtc_vblank_int[5]) {
+-						drm_handle_vblank(rdev->ddev, 5);
+-						rdev->pm.vblank_sync = true;
+-						wake_up(&rdev->irq.vblank_queue);
+-					}
+-					if (atomic_read(&rdev->irq.pflip[5]))
+-						radeon_crtc_handle_vblank(rdev, 5);
+-					rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~LB_D6_VBLANK_INTERRUPT;
+-					DRM_DEBUG("IH: D6 vblank\n");
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont5 & LB_D6_VBLANK_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				if (rdev->irq.crtc_vblank_int[5]) {
++					drm_handle_vblank(rdev->ddev, 5);
++					rdev->pm.vblank_sync = true;
++					wake_up(&rdev->irq.vblank_queue);
+ 				}
++				if (atomic_read(&rdev->irq.pflip[5]))
++					radeon_crtc_handle_vblank(rdev, 5);
++				rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~LB_D6_VBLANK_INTERRUPT;
++				DRM_DEBUG("IH: D6 vblank\n");
++
+ 				break;
+ 			case 1: /* D6 vline */
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont5 & LB_D6_VLINE_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~LB_D6_VLINE_INTERRUPT;
+-					DRM_DEBUG("IH: D6 vline\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont5 & LB_D6_VLINE_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~LB_D6_VLINE_INTERRUPT;
++				DRM_DEBUG("IH: D6 vline\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+@@ -6338,46 +6362,58 @@ restart_ih:
+ 		case 42: /* HPD hotplug */
+ 			switch (src_data) {
+ 			case 0:
+-				if (rdev->irq.stat_regs.evergreen.disp_int & DC_HPD1_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int &= ~DC_HPD1_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD1\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int & DC_HPD1_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int &= ~DC_HPD1_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD1\n");
++
+ 				break;
+ 			case 1:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont & DC_HPD2_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont &= ~DC_HPD2_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD2\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont & DC_HPD2_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont &= ~DC_HPD2_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD2\n");
++
+ 				break;
+ 			case 2:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont2 & DC_HPD3_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~DC_HPD3_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD3\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont2 & DC_HPD3_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont2 &= ~DC_HPD3_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD3\n");
++
+ 				break;
+ 			case 3:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont3 & DC_HPD4_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~DC_HPD4_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD4\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont3 & DC_HPD4_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont3 &= ~DC_HPD4_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD4\n");
++
+ 				break;
+ 			case 4:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont4 & DC_HPD5_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~DC_HPD5_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD5\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont4 & DC_HPD5_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont4 &= ~DC_HPD5_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD5\n");
++
+ 				break;
+ 			case 5:
+-				if (rdev->irq.stat_regs.evergreen.disp_int_cont5 & DC_HPD6_INTERRUPT) {
+-					rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~DC_HPD6_INTERRUPT;
+-					queue_hotplug = true;
+-					DRM_DEBUG("IH: HPD6\n");
+-				}
++				if (!(rdev->irq.stat_regs.evergreen.disp_int_cont5 & DC_HPD6_INTERRUPT))
++					DRM_DEBUG("IH: IH event w/o asserted irq bit?\n");
++
++				rdev->irq.stat_regs.evergreen.disp_int_cont5 &= ~DC_HPD6_INTERRUPT;
++				queue_hotplug = true;
++				DRM_DEBUG("IH: HPD6\n");
++
+ 				break;
+ 			default:
+ 				DRM_DEBUG("Unhandled interrupt: %d %d\n", src_id, src_data);
+diff --git a/drivers/gpu/drm/radeon/si_dpm.c b/drivers/gpu/drm/radeon/si_dpm.c
+index 4d47c5819c9c..46c945740b85 100644
+--- a/drivers/gpu/drm/radeon/si_dpm.c
++++ b/drivers/gpu/drm/radeon/si_dpm.c
+@@ -2921,6 +2921,7 @@ static struct si_dpm_quirk si_dpm_quirk_list[] = {
+ 	/* PITCAIRN - https://bugs.freedesktop.org/show_bug.cgi?id=76490 */
+ 	{ PCI_VENDOR_ID_ATI, 0x6810, 0x1462, 0x3036, 0, 120000 },
+ 	{ PCI_VENDOR_ID_ATI, 0x6811, 0x174b, 0xe271, 0, 120000 },
++	{ PCI_VENDOR_ID_ATI, 0x6810, 0x174b, 0xe271, 85000, 90000 },
+ 	{ 0, 0, 0, 0 },
+ };
+ 
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 56be85a9a77c..ffe69be882de 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -352,6 +352,8 @@ static int cp2112_read(struct cp2112_device *dev, u8 *data, size_t size)
+ 	struct cp2112_force_read_report report;
+ 	int ret;
+ 
++	if (size > sizeof(dev->read_data))
++		size = sizeof(dev->read_data);
+ 	report.report = CP2112_DATA_READ_FORCE_SEND;
+ 	report.length = cpu_to_be16(size);
+ 
+diff --git a/drivers/iio/adc/at91_adc.c b/drivers/iio/adc/at91_adc.c
+index e7ff26a4aef9..fa5d299d9222 100644
+--- a/drivers/iio/adc/at91_adc.c
++++ b/drivers/iio/adc/at91_adc.c
+@@ -182,7 +182,7 @@ struct at91_adc_caps {
+ 	u8	ts_pen_detect_sensitivity;
+ 
+ 	/* startup time calculate function */
+-	u32 (*calc_startup_ticks)(u8 startup_time, u32 adc_clk_khz);
++	u32 (*calc_startup_ticks)(u32 startup_time, u32 adc_clk_khz);
+ 
+ 	u8	num_channels;
+ 	struct at91_adc_reg_desc registers;
+@@ -201,7 +201,7 @@ struct at91_adc_state {
+ 	u8			num_channels;
+ 	void __iomem		*reg_base;
+ 	struct at91_adc_reg_desc *registers;
+-	u8			startup_time;
++	u32			startup_time;
+ 	u8			sample_hold_time;
+ 	bool			sleep_mode;
+ 	struct iio_trigger	**trig;
+@@ -779,7 +779,7 @@ ret:
+ 	return ret;
+ }
+ 
+-static u32 calc_startup_ticks_9260(u8 startup_time, u32 adc_clk_khz)
++static u32 calc_startup_ticks_9260(u32 startup_time, u32 adc_clk_khz)
+ {
+ 	/*
+ 	 * Number of ticks needed to cover the startup time of the ADC
+@@ -790,7 +790,7 @@ static u32 calc_startup_ticks_9260(u8 startup_time, u32 adc_clk_khz)
+ 	return round_up((startup_time * adc_clk_khz / 1000) - 1, 8) / 8;
+ }
+ 
+-static u32 calc_startup_ticks_9x5(u8 startup_time, u32 adc_clk_khz)
++static u32 calc_startup_ticks_9x5(u32 startup_time, u32 adc_clk_khz)
+ {
+ 	/*
+ 	 * For sama5d3x and at91sam9x5, the formula changes to:
+diff --git a/drivers/iio/adc/twl4030-madc.c b/drivers/iio/adc/twl4030-madc.c
+index eb86786e698e..c3afe3a38315 100644
+--- a/drivers/iio/adc/twl4030-madc.c
++++ b/drivers/iio/adc/twl4030-madc.c
+@@ -835,7 +835,8 @@ static int twl4030_madc_probe(struct platform_device *pdev)
+ 	irq = platform_get_irq(pdev, 0);
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+ 				   twl4030_madc_threaded_irq_handler,
+-				   IRQF_TRIGGER_RISING, "twl4030_madc", madc);
++				   IRQF_TRIGGER_RISING | IRQF_ONESHOT,
++				   "twl4030_madc", madc);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "could not request irq\n");
+ 		goto err_i2c;
+diff --git a/drivers/iio/adc/vf610_adc.c b/drivers/iio/adc/vf610_adc.c
+index 11048473b89e..0062d0e71d03 100644
+--- a/drivers/iio/adc/vf610_adc.c
++++ b/drivers/iio/adc/vf610_adc.c
+@@ -555,7 +555,7 @@ static int vf610_adc_reg_access(struct iio_dev *indio_dev,
+ 	struct vf610_adc *info = iio_priv(indio_dev);
+ 
+ 	if ((readval == NULL) ||
+-		(!(reg % 4) || (reg > VF610_REG_ADC_PCTL)))
++		((reg % 4) || (reg > VF610_REG_ADC_PCTL)))
+ 		return -EINVAL;
+ 
+ 	*readval = readl(info->regs + reg);
+diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
+index e8199cce2aea..1e666510c672 100644
+--- a/drivers/iio/dac/ad5624r_spi.c
++++ b/drivers/iio/dac/ad5624r_spi.c
+@@ -22,7 +22,7 @@
+ #include "ad5624r.h"
+ 
+ static int ad5624r_spi_write(struct spi_device *spi,
+-			     u8 cmd, u8 addr, u16 val, u8 len)
++			     u8 cmd, u8 addr, u16 val, u8 shift)
+ {
+ 	u32 data;
+ 	u8 msg[3];
+@@ -35,7 +35,7 @@ static int ad5624r_spi_write(struct spi_device *spi,
+ 	 * 14-, 12-bit input code followed by 0, 2, or 4 don't care bits,
+ 	 * for the AD5664R, AD5644R, and AD5624R, respectively.
+ 	 */
+-	data = (0 << 22) | (cmd << 19) | (addr << 16) | (val << (16 - len));
++	data = (0 << 22) | (cmd << 19) | (addr << 16) | (val << shift);
+ 	msg[0] = data >> 16;
+ 	msg[1] = data >> 8;
+ 	msg[2] = data;
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+index 0c6517c94a9d..63468e3c3ac8 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+@@ -340,6 +340,23 @@ static int inv_mpu6050_write_fsr(struct inv_mpu6050_state *st, int fsr)
+ 	return 0;
+ }
+ 
++static int inv_write_raw_get_fmt(struct iio_dev *indio_dev,
++				 struct iio_chan_spec const *chan, long mask)
++{
++	switch (mask) {
++	case IIO_CHAN_INFO_SCALE:
++		switch (chan->type) {
++		case IIO_ANGL_VEL:
++			return IIO_VAL_INT_PLUS_NANO;
++		default:
++			return IIO_VAL_INT_PLUS_MICRO;
++		}
++	default:
++		return IIO_VAL_INT_PLUS_MICRO;
++	}
++
++	return -EINVAL;
++}
+ static int inv_mpu6050_write_accel_fs(struct inv_mpu6050_state *st, int fs)
+ {
+ 	int result;
+@@ -603,6 +620,7 @@ static const struct iio_info mpu_info = {
+ 	.driver_module = THIS_MODULE,
+ 	.read_raw = &inv_mpu6050_read_raw,
+ 	.write_raw = &inv_mpu6050_write_raw,
++	.write_raw_get_fmt = &inv_write_raw_get_fmt,
+ 	.attrs = &inv_attribute_group,
+ 	.validate_trigger = inv_mpu6050_validate_trigger,
+ };
+diff --git a/drivers/iio/temperature/tmp006.c b/drivers/iio/temperature/tmp006.c
+index 84a0789c3d96..7a8050996b4e 100644
+--- a/drivers/iio/temperature/tmp006.c
++++ b/drivers/iio/temperature/tmp006.c
+@@ -132,6 +132,9 @@ static int tmp006_write_raw(struct iio_dev *indio_dev,
+ 	struct tmp006_data *data = iio_priv(indio_dev);
+ 	int i;
+ 
++	if (mask != IIO_CHAN_INFO_SAMP_FREQ)
++		return -EINVAL;
++
+ 	for (i = 0; i < ARRAY_SIZE(tmp006_freqs); i++)
+ 		if ((val == tmp006_freqs[i][0]) &&
+ 		    (val2 == tmp006_freqs[i][1])) {
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index a0966331a89b..c6f7e918b2b1 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -625,6 +625,9 @@ static int dmc_tsc10_init(struct usbtouch_usb *usbtouch)
+ 		goto err_out;
+ 	}
+ 
++	/* TSC-25 data sheet specifies a delay after the RESET command */
++	msleep(150);
++
+ 	/* set coordinate output rate */
+ 	buf[0] = buf[1] = 0xFF;
+ 	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
+diff --git a/drivers/isdn/gigaset/ser-gigaset.c b/drivers/isdn/gigaset/ser-gigaset.c
+index 8c91fd5eb6fd..3ac9c4194814 100644
+--- a/drivers/isdn/gigaset/ser-gigaset.c
++++ b/drivers/isdn/gigaset/ser-gigaset.c
+@@ -524,9 +524,18 @@ gigaset_tty_open(struct tty_struct *tty)
+ 	cs->hw.ser->tty = tty;
+ 	atomic_set(&cs->hw.ser->refcnt, 1);
+ 	init_completion(&cs->hw.ser->dead_cmp);
+-
+ 	tty->disc_data = cs;
+ 
++	/* Set the amount of data we're willing to receive per call
++	 * from the hardware driver to half of the input buffer size
++	 * to leave some reserve.
++	 * Note: We don't do flow control towards the hardware driver.
++	 * If more data is received than will fit into the input buffer,
++	 * it will be dropped and an error will be logged. This should
++	 * never happen as the device is slow and the buffer size ample.
++	 */
++	tty->receive_room = RBUFSIZE/2;
++
+ 	/* OK.. Initialization of the datastructures and the HW is done.. Now
+ 	 * startup system and notify the LL that we are ready to run
+ 	 */
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index f5b1af403b5c..8276c3b29ab4 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6225,7 +6225,7 @@ static int update_array_info(struct mddev *mddev, mdu_array_info_t *info)
+ 	    mddev->ctime         != info->ctime         ||
+ 	    mddev->level         != info->level         ||
+ /*	    mddev->layout        != info->layout        || */
+-	    !mddev->persistent	 != info->not_persistent||
++	    mddev->persistent	 != !info->not_persistent ||
+ 	    mddev->chunk_sectors != info->chunk_size >> 9 ||
+ 	    /* ignore bottom 8 bits of state, and allow SB_BITMAP_PRESENT to change */
+ 	    ((state^info->state) & 0xfffffe00)
+diff --git a/drivers/md/persistent-data/dm-btree-remove.c b/drivers/md/persistent-data/dm-btree-remove.c
+index b88757cd0d1d..a03178e91a79 100644
+--- a/drivers/md/persistent-data/dm-btree-remove.c
++++ b/drivers/md/persistent-data/dm-btree-remove.c
+@@ -309,8 +309,8 @@ static void redistribute3(struct dm_btree_info *info, struct btree_node *parent,
+ 
+ 		if (s < 0 && nr_center < -s) {
+ 			/* not enough in central node */
+-			shift(left, center, nr_center);
+-			s = nr_center - target;
++			shift(left, center, -nr_center);
++			s += nr_center;
+ 			shift(left, right, s);
+ 			nr_right += s;
+ 		} else
+@@ -323,7 +323,7 @@ static void redistribute3(struct dm_btree_info *info, struct btree_node *parent,
+ 		if (s > 0 && nr_center < s) {
+ 			/* not enough in central node */
+ 			shift(center, right, nr_center);
+-			s = target - nr_center;
++			s -= nr_center;
+ 			shift(left, right, s);
+ 			nr_left -= s;
+ 		} else
+diff --git a/drivers/md/persistent-data/dm-btree.c b/drivers/md/persistent-data/dm-btree.c
+index 200ac12a1d40..fdd3793e22f9 100644
+--- a/drivers/md/persistent-data/dm-btree.c
++++ b/drivers/md/persistent-data/dm-btree.c
+@@ -255,7 +255,7 @@ int dm_btree_del(struct dm_btree_info *info, dm_block_t root)
+ 	int r;
+ 	struct del_stack *s;
+ 
+-	s = kmalloc(sizeof(*s), GFP_KERNEL);
++	s = kmalloc(sizeof(*s), GFP_NOIO);
+ 	if (!s)
+ 		return -ENOMEM;
+ 	s->info = info;
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index b96ee9d78aa3..9be97e0bd149 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -336,7 +336,7 @@ static void raid1_end_read_request(struct bio *bio, int error)
+ 		spin_lock_irqsave(&conf->device_lock, flags);
+ 		if (r1_bio->mddev->degraded == conf->raid_disks ||
+ 		    (r1_bio->mddev->degraded == conf->raid_disks-1 &&
+-		     !test_bit(Faulty, &conf->mirrors[mirror].rdev->flags)))
++		     test_bit(In_sync, &conf->mirrors[mirror].rdev->flags)))
+ 			uptodate = 1;
+ 		spin_unlock_irqrestore(&conf->device_lock, flags);
+ 	}
+diff --git a/drivers/mmc/card/block.c b/drivers/mmc/card/block.c
+index 7ec3c79852e5..96d2f08a2516 100644
+--- a/drivers/mmc/card/block.c
++++ b/drivers/mmc/card/block.c
+@@ -205,6 +205,8 @@ static ssize_t power_ro_lock_show(struct device *dev,
+ 
+ 	ret = snprintf(buf, PAGE_SIZE, "%d\n", locked);
+ 
++	mmc_blk_put(md);
++
+ 	return ret;
+ }
+ 
+diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
+index 6c70a01b5c15..d4368603e67a 100644
+--- a/drivers/mmc/host/omap_hsmmc.c
++++ b/drivers/mmc/host/omap_hsmmc.c
+@@ -1079,6 +1079,10 @@ static void omap_hsmmc_do_irq(struct omap_hsmmc_host *host, int status)
+ 
+ 		if (status & (CTO_EN | CCRC_EN))
+ 			end_cmd = 1;
++		if (host->data || host->response_busy) {
++			end_trans = !end_cmd;
++			host->response_busy = 0;
++		}
+ 		if (status & (CTO_EN | DTO_EN))
+ 			hsmmc_command_incomplete(host, -ETIMEDOUT, end_cmd);
+ 		else if (status & (CCRC_EN | DCRC_EN))
+@@ -1098,10 +1102,6 @@ static void omap_hsmmc_do_irq(struct omap_hsmmc_host *host, int status)
+ 			}
+ 			dev_dbg(mmc_dev(host->mmc), "AC12 err: 0x%x\n", ac12);
+ 		}
+-		if (host->data || host->response_busy) {
+-			end_trans = !end_cmd;
+-			host->response_busy = 0;
+-		}
+ 	}
+ 
+ 	OMAP_HSMMC_WRITE(host->base, STAT, status);
+diff --git a/drivers/mmc/host/sdhci-esdhc.h b/drivers/mmc/host/sdhci-esdhc.h
+index 3497cfaf683c..a870c42731d7 100644
+--- a/drivers/mmc/host/sdhci-esdhc.h
++++ b/drivers/mmc/host/sdhci-esdhc.h
+@@ -45,6 +45,6 @@
+ #define ESDHC_DMA_SYSCTL	0x40c
+ #define ESDHC_DMA_SNOOP		0x00000040
+ 
+-#define ESDHC_HOST_CONTROL_RES	0x05
++#define ESDHC_HOST_CONTROL_RES	0x01
+ 
+ #endif /* _DRIVERS_MMC_SDHCI_ESDHC_H */
+diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
+index 8be4dcfb49a0..fdc27327aece 100644
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -276,6 +276,14 @@ static void esdhc_pltfm_set_bus_width(struct sdhci_host *host, int width)
+ 			ESDHC_CTRL_BUSWIDTH_MASK, ctrl);
+ }
+ 
++static void esdhc_reset(struct sdhci_host *host, u8 mask)
++{
++	sdhci_reset(host, mask);
++
++	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
++	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
++}
++
+ static const struct sdhci_ops sdhci_esdhc_ops = {
+ 	.read_l = esdhc_readl,
+ 	.read_w = esdhc_readw,
+@@ -290,7 +298,7 @@ static const struct sdhci_ops sdhci_esdhc_ops = {
+ 	.platform_init = esdhc_of_platform_init,
+ 	.adma_workaround = esdhci_of_adma_workaround,
+ 	.set_bus_width = esdhc_pltfm_set_bus_width,
+-	.reset = sdhci_reset,
++	.reset = esdhc_reset,
+ 	.set_uhs_signaling = sdhci_set_uhs_signaling,
+ };
+ 
+diff --git a/drivers/mmc/host/sdhci-pxav3.c b/drivers/mmc/host/sdhci-pxav3.c
+index 3ceadd11f641..e630970c4f31 100644
+--- a/drivers/mmc/host/sdhci-pxav3.c
++++ b/drivers/mmc/host/sdhci-pxav3.c
+@@ -360,6 +360,7 @@ static int sdhci_pxav3_probe(struct platform_device *pdev)
+ 			goto err_of_parse;
+ 		sdhci_get_of_property(pdev);
+ 		pdata = pxav3_get_mmc_pdata(dev);
++		pdev->dev.platform_data = pdata;
+ 	} else if (pdata) {
+ 		/* on-chip device */
+ 		if (pdata->flags & PXA_FLAG_CARD_PERMANENT)
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 14faf3ec7c7f..e7421fa1d103 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1642,9 +1642,16 @@ err_free:
+ 
+ err_undo_flags:
+ 	/* Enslave of first slave has failed and we need to fix master's mac */
+-	if (!bond_has_slaves(bond) &&
+-	    ether_addr_equal_64bits(bond_dev->dev_addr, slave_dev->dev_addr))
+-		eth_hw_addr_random(bond_dev);
++	if (!bond_has_slaves(bond)) {
++		if (ether_addr_equal_64bits(bond_dev->dev_addr,
++					    slave_dev->dev_addr))
++			eth_hw_addr_random(bond_dev);
++		if (bond_dev->type != ARPHRD_ETHER) {
++			ether_setup(bond_dev);
++			bond_dev->flags |= IFF_MASTER;
++			bond_dev->priv_flags &= ~IFF_TX_SKB_SHARING;
++		}
++	}
+ 
+ 	return res;
+ }
+@@ -1851,6 +1858,7 @@ static int  bond_release_and_destroy(struct net_device *bond_dev,
+ 		bond_dev->priv_flags |= IFF_DISABLE_NETPOLL;
+ 		pr_info("%s: Destroying bond %s\n",
+ 			bond_dev->name, bond_dev->name);
++		bond_remove_proc_entry(bond);
+ 		unregister_netdevice(bond_dev);
+ 	}
+ 	return ret;
+diff --git a/drivers/net/can/rcar_can.c b/drivers/net/can/rcar_can.c
+index 5268d216ecfa..6a4f107da6bf 100644
+--- a/drivers/net/can/rcar_can.c
++++ b/drivers/net/can/rcar_can.c
+@@ -517,7 +517,7 @@ static int rcar_can_open(struct net_device *ndev)
+ 	napi_enable(&priv->napi);
+ 	err = request_irq(ndev->irq, rcar_can_interrupt, 0, ndev->name, ndev);
+ 	if (err) {
+-		netdev_err(ndev, "error requesting interrupt %x\n", ndev->irq);
++		netdev_err(ndev, "error requesting interrupt %d\n", ndev->irq);
+ 		goto out_close;
+ 	}
+ 	can_led_event(ndev, CAN_LED_EVENT_OPEN);
+@@ -732,8 +732,9 @@ static int rcar_can_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "No IRQ resource\n");
++		err = irq;
+ 		goto fail;
+ 	}
+ 
+@@ -785,7 +786,7 @@ static int rcar_can_probe(struct platform_device *pdev)
+ 
+ 	devm_can_led_init(ndev);
+ 
+-	dev_info(&pdev->dev, "device registered (reg_base=%p, irq=%u)\n",
++	dev_info(&pdev->dev, "device registered (regs @ %p, IRQ%d)\n",
+ 		 priv->regs, ndev->irq);
+ 
+ 	return 0;
+diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
+index 5df239e68812..cc7ee1b6602b 100644
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -1228,17 +1228,16 @@ static int __maybe_unused mcp251x_can_resume(struct device *dev)
+ 	struct spi_device *spi = to_spi_device(dev);
+ 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+ 
+-	if (priv->after_suspend & AFTER_SUSPEND_POWER) {
++	if (priv->after_suspend & AFTER_SUSPEND_POWER)
+ 		mcp251x_power_enable(priv->power, 1);
++
++	if (priv->after_suspend & AFTER_SUSPEND_UP) {
++		mcp251x_power_enable(priv->transceiver, 1);
+ 		queue_work(priv->wq, &priv->restart_work);
+ 	} else {
+-		if (priv->after_suspend & AFTER_SUSPEND_UP) {
+-			mcp251x_power_enable(priv->transceiver, 1);
+-			queue_work(priv->wq, &priv->restart_work);
+-		} else {
+-			priv->after_suspend = 0;
+-		}
++		priv->after_suspend = 0;
+ 	}
++
+ 	priv->force_quit = 0;
+ 	enable_irq(spi->irq);
+ 	return 0;
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 807fbdc4b21b..109908574224 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -1433,7 +1433,7 @@ static int mvneta_rx(struct mvneta_port *pp, int rx_todo,
+ 		     struct mvneta_rx_queue *rxq)
+ {
+ 	struct net_device *dev = pp->dev;
+-	int rx_done, rx_filled;
++	int rx_done;
+ 	u32 rcvd_pkts = 0;
+ 	u32 rcvd_bytes = 0;
+ 
+@@ -1444,7 +1444,6 @@ static int mvneta_rx(struct mvneta_port *pp, int rx_todo,
+ 		rx_todo = rx_done;
+ 
+ 	rx_done = 0;
+-	rx_filled = 0;
+ 
+ 	/* Fairness NAPI loop */
+ 	while (rx_done < rx_todo) {
+@@ -1455,7 +1454,6 @@ static int mvneta_rx(struct mvneta_port *pp, int rx_todo,
+ 		int rx_bytes, err;
+ 
+ 		rx_done++;
+-		rx_filled++;
+ 		rx_status = rx_desc->status;
+ 		rx_bytes = rx_desc->data_size - (ETH_FCS_LEN + MVNETA_MH_SIZE);
+ 		data = (unsigned char *)rx_desc->buf_cookie;
+@@ -1495,6 +1493,14 @@ static int mvneta_rx(struct mvneta_port *pp, int rx_todo,
+ 			continue;
+ 		}
+ 
++		/* Refill processing */
++		err = mvneta_rx_refill(pp, rx_desc);
++		if (err) {
++			netdev_err(dev, "Linux processing - Can't refill\n");
++			rxq->missed++;
++			goto err_drop_frame;
++		}
++
+ 		skb = build_skb(data, pp->frag_size > PAGE_SIZE ? 0 : pp->frag_size);
+ 		if (!skb)
+ 			goto err_drop_frame;
+@@ -1514,14 +1520,6 @@ static int mvneta_rx(struct mvneta_port *pp, int rx_todo,
+ 		mvneta_rx_csum(pp, rx_status, skb);
+ 
+ 		napi_gro_receive(&pp->napi, skb);
+-
+-		/* Refill processing */
+-		err = mvneta_rx_refill(pp, rx_desc);
+-		if (err) {
+-			netdev_err(dev, "Linux processing - Can't refill\n");
+-			rxq->missed++;
+-			rx_filled--;
+-		}
+ 	}
+ 
+ 	if (rcvd_pkts) {
+@@ -1534,7 +1532,7 @@ static int mvneta_rx(struct mvneta_port *pp, int rx_todo,
+ 	}
+ 
+ 	/* Update rxq management counters */
+-	mvneta_rxq_desc_num_update(pp, rxq, rx_done, rx_filled);
++	mvneta_rxq_desc_num_update(pp, rxq, rx_done, rx_done);
+ 
+ 	return rx_done;
+ }
+diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
+index 099b1eea1f11..3a8341c839d5 100644
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -507,9 +507,11 @@ static const struct cpsw_stats cpsw_gstrings_stats[] = {
+ 				(func)(slave++, ##arg);			\
+ 	} while (0)
+ #define cpsw_get_slave_ndev(priv, __slave_no__)				\
+-	(priv->slaves[__slave_no__].ndev)
++	((__slave_no__ < priv->data.slaves) ?				\
++		priv->slaves[__slave_no__].ndev : NULL)
+ #define cpsw_get_slave_priv(priv, __slave_no__)				\
+-	((priv->slaves[__slave_no__].ndev) ?				\
++	(((__slave_no__ < priv->data.slaves) &&				\
++		(priv->slaves[__slave_no__].ndev)) ?			\
+ 		netdev_priv(priv->slaves[__slave_no__].ndev) : NULL)	\
+ 
+ #define cpsw_dual_emac_src_port_detect(status, priv, ndev, skb)		\
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index c65b636bcab9..09e4f4ef4eb8 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -1703,13 +1703,13 @@ static inline void xenvif_tx_dealloc_action(struct xenvif_queue *queue)
+ 		smp_rmb();
+ 
+ 		while (dc != dp) {
+-			BUG_ON(gop - queue->tx_unmap_ops > MAX_PENDING_REQS);
++			BUG_ON(gop - queue->tx_unmap_ops >= MAX_PENDING_REQS);
+ 			pending_idx =
+ 				queue->dealloc_ring[pending_index(dc++)];
+ 
+-			pending_idx_release[gop-queue->tx_unmap_ops] =
++			pending_idx_release[gop - queue->tx_unmap_ops] =
+ 				pending_idx;
+-			queue->pages_to_unmap[gop-queue->tx_unmap_ops] =
++			queue->pages_to_unmap[gop - queue->tx_unmap_ops] =
+ 				queue->mmap_pages[pending_idx];
+ 			gnttab_set_unmap_op(gop,
+ 					    idx_to_kaddr(queue, pending_idx),
+diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
+index 791460b798f4..2aa95c89b5bf 100644
+--- a/drivers/scsi/sg.c
++++ b/drivers/scsi/sg.c
+@@ -1693,6 +1693,9 @@ static int sg_start_req(Sg_request *srp, unsigned char *cmd)
+ 			md->from_user = 0;
+ 	}
+ 
++	if (unlikely(iov_count > UIO_MAXIOV))
++		return -EINVAL;
++
+ 	if (iov_count) {
+ 		int len, size = sizeof(struct sg_iovec) * iov_count;
+ 		struct iovec *iov;
+diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+index 14eb4b256a03..daa67f509133 100644
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -1262,9 +1262,9 @@ static int st_open(struct inode *inode, struct file *filp)
+ 	spin_lock(&st_use_lock);
+ 	STp->in_use = 0;
+ 	spin_unlock(&st_use_lock);
+-	scsi_tape_put(STp);
+ 	if (resumed)
+ 		scsi_autopm_put_device(STp->device);
++	scsi_tape_put(STp);
+ 	return retval;
+ 
+ }
+diff --git a/drivers/thermal/step_wise.c b/drivers/thermal/step_wise.c
+index ee52ab7d3730..c501eba601da 100644
+--- a/drivers/thermal/step_wise.c
++++ b/drivers/thermal/step_wise.c
+@@ -76,7 +76,7 @@ static unsigned long get_target_state(struct thermal_instance *instance,
+ 			next_target = instance->upper;
+ 		break;
+ 	case THERMAL_TREND_DROPPING:
+-		if (cur_state == instance->lower) {
++		if (cur_state <= instance->lower) {
+ 			if (!throttle)
+ 				next_target = THERMAL_NO_TARGET;
+ 		} else {
+diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+index fae81924fd4b..a85eadff6bea 100644
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -1690,7 +1690,7 @@ static struct async *reap_as(struct usb_dev_state *ps)
+ 	for (;;) {
+ 		__set_current_state(TASK_INTERRUPTIBLE);
+ 		as = async_getcompleted(ps);
+-		if (as)
++		if (as || !connected(ps))
+ 			break;
+ 		if (signal_pending(current))
+ 			break;
+@@ -1713,7 +1713,7 @@ static int proc_reapurb(struct usb_dev_state *ps, void __user *arg)
+ 	}
+ 	if (signal_pending(current))
+ 		return -EINTR;
+-	return -EIO;
++	return -ENODEV;
+ }
+ 
+ static int proc_reapurbnonblock(struct usb_dev_state *ps, void __user *arg)
+@@ -1722,10 +1722,11 @@ static int proc_reapurbnonblock(struct usb_dev_state *ps, void __user *arg)
+ 	struct async *as;
+ 
+ 	as = async_getcompleted(ps);
+-	retval = -EAGAIN;
+ 	if (as) {
+ 		retval = processcompl(as, (void __user * __user *)arg);
+ 		free_async(as);
++	} else {
++		retval = (connected(ps) ? -EAGAIN : -ENODEV);
+ 	}
+ 	return retval;
+ }
+@@ -1855,7 +1856,7 @@ static int proc_reapurb_compat(struct usb_dev_state *ps, void __user *arg)
+ 	}
+ 	if (signal_pending(current))
+ 		return -EINTR;
+-	return -EIO;
++	return -ENODEV;
+ }
+ 
+ static int proc_reapurbnonblock_compat(struct usb_dev_state *ps, void __user *arg)
+@@ -1863,11 +1864,12 @@ static int proc_reapurbnonblock_compat(struct usb_dev_state *ps, void __user *ar
+ 	int retval;
+ 	struct async *as;
+ 
+-	retval = -EAGAIN;
+ 	as = async_getcompleted(ps);
+ 	if (as) {
+ 		retval = processcompl_compat(as, (void __user * __user *)arg);
+ 		free_async(as);
++	} else {
++		retval = (connected(ps) ? -EAGAIN : -ENODEV);
+ 	}
+ 	return retval;
+ }
+@@ -2039,7 +2041,8 @@ static int proc_get_capabilities(struct usb_dev_state *ps, void __user *arg)
+ {
+ 	__u32 caps;
+ 
+-	caps = USBDEVFS_CAP_ZERO_PACKET | USBDEVFS_CAP_NO_PACKET_SIZE_LIM;
++	caps = USBDEVFS_CAP_ZERO_PACKET | USBDEVFS_CAP_NO_PACKET_SIZE_LIM |
++			USBDEVFS_CAP_REAP_AFTER_DISCONNECT;
+ 	if (!ps->dev->bus->no_stop_on_short)
+ 		caps |= USBDEVFS_CAP_BULK_CONTINUATION;
+ 	if (ps->dev->bus->sg_tablesize)
+@@ -2139,6 +2142,32 @@ static long usbdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		return -EPERM;
+ 
+ 	usb_lock_device(dev);
++
++	/* Reap operations are allowed even after disconnection */
++	switch (cmd) {
++	case USBDEVFS_REAPURB:
++		snoop(&dev->dev, "%s: REAPURB\n", __func__);
++		ret = proc_reapurb(ps, p);
++		goto done;
++
++	case USBDEVFS_REAPURBNDELAY:
++		snoop(&dev->dev, "%s: REAPURBNDELAY\n", __func__);
++		ret = proc_reapurbnonblock(ps, p);
++		goto done;
++
++#ifdef CONFIG_COMPAT
++	case USBDEVFS_REAPURB32:
++		snoop(&dev->dev, "%s: REAPURB32\n", __func__);
++		ret = proc_reapurb_compat(ps, p);
++		goto done;
++
++	case USBDEVFS_REAPURBNDELAY32:
++		snoop(&dev->dev, "%s: REAPURBNDELAY32\n", __func__);
++		ret = proc_reapurbnonblock_compat(ps, p);
++		goto done;
++#endif
++	}
++
+ 	if (!connected(ps)) {
+ 		usb_unlock_device(dev);
+ 		return -ENODEV;
+@@ -2232,16 +2261,6 @@ static long usbdev_do_ioctl(struct file *file, unsigned int cmd,
+ 			inode->i_mtime = CURRENT_TIME;
+ 		break;
+ 
+-	case USBDEVFS_REAPURB32:
+-		snoop(&dev->dev, "%s: REAPURB32\n", __func__);
+-		ret = proc_reapurb_compat(ps, p);
+-		break;
+-
+-	case USBDEVFS_REAPURBNDELAY32:
+-		snoop(&dev->dev, "%s: REAPURBNDELAY32\n", __func__);
+-		ret = proc_reapurbnonblock_compat(ps, p);
+-		break;
+-
+ 	case USBDEVFS_IOCTL32:
+ 		snoop(&dev->dev, "%s: IOCTL32\n", __func__);
+ 		ret = proc_ioctl_compat(ps, ptr_to_compat(p));
+@@ -2253,16 +2272,6 @@ static long usbdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		ret = proc_unlinkurb(ps, p);
+ 		break;
+ 
+-	case USBDEVFS_REAPURB:
+-		snoop(&dev->dev, "%s: REAPURB\n", __func__);
+-		ret = proc_reapurb(ps, p);
+-		break;
+-
+-	case USBDEVFS_REAPURBNDELAY:
+-		snoop(&dev->dev, "%s: REAPURBNDELAY\n", __func__);
+-		ret = proc_reapurbnonblock(ps, p);
+-		break;
+-
+ 	case USBDEVFS_DISCSIGNAL:
+ 		snoop(&dev->dev, "%s: DISCSIGNAL\n", __func__);
+ 		ret = proc_disconnectsignal(ps, p);
+@@ -2305,6 +2314,8 @@ static long usbdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		ret = proc_free_streams(ps, p);
+ 		break;
+ 	}
++
++ done:
+ 	usb_unlock_device(dev);
+ 	if (ret >= 0)
+ 		inode->i_atime = CURRENT_TIME;
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index 4195906f94d6..c4dc63ad580a 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -1025,9 +1025,12 @@ static int register_root_hub(struct usb_hcd *hcd)
+ 				dev_name(&usb_dev->dev), retval);
+ 		return (retval < 0) ? retval : -EMSGSIZE;
+ 	}
+-	if (usb_dev->speed == USB_SPEED_SUPER) {
++
++	if (le16_to_cpu(usb_dev->descriptor.bcdUSB) >= 0x0201) {
+ 		retval = usb_get_bos_descriptor(usb_dev);
+-		if (retval < 0) {
++		if (!retval) {
++			usb_dev->lpm_capable = usb_device_supports_lpm(usb_dev);
++		} else if (usb_dev->speed == USB_SPEED_SUPER) {
+ 			mutex_unlock(&usb_bus_list_lock);
+ 			dev_dbg(parent_dev, "can't read %s bos descriptor %d\n",
+ 					dev_name(&usb_dev->dev), retval);
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index a3ab650a1f72..962fdf5c621b 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -126,7 +126,7 @@ struct usb_hub *usb_hub_to_struct_hub(struct usb_device *hdev)
+ 	return usb_get_intfdata(hdev->actconfig->interface[0]);
+ }
+ 
+-static int usb_device_supports_lpm(struct usb_device *udev)
++int usb_device_supports_lpm(struct usb_device *udev)
+ {
+ 	/* USB 2.1 (and greater) devices indicate LPM support through
+ 	 * their USB 2.0 Extended Capabilities BOS descriptor.
+diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
+index d9d08720c386..d7ac1603826b 100644
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -65,6 +65,7 @@ extern int  usb_hub_init(void);
+ extern void usb_hub_cleanup(void);
+ extern int usb_major_init(void);
+ extern void usb_major_cleanup(void);
++extern int usb_device_supports_lpm(struct usb_device *udev);
+ 
+ #ifdef	CONFIG_PM
+ 
+diff --git a/drivers/usb/dwc3/ep0.c b/drivers/usb/dwc3/ep0.c
+index 0985ff715c0c..bcefce032757 100644
+--- a/drivers/usb/dwc3/ep0.c
++++ b/drivers/usb/dwc3/ep0.c
+@@ -707,6 +707,10 @@ static int dwc3_ep0_std_request(struct dwc3 *dwc, struct usb_ctrlrequest *ctrl)
+ 		dev_vdbg(dwc->dev, "USB_REQ_SET_ISOCH_DELAY\n");
+ 		ret = dwc3_ep0_set_isoch_delay(dwc, ctrl);
+ 		break;
++	case USB_REQ_SET_INTERFACE:
++		dev_vdbg(dwc->dev, "USB_REQ_SET_INTERFACE");
++		dwc->start_config_issued = false;
++		/* Fall through */
+ 	default:
+ 		dev_vdbg(dwc->dev, "Forwarding to gadget driver\n");
+ 		ret = dwc3_ep0_delegate_req(dwc, ctrl);
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 18d2ffcc462b..8946e34cef63 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -414,6 +414,8 @@ int dwc3_send_gadget_ep_cmd(struct dwc3 *dwc, unsigned ep,
+ 		if (!(reg & DWC3_DEPCMD_CMDACT)) {
+ 			dev_vdbg(dwc->dev, "Command Complete --> %d\n",
+ 					DWC3_DEPCMD_STATUS(reg));
++			if (DWC3_DEPCMD_STATUS(reg))
++				return -EINVAL;
+ 			return 0;
+ 		}
+ 
+diff --git a/drivers/usb/gadget/f_mass_storage.c b/drivers/usb/gadget/f_mass_storage.c
+index b96393908860..53f4d4a868b5 100644
+--- a/drivers/usb/gadget/f_mass_storage.c
++++ b/drivers/usb/gadget/f_mass_storage.c
+@@ -2819,7 +2819,7 @@ int fsg_common_set_nluns(struct fsg_common *common, int nluns)
+ 		return -EINVAL;
+ 	}
+ 
+-	curlun = kcalloc(nluns, sizeof(*curlun), GFP_KERNEL);
++	curlun = kcalloc(FSG_MAX_LUNS, sizeof(*curlun), GFP_KERNEL);
+ 	if (unlikely(!curlun))
+ 		return -ENOMEM;
+ 
+@@ -2829,8 +2829,6 @@ int fsg_common_set_nluns(struct fsg_common *common, int nluns)
+ 	common->luns = curlun;
+ 	common->nluns = nluns;
+ 
+-	pr_info("Number of LUNs=%d\n", common->nluns);
+-
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(fsg_common_set_nluns);
+@@ -3604,14 +3602,26 @@ static struct usb_function *fsg_alloc(struct usb_function_instance *fi)
+ 	struct fsg_opts *opts = fsg_opts_from_func_inst(fi);
+ 	struct fsg_common *common = opts->common;
+ 	struct fsg_dev *fsg;
++	unsigned nluns, i;
+ 
+ 	fsg = kzalloc(sizeof(*fsg), GFP_KERNEL);
+ 	if (unlikely(!fsg))
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	mutex_lock(&opts->lock);
++	if (!opts->refcnt) {
++		for (nluns = i = 0; i < FSG_MAX_LUNS; ++i)
++			if (common->luns[i])
++				nluns = i + 1;
++		if (!nluns)
++			pr_warn("No LUNS defined, continuing anyway\n");
++		else
++			common->nluns = nluns;
++		pr_info("Number of LUNs=%u\n", common->nluns);
++	}
+ 	opts->refcnt++;
+ 	mutex_unlock(&opts->lock);
++
+ 	fsg->function.name	= FSG_DRIVER_DESC;
+ 	fsg->function.bind	= fsg_bind;
+ 	fsg->function.unbind	= fsg_unbind;
+diff --git a/drivers/usb/gadget/mv_udc_core.c b/drivers/usb/gadget/mv_udc_core.c
+index fcff3a571b45..571645a749fc 100644
+--- a/drivers/usb/gadget/mv_udc_core.c
++++ b/drivers/usb/gadget/mv_udc_core.c
+@@ -2160,7 +2160,7 @@ static int mv_udc_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	udc->phy_regs = ioremap(r->start, resource_size(r));
++	udc->phy_regs = devm_ioremap(&pdev->dev, r->start, resource_size(r));
+ 	if (udc->phy_regs == NULL) {
+ 		dev_err(&pdev->dev, "failed to map phy I/O memory\n");
+ 		return -EBUSY;
+diff --git a/drivers/usb/host/ohci-q.c b/drivers/usb/host/ohci-q.c
+index a8bde5b8cbdd..e9599f64547b 100644
+--- a/drivers/usb/host/ohci-q.c
++++ b/drivers/usb/host/ohci-q.c
+@@ -925,10 +925,6 @@ rescan_all:
+ 		int			completed, modified;
+ 		__hc32			*prev;
+ 
+-		/* Is this ED already invisible to the hardware? */
+-		if (ed->state == ED_IDLE)
+-			goto ed_idle;
+-
+ 		/* only take off EDs that the HC isn't using, accounting for
+ 		 * frame counter wraps and EDs with partially retired TDs
+ 		 */
+@@ -959,14 +955,12 @@ skip_ed:
+ 		}
+ 
+ 		/* ED's now officially unlinked, hc doesn't see */
+-		ed->state = ED_IDLE;
+ 		if (quirk_zfmicro(ohci) && ed->type == PIPE_INTERRUPT)
+ 			ohci->eds_scheduled--;
+ 		ed->hwHeadP &= ~cpu_to_hc32(ohci, ED_H);
+ 		ed->hwNextED = 0;
+ 		wmb();
+ 		ed->hwINFO &= ~cpu_to_hc32(ohci, ED_SKIP | ED_DEQUEUE);
+-ed_idle:
+ 
+ 		/* reentrancy:  if we drop the schedule lock, someone might
+ 		 * have modified this list.  normally it's just prepending
+@@ -1037,6 +1031,7 @@ rescan_this:
+ 		if (list_empty(&ed->td_list)) {
+ 			*last = ed->ed_next;
+ 			ed->ed_next = NULL;
++			ed->state = ED_IDLE;
+ 		} else if (ohci->rh_state == OHCI_RH_RUNNING) {
+ 			*last = ed->ed_next;
+ 			ed->ed_next = NULL;
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index 8c21c3bcd59b..514d5b8f15c1 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -477,10 +477,13 @@ static void xhci_hub_report_usb3_link_state(struct xhci_hcd *xhci,
+ 	u32 pls = status_reg & PORT_PLS_MASK;
+ 
+ 	/* resume state is a xHCI internal state.
+-	 * Do not report it to usb core.
++	 * Do not report it to usb core, instead, pretend to be U3,
++	 * thus usb core knows it's not ready for transfer
+ 	 */
+-	if (pls == XDEV_RESUME)
++	if (pls == XDEV_RESUME) {
++		*status |= USB_SS_PORT_LS_U3;
+ 		return;
++	}
+ 
+ 	/* When the CAS bit is set then warm reset
+ 	 * should be performed on port
+@@ -581,7 +584,14 @@ static u32 xhci_get_port_status(struct usb_hcd *hcd,
+ 		status |= USB_PORT_STAT_C_RESET << 16;
+ 	/* USB3.0 only */
+ 	if (hcd->speed == HCD_USB3) {
+-		if ((raw_port_status & PORT_PLC))
++		/* Port link change with port in resume state should not be
++		 * reported to usbcore, as this is an internal state to be
++		 * handled by xhci driver. Reporting PLC to usbcore may
++		 * cause usbcore clearing PLC first and port change event
++		 * irq won't be generated.
++		 */
++		if ((raw_port_status & PORT_PLC) &&
++			(raw_port_status & PORT_PLS_MASK) != XDEV_RESUME)
+ 			status |= USB_PORT_STAT_C_LINK_STATE << 16;
+ 		if ((raw_port_status & PORT_WRC))
+ 			status |= USB_PORT_STAT_C_BH_RESET << 16;
+@@ -1113,10 +1123,10 @@ int xhci_bus_suspend(struct usb_hcd *hcd)
+ 	spin_lock_irqsave(&xhci->lock, flags);
+ 
+ 	if (hcd->self.root_hub->do_remote_wakeup) {
+-		if (bus_state->resuming_ports) {
++		if (bus_state->resuming_ports ||	/* USB2 */
++		    bus_state->port_remote_wakeup) {	/* USB3 */
+ 			spin_unlock_irqrestore(&xhci->lock, flags);
+-			xhci_dbg(xhci, "suspend failed because "
+-						"a port is resuming\n");
++			xhci_dbg(xhci, "suspend failed because a port is resuming\n");
+ 			return -EBUSY;
+ 		}
+ 	}
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index 8936211b161d..5c68f227b8bf 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -1431,10 +1431,10 @@ int xhci_endpoint_init(struct xhci_hcd *xhci,
+ 		/* Attempt to use the ring cache */
+ 		if (virt_dev->num_rings_cached == 0)
+ 			return -ENOMEM;
++		virt_dev->num_rings_cached--;
+ 		virt_dev->eps[ep_index].new_ring =
+ 			virt_dev->ring_cache[virt_dev->num_rings_cached];
+ 		virt_dev->ring_cache[virt_dev->num_rings_cached] = NULL;
+-		virt_dev->num_rings_cached--;
+ 		xhci_reinit_cached_ring(xhci, virt_dev->eps[ep_index].new_ring,
+ 					1, type);
+ 	}
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 3303132d875e..3f40772962ec 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -1583,6 +1583,9 @@ static void handle_port_status(struct xhci_hcd *xhci,
+ 		usb_hcd_resume_root_hub(hcd);
+ 	}
+ 
++	if (hcd->speed == HCD_USB3 && (temp & PORT_PLS_MASK) == XDEV_INACTIVE)
++		bus_state->port_remote_wakeup &= ~(1 << faked_port_index);
++
+ 	if ((temp & PORT_PLC) && (temp & PORT_PLS_MASK) == XDEV_RESUME) {
+ 		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
+ 
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index b61913116fe2..7ce24229e863 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3466,6 +3466,9 @@ int xhci_discover_or_reset_device(struct usb_hcd *hcd, struct usb_device *udev)
+ 			return -EINVAL;
+ 	}
+ 
++	if (virt_dev->tt_info)
++		old_active_eps = virt_dev->tt_info->active_eps;
++
+ 	if (virt_dev->udev != udev) {
+ 		/* If the virt_dev and the udev does not match, this virt_dev
+ 		 * may belong to another udev.
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index a70e45c7c440..92cd5a765602 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -285,6 +285,7 @@ struct xhci_op_regs {
+ #define XDEV_U0		(0x0 << 5)
+ #define XDEV_U2		(0x2 << 5)
+ #define XDEV_U3		(0x3 << 5)
++#define XDEV_INACTIVE	(0x6 << 5)
+ #define XDEV_RESUME	(0xf << 5)
+ /* true: port has power (see HCC_PPC) */
+ #define PORT_POWER	(1 << 9)
+diff --git a/drivers/usb/musb/musb_virthub.c b/drivers/usb/musb/musb_virthub.c
+index 0241a3a0d63e..1e9bde4fe785 100644
+--- a/drivers/usb/musb/musb_virthub.c
++++ b/drivers/usb/musb/musb_virthub.c
+@@ -273,9 +273,7 @@ static int musb_has_gadget(struct musb *musb)
+ #ifdef CONFIG_USB_MUSB_HOST
+ 	return 1;
+ #else
+-	if (musb->port_mode == MUSB_PORT_MODE_HOST)
+-		return 1;
+-	return musb->g.dev.driver != NULL;
++	return musb->port_mode == MUSB_PORT_MODE_HOST;
+ #endif
+ }
+ 
+diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+index 73c7292f48e5..d11335d4395d 100644
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -187,6 +187,7 @@ static const struct usb_device_id id_table[] = {
+ 	{ USB_DEVICE(0x1FB9, 0x0602) }, /* Lake Shore Model 648 Magnet Power Supply */
+ 	{ USB_DEVICE(0x1FB9, 0x0700) }, /* Lake Shore Model 737 VSM Controller */
+ 	{ USB_DEVICE(0x1FB9, 0x0701) }, /* Lake Shore Model 776 Hall Matrix */
++	{ USB_DEVICE(0x2626, 0xEA60) }, /* Aruba Networks 7xxx USB Serial Console */
+ 	{ USB_DEVICE(0x3195, 0xF190) }, /* Link Instruments MSO-19 */
+ 	{ USB_DEVICE(0x3195, 0xF280) }, /* Link Instruments MSO-28 */
+ 	{ USB_DEVICE(0x3195, 0xF281) }, /* Link Instruments MSO-28 */
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 0cdbb6c56674..eebe0b72db51 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1764,6 +1764,7 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2001, 0x7d03, 0xff, 0x00, 0x00) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e01, 0xff, 0xff, 0xff) }, /* D-Link DWM-152/C1 */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e02, 0xff, 0xff, 0xff) }, /* D-Link DWM-156/C1 */
++	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x4000, 0xff) },                /* OLICARD300 - MT6225 */
+ 	{ USB_DEVICE(INOVIA_VENDOR_ID, INOVIA_SEW858) },
+ 	{ USB_DEVICE(VIATELECOM_VENDOR_ID, VIATELECOM_PRODUCT_CDS7) },
+ 	{ } /* Terminating entry */
+diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+index 19842370a07f..6fbfc8fc2f5d 100644
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -1290,6 +1290,7 @@ static void __exit usb_serial_exit(void)
+ 	tty_unregister_driver(usb_serial_tty_driver);
+ 	put_tty_driver(usb_serial_tty_driver);
+ 	bus_unregister(&usb_serial_bus_type);
++	idr_destroy(&serial_minors);
+ }
+ 
+ 
+diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
+index 1b79286e385a..092de140ef1e 100644
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2046,6 +2046,18 @@ UNUSUAL_DEV( 0x1908, 0x3335, 0x0200, 0x0200,
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_READ_DISC_INFO ),
+ 
++/* Reported by Oliver Neukum <oneukum@suse.com>
++ * This device morphes spontaneously into another device if the access
++ * pattern of Windows isn't followed. Thus writable media would be dirty
++ * if the initial instance is used. So the device is limited to its
++ * virtual CD.
++ * And yes, the concept that BCD goes up to 9 is not heeded */
++UNUSUAL_DEV( 0x19d2, 0x1225, 0x0000, 0xffff,
++		"ZTE,Incorporated",
++		"ZTE WCDMA Technologies MSM",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_SINGLE_LUN ),
++
+ /* Reported by Sven Geggus <sven-usbst@geggus.net>
+  * This encrypted pen drive returns bogus data for the initial READ(10).
+  */
+diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
+index 7fa4f7a7653d..509459d71ed0 100644
+--- a/fs/9p/vfs_inode.c
++++ b/fs/9p/vfs_inode.c
+@@ -540,8 +540,7 @@ static struct inode *v9fs_qid_iget(struct super_block *sb,
+ 	unlock_new_inode(inode);
+ 	return inode;
+ error:
+-	unlock_new_inode(inode);
+-	iput(inode);
++	iget_failed(inode);
+ 	return ERR_PTR(retval);
+ 
+ }
+diff --git a/fs/9p/vfs_inode_dotl.c b/fs/9p/vfs_inode_dotl.c
+index 1fa85aae24df..d3fb85871921 100644
+--- a/fs/9p/vfs_inode_dotl.c
++++ b/fs/9p/vfs_inode_dotl.c
+@@ -149,8 +149,7 @@ static struct inode *v9fs_qid_iget_dotl(struct super_block *sb,
+ 	unlock_new_inode(inode);
+ 	return inode;
+ error:
+-	unlock_new_inode(inode);
+-	iput(inode);
++	iget_failed(inode);
+ 	return ERR_PTR(retval);
+ 
+ }
+diff --git a/fs/btrfs/inode-map.c b/fs/btrfs/inode-map.c
+index 888fbe19079f..7537c05244c0 100644
+--- a/fs/btrfs/inode-map.c
++++ b/fs/btrfs/inode-map.c
+@@ -246,6 +246,7 @@ void btrfs_unpin_free_ino(struct btrfs_root *root)
+ {
+ 	struct btrfs_free_space_ctl *ctl = root->free_ino_ctl;
+ 	struct rb_root *rbroot = &root->free_ino_pinned->free_space_offset;
++	spinlock_t *rbroot_lock = &root->free_ino_pinned->tree_lock;
+ 	struct btrfs_free_space *info;
+ 	struct rb_node *n;
+ 	u64 count;
+@@ -254,24 +255,30 @@ void btrfs_unpin_free_ino(struct btrfs_root *root)
+ 		return;
+ 
+ 	while (1) {
++		bool add_to_ctl = true;
++
++		spin_lock(rbroot_lock);
+ 		n = rb_first(rbroot);
+-		if (!n)
++		if (!n) {
++			spin_unlock(rbroot_lock);
+ 			break;
++		}
+ 
+ 		info = rb_entry(n, struct btrfs_free_space, offset_index);
+ 		BUG_ON(info->bitmap); /* Logic error */
+ 
+ 		if (info->offset > root->cache_progress)
+-			goto free;
++			add_to_ctl = false;
+ 		else if (info->offset + info->bytes > root->cache_progress)
+ 			count = root->cache_progress - info->offset + 1;
+ 		else
+ 			count = info->bytes;
+ 
+-		__btrfs_add_free_space(ctl, info->offset, count);
+-free:
+ 		rb_erase(&info->offset_index, rbroot);
+-		kfree(info);
++		spin_unlock(rbroot_lock);
++		if (add_to_ctl)
++			__btrfs_add_free_space(ctl, info->offset, count);
++		kmem_cache_free(btrfs_free_space_cachep, info);
+ 	}
+ }
+ 
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index 7c5f053ee42c..b9d2ce0d4093 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -2977,7 +2977,7 @@ out_unlock:
+ static long btrfs_ioctl_file_extent_same(struct file *file,
+ 			struct btrfs_ioctl_same_args __user *argp)
+ {
+-	struct btrfs_ioctl_same_args *same;
++	struct btrfs_ioctl_same_args *same = NULL;
+ 	struct btrfs_ioctl_same_extent_info *info;
+ 	struct inode *src = file_inode(file);
+ 	u64 off;
+@@ -3007,6 +3007,7 @@ static long btrfs_ioctl_file_extent_same(struct file *file,
+ 
+ 	if (IS_ERR(same)) {
+ 		ret = PTR_ERR(same);
++		same = NULL;
+ 		goto out;
+ 	}
+ 
+@@ -3077,6 +3078,7 @@ static long btrfs_ioctl_file_extent_same(struct file *file,
+ 
+ out:
+ 	mnt_drop_write_file(file);
++	kfree(same);
+ 	return ret;
+ }
+ 
+@@ -3469,6 +3471,20 @@ process_slot:
+ 				u64 trim = 0;
+ 				u64 aligned_end = 0;
+ 
++				/*
++				 * Don't copy an inline extent into an offset
++				 * greater than zero. Having an inline extent
++				 * at such an offset results in chaos as btrfs
++				 * isn't prepared for such cases. Just skip
++				 * this case for the same reasons as commented
++				 * at btrfs_ioctl_clone().
++				 */
++				if (last_dest_end > 0) {
++					ret = -EOPNOTSUPP;
++					btrfs_end_transaction(trans, root);
++					goto out;
++				}
++
+ 				if (off > key.offset) {
+ 					skip = off - key.offset;
+ 					new_key.offset += skip;
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index 6c4a9cdef79b..3807fffb1c33 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -723,7 +723,7 @@ static int __btrfs_end_transaction(struct btrfs_trans_handle *trans,
+ 
+ 	if (!list_empty(&trans->ordered)) {
+ 		spin_lock(&info->trans_lock);
+-		list_splice(&trans->ordered, &cur_trans->pending_ordered);
++		list_splice_init(&trans->ordered, &cur_trans->pending_ordered);
+ 		spin_unlock(&info->trans_lock);
+ 	}
+ 
+@@ -1709,7 +1709,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
+ 	}
+ 
+ 	spin_lock(&root->fs_info->trans_lock);
+-	list_splice(&trans->ordered, &cur_trans->pending_ordered);
++	list_splice_init(&trans->ordered, &cur_trans->pending_ordered);
+ 	if (cur_trans->state >= TRANS_STATE_COMMIT_START) {
+ 		spin_unlock(&root->fs_info->trans_lock);
+ 		atomic_inc(&cur_trans->use_count);
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 700e6d860e0c..6e3466157090 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3911,6 +3911,7 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
+ 	bool fast_search = false;
+ 	u64 ino = btrfs_ino(inode);
+ 	u64 logged_isize = 0;
++	bool need_log_inode_item = true;
+ 
+ 	path = btrfs_alloc_path();
+ 	if (!path)
+@@ -4000,11 +4001,6 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
+ 		} else {
+ 			if (inode_only == LOG_INODE_ALL)
+ 				fast_search = true;
+-			ret = log_inode_item(trans, log, dst_path, inode);
+-			if (ret) {
+-				err = ret;
+-				goto out_unlock;
+-			}
+ 			goto log_extents;
+ 		}
+ 
+@@ -4028,6 +4024,9 @@ again:
+ 		if (min_key.type > max_key.type)
+ 			break;
+ 
++		if (min_key.type == BTRFS_INODE_ITEM_KEY)
++			need_log_inode_item = false;
++
+ 		src = path->nodes[0];
+ 		if (ins_nr && ins_start_slot + ins_nr == path->slots[0]) {
+ 			ins_nr++;
+@@ -4097,6 +4096,11 @@ next_slot:
+ log_extents:
+ 	btrfs_release_path(path);
+ 	btrfs_release_path(dst_path);
++	if (need_log_inode_item) {
++		err = log_inode_item(trans, log, dst_path, inode);
++		if (err)
++			goto out_unlock;
++	}
+ 	if (fast_search) {
+ 		ret = btrfs_log_changed_extents(trans, root, inode, dst_path,
+ 						&logged_list);
+diff --git a/fs/dcache.c b/fs/dcache.c
+index df0de6b95409..c0214315a1d0 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -600,6 +600,9 @@ repeat:
+ 	if (unlikely(d_unhashed(dentry)))
+ 		goto kill_it;
+ 
++	if (unlikely(dentry->d_flags & DCACHE_DISCONNECTED))
++		goto kill_it;
++
+ 	if (unlikely(dentry->d_flags & DCACHE_OP_DELETE)) {
+ 		if (dentry->d_op->d_delete(dentry))
+ 			goto kill_it;
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index fd3c9d5ac932..f7a77141a77c 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1353,7 +1353,7 @@ static void ext4_da_page_release_reservation(struct page *page,
+ 					     unsigned int offset,
+ 					     unsigned int length)
+ {
+-	int to_release = 0;
++	int to_release = 0, contiguous_blks = 0;
+ 	struct buffer_head *head, *bh;
+ 	unsigned int curr_off = 0;
+ 	struct inode *inode = page->mapping->host;
+@@ -1374,14 +1374,23 @@ static void ext4_da_page_release_reservation(struct page *page,
+ 
+ 		if ((offset <= curr_off) && (buffer_delay(bh))) {
+ 			to_release++;
++			contiguous_blks++;
+ 			clear_buffer_delay(bh);
++		} else if (contiguous_blks) {
++			lblk = page->index <<
++			       (PAGE_CACHE_SHIFT - inode->i_blkbits);
++			lblk += (curr_off >> inode->i_blkbits) -
++				contiguous_blks;
++			ext4_es_remove_extent(inode, lblk, contiguous_blks);
++			contiguous_blks = 0;
+ 		}
+ 		curr_off = next_off;
+ 	} while ((bh = bh->b_this_page) != head);
+ 
+-	if (to_release) {
++	if (contiguous_blks) {
+ 		lblk = page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
+-		ext4_es_remove_extent(inode, lblk, to_release);
++		lblk += (curr_off >> inode->i_blkbits) - contiguous_blks;
++		ext4_es_remove_extent(inode, lblk, contiguous_blks);
+ 	}
+ 
+ 	/* If we have released all the blocks belonging to a cluster, then we
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index c3e7418a6811..47f7af78675a 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -4810,18 +4810,12 @@ do_more:
+ 		/*
+ 		 * blocks being freed are metadata. these blocks shouldn't
+ 		 * be used until this transaction is committed
++		 *
++		 * We use __GFP_NOFAIL because ext4_free_blocks() is not allowed
++		 * to fail.
+ 		 */
+-	retry:
+-		new_entry = kmem_cache_alloc(ext4_free_data_cachep, GFP_NOFS);
+-		if (!new_entry) {
+-			/*
+-			 * We use a retry loop because
+-			 * ext4_free_blocks() is not allowed to fail.
+-			 */
+-			cond_resched();
+-			congestion_wait(BLK_RW_ASYNC, HZ/50);
+-			goto retry;
+-		}
++		new_entry = kmem_cache_alloc(ext4_free_data_cachep,
++				GFP_NOFS|__GFP_NOFAIL);
+ 		new_entry->efd_start_cluster = bit;
+ 		new_entry->efd_group = block_group;
+ 		new_entry->efd_count = count_clusters;
+diff --git a/fs/ext4/migrate.c b/fs/ext4/migrate.c
+index ec092437d3e0..08ef191801cf 100644
+--- a/fs/ext4/migrate.c
++++ b/fs/ext4/migrate.c
+@@ -616,6 +616,7 @@ int ext4_ind_migrate(struct inode *inode)
+ 	struct ext4_inode_info		*ei = EXT4_I(inode);
+ 	struct ext4_extent		*ex;
+ 	unsigned int			i, len;
++	ext4_lblk_t			start, end;
+ 	ext4_fsblk_t			blk;
+ 	handle_t			*handle;
+ 	int				ret;
+@@ -629,6 +630,14 @@ int ext4_ind_migrate(struct inode *inode)
+ 				       EXT4_FEATURE_RO_COMPAT_BIGALLOC))
+ 		return -EOPNOTSUPP;
+ 
++	/*
++	 * In order to get correct extent info, force all delayed allocation
++	 * blocks to be allocated, otherwise delayed allocation blocks may not
++	 * be reflected and bypass the checks on extent header.
++	 */
++	if (test_opt(inode->i_sb, DELALLOC))
++		ext4_alloc_da_blocks(inode);
++
+ 	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE, 1);
+ 	if (IS_ERR(handle))
+ 		return PTR_ERR(handle);
+@@ -646,11 +655,13 @@ int ext4_ind_migrate(struct inode *inode)
+ 		goto errout;
+ 	}
+ 	if (eh->eh_entries == 0)
+-		blk = len = 0;
++		blk = len = start = end = 0;
+ 	else {
+ 		len = le16_to_cpu(ex->ee_len);
+ 		blk = ext4_ext_pblock(ex);
+-		if (len > EXT4_NDIR_BLOCKS) {
++		start = le32_to_cpu(ex->ee_block);
++		end = start + len - 1;
++		if (end >= EXT4_NDIR_BLOCKS) {
+ 			ret = -EOPNOTSUPP;
+ 			goto errout;
+ 		}
+@@ -658,7 +669,7 @@ int ext4_ind_migrate(struct inode *inode)
+ 
+ 	ext4_clear_inode_flag(inode, EXT4_INODE_EXTENTS);
+ 	memset(ei->i_data, 0, sizeof(ei->i_data));
+-	for (i=0; i < len; i++)
++	for (i = start; i <= end; i++)
+ 		ei->i_data[i] = cpu_to_le32(blk++);
+ 	ext4_mark_inode_dirty(handle, inode);
+ errout:
+diff --git a/fs/hpfs/super.c b/fs/hpfs/super.c
+index 7cd00d3a7c9b..8685c655737f 100644
+--- a/fs/hpfs/super.c
++++ b/fs/hpfs/super.c
+@@ -52,17 +52,20 @@ static void unmark_dirty(struct super_block *s)
+ }
+ 
+ /* Filesystem error... */
+-static char err_buf[1024];
+-
+ void hpfs_error(struct super_block *s, const char *fmt, ...)
+ {
++	struct va_format vaf;
+ 	va_list args;
+ 
+ 	va_start(args, fmt);
+-	vsnprintf(err_buf, sizeof(err_buf), fmt, args);
++
++	vaf.fmt = fmt;
++	vaf.va = &args;
++
++	pr_err("filesystem error: %pV", &vaf);
++
+ 	va_end(args);
+ 
+-	pr_err("filesystem error: %s", err_buf);
+ 	if (!hpfs_sb(s)->sb_was_error) {
+ 		if (hpfs_sb(s)->sb_err == 2) {
+ 			pr_cont("; crashing the system because you wanted it\n");
+@@ -424,11 +427,14 @@ static int hpfs_remount_fs(struct super_block *s, int *flags, char *data)
+ 	int o;
+ 	struct hpfs_sb_info *sbi = hpfs_sb(s);
+ 	char *new_opts = kstrdup(data, GFP_KERNEL);
+-	
++
++	if (!new_opts)
++		return -ENOMEM;
++
+ 	sync_filesystem(s);
+ 
+ 	*flags |= MS_NOATIME;
+-	
++
+ 	hpfs_lock(s);
+ 	uid = sbi->sb_uid; gid = sbi->sb_gid;
+ 	umask = 0777 & ~sbi->sb_mode;
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index 91aac2525c09..714274450c07 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -429,6 +429,8 @@ enum {
+ 	ATA_HORKAGE_NO_NCQ_TRIM	= (1 << 19),	/* don't use queued TRIM */
+ 	ATA_HORKAGE_NOLPM	= (1 << 20),	/* don't use LPM */
+ 	ATA_HORKAGE_WD_BROKEN_LPM = (1 << 21),	/* some WDs have broken LPM */
++	ATA_HORKAGE_NOTRIM	= (1 << 24),	/* don't use TRIM */
++
+ 
+ 	 /* DMA mask for user DMA control: User visible values; DO NOT
+ 	    renumber */
+diff --git a/include/linux/mtd/nand.h b/include/linux/mtd/nand.h
+index 2f0af2891f0f..c498acebd8bb 100644
+--- a/include/linux/mtd/nand.h
++++ b/include/linux/mtd/nand.h
+@@ -176,17 +176,17 @@ typedef enum {
+ /* Chip may not exist, so silence any errors in scan */
+ #define NAND_SCAN_SILENT_NODEV	0x00040000
+ /*
+- * This option could be defined by controller drivers to protect against
+- * kmap'ed, vmalloc'ed highmem buffers being passed from upper layers
+- */
+-#define NAND_USE_BOUNCE_BUFFER	0x00080000
+-/*
+  * Autodetect nand buswidth with readid/onfi.
+  * This suppose the driver will configure the hardware in 8 bits mode
+  * when calling nand_scan_ident, and update its configuration
+  * before calling nand_scan_tail.
+  */
+ #define NAND_BUSWIDTH_AUTO      0x00080000
++/*
++ * This option could be defined by controller drivers to protect against
++ * kmap'ed, vmalloc'ed highmem buffers being passed from upper layers
++ */
++#define NAND_USE_BOUNCE_BUFFER	0x00100000
+ 
+ /* Options set by nand scan */
+ /* Nand scan has allocated controller struct */
+diff --git a/include/uapi/drm/i915_drm.h b/include/uapi/drm/i915_drm.h
+index ff57f07c3249..86a07d6ece9c 100644
+--- a/include/uapi/drm/i915_drm.h
++++ b/include/uapi/drm/i915_drm.h
+@@ -1035,6 +1035,14 @@ struct drm_i915_reg_read {
+ 	__u64 offset;
+ 	__u64 val; /* Return value */
+ };
++/* Known registers:
++ *
++ * Render engine timestamp - 0x2358 + 64bit - gen7+
++ * - Note this register returns an invalid value if using the default
++ *   single instruction 8byte read, in order to workaround that use
++ *   offset (0x2538 | 1) instead.
++ *
++ */
+ 
+ struct drm_i915_reset_stats {
+ 	__u32 ctx_id;
+diff --git a/include/uapi/linux/usbdevice_fs.h b/include/uapi/linux/usbdevice_fs.h
+index abe5f4bd4d82..019ba1e0799a 100644
+--- a/include/uapi/linux/usbdevice_fs.h
++++ b/include/uapi/linux/usbdevice_fs.h
+@@ -128,11 +128,12 @@ struct usbdevfs_hub_portinfo {
+ 	char port [127];	/* e.g. port 3 connects to device 27 */
+ };
+ 
+-/* Device capability flags */
++/* System and bus capability flags */
+ #define USBDEVFS_CAP_ZERO_PACKET		0x01
+ #define USBDEVFS_CAP_BULK_CONTINUATION		0x02
+ #define USBDEVFS_CAP_NO_PACKET_SIZE_LIM		0x04
+ #define USBDEVFS_CAP_BULK_SCATTER_GATHER	0x08
++#define USBDEVFS_CAP_REAP_AFTER_DISCONNECT	0x10
+ 
+ /* USBDEVFS_DISCONNECT_CLAIM flags & struct */
+ 
+diff --git a/kernel/irq/resend.c b/kernel/irq/resend.c
+index 9065107f083e..7a5237a1bce5 100644
+--- a/kernel/irq/resend.c
++++ b/kernel/irq/resend.c
+@@ -75,13 +75,21 @@ void check_irq_resend(struct irq_desc *desc, unsigned int irq)
+ 		    !desc->irq_data.chip->irq_retrigger(&desc->irq_data)) {
+ #ifdef CONFIG_HARDIRQS_SW_RESEND
+ 			/*
+-			 * If the interrupt has a parent irq and runs
+-			 * in the thread context of the parent irq,
+-			 * retrigger the parent.
++			 * If the interrupt is running in the thread
++			 * context of the parent irq we need to be
++			 * careful, because we cannot trigger it
++			 * directly.
+ 			 */
+-			if (desc->parent_irq &&
+-			    irq_settings_is_nested_thread(desc))
++			if (irq_settings_is_nested_thread(desc)) {
++				/*
++				 * If the parent_irq is valid, we
++				 * retrigger the parent, otherwise we
++				 * do nothing.
++				 */
++				if (!desc->parent_irq)
++					return;
+ 				irq = desc->parent_irq;
++			}
+ 			/* Set it pending and activate the softirq: */
+ 			set_bit(irq, irqs_resend);
+ 			tasklet_schedule(&resend_tasklet);
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index 9258f5a815db..2c204b705e14 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -440,6 +440,7 @@ enum {
+ 
+ 	TRACE_CONTROL_BIT,
+ 
++	TRACE_BRANCH_BIT,
+ /*
+  * Abuse of the trace_recursion.
+  * As we need a way to maintain state if we are tracing the function
+diff --git a/kernel/trace/trace_branch.c b/kernel/trace/trace_branch.c
+index 697fb9bac8f0..60850b4fcb04 100644
+--- a/kernel/trace/trace_branch.c
++++ b/kernel/trace/trace_branch.c
+@@ -37,9 +37,12 @@ probe_likely_condition(struct ftrace_branch_data *f, int val, int expect)
+ 	struct trace_branch *entry;
+ 	struct ring_buffer *buffer;
+ 	unsigned long flags;
+-	int cpu, pc;
++	int pc;
+ 	const char *p;
+ 
++	if (current->trace_recursion & TRACE_BRANCH_BIT)
++		return;
++
+ 	/*
+ 	 * I would love to save just the ftrace_likely_data pointer, but
+ 	 * this code can also be used by modules. Ugly things can happen
+@@ -50,10 +53,10 @@ probe_likely_condition(struct ftrace_branch_data *f, int val, int expect)
+ 	if (unlikely(!tr))
+ 		return;
+ 
+-	local_irq_save(flags);
+-	cpu = raw_smp_processor_id();
+-	data = per_cpu_ptr(tr->trace_buffer.data, cpu);
+-	if (atomic_inc_return(&data->disabled) != 1)
++	raw_local_irq_save(flags);
++	current->trace_recursion |= TRACE_BRANCH_BIT;
++	data = this_cpu_ptr(tr->trace_buffer.data);
++	if (atomic_read(&data->disabled))
+ 		goto out;
+ 
+ 	pc = preempt_count();
+@@ -82,8 +85,8 @@ probe_likely_condition(struct ftrace_branch_data *f, int val, int expect)
+ 		__buffer_unlock_commit(buffer, event);
+ 
+  out:
+-	atomic_dec(&data->disabled);
+-	local_irq_restore(flags);
++	current->trace_recursion &= ~TRACE_BRANCH_BIT;
++	raw_local_irq_restore(flags);
+ }
+ 
+ static inline
+diff --git a/mm/memory.c b/mm/memory.c
+index e7ae35a5ffeb..4e03447b1ef2 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -2637,6 +2637,10 @@ static int do_anonymous_page(struct mm_struct *mm, struct vm_area_struct *vma,
+ 
+ 	pte_unmap(page_table);
+ 
++	/* File mapping without ->vm_ops ? */
++	if (vma->vm_flags & VM_SHARED)
++		return VM_FAULT_SIGBUS;
++
+ 	/* Check if we need to add a guard page to the stack */
+ 	if (check_stack_guard_page(vma, address) < 0)
+ 		return VM_FAULT_SIGSEGV;
+@@ -3031,6 +3035,9 @@ static int do_linear_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+ 			- vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 
+ 	pte_unmap(page_table);
++	/* The VMA was not fully populated on mmap() or missing VM_DONTEXPAND */
++	if (!vma->vm_ops->fault)
++		return VM_FAULT_SIGBUS;
+ 	if (!(flags & FAULT_FLAG_WRITE))
+ 		return do_read_fault(mm, vma, address, pmd, pgoff, flags,
+ 				orig_pte);
+@@ -3191,11 +3198,10 @@ static int handle_pte_fault(struct mm_struct *mm,
+ 	entry = *pte;
+ 	if (!pte_present(entry)) {
+ 		if (pte_none(entry)) {
+-			if (vma->vm_ops) {
+-				if (likely(vma->vm_ops->fault))
+-					return do_linear_fault(mm, vma, address,
++			if (vma->vm_ops)
++				return do_linear_fault(mm, vma, address,
+ 						pte, pmd, flags, entry);
+-			}
++
+ 			return do_anonymous_page(mm, vma, address,
+ 						 pte, pmd, flags);
+ 		}
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index d8b1833a363e..f426da78054b 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -322,6 +322,7 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+ 	struct net_bridge_port_group *p;
+ 	struct net_bridge_port_group __rcu **pp;
+ 	struct net_bridge_mdb_htable *mdb;
++	unsigned long now = jiffies;
+ 	int err;
+ 
+ 	mdb = mlock_dereference(br->mdb, br);
+@@ -346,8 +347,9 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+ 	if (unlikely(!p))
+ 		return -ENOMEM;
+ 	rcu_assign_pointer(*pp, p);
++	if (state == MDB_TEMPORARY)
++		mod_timer(&p->timer, now + br->multicast_membership_interval);
+ 
+-	br_mdb_notify(br->dev, port, group, RTM_NEWMDB);
+ 	return 0;
+ }
+ 
+@@ -370,6 +372,7 @@ static int __br_mdb_add(struct net *net, struct net_bridge *br,
+ 	if (!p || p->br != br || p->state == BR_STATE_DISABLED)
+ 		return -EINVAL;
+ 
++	memset(&ip, 0, sizeof(ip));
+ 	ip.proto = entry->addr.proto;
+ 	if (ip.proto == htons(ETH_P_IP))
+ 		ip.u.ip4 = entry->addr.u.ip4;
+@@ -416,6 +419,7 @@ static int __br_mdb_del(struct net_bridge *br, struct br_mdb_entry *entry)
+ 	if (!netif_running(br->dev) || br->multicast_disabled)
+ 		return -EINVAL;
+ 
++	memset(&ip, 0, sizeof(ip));
+ 	ip.proto = entry->addr.proto;
+ 	if (ip.proto == htons(ETH_P_IP)) {
+ 		if (timer_pending(&br->ip4_other_query.timer))
+diff --git a/net/core/dev.c b/net/core/dev.c
+index afa766c453e0..395830206d73 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3262,6 +3262,8 @@ static int enqueue_to_backlog(struct sk_buff *skb, int cpu,
+ 	local_irq_save(flags);
+ 
+ 	rps_lock(sd);
++	if (!netif_running(skb->dev))
++		goto drop;
+ 	qlen = skb_queue_len(&sd->input_pkt_queue);
+ 	if (qlen <= netdev_max_backlog && !skb_flow_limit(skb, qlen)) {
+ 		if (skb_queue_len(&sd->input_pkt_queue)) {
+@@ -3283,6 +3285,7 @@ enqueue:
+ 		goto enqueue;
+ 	}
+ 
++drop:
+ 	sd->dropped++;
+ 	rps_unlock(sd);
+ 
+@@ -5788,6 +5791,7 @@ static void rollback_registered_many(struct list_head *head)
+ 		unlist_netdevice(dev);
+ 
+ 		dev->reg_state = NETREG_UNREGISTERING;
++		on_each_cpu(flush_backlog, dev, 1);
+ 	}
+ 
+ 	synchronize_net();
+@@ -6049,7 +6053,8 @@ static int netif_alloc_netdev_queues(struct net_device *dev)
+ 	struct netdev_queue *tx;
+ 	size_t sz = count * sizeof(*tx);
+ 
+-	BUG_ON(count < 1 || count > 0xffff);
++	if (count < 1 || count > 0xffff)
++		return -EINVAL;
+ 
+ 	tx = kzalloc(sz, GFP_KERNEL | __GFP_NOWARN | __GFP_REPEAT);
+ 	if (!tx) {
+@@ -6407,8 +6412,6 @@ void netdev_run_todo(void)
+ 
+ 		dev->reg_state = NETREG_UNREGISTERED;
+ 
+-		on_each_cpu(flush_backlog, dev, 1);
+-
+ 		netdev_wait_allrefs(dev);
+ 
+ 		/* paranoia */
+diff --git a/net/dsa/dsa.c b/net/dsa/dsa.c
+index 5db37cef50a9..a3c70870448f 100644
+--- a/net/dsa/dsa.c
++++ b/net/dsa/dsa.c
+@@ -418,7 +418,7 @@ static int dsa_of_probe(struct platform_device *pdev)
+ 			continue;
+ 
+ 		cd->sw_addr = be32_to_cpup(sw_addr);
+-		if (cd->sw_addr > PHY_MAX_ADDR)
++		if (cd->sw_addr >= PHY_MAX_ADDR)
+ 			continue;
+ 
+ 		for_each_available_child_of_node(child, port) {
+@@ -427,6 +427,8 @@ static int dsa_of_probe(struct platform_device *pdev)
+ 				continue;
+ 
+ 			port_index = be32_to_cpup(port_reg);
++			if (port_index >= DSA_MAX_PORTS)
++				break;
+ 
+ 			port_name = of_get_property(port, "label", NULL);
+ 			if (!port_name)
+@@ -449,8 +451,6 @@ static int dsa_of_probe(struct platform_device *pdev)
+ 					goto out_free_chip;
+ 			}
+ 
+-			if (port_index == DSA_MAX_PORTS)
+-				break;
+ 		}
+ 	}
+ 
+diff --git a/net/ipv4/ip_fragment.c b/net/ipv4/ip_fragment.c
+index 8ff962d15c99..f5dad3f607d9 100644
+--- a/net/ipv4/ip_fragment.c
++++ b/net/ipv4/ip_fragment.c
+@@ -358,7 +358,7 @@ static int ip_frag_queue(struct ipq *qp, struct sk_buff *skb)
+ 	ihl = ip_hdrlen(skb);
+ 
+ 	/* Determine the position of this fragment. */
+-	end = offset + skb->len - ihl;
++	end = offset + skb->len - skb_network_offset(skb) - ihl;
+ 	err = -EINVAL;
+ 
+ 	/* Is this the final fragment? */
+@@ -388,7 +388,7 @@ static int ip_frag_queue(struct ipq *qp, struct sk_buff *skb)
+ 		goto err;
+ 
+ 	err = -ENOMEM;
+-	if (pskb_pull(skb, ihl) == NULL)
++	if (!pskb_pull(skb, skb_network_offset(skb) + ihl))
+ 		goto err;
+ 
+ 	err = pskb_trim_rcsum(skb, end - offset);
+@@ -629,6 +629,9 @@ static int ip_frag_reasm(struct ipq *qp, struct sk_buff *prev,
+ 	iph->frag_off = qp->q.max_size ? htons(IP_DF) : 0;
+ 	iph->tot_len = htons(len);
+ 	iph->tos |= ecn;
++
++	ip_send_check(iph);
++
+ 	IP_INC_STATS_BH(net, IPSTATS_MIB_REASMOKS);
+ 	qp->q.fragments = NULL;
+ 	qp->q.fragments_tail = NULL;
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index 6c2719373bc5..51dd1605f944 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -488,7 +488,8 @@ drop:
+ EXPORT_SYMBOL_GPL(ip_tunnel_rcv);
+ 
+ static int tnl_update_pmtu(struct net_device *dev, struct sk_buff *skb,
+-			    struct rtable *rt, __be16 df)
++			    struct rtable *rt, __be16 df,
++			    const struct iphdr *inner_iph)
+ {
+ 	struct ip_tunnel *tunnel = netdev_priv(dev);
+ 	int pkt_size = skb->len - tunnel->hlen - dev->hard_header_len;
+@@ -505,7 +506,8 @@ static int tnl_update_pmtu(struct net_device *dev, struct sk_buff *skb,
+ 
+ 	if (skb->protocol == htons(ETH_P_IP)) {
+ 		if (!skb_is_gso(skb) &&
+-		    (df & htons(IP_DF)) && mtu < pkt_size) {
++		    (inner_iph->frag_off & htons(IP_DF)) &&
++		    mtu < pkt_size) {
+ 			memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
+ 			icmp_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED, htonl(mtu));
+ 			return -E2BIG;
+@@ -636,7 +638,7 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
+ 		goto tx_error;
+ 	}
+ 
+-	if (tnl_update_pmtu(dev, skb, rt, tnl_params->frag_off)) {
++	if (tnl_update_pmtu(dev, skb, rt, tnl_params->frag_off, inner_iph)) {
+ 		ip_rt_put(rt);
+ 		goto tx_error;
+ 	}
+diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
+index 51d54dc376f3..05c94d9c3776 100644
+--- a/net/ipv6/ip6_input.c
++++ b/net/ipv6/ip6_input.c
+@@ -329,10 +329,10 @@ int ip6_mc_input(struct sk_buff *skb)
+ 				if (offset < 0)
+ 					goto out;
+ 
+-				if (!ipv6_is_mld(skb, nexthdr, offset))
+-					goto out;
++				if (ipv6_is_mld(skb, nexthdr, offset))
++					deliver = true;
+ 
+-				deliver = true;
++				goto out;
+ 			}
+ 			/* unknown RA - process it normally */
+ 		}
+diff --git a/net/mac80211/debugfs_netdev.c b/net/mac80211/debugfs_netdev.c
+index e205ebabfa50..1ab5e1a51c98 100644
+--- a/net/mac80211/debugfs_netdev.c
++++ b/net/mac80211/debugfs_netdev.c
+@@ -725,6 +725,7 @@ void ieee80211_debugfs_remove_netdev(struct ieee80211_sub_if_data *sdata)
+ 
+ 	debugfs_remove_recursive(sdata->vif.debugfs_dir);
+ 	sdata->vif.debugfs_dir = NULL;
++	sdata->debugfs.subdir_stations = NULL;
+ }
+ 
+ void ieee80211_debugfs_rename_netdev(struct ieee80211_sub_if_data *sdata)
+diff --git a/net/netfilter/nfnetlink_cthelper.c b/net/netfilter/nfnetlink_cthelper.c
+index 7f035f0772ee..54330fb5efaf 100644
+--- a/net/netfilter/nfnetlink_cthelper.c
++++ b/net/netfilter/nfnetlink_cthelper.c
+@@ -89,7 +89,7 @@ nfnl_cthelper_parse_tuple(struct nf_conntrack_tuple *tuple,
+ static int
+ nfnl_cthelper_from_nlattr(struct nlattr *attr, struct nf_conn *ct)
+ {
+-	const struct nf_conn_help *help = nfct_help(ct);
++	struct nf_conn_help *help = nfct_help(ct);
+ 
+ 	if (attr == NULL)
+ 		return -EINVAL;
+@@ -97,7 +97,7 @@ nfnl_cthelper_from_nlattr(struct nlattr *attr, struct nf_conn *ct)
+ 	if (help->helper->data_len == 0)
+ 		return -EINVAL;
+ 
+-	memcpy(&help->data, nla_data(attr), help->helper->data_len);
++	memcpy(help->data, nla_data(attr), help->helper->data_len);
+ 	return 0;
+ }
+ 
+diff --git a/net/rds/ib_rdma.c b/net/rds/ib_rdma.c
+index e8fdb172adbb..a985158d95d5 100644
+--- a/net/rds/ib_rdma.c
++++ b/net/rds/ib_rdma.c
+@@ -759,8 +759,10 @@ void *rds_ib_get_mr(struct scatterlist *sg, unsigned long nents,
+ 	}
+ 
+ 	ibmr = rds_ib_alloc_fmr(rds_ibdev);
+-	if (IS_ERR(ibmr))
++	if (IS_ERR(ibmr)) {
++		rds_ib_dev_put(rds_ibdev);
+ 		return ibmr;
++	}
+ 
+ 	ret = rds_ib_map_fmr(rds_ibdev, ibmr, sg, nents);
+ 	if (ret == 0)
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index 970772c731ff..41f32259437c 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -22,6 +22,7 @@
+ #include <linux/xattr.h>
+ #include <linux/integrity.h>
+ #include <linux/evm.h>
++#include <linux/magic.h>
+ #include <crypto/hash.h>
+ #include "evm.h"
+ 
+@@ -290,6 +291,17 @@ static int evm_protect_xattr(struct dentry *dentry, const char *xattr_name,
+ 		iint = integrity_iint_find(dentry->d_inode);
+ 		if (iint && (iint->flags & IMA_NEW_FILE))
+ 			return 0;
++
++		/* exception for pseudo filesystems */
++		if (dentry->d_inode->i_sb->s_magic == TMPFS_MAGIC
++		    || dentry->d_inode->i_sb->s_magic == SYSFS_MAGIC)
++			return 0;
++
++		integrity_audit_msg(AUDIT_INTEGRITY_METADATA,
++				    dentry->d_inode, dentry->d_name.name,
++				    "update_metadata",
++				    integrity_status_msg[evm_status],
++				    -EPERM, 0);
+ 	}
+ out:
+ 	if (evm_status != INTEGRITY_PASS)
+diff --git a/security/keys/keyring.c b/security/keys/keyring.c
+index 9cf2575f0d97..860345cb05f1 100644
+--- a/security/keys/keyring.c
++++ b/security/keys/keyring.c
+@@ -1151,9 +1151,11 @@ void __key_link_end(struct key *keyring,
+ 	if (index_key->type == &key_type_keyring)
+ 		up_write(&keyring_serialise_link_sem);
+ 
+-	if (edit && !edit->dead_leaf) {
+-		key_payload_reserve(keyring,
+-				    keyring->datalen - KEYQUOTA_LINK_BYTES);
++	if (edit) {
++		if (!edit->dead_leaf) {
++			key_payload_reserve(keyring,
++				keyring->datalen - KEYQUOTA_LINK_BYTES);
++		}
+ 		assoc_array_cancel_edit(edit);
+ 	}
+ 	up_write(&keyring->sem);
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index e80c0d60c14b..31a80b10c783 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -3343,6 +3343,7 @@ static const struct hda_codec_preset snd_hda_preset_hdmi[] = {
+ { .id = 0x10de0070, .name = "GPU 70 HDMI/DP",	.patch = patch_nvhdmi },
+ { .id = 0x10de0071, .name = "GPU 71 HDMI/DP",	.patch = patch_nvhdmi },
+ { .id = 0x10de0072, .name = "GPU 72 HDMI/DP",	.patch = patch_nvhdmi },
++{ .id = 0x10de007d, .name = "GPU 7d HDMI/DP",	.patch = patch_nvhdmi },
+ { .id = 0x10de8001, .name = "MCP73 HDMI",	.patch = patch_nvhdmi_2ch },
+ { .id = 0x11069f80, .name = "VX900 HDMI/DP",	.patch = patch_via_hdmi },
+ { .id = 0x11069f81, .name = "VX900 HDMI/DP",	.patch = patch_via_hdmi },
+@@ -3403,6 +3404,7 @@ MODULE_ALIAS("snd-hda-codec-id:10de0067");
+ MODULE_ALIAS("snd-hda-codec-id:10de0070");
+ MODULE_ALIAS("snd-hda-codec-id:10de0071");
+ MODULE_ALIAS("snd-hda-codec-id:10de0072");
++MODULE_ALIAS("snd-hda-codec-id:10de007d");
+ MODULE_ALIAS("snd-hda-codec-id:10de8001");
+ MODULE_ALIAS("snd-hda-codec-id:11069f80");
+ MODULE_ALIAS("snd-hda-codec-id:11069f81");
+diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
+index 5293b5ac8b9d..7c24088bcaa4 100644
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -2516,6 +2516,74 @@ YAMAHA_DEVICE(0x7010, "UB99"),
+ 	}
+ },
+ 
++/* Steinberg devices */
++{
++	/* Steinberg MI2 */
++	USB_DEVICE_VENDOR_SPEC(0x0a4e, 0x2040),
++	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = & (const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 0,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			{
++				.ifnum = 1,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			{
++				.ifnum = 3,
++				.type = QUIRK_MIDI_FIXED_ENDPOINT,
++				.data = &(const struct snd_usb_midi_endpoint_info) {
++					.out_cables = 0x0001,
++					.in_cables  = 0x0001
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
++{
++	/* Steinberg MI4 */
++	USB_DEVICE_VENDOR_SPEC(0x0a4e, 0x4040),
++	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_COMPOSITE,
++		.data = & (const struct snd_usb_audio_quirk[]) {
++			{
++				.ifnum = 0,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			{
++				.ifnum = 1,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			{
++				.ifnum = 2,
++				.type = QUIRK_AUDIO_STANDARD_INTERFACE
++			},
++			{
++				.ifnum = 3,
++				.type = QUIRK_MIDI_FIXED_ENDPOINT,
++				.data = &(const struct snd_usb_midi_endpoint_info) {
++					.out_cables = 0x0001,
++					.in_cables  = 0x0001
++				}
++			},
++			{
++				.ifnum = -1
++			}
++		}
++	}
++},
++
+ /* TerraTec devices */
+ {
+ 	USB_DEVICE_VENDOR_SPEC(0x0ccd, 0x0012),
+diff --git a/tools/perf/ui/browsers/hists.c b/tools/perf/ui/browsers/hists.c
+index 04a229aa5c0f..868993d355e0 100644
+--- a/tools/perf/ui/browsers/hists.c
++++ b/tools/perf/ui/browsers/hists.c
+@@ -42,7 +42,7 @@ static struct rb_node *hists__filter_entries(struct rb_node *nd,
+ 
+ static bool hist_browser__has_filter(struct hist_browser *hb)
+ {
+-	return hists__has_filter(hb->hists) || hb->min_pcnt;
++	return hists__has_filter(hb->hists) || hb->min_pcnt || symbol_conf.has_filter;
+ }
+ 
+ static u32 hist_browser__nr_entries(struct hist_browser *hb)
+diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
+index 7b9096f29cdb..f8bdba0971cc 100644
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -1786,6 +1786,8 @@ int setup_list(struct strlist **list, const char *list_str,
+ 		pr_err("problems parsing %s list\n", list_name);
+ 		return -1;
+ 	}
++
++	symbol_conf.has_filter = true;
+ 	return 0;
+ }
+ 
+diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
+index 615c752dd767..5df02af0280b 100644
+--- a/tools/perf/util/symbol.h
++++ b/tools/perf/util/symbol.h
+@@ -118,7 +118,8 @@ struct symbol_conf {
+ 			annotate_src,
+ 			event_group,
+ 			demangle,
+-			filter_relative;
++			filter_relative,
++			has_filter;
+ 	const char	*vmlinux_name,
+ 			*kallsyms_name,
+ 			*source_prefix,
