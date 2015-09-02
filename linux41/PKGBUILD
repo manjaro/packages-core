@@ -14,7 +14,7 @@ _basever=41
 _aufs=20150629
 _bfq=v7r8
 pkgver=${_basekernel}.6
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -43,6 +43,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # Manjaro Patches
         '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
+        '0002-ovl-dont-traverse-automount-points.patch::http://git.kernel.org/cgit/linux/kernel/git/mszeredi/vfs.git/patch/?id=a6f15d9a756571babbb2b2cd4fdd1b64a5de232b'
+        '0003-ovl-allow-distributed-fs-as-lower-layer.patch::http://git.kernel.org/cgit/linux/kernel/git/mszeredi/vfs.git/patch/?id=7c03b5d45b8eebf0111125053d8fe887cc262ba6'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '64e4deb16a279e233b0c91463b131bd0f3de6aabdb49efded8314bcf5dbfe070'
@@ -64,7 +66,9 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8')
+            'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8'
+            'cb26edc7545ff3df651b3865869f5c59082a525856b6d8fbb8d3845576cb541b'
+            'c615fb354865f62fa0266441da34edf84f8e288ea42433082d2afae7a076a407')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -81,6 +85,10 @@ prepare() {
   # https://github.com/manjaro/packages-core/issues/14
   # https://bugzilla.kernel.org/show_bug.cgi?id=101971
   patch -Np1 -i ../0001-cpu-cacheinfo-fix-teardown-path.patch
+
+  # Fix https://github.com/manjaro/release-plan/issues/8
+  patch -Np1 -i ../0002-ovl-dont-traverse-automount-points.patch
+  patch -Np1 -i ../0003-ovl-allow-distributed-fs-as-lower-layer.patch
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
