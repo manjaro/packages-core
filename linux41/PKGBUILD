@@ -43,10 +43,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # Manjaro Patches
         '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
-        '0002-ovl-dont-traverse-automount-points.patch::http://git.kernel.org/cgit/linux/kernel/git/mszeredi/vfs.git/patch/?id=a6f15d9a756571babbb2b2cd4fdd1b64a5de232b'
-        '0003-ovl-allow-distributed-fs-as-lower-layer.patch::http://git.kernel.org/cgit/linux/kernel/git/mszeredi/vfs.git/patch/?id=7c03b5d45b8eebf0111125053d8fe887cc262ba6'
-        '0004-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch::https://github.com/torvalds/linux/commit/f25801ee4680ef1db21e15c112e6e5fe3ffe8da5.patch'
-        '0005-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch::https://github.com/torvalds/linux/commit/4bacc9c9234c7c8eec44f5ed4e960d9f96fa0f01.patch'
+        '0002-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch::https://github.com/torvalds/linux/commit/f25801ee4680ef1db21e15c112e6e5fe3ffe8da5.patch'
+        '0003-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch::https://github.com/torvalds/linux/commit/4bacc9c9234c7c8eec44f5ed4e960d9f96fa0f01.patch'
+        '0004-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
+        '0005-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
         '0006-ovl-fix-a-braino-in-ovl_d_select_inode.patch::https://github.com/torvalds/linux/commit/9391dd00d13c853ab4f2a85435288ae2202e0e43.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
@@ -70,10 +70,10 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8'
-            'cb26edc7545ff3df651b3865869f5c59082a525856b6d8fbb8d3845576cb541b'
-            'c615fb354865f62fa0266441da34edf84f8e288ea42433082d2afae7a076a407'
             '38880e98ae93456bc67c74a639eb27f88662f6a266f25a268a50f0160ef72d2e'
             '56ddecbbe679abcc6680c676713cfe37722178f3c98d876955e8ad506d72ddf6'
+            '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
+            'e51c2c4ce7bce635e11a60f99580a9037d9e59a2039806537fe297ee29610e03'
             'c0cc72732839030f4ad34f8dce902dacfa116b0b9c09b6f844926612c2696b5b')
 
 prepare() {
@@ -93,10 +93,10 @@ prepare() {
   patch -Np1 -i ../0001-cpu-cacheinfo-fix-teardown-path.patch
 
   # Fix https://github.com/manjaro/release-plan/issues/8
-  patch -Np1 -i ../0002-ovl-dont-traverse-automount-points.patch
-  patch -Np1 -i ../0003-ovl-allow-distributed-fs-as-lower-layer.patch
-  patch -Np1 -i ../0004-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch
-  patch -Np1 -i ../0005-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch
+  patch -Np1 -i ../0002-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch
+  patch -Np1 -i ../0003-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch
+  patch -Np1 -i ../0004-ovl-dont-traverse-automount-points.patch
+  patch -Np1 -i ../0005-ovl-allow-distributed-fs-as-lower-layer.patch
   patch -Np1 -i ../0006-ovl-fix-a-braino-in-ovl_d_select_inode.patch
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
