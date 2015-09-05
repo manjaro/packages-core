@@ -14,7 +14,7 @@ _basever=42
 _aufs=20150629
 _bfq=v7r8
 pkgver=${_basekernel}.0
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -43,12 +43,15 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.1.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
+        '0001-make_flush_workqueue_non_gpl.patch'
+        '0001-e1000e-Fix-tight-loop-implementation-of-systime-read.patch'
+        '0001-netfilter-conntrack-use-nf_ct_tmpl_free-in-CT-synpro.patch'
         # Manjaro Patches
         '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
 )
 sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
-            'dfb724d785a0953ea9c4ed6007e88cbd106672746db155d839789c7fa8140ded'
-            'd57cdc2a05ed3e17d47d2d4678be8c149b6e051cddbdabc0f00f6fa118c15fc2'
+            'e0e3cc4100f6a45227ea063b122f95603983f9a402dd9e58b2b684f001370dab'
+            '82fc5776815590fbc6923dc8fa1377d6f2a03efafed37bd8ce1f2423168f36e6'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             'e02f77f3223808cc18bc7a310711815645f436e219c0879c37d05e56d5b43cc5'
@@ -67,6 +70,9 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            '4e776734e2c2185910a6fbb6f333d967b04f4a72b3196310af286c6a779bd97d'
+            '0b1e41ba59ae45f5929963aa22fdc53bc8ffb4534e976cec046269d1a462197b'
+            '6ed9e31ae5614c289c4884620e45698e764c03670ebc45bab9319d741238cbd3'
             'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8')
 
 prepare() {
@@ -79,6 +85,19 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # fix work_queue symbol to non GPL for nvidia module building
+  # already applied to 4.3 series
+  patch -p1 -i "${srcdir}/0001-make_flush_workqueue_non_gpl.patch"
+
+  # fix hard lockup in e1000e_cyclecounter_read() after 4 hours of uptime
+  # https://lkml.org/lkml/2015/8/18/292
+  patch -p1 -i "${srcdir}/0001-e1000e-Fix-tight-loop-implementation-of-systime-read.patch"
+
+  # add not-yet-mainlined patch to fix network unavailability when iptables
+  # rules are applied during startup - happened with Shorewall; journal had
+  # many instances of this error: nf_conntrack: table full, dropping packet
+  patch -p1 -i "${srcdir}/0001-netfilter-conntrack-use-nf_ct_tmpl_free-in-CT-synpro.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
