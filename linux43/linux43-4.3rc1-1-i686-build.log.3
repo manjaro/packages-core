@@ -1,0 +1,767 @@
+scripts/kconfig/conf  --silentoldconfig Kconfig
+  CHK     include/config/kernel.release
+  CHK     include/generated/uapi/linux/version.h
+  CHK     include/generated/utsrelease.h
+  HOSTCC  scripts/genksyms/genksyms.o
+  CC      scripts/mod/empty.o
+  HOSTCC  scripts/mod/mk_elfconfig
+  CHK     include/generated/timeconst.h
+  CC      scripts/mod/devicetable-offsets.s
+  CHK     include/generated/bounds.h
+  CHK     include/generated/asm-offsets.h
+  CALL    scripts/checksyscalls.sh
+  MKELF   scripts/mod/elfconfig.h
+  GEN     scripts/mod/devicetable-offsets.h
+  HOSTCC  scripts/mod/sumversion.o
+  SHIPPED scripts/genksyms/parse.tab.c
+  SHIPPED scripts/genksyms/lex.lex.c
+  SHIPPED scripts/genksyms/keywords.hash.c
+  SHIPPED scripts/genksyms/parse.tab.h
+  HOSTCC  scripts/genksyms/parse.tab.o
+  HOSTCC  scripts/mod/modpost.o
+  HOSTCC  scripts/genksyms/lex.lex.o
+  HOSTCC  scripts/mod/file2alias.o
+  HOSTLD  scripts/genksyms/genksyms
+  HOSTCC  scripts/kallsyms
+  HOSTLD  scripts/mod/modpost
+  HOSTCC  scripts/conmakehash
+  HOSTCC  scripts/recordmcount
+  HOSTCC  scripts/sortextable
+  HOSTCC  scripts/extract-cert
+  HOSTCC  scripts/asn1_compiler
+  CC      init/main.o
+  HOSTCC  usr/gen_init_cpio
+  LD      arch/x86/crypto/built-in.o
+  CC [M]  arch/x86/crypto/glue_helper.o
+  GEN     usr/initramfs_data.cpio.gz
+  AS      usr/initramfs_data.o
+  LD      usr/built-in.o
+  CC      kernel/fork.o
+  CC      kernel/exec_domain.o
+  CHK     include/generated/compile.h
+  AS [M]  arch/x86/crypto/aes-i586-asm_32.o
+  UPD     include/generated/compile.h
+  CC      init/do_mounts.o
+  CC [M]  arch/x86/crypto/aes_glue.o
+  CC      init/do_mounts_initrd.o
+  CC      init/initramfs.o
+  AS [M]  arch/x86/crypto/twofish-i586-asm_32.o
+  CC [M]  arch/x86/crypto/twofish_glue.o
+  AS [M]  arch/x86/crypto/salsa20-i586-asm_32.o
+  CC [M]  arch/x86/crypto/salsa20_glue.o
+  CC      init/calibrate.o
+  CC      kernel/panic.o
+  CC      kernel/cpu.o
+  CC      init/init_task.o
+  AS [M]  arch/x86/crypto/serpent-sse2-i586-asm_32.o
+  CC [M]  arch/x86/crypto/serpent_sse2_glue.o
+  AS [M]  arch/x86/crypto/aesni-intel_asm.o
+  CC [M]  arch/x86/crypto/aesni-intel_glue.o
+  CC      init/version.o
+  CC      kernel/exit.o
+  CC      kernel/softirq.o
+  LD      init/mounts.o
+  LD      init/built-in.o
+  CC      certs/system_keyring.o
+  CC [M]  arch/x86/crypto/fpu.o
+  EXTRACT_CERTS   
+  CC [M]  arch/x86/crypto/crc32c-intel_glue.o
+  AS      certs/system_certificates.o
+  LD      certs/built-in.o
+  CC      mm/filemap.o
+  AS [M]  arch/x86/crypto/crc32-pclmul_asm.o
+  CC [M]  arch/x86/crypto/crc32-pclmul_glue.o
+  LD [M]  arch/x86/crypto/aes-i586.o
+  LD [M]  arch/x86/crypto/twofish-i586.o
+  CC      kernel/resource.o
+  CC      kernel/sysctl.o
+  LD [M]  arch/x86/crypto/salsa20-i586.o
+  LD [M]  arch/x86/crypto/serpent-sse2-i586.o
+  LD [M]  arch/x86/crypto/aesni-intel.o
+  LD [M]  arch/x86/crypto/crc32c-intel.o
+  LD [M]  arch/x86/crypto/crc32-pclmul.o
+  AS      arch/x86/entry/entry_32.o
+  AS      arch/x86/entry/thunk_32.o
+  CC      arch/x86/entry/syscall_32.o
+  CC      arch/x86/entry/common.o
+  CC      arch/x86/entry/vdso/vma.o
+  CC      arch/x86/entry/vsyscall/vsyscall_gtod.o
+  LD      arch/x86/entry/vsyscall/built-in.o
+  CC      kernel/sysctl_binary.o
+  CC      mm/mempool.o
+  CC      arch/x86/entry/vdso/vdso32-setup.o
+  LDS     arch/x86/entry/vdso/vdso32/vdso32.lds
+  CC      arch/x86/entry/vdso/vdso32/vclock_gettime.o
+  CC      kernel/capability.o
+  AS      arch/x86/entry/vdso/vdso32/note.o
+  AS      arch/x86/entry/vdso/vdso32/int80.o
+  CC      kernel/ptrace.o
+  HOSTCC  arch/x86/entry/vdso/vdso2c
+  CC      mm/oom_kill.o
+  AS      arch/x86/entry/vdso/vdso32/sysenter.o
+  CC      kernel/user.o
+  VDSO    arch/x86/entry/vdso/vdso32-int80.so.dbg
+  CC      kernel/signal.o
+  CC      fs/open.o
+  VDSO    arch/x86/entry/vdso/vdso32-sysenter.so.dbg
+  OBJCOPY arch/x86/entry/vdso/vdso32-int80.so
+  OBJCOPY arch/x86/entry/vdso/vdso32-sysenter.so
+  VDSO2C  arch/x86/entry/vdso/vdso-image-32-int80.c
+  VDSO2C  arch/x86/entry/vdso/vdso-image-32-sysenter.c
+  CC      arch/x86/entry/vdso/vdso-image-32-int80.o
+  CC      mm/maccess.o
+  CC      arch/x86/entry/vdso/vdso-image-32-sysenter.o
+  LD      arch/x86/entry/vdso/built-in.o
+  LD      arch/x86/entry/built-in.o
+  CC      arch/x86/kernel/process_32.o
+  CC      mm/page_alloc.o
+  CC      arch/x86/kernel/signal.o
+  CC      fs/read_write.o
+  CC      arch/x86/kernel/traps.o
+  CC      kernel/sys.o
+  CC      fs/file_table.o
+  CC      arch/x86/kernel/irq.o
+  CC      mm/page-writeback.o
+  CC      fs/super.o
+  CC      kernel/kmod.o
+  CC      arch/x86/kernel/irq_32.o
+  CC      arch/x86/kernel/dumpstack_32.o
+  CC      fs/char_dev.o
+  CC      kernel/workqueue.o
+  CC      arch/x86/kernel/time.o
+  CC      arch/x86/kernel/ioport.o
+  CC      mm/readahead.o
+  CC      fs/stat.o
+  CC      arch/x86/kernel/dumpstack.o
+  CC      mm/swap.o
+  CC      arch/x86/kernel/nmi.o
+  CC      fs/exec.o
+  CC      kernel/pid.o
+  CC      arch/x86/kernel/ldt.o
+  CC      mm/truncate.o
+  CC      arch/x86/kernel/setup.o
+  CC      fs/pipe.o
+  CC      kernel/task_work.o
+  CC      kernel/extable.o
+  CC      mm/vmscan.o
+  CC      kernel/params.o
+  CC      arch/x86/kernel/x86_init.o
+  CC      fs/namei.o
+  CC      kernel/kthread.o
+  CC      arch/x86/kernel/i8259.o
+  CC      arch/x86/kernel/irqinit.o
+  CC      kernel/sys_ni.o
+  CC      kernel/nsproxy.o
+  CC      arch/x86/kernel/jump_label.o
+  CC      kernel/notifier.o
+  CC      arch/x86/kernel/irq_work.o
+  CC      arch/x86/kernel/probe_roms.o
+  CC      mm/shmem.o
+  CC      kernel/ksysfs.o
+  CC      fs/fcntl.o
+  CC      arch/x86/kernel/i386_ksyms_32.o
+  CC      kernel/cred.o
+  CC      arch/x86/kernel/ksysfs.o
+  CC      arch/x86/kernel/bootflag.o
+  CC      fs/ioctl.o
+  CC      arch/x86/kernel/e820.o
+  CC      kernel/reboot.o
+  CC      mm/util.o
+  CC      fs/readdir.o
+  CC      kernel/async.o
+  CC      arch/x86/kernel/pci-dma.o
+  CC      mm/mmzone.o
+  CC      kernel/range.o
+  CC      mm/vmstat.o
+  CC      kernel/smpboot.o
+  CC      fs/select.o
+  CC      arch/x86/kernel/quirks.o
+  CC      kernel/groups.o
+  CC      arch/x86/kernel/topology.o
+  CC      mm/backing-dev.o
+  CC      fs/dcache.o
+  CC      arch/x86/kernel/kdebugfs.o
+  CC      kernel/bpf/core.o
+  CC      arch/x86/kernel/alternative.o
+  LD      kernel/bpf/built-in.o
+  CC      mm/mm_init.o
+  CC      kernel/events/core.o
+  CC      arch/x86/kernel/i8253.o
+  CC      mm/mmu_context.o
+  CC      arch/x86/kernel/pci-nommu.o
+  CC      fs/inode.o
+  CC      arch/x86/kernel/hw_breakpoint.o
+  CC      mm/percpu.o
+  CC      arch/x86/kernel/tsc.o
+  CC      fs/attr.o
+  CC      arch/x86/kernel/tsc_msr.o
+  CC      mm/slab_common.o
+  CC      fs/bad_inode.o
+  CC      arch/x86/kernel/io_delay.o
+  CC      fs/file.o
+  CC      arch/x86/kernel/rtc.o
+  CC      kernel/events/ring_buffer.o
+  CC      arch/x86/kernel/pci-iommu_table.o
+  CC      kernel/events/callchain.o
+  CC      mm/compaction.o
+  CC      fs/filesystems.o
+  CC      arch/x86/kernel/resource.o
+  CC      arch/x86/kernel/process.o
+  CC      kernel/events/hw_breakpoint.o
+  CC      fs/namespace.o
+  CC      arch/x86/kernel/acpi/boot.o
+  CC      kernel/events/uprobes.o
+  CC      mm/vmacache.o
+  CC      mm/interval_tree.o
+  CC      mm/list_lru.o
+  CC      arch/x86/kernel/acpi/sleep.o
+  LD      kernel/events/built-in.o
+  AS      arch/x86/kernel/acpi/wakeup_32.o
+  CC      kernel/irq/irqdesc.o
+  CC      arch/x86/kernel/acpi/apei.o
+  CC      fs/seq_file.o
+  CC      mm/workingset.o
+  CC      arch/x86/kernel/acpi/cstate.o
+  CC      kernel/irq/handle.o
+  CC      mm/prfile.o
+  LD      arch/x86/kernel/acpi/built-in.o
+  CC      mm/debug.o
+  CC      arch/x86/kernel/apic/apic.o
+  CC      fs/xattr.o
+  CC      kernel/irq/manage.o
+  CC      mm/gup.o
+  CC      kernel/irq/spurious.o
+  CC      fs/libfs.o
+  CC      kernel/irq/resend.o
+  CC      arch/x86/kernel/apic/apic_noop.o
+  CC      kernel/irq/chip.o
+  CC      mm/highmem.o
+  CC      arch/x86/kernel/apic/ipi.o
+  CC      fs/fs-writeback.o
+  CC      arch/x86/kernel/apic/vector.o
+  CC      kernel/irq/dummychip.o
+  CC      mm/memory.o
+  CC      arch/x86/kernel/apic/hw_nmi.o
+  CC      kernel/irq/devres.o
+  CC      arch/x86/kernel/apic/io_apic.o
+  CC      kernel/irq/autoprobe.o
+  CC      kernel/irq/irqdomain.o
+  CC      mm/mincore.o
+  CC      kernel/irq/proc.o
+  CC      arch/x86/kernel/apic/msi.o
+  CC      fs/pnode.o
+  CC      mm/mlock.o
+  CC      kernel/irq/migration.o
+  CC      kernel/irq/pm.o
+  CC      arch/x86/kernel/apic/htirq.o
+  CC      fs/splice.o
+  CC      arch/x86/kernel/apic/probe_32.o
+  CC      mm/mmap.o
+  CC      kernel/irq/msi.o
+  LD      arch/x86/kernel/apic/built-in.o
+  CC      arch/x86/kernel/cpu/intel_cacheinfo.o
+  LD      kernel/irq/built-in.o
+  LD      kernel/livepatch/built-in.o
+  CC      kernel/locking/mutex.o
+  CC      arch/x86/kernel/cpu/scattered.o
+  CC      fs/sync.o
+  CC      arch/x86/kernel/cpu/topology.o
+  CC      arch/x86/kernel/cpu/common.o
+  CC      kernel/locking/semaphore.o
+  CC      fs/utimes.o
+  CC      mm/mprotect.o
+  CC      kernel/locking/rwsem.o
+  CC      fs/stack.o
+  CC      mm/mremap.o
+  CC      arch/x86/kernel/cpu/rdrand.o
+  CC      kernel/locking/percpu-rwsem.o
+  CC      fs/fs_struct.o
+  CC      arch/x86/kernel/cpu/match.o
+  CC      kernel/locking/spinlock.o
+  CC      arch/x86/kernel/cpu/proc.o
+  CC      fs/statfs.o
+  CC      mm/msync.o
+  MKCAP   arch/x86/kernel/cpu/capflags.c
+  CC      kernel/locking/osq_lock.o
+  CC      mm/rmap.o
+  CC      kernel/locking/lglock.o
+  CC      fs/fs_pin.o
+  CC      kernel/locking/qspinlock.o
+  CC      fs/nsfs.o
+  CC      fs/buffer.o
+  CC      kernel/locking/rtmutex.o
+  CC      mm/vmalloc.o
+  CC      kernel/locking/rwsem-xadd.o
+  CC      kernel/locking/qrwlock.o
+  CC      arch/x86/kernel/cpu/powerflags.o
+  CC      arch/x86/kernel/cpu/bugs.o
+  CC      arch/x86/kernel/cpu/intel.o
+  LD      kernel/locking/built-in.o
+  CC      kernel/power/qos.o
+  CC      arch/x86/kernel/cpu/amd.o
+  CC      mm/pagewalk.o
+  CC      fs/block_dev.o
+  CC      mm/pgtable-generic.o
+  CC      kernel/power/main.o
+  CC      arch/x86/kernel/cpu/centaur.o
+  CC      mm/process_vm_access.o
+  CC      arch/x86/kernel/cpu/transmeta.o
+  CC      arch/x86/kernel/cpu/perf_event.o
+  CC      kernel/power/console.o
+  CC      mm/init-mm.o
+  CC      fs/direct-io.o
+  CC      mm/nobootmem.o
+  CC      kernel/power/process.o
+  CC      mm/fadvise.o
+  CC      mm/madvise.o
+  CC      kernel/power/suspend.o
+  CC      arch/x86/kernel/cpu/perf_event_amd.o
+  CC      mm/memblock.o
+  CC      fs/mpage.o
+  CC      arch/x86/kernel/cpu/perf_event_amd_uncore.o
+  CC      kernel/power/hibernate.o
+  CC      mm/page_io.o
+  CC      arch/x86/kernel/cpu/perf_event_p6.o
+  CC      fs/proc_namespace.o
+  CC      mm/swap_state.o
+  CC      arch/x86/kernel/cpu/perf_event_knc.o
+  LD      fs/9p/built-in.o
+  CC [M]  fs/9p/vfs_super.o
+  CC      kernel/power/snapshot.o
+  CC      mm/swapfile.o
+  CC      arch/x86/kernel/cpu/perf_event_p4.o
+  CC [M]  fs/9p/vfs_inode.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_lbr.o
+  CC      kernel/power/swap.o
+  CC [M]  fs/9p/vfs_inode_dotl.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_ds.o
+  CC [M]  fs/9p/vfs_addr.o
+  CC      mm/frontswap.o
+  CC      arch/x86/kernel/cpu/perf_event_intel.o
+  CC      kernel/power/user.o
+  CC [M]  fs/9p/vfs_file.o
+  CC      kernel/power/autosleep.o
+  CC      mm/zswap.o
+  CC [M]  fs/9p/vfs_dir.o
+  CC      kernel/power/wakelock.o
+  CC [M]  fs/9p/vfs_dentry.o
+  CC      kernel/power/poweroff.o
+  CC      mm/dmapool.o
+  LD      kernel/power/built-in.o
+  CC      kernel/printk/printk.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_rapl.o
+  CC [M]  fs/9p/v9fs.o
+  CC      mm/hugetlb.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_cqm.o
+  CC [M]  fs/9p/fid.o
+  CC [M]  fs/9p/xattr.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_pt.o
+  CC [M]  fs/9p/xattr_user.o
+  CC      kernel/printk/braille.o
+  LD      kernel/printk/built-in.o
+  CC      kernel/rcu/update.o
+  CC [M]  fs/9p/xattr_trusted.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_bts.o
+  CC [M]  fs/9p/cache.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_uncore.o
+  CC      kernel/rcu/srcu.o
+  CC [M]  fs/9p/acl.o
+  CC      mm/mmu_notifier.o
+  CC      kernel/rcu/tree.o
+  CC [M]  fs/9p/xattr_security.o
+  CC      mm/ksm.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_uncore_snb.o
+  LD [M]  fs/9p/9p.o
+  LD      fs/affs/built-in.o
+  CC [M]  fs/affs/super.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_uncore_snbep.o
+  CC [M]  fs/affs/namei.o
+  CC      mm/slub.o
+  CC [M]  fs/affs/inode.o
+  CC      arch/x86/kernel/cpu/perf_event_intel_uncore_nhmex.o
+  LD      kernel/rcu/built-in.o
+  CC      kernel/sched/core.o
+  CC [M]  fs/affs/file.o
+  CC      arch/x86/kernel/cpu/perf_event_msr.o
+  CC      arch/x86/kernel/cpu/mcheck/mce.o
+  CC [M]  fs/affs/dir.o
+  CC [M]  fs/affs/amigaffs.o
+  CC      mm/migrate.o
+  CC [M]  fs/affs/bitmap.o
+  CC      arch/x86/kernel/cpu/mcheck/mce-severity.o
+  CC [M]  fs/affs/symlink.o
+  CC      arch/x86/kernel/cpu/mcheck/mce-genpool.o
+  LD [M]  fs/affs/affs.o
+  CC      arch/x86/kernel/cpu/mcheck/mce_intel.o
+  LD      fs/afs/built-in.o
+  CC [M]  fs/afs/cache.o
+  CC      mm/huge_memory.o
+  CC      arch/x86/kernel/cpu/mcheck/mce_amd.o
+  CC [M]  fs/afs/callback.o
+  CC      arch/x86/kernel/cpu/mcheck/threshold.o
+  CC [M]  fs/afs/cell.o
+  CC      kernel/sched/loadavg.o
+  CC      arch/x86/kernel/cpu/mcheck/therm_throt.o
+  CC [M]  fs/afs/cmservice.o
+  CC      mm/page_counter.o
+  CC      kernel/sched/clock.o
+  CC      arch/x86/kernel/cpu/mcheck/mce-apei.o
+  CC      mm/memcontrol.o
+  CC [M]  fs/afs/dir.o
+  CC      kernel/sched/cputime.o
+  LD      arch/x86/kernel/cpu/mcheck/built-in.o
+  CC      arch/x86/kernel/cpu/microcode/core.o
+  CC      kernel/sched/idle_task.o
+  CC [M]  fs/afs/file.o
+  CC      kernel/sched/fair.o
+  CC      arch/x86/kernel/cpu/microcode/intel.o
+  CC [M]  fs/afs/flock.o
+  CC      arch/x86/kernel/cpu/microcode/intel_lib.o
+  CC [M]  fs/afs/fsclient.o
+  CC      arch/x86/kernel/cpu/microcode/amd.o
+  CC      arch/x86/kernel/cpu/microcode/core_early.o
+  CC      mm/vmpressure.o
+  CC [M]  fs/afs/inode.o
+  CC      arch/x86/kernel/cpu/microcode/intel_early.o
+  CC      mm/swap_cgroup.o
+  CC [M]  fs/afs/main.o
+  CC      mm/memory-failure.o
+  CC      arch/x86/kernel/cpu/microcode/amd_early.o
+  CC [M]  fs/afs/misc.o
+  LD      arch/x86/kernel/cpu/microcode/microcode.o
+  LD      arch/x86/kernel/cpu/microcode/built-in.o
+  CC      arch/x86/kernel/cpu/mtrr/main.o
+  CC      kernel/sched/rt.o
+  CC [M]  fs/afs/mntpt.o
+  CC [M]  fs/afs/proc.o
+  CC      arch/x86/kernel/cpu/mtrr/if.o
+  CC      kernel/sched/deadline.o
+  CC      mm/cleancache.o
+  CC      arch/x86/kernel/cpu/mtrr/generic.o
+  CC [M]  fs/afs/rxrpc.o
+  CC      mm/page_isolation.o
+  CC      kernel/sched/stop_task.o
+  CC      mm/zpool.o
+  CC      arch/x86/kernel/cpu/mtrr/cleanup.o
+  CC      kernel/sched/wait.o
+  CC [M]  fs/afs/security.o
+  CC      mm/zbud.o
+  CC      mm/zsmalloc.o
+  CC      kernel/sched/completion.o
+  CC      arch/x86/kernel/cpu/mtrr/amd.o
+  CC [M]  fs/afs/server.o
+  CC      arch/x86/kernel/cpu/mtrr/cyrix.o
+  CC      kernel/sched/idle.o
+  CC [M]  fs/afs/super.o
+  CC      arch/x86/kernel/cpu/mtrr/centaur.o
+  CC      kernel/sched/cpupri.o
+  LD      arch/x86/kernel/cpu/mtrr/built-in.o
+  CC      arch/x86/kernel/cpu/perfctr-watchdog.o
+  CC      mm/early_ioremap.o
+  CC [M]  fs/afs/netdevices.o
+  CC      kernel/sched/cpudeadline.o
+  CC      mm/balloon_compaction.o
+  CC      kernel/sched/auto_group.o
+  CC      arch/x86/kernel/cpu/perf_event_amd_ibs.o
+  CC [M]  fs/afs/vlclient.o
+  CC      mm/frame_vector.o
+  CC      kernel/sched/stats.o
+  CC [M]  fs/afs/vlocation.o
+  CC      kernel/sched/debug.o
+  CC      arch/x86/kernel/cpu/vmware.o
+  CC [M]  mm/hwpoison-inject.o
+  CC [M]  fs/afs/vnode.o
+  CC      arch/x86/kernel/cpu/hypervisor.o
+  LD      mm/built-in.o
+  CC      arch/x86/kernel/cpu/mshyperv.o
+  CC      arch/x86/kernel/cpu/capflags.o
+  CC      arch/x86/kernel/fpu/init.o
+  CC [M]  fs/afs/volume.o
+  CC      arch/x86/kernel/fpu/bugs.o
+  LD      arch/x86/kernel/cpu/built-in.o
+  CC      arch/x86/kernel/kprobes/core.o
+  CC [M]  fs/afs/write.o
+  CC      arch/x86/kernel/fpu/core.o
+  CC      kernel/sched/cpuacct.o
+  CC      arch/x86/kernel/kprobes/ftrace.o
+  LD [M]  fs/afs/kafs.o
+  LD      kernel/sched/built-in.o
+  LD      fs/aufs/built-in.o
+  CC      kernel/time/time.o
+  CC [M]  fs/aufs/module.o
+  LD      arch/x86/kernel/kprobes/built-in.o
+  CC      arch/x86/kernel/ptrace.o
+  CC      arch/x86/kernel/fpu/regset.o
+  CC [M]  fs/aufs/sbinfo.o
+  CC      arch/x86/kernel/fpu/signal.o
+  CC      kernel/time/timer.o
+  CC      arch/x86/kernel/fpu/xstate.o
+  CC      kernel/time/hrtimer.o
+  CC [M]  fs/aufs/super.o
+  LD      arch/x86/kernel/fpu/built-in.o
+  CC      arch/x86/kernel/tls.o
+fs/aufs/super.c: In function 'au_show_brs':
+fs/aufs/super.c:109:8: error: void value not ignored as it ought to be
+    err = seq_printf(seq, "=%s", perm.a);
+        ^
+fs/aufs/super.c:114:8: error: void value not ignored as it ought to be
+    err = seq_putc(seq, ':');
+        ^
+scripts/Makefile.build:258: recipe for target 'fs/aufs/super.o' failed
+make[2]: *** [fs/aufs/super.o] Error 1
+scripts/Makefile.build:403: recipe for target 'fs/aufs' failed
+make[1]: *** [fs/aufs] Error 2
+Makefile:941: recipe for target 'fs' failed
+make: *** [fs] Error 2
+make: *** Waiting for unfinished jobs....
+  CC      arch/x86/kernel/step.o
+  CC      arch/x86/kernel/i8237.o
+  CC      kernel/time/itimer.o
+  CC      arch/x86/kernel/stacktrace.o
+  CC      arch/x86/kernel/reboot.o
+  CC      kernel/time/posix-timers.o
+  LD      arch/x86/kvm/built-in.o
+  CC [M]  arch/x86/kvm/../../../virt/kvm/kvm_main.o
+  CC      arch/x86/kernel/early-quirks.o
+  CC      kernel/time/posix-cpu-timers.o
+  CC      arch/x86/kernel/apm_32.o
+  CC      kernel/time/timekeeping.o
+  CC      kernel/time/ntp.o
+  CC      arch/x86/kernel/smp.o
+  CC      kernel/time/clocksource.o
+  CC      kernel/time/jiffies.o
+  CC      kernel/time/timer_list.o
+  CC      arch/x86/kernel/smpboot.o
+  CC      kernel/time/timeconv.o
+  CC [M]  arch/x86/kvm/../../../virt/kvm/coalesced_mmio.o
+  CC      kernel/time/timecounter.o
+  CC      kernel/time/posix-clock.o
+  CC [M]  arch/x86/kvm/../../../virt/kvm/eventfd.o
+  CC [M]  arch/x86/kvm/../../../virt/kvm/irqchip.o
+  CC      arch/x86/kernel/tsc_sync.o
+  CC      kernel/time/alarmtimer.o
+  CC [M]  arch/x86/kvm/../../../virt/kvm/vfio.o
+  CC      arch/x86/kernel/setup_percpu.o
+  CC      arch/x86/kernel/mpparse.o
+  CC [M]  arch/x86/kvm/../../../virt/kvm/async_pf.o
+  CC      kernel/time/clockevents.o
+  CC      kernel/time/tick-common.o
+  CC [M]  arch/x86/kvm/x86.o
+  CC      arch/x86/kernel/reboot_fixups_32.o
+  CC      arch/x86/kernel/ftrace.o
+  CC      kernel/time/tick-broadcast.o
+  CC      kernel/time/tick-broadcast-hrtimer.o
+  CC      arch/x86/kernel/trace_clock.o
+  CC      arch/x86/kernel/machine_kexec_32.o
+  CC      kernel/time/tick-oneshot.o
+  CC      kernel/time/tick-sched.o
+  CC      kernel/time/timer_stats.o
+  AS      arch/x86/kernel/relocate_kernel_32.o
+  CC      arch/x86/kernel/crash.o
+  CC      kernel/time/timekeeping_debug.o
+  CC      arch/x86/kernel/crash_dump_32.o
+  CC      arch/x86/kernel/module.o
+  LD      kernel/time/built-in.o
+  CC      kernel/trace/trace_clock.o
+  CC      arch/x86/kernel/doublefault.o
+  CC      arch/x86/kernel/early_printk.o
+  CC      arch/x86/mm/init.o
+  CC      kernel/trace/ftrace.o
+  CC      arch/x86/kernel/hpet.o
+  CC      arch/x86/mm/init_32.o
+  CC      arch/x86/kernel/amd_nb.o
+  CC      arch/x86/kernel/kvm.o
+  CC      arch/x86/mm/fault.o
+  CC [M]  arch/x86/kvm/mmu.o
+  CC      kernel/trace/ring_buffer.o
+  CC      arch/x86/kernel/kvmclock.o
+  CC      arch/x86/mm/ioremap.o
+  CC      arch/x86/kernel/paravirt.o
+  CC      arch/x86/mm/extable.o
+  CC      arch/x86/mm/pageattr.o
+  CC      arch/x86/kernel/paravirt_patch_32.o
+  CC      arch/x86/kernel/pvclock.o
+  CC      kernel/trace/trace.o
+  CC      arch/x86/kernel/pcspeaker.o
+  CC      arch/x86/kernel/check.o
+  CC      arch/x86/kernel/devicetree.o
+  CC      arch/x86/mm/mmap.o
+  CC      arch/x86/kernel/uprobes.o
+  CC      arch/x86/mm/pat.o
+  CC      arch/x86/kernel/sysfb.o
+  CC      arch/x86/kernel/sysfb_efi.o
+  CC      arch/x86/mm/pgtable.o
+  CC      arch/x86/kernel/perf_regs.o
+  CC      arch/x86/mm/physaddr.o
+  CC      arch/x86/kernel/tracepoint.o
+  CC [M]  arch/x86/kvm/emulate.o
+  CC      kernel/trace/trace_output.o
+  AS      arch/x86/kernel/head_32.o
+  CC      arch/x86/kernel/head32.o
+  CC      arch/x86/mm/gup.o
+  CC      arch/x86/kernel/head.o
+  LDS     arch/x86/kernel/vmlinux.lds
+  CC [M]  arch/x86/kernel/msr.o
+  CC      arch/x86/mm/setup_nx.o
+  CC      arch/x86/mm/pat_rbtree.o
+  CC [M]  arch/x86/kernel/cpuid.o
+  CC      kernel/trace/trace_seq.o
+  CC      arch/x86/mm/tlb.o
+  LD      arch/x86/kernel/apm.o
+  LD      arch/x86/kernel/built-in.o
+  CC      arch/x86/mm/pgtable_32.o
+  CC      kernel/trace/trace_stat.o
+  CC      kernel/trace/trace_printk.o
+  CC      arch/x86/mm/iomap_32.o
+  CC      kernel/trace/trace_sched_switch.o
+  CC [M]  arch/x86/kvm/i8259.o
+  CC [M]  arch/x86/kvm/irq.o
+  CC      arch/x86/mm/hugetlbpage.o
+  CC      kernel/trace/trace_functions.o
+  CC [M]  arch/x86/kvm/lapic.o
+  CC      arch/x86/mm/highmem_32.o
+  CC      kernel/freezer.o
+  CC      kernel/trace/trace_sched_wakeup.o
+  CC      kernel/trace/trace_nop.o
+  CC      arch/x86/mm/kmmio.o
+  CC      kernel/profile.o
+  CC      kernel/trace/trace_stack.o
+  CC [M]  arch/x86/kvm/i8254.o
+  CC      arch/x86/mm/pf_in.o
+  CC      kernel/trace/trace_mmiotrace.o
+  CC      kernel/stacktrace.o
+  CC      arch/x86/mm/mmio-mod.o
+  CC [M]  arch/x86/kvm/ioapic.o
+  CC      kernel/trace/trace_functions_graph.o
+  CC      kernel/futex.o
+  CC [M]  arch/x86/kvm/irq_comm.o
+  LD      arch/x86/mm/mmiotrace.o
+  LD      arch/x86/mm/built-in.o
+  LD      arch/x86/net/built-in.o
+  CC      arch/x86/platform/atom/pmc_atom.o
+  CC      kernel/trace/blktrace.o
+  CC [M]  arch/x86/kvm/cpuid.o
+  CC [M]  arch/x86/kvm/pmu.o
+  LD      arch/x86/platform/atom/built-in.o
+  LD      arch/x86/platform/ce4100/built-in.o
+  CC      arch/x86/platform/efi/quirks.o
+  CC      arch/x86/platform/efi/efi.o
+  CC [M]  arch/x86/kvm/mtrr.o
+  CC      kernel/trace/trace_events.o
+  CC [M]  arch/x86/kvm/hyperv.o
+  CC      arch/x86/platform/efi/efi_32.o
+  CC [M]  arch/x86/kvm/assigned-dev.o
+  CC      arch/x86/platform/geode/alix.o
+  AS      arch/x86/platform/efi/efi_stub_32.o
+  CC      arch/x86/platform/efi/efi-bgrt.o
+  LD      arch/x86/platform/geode/built-in.o
+  LD      arch/x86/platform/goldfish/built-in.o
+  LD      arch/x86/platform/intel/built-in.o
+  CC [M]  arch/x86/platform/intel/iosf_mbi.o
+  CC      arch/x86/platform/efi/early_printk.o
+  CC [M]  arch/x86/kvm/iommu.o
+  LD      arch/x86/platform/efi/built-in.o
+  CC      kernel/trace/trace_export.o
+  LD      arch/x86/platform/intel-mid/built-in.o
+  CC      kernel/trace/trace_syscalls.o
+  LD      arch/x86/platform/intel-quark/built-in.o
+  CC [M]  arch/x86/kvm/vmx.o
+  LD      arch/x86/platform/iris/built-in.o
+  CC [M]  arch/x86/platform/iris/iris.o
+  CC      kernel/trace/trace_event_perf.o
+  CC      arch/x86/platform/olpc/olpc.o
+  CC      kernel/trace/trace_events_filter.o
+  CC      arch/x86/platform/olpc/olpc_ofw.o
+  CC      kernel/trace/trace_events_trigger.o
+  CC      arch/x86/platform/olpc/olpc_dt.o
+  CC      arch/x86/platform/olpc/olpc-xo1-pm.o
+  CC      kernel/trace/trace_kprobe.o
+  CC [M]  arch/x86/kvm/pmu_intel.o
+  AS      arch/x86/platform/olpc/xo1-wakeup.o
+  CC      arch/x86/platform/olpc/olpc-xo1-rtc.o
+  CC      arch/x86/platform/olpc/olpc-xo1-sci.o
+  CC [M]  arch/x86/kvm/svm.o
+  CC      kernel/trace/power-traces.o
+  CC      arch/x86/platform/olpc/olpc-xo15-sci.o
+  LD      arch/x86/platform/olpc/built-in.o
+  CC [M]  arch/x86/kvm/pmu_amd.o
+  LD      arch/x86/platform/scx200/built-in.o
+  CC      arch/x86/platform/sfi/sfi.o
+  LD      arch/x86/platform/sfi/built-in.o
+  LD      arch/x86/platform/ts5500/built-in.o
+  LD      arch/x86/platform/uv/built-in.o
+  LD      arch/x86/platform/built-in.o
+  LD [M]  arch/x86/kvm/kvm.o
+  LD [M]  arch/x86/kvm/kvm-intel.o
+  CC      arch/x86/realmode/init.o
+  AS      arch/x86/realmode/rm/header.o
+  AS      arch/x86/realmode/rm/trampoline_32.o
+  CC      kernel/trace/rpm-traces.o
+  AS      arch/x86/realmode/rm/stack.o
+  AS      arch/x86/realmode/rm/reboot.o
+arch/x86/realmode/rm/reboot.S: Assembler messages:
+arch/x86/realmode/rm/reboot.S:154: Warning: shift count out of range (32 is not between 0 and 31)
+arch/x86/realmode/rm/reboot.S:154: Warning: shift count out of range (40 is not between 0 and 31)
+arch/x86/realmode/rm/reboot.S:154: Warning: shift count out of range (32 is not between 0 and 31)
+  AS      arch/x86/realmode/rm/wakeup_asm.o
+  CC      arch/x86/realmode/rm/wakemain.o
+  CC      kernel/dma.o
+  CC      arch/x86/realmode/rm/video-mode.o
+  AS      arch/x86/realmode/rm/copy.o
+  AS      arch/x86/realmode/rm/bioscall.o
+  CC      arch/x86/realmode/rm/regs.o
+  CC      arch/x86/realmode/rm/video-vga.o
+  CC      arch/x86/realmode/rm/video-vesa.o
+  CC      kernel/smp.o
+  CC      arch/x86/realmode/rm/video-bios.o
+  PASYMS  arch/x86/realmode/rm/pasyms.h
+  LDS     arch/x86/realmode/rm/realmode.lds
+  LD [M]  arch/x86/kvm/kvm-amd.o
+  LD      arch/x86/realmode/rm/realmode.elf
+  CC      kernel/uid16.o
+  RELOCS  arch/x86/realmode/rm/realmode.relocs
+  CC      kernel/trace/trace_probe.o
+  OBJCOPY arch/x86/realmode/rm/realmode.bin
+  AS      arch/x86/realmode/rmpiggy.o
+  LD      arch/x86/realmode/built-in.o
+  LD      arch/x86/built-in.o
+  CC      kernel/trace/trace_uprobe.o
+  CC [M]  kernel/trace/ring_buffer_benchmark.o
+  CC      kernel/module.o
+  LD      kernel/trace/libftrace.o
+  CC      kernel/kallsyms.o
+  CC      kernel/acct.o
+  LD      kernel/trace/built-in.o
+  CC      kernel/kexec_core.o
+  CC      kernel/kexec.o
+  CC      kernel/cgroup.o
+  CC      kernel/cgroup_freezer.o
+  CC      kernel/cpuset.o
+  CC      kernel/utsname.o
+  CC      kernel/pid_namespace.o
+  GZIP    kernel/config_data.gz
+  CC      kernel/stop_machine.o
+  CC      kernel/kprobes.o
+  CC      kernel/hung_task.o
+  CC      kernel/watchdog.o
+  CC      kernel/seccomp.o
+  CC      kernel/relay.o
+  CC      kernel/utsname_sysctl.o
+  CC      kernel/delayacct.o
+  CC      kernel/taskstats.o
+  CC      kernel/tsacct.o
+  CC      kernel/tracepoint.o
+  CC      kernel/elfcore.o
+  CC      kernel/irq_work.o
+  CC      kernel/user-return-notifier.o
+  CC      kernel/padata.o
+  CC      kernel/crash_dump.o
+  CC      kernel/jump_label.o
+  CC      kernel/membarrier.o
+  CC      kernel/memremap.o
+  CHK     kernel/config_data.h
+  UPD     kernel/config_data.h
+  CC      kernel/configs.o
+  LD      kernel/built-in.o
+[1m[31m==> ERROR:(B[m[1m A failure occurred in build().(B[m
+[1m    Aborting...(B[m
