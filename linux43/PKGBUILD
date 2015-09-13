@@ -92,8 +92,8 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # fix aufs4
-  sed -i -e 's|inode_sb_list_lock|blockdev_superblock->s_inode_list_lock|g' "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-  sed -i -e 's|+extern spinlock_t blockdev_superblock->s_inode_list_lock;|+|g' "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  #sed -i -e 's|inode_sb_list_lock|blockdev_superblock->s_inode_list_lock|g' "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  #sed -i -e 's|+extern spinlock_t blockdev_superblock->s_inode_list_lock;|+|g' "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
 
   # add aufs4 support
   #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
