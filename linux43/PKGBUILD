@@ -12,10 +12,10 @@ _kernelname=-MANJARO
 _basekernel=4.3
 _basever=43
 _aufs=20150629
-_bfq=v7r9
+_bfq=v7r8
 _rc=rc2
 pkgver=${_basekernel}${_rc}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -40,9 +40,9 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         #'0001-UBUNTU-aufs4-aufs4-standalone.patch.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.2.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.2.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.2.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.2.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.2.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.2.0.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.1.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.1.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.1.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         '0001-fix-bridge-regression.patch'
@@ -50,14 +50,14 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
 )
 sha256sums=('647995c4016bd3410a842c7c593d87d8f4583607dc49d6f1724b82bf411ef5d5'
-            '34681b0387578d2709b1b580960568a290550926b7c783bde1b80a4482715e43'
-            '826962946ecd965ec44b278481e0274c39b4efdc268dda9ed30526df03976e99'
+            '64677d439d86e4143b947d5333dfbff9b6ca1a8d58c6db2baeaa5b67983ecfba'
+            '2d57d4b3b7051c9c74c46beb2a908d84e500a02710b37c84b93ed288c4dc7e11'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '7379bb700a121c8790c1690646b1a8dfdf0199254a4bc660e76c0bf90a7828a5'
-            '743ecc34ab048581e9998c53b1eb81c1c31d3ac9ee72d04e1e00b2bafeedbddc'
-            '8d9cc296721fc4d6273ee9c7609b7d815e4061c360231eb68d060b4b7e7b7f81'
+            'ec0ca3c8051ea6d9a27a450998af8162464c224299deefc29044172940e96975'
+            'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
+            '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '0a8fe4434e930d393c7983e335842f6cb77ee263af5592a0ca7e14bae7296183'
             'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8')
