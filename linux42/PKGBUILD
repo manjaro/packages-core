@@ -11,17 +11,17 @@ pkgname=('linux42' 'linux42-headers')
 _kernelname=-MANJARO
 _basekernel=4.2
 _basever=42
-_aufs=20150629
+_aufs=20150921
 _bfq=v7r8
-pkgver=${_basekernel}.0
-pkgrel=3
+pkgver=${_basekernel}.1
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -33,9 +33,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-mmap.patch'
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
-        '0001-aufs-follow-change-to-follow_link-calling-convention.patch'
-        '0001-UBUNTU-aufs4-aufs4-loopback.patch.patch'
-        '0001-UBUNTU-aufs4-aufs4-standalone.patch.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.1.patch"
@@ -51,25 +48,23 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
 )
 sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
+            '9d0ab6525eb5f42056e2465267c62fa67efc75c57ad5345b99414b783278e9a3'
             'e0e3cc4100f6a45227ea063b122f95603983f9a402dd9e58b2b684f001370dab'
             '82fc5776815590fbc6923dc8fa1377d6f2a03efafed37bd8ce1f2423168f36e6'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            'e02f77f3223808cc18bc7a310711815645f436e219c0879c37d05e56d5b43cc5'
-            'e1615ea222c20885eac6491fe77b939ab514e33765f7c69a7308205b87b5b722'
-            'dc33720b412202597fe7361abaf6c5e41b691184a47f70d1e46873b46149216d'
-            '1b91b30bb2b5bdcfc3eb0861b1f8b12a6d4bc5d2a50cbeb8cc097a4b6bd1e3b4'
-            '50a76a365a70ba075db39cd442f3d06b8676474ea91e9f52dbab0abbc2318726'
-            '152b8997dad46058f0871aba8a2be94949fadf0f84ded4f9eb8b2679d05225c8'
-            '1f64e8e78169bc7b3658e2e948cea9d88724cef419b6e9af25101e247796cd5a'
-            'ce621359055ad1ece2be0263f4dff53ede9b837b07be1f04faa7b6be46c49eef'
-            '658e11be86d5c956bba77d6d7d673a79e120e2f0504ef43a755c0881416b2256'
-            '2e0f9c89fa4933696ca4aab570b120c047903a1bf75d21f14795895c31fb7d09'
+            '2b7995347e629264e7b730d8e212b114941e7f0eba4ece03d03f011fedcdd5a8'
+            '214dffe8ccfa4aa0e17734dd6845bbf7b227401875e21031fabc26b46b003d35'
+            'd0d786f6a030f4db1b00f18b5c28f45ac694b110005b1d361fad43796878fe3b'
+            '3162ed0358a34e8b1cff25b46bd4aec7b1bd384c258c5a041cc1fcf3c7aebb71'
+            '329cfa5f5951611d8539e6b0c87fb2e07a046849f052217f39db01075f1e6663'
+            '5eb5a051fe3d1ac1fb67b7167684ef5536b6f526d260c5afbed66790da5acfba'
+            '3178da8cae4c4fac41cc2bcaf20071ead66fb311c21920cf7049feba056c5c6e'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '7379bb700a121c8790c1690646b1a8dfdf0199254a4bc660e76c0bf90a7828a5'
-            '743ecc34ab048581e9998c53b1eb81c1c31d3ac9ee72d04e1e00b2bafeedbddc'
-            '8d9cc296721fc4d6273ee9c7609b7d815e4061c360231eb68d060b4b7e7b7f81'
+            'ec0ca3c8051ea6d9a27a450998af8162464c224299deefc29044172940e96975'
+            'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
+            '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '4e776734e2c2185910a6fbb6f333d967b04f4a72b3196310af286c6a779bd97d'
             '0b1e41ba59ae45f5929963aa22fdc53bc8ffb4534e976cec046269d1a462197b'
@@ -81,7 +76,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -126,13 +121,10 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
   patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
   patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
-  patch -Np1 -i "${srcdir}/0001-aufs-follow-change-to-follow_link-calling-convention.patch"
-  patch -Np1 -i "${srcdir}/0001-UBUNTU-aufs4-aufs4-loopback.patch.patch"
-  patch -Np1 -i "${srcdir}/0001-UBUNTU-aufs4-aufs4-standalone.patch.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"

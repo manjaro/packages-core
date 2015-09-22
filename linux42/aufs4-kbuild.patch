@@ -13,16 +13,16 @@ index 011f433..b1083f6 100644
  endif # MISC_FILESYSTEMS
  
 diff --git a/fs/Makefile b/fs/Makefile
-index cb92fd4..8c2df12 100644
+index cb20e4b..dd81418 100644
 --- a/fs/Makefile
 +++ b/fs/Makefile
-@@ -127,3 +127,4 @@ obj-y				+= exofs/ # Multiple modules
+@@ -126,3 +126,4 @@ obj-y				+= exofs/ # Multiple modules
  obj-$(CONFIG_CEPH_FS)		+= ceph/
  obj-$(CONFIG_PSTORE)		+= pstore/
  obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
 +obj-$(CONFIG_AUFS_FS)           += aufs/
 diff --git a/include/uapi/linux/Kbuild b/include/uapi/linux/Kbuild
-index 1a0006a..ddad01a 100644
+index 1ff9942..31efc0a 100644
 --- a/include/uapi/linux/Kbuild
 +++ b/include/uapi/linux/Kbuild
 @@ -59,6 +59,7 @@ header-y += atmsvc.h
