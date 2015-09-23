@@ -9,6 +9,7 @@
 _pkgver="2.02"
 _GRUB_GIT_TAG="grub-2.02-beta2"
 _SNAPSHOT="86402b4e0fec7d0e5637f70a3103a4d9c3f62839"
+_SNAPSHOT_EXTRAS="4a56e2c2cc3d78f12f1788c27669a651071dee49"
 
 _UNIFONT_VER="6.3.20131217"
 
@@ -18,7 +19,7 @@ _UNIFONT_VER="6.3.20131217"
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.02.beta2
-pkgrel=10
+pkgrel=11
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -43,7 +44,7 @@ optdepends=('freetype2: For grub-mkfont usage'
 
 source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG}"
         "grub-${_pkgver}-${pkgrel}.tar.gz::http://git.savannah.gnu.org/cgit/grub.git/snapshot/grub-${_SNAPSHOT}.tar.gz"
-        "grub-extras::git+git://git.sv.gnu.org/grub-extras.git#branch=master"
+        "grub-extras-${_pkgver}-${pkgrel}.tar.gz::http://git.savannah.gnu.org/cgit/grub-extras.git/snapshot/grub-extras-${_SNAPSHOT_EXTRAS}.tar.gz"
         "http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz"
         #"http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz.sig"
         'grub-add-GRUB_COLOR_variables.patch'
@@ -56,12 +57,12 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'grub.cfg'
         'update-grub')
 
-sha256sums=('483a7d529a7be0c60dba83a6cdac45ebd0499b6cc16e9a9eb5ae3ec6b7665de8'
-            'SKIP'
+sha256sums=('d437844cc813565c31abd21990b64745d5eaeee6af219669f2e8ba070d1c9cb3'
+            'c149fe1d53d24dd76766fca88ce2ebaeb29017dd7e731b83188a948e32f10998'
             '6dc2596a0cec08f36de7fb066f12015b572456c90d4e06ddc7b399a3e50b5f89'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
             '2aed37fc4bb2f792175d39f9377c16201f954f3924b92562cec6ffffc39eb871'
-            'f62734e61f4e5c566ee5de4470746e2c6e9a407ce97d0bdb5915a3e3be85d5ae'
+            'b77506cf41969043769e073afda2a41bc47204e84dbf9fe6de1d2333ed0c1ee3'
             '875906d25b66db07add6ce3f2256fdb6c883f0f418bf222e95860dd6d5998238'
             '2b74814338675589118c0febbde2ae178d02c53fa599b2148b06e67d166c7f56'
             'b20172d7f753cf6a636595b37406b3070cd30d33072c15aea4a50a02ba4c85a5'
@@ -76,6 +77,7 @@ sha256sums=('483a7d529a7be0c60dba83a6cdac45ebd0499b6cc16e9a9eb5ae3ec6b7665de8'
 
 prepare() {
 	mv "${srcdir}/grub-${_SNAPSHOT}/" "${srcdir}/grub-${_pkgver}/"
+	mv "${srcdir}/grub-extras-${_SNAPSHOT_EXTRAS}/" "${srcdir}/grub-extras-${_pkgver}/"
 
 	cd "${srcdir}/grub-${_pkgver}/"
 	
@@ -129,7 +131,7 @@ _build_grub-common_and_bios() {
 	
 	msg "Add the grub-extra sources for bios build"
 	install -d "${srcdir}/grub-${_pkgver}-bios/grub-extras"
-	cp -r "${srcdir}/grub-extras/915resolution" "${srcdir}/grub-${_pkgver}-bios/grub-extras/915resolution"
+	cp -r "${srcdir}/grub-extras-${_pkgver}/915resolution" "${srcdir}/grub-${_pkgver}-bios/grub-extras/915resolution"
 	export GRUB_CONTRIB="${srcdir}/grub-${_pkgver}-bios/grub-extras/"
 	
 	msg "Unset all compiler FLAGS for bios build"
