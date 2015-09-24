@@ -8,10 +8,10 @@ index d2e2a8f..f67e50f 100644
  
 +intel_ucode=
 +if test -e "/intel-ucode.img" ; then
-+    intel_ucode="/intel-ucode.img"
++    intel_ucode=`make_system_path_relative_to_its_root /intel-ucode.img`
 +fi
 +if test -e "/boot/intel-ucode.img" ; then
-+    intel_ucode="/boot/intel-ucode.img"
++    intel_ucode=`make_system_path_relative_to_its_root /boot/intel-ucode.img`
 +fi
 +if [ "x${intel_ucode}" = "x" ]; then
 +    gettext_printf "No Intel Microcode image found\n" >&2
