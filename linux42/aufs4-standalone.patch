@@ -1,10 +1,10 @@
-aufs4.x-rcN standalone patch
+aufs4.2 standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 0b40298..4844e61 100644
+index aa8310e..1bced3f 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1269,6 +1269,7 @@ rename_retry:
+@@ -1272,6 +1272,7 @@ rename_retry:
  	seq = 1;
  	goto again;
  }
@@ -13,10 +13,10 @@ index 0b40298..4844e61 100644
  /*
   * Search for at least 1 mount point in the dentry's subdirs.
 diff --git a/fs/file_table.c b/fs/file_table.c
-index 7f9d407..8c9ec1d 100644
+index ad17e05..df66450 100644
 --- a/fs/file_table.c
 +++ b/fs/file_table.c
-@@ -146,6 +146,7 @@ over:
+@@ -147,6 +147,7 @@ over:
  	}
  	return ERR_PTR(-ENFILE);
  }
@@ -24,13 +24,13 @@ index 7f9d407..8c9ec1d 100644
  
  /**
   * alloc_file - allocate and initialize a 'struct file'
-@@ -307,6 +308,7 @@ void put_filp(struct file *file)
+@@ -308,6 +309,7 @@ void put_filp(struct file *file)
  		file_free(file);
  	}
  }
 +EXPORT_SYMBOL_GPL(put_filp);
  
- void __init files_init(unsigned long mempages)
+ void __init files_init(void)
  { 
 diff --git a/fs/inode.c b/fs/inode.c
 index d30640f..1ecc715 100644
@@ -45,7 +45,7 @@ index d30640f..1ecc715 100644
  /*
   * Empty aops. Can be used for the cases where the user does not
 diff --git a/fs/namespace.c b/fs/namespace.c
-index c7cb8a5..08723de 100644
+index 2b8aa15..2caee44 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -463,6 +463,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
@@ -56,7 +56,7 @@ index c7cb8a5..08723de 100644
  
  /**
   * mnt_drop_write - give up write access to a mount
-@@ -1779,6 +1780,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+@@ -1803,6 +1804,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
  	}
  	return 0;
  }
@@ -101,7 +101,7 @@ index d16b62c..06ca6bc 100644
  int fsnotify_fasync(int fd, struct file *file, int on)
  {
 diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index 92e48c7..d2c4b68 100644
+index 39ddcaf..39a838a 100644
 --- a/fs/notify/mark.c
 +++ b/fs/notify/mark.c
 @@ -109,6 +109,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
@@ -128,7 +128,7 @@ index 92e48c7..d2c4b68 100644
  
  int fsnotify_add_mark(struct fsnotify_mark *mark, struct fsnotify_group *group,
  		      struct inode *inode, struct vfsmount *mnt, int allow_dups)
-@@ -455,6 +458,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
+@@ -475,6 +478,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
  	atomic_set(&mark->refcnt, 1);
  	mark->free_mark = free_mark;
  }
@@ -248,7 +248,7 @@ index 188c1d2..426d9af 100644
  int devcgroup_inode_mknod(int mode, dev_t dev)
  {
 diff --git a/security/security.c b/security/security.c
-index 595fffa..346bad6 100644
+index 9942836..1249e46 100644
 --- a/security/security.c
 +++ b/security/security.c
 @@ -438,6 +438,7 @@ int security_path_rmdir(struct path *dir, struct dentry *dentry)

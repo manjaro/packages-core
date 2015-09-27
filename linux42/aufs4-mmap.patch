@@ -1,4 +1,4 @@
-aufs4.x-rcN mmap patch
+aufs4.2 mmap patch
 
 diff --git a/fs/buffer.c b/fs/buffer.c
 index 1cf7a53..076aff86 100644
@@ -14,10 +14,10 @@ index 1cf7a53..076aff86 100644
  	ret = __block_page_mkwrite(vma, vmf, get_block);
  	sb_end_pagefault(sb);
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 87782e8..b287e64 100644
+index aa50d1a..f219321 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
-@@ -1934,7 +1934,7 @@ static int proc_map_files_get_link(struct dentry *dentry, struct path *path)
+@@ -1939,7 +1939,7 @@ static int proc_map_files_get_link(struct dentry *dentry, struct path *path)
  	down_read(&mm->mmap_sem);
  	vma = find_exact_vma(mm, vm_start, vm_end);
  	if (vma && vma->vm_file) {
@@ -84,10 +84,10 @@ index e0d64c9..7aa92db 100644
  		ino = inode->i_ino;
  		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 2e872f9..2494ed2 100644
+index bf6f117..65977ac9 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -1173,6 +1173,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
+@@ -1201,6 +1201,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
  }
  #endif
  
@@ -117,10 +117,10 @@ index 2e872f9..2494ed2 100644
  extern int access_remote_vm(struct mm_struct *mm, unsigned long addr,
  		void *buf, int len, int write);
 diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 0038ac7..409940d 100644
+index 1554957..9697ae1 100644
 --- a/include/linux/mm_types.h
 +++ b/include/linux/mm_types.h
-@@ -259,6 +259,7 @@ struct vm_region {
+@@ -250,6 +250,7 @@ struct vm_region {
  	unsigned long	vm_top;		/* region allocated to here */
  	unsigned long	vm_pgoff;	/* the offset in vm_file corresponding to vm_start */
  	struct file	*vm_file;	/* the backing file or NULL */
@@ -128,7 +128,7 @@ index 0038ac7..409940d 100644
  
  	int		vm_usage;	/* region usage count (access under nommu_region_sem) */
  	bool		vm_icache_flushed : 1; /* true if the icache has been flushed for
-@@ -323,6 +324,7 @@ struct vm_area_struct {
+@@ -314,6 +315,7 @@ struct vm_area_struct {
  	unsigned long vm_pgoff;		/* Offset (within vm_file) in PAGE_SIZE
  					   units, *not* PAGE_CACHE_SIZE */
  	struct file * vm_file;		/* File we map to (can be NULL). */
@@ -137,10 +137,10 @@ index 0038ac7..409940d 100644
  
  #ifndef CONFIG_MMU
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 1bfefc6..a86bd7f 100644
+index dbd9b8d..4549e0d 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -456,7 +456,7 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
+@@ -461,7 +461,7 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
  			struct inode *inode = file_inode(file);
  			struct address_space *mapping = file->f_mapping;
  
@@ -176,7 +176,7 @@ index 1283fc8..128f18f 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/memory.c b/mm/memory.c
-index a84fbb7..13973d2 100644
+index 388dcf9..ee1a3ef 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2034,7 +2034,7 @@ static inline int wp_page_reuse(struct mm_struct *mm,

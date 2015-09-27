@@ -11,10 +11,10 @@ pkgname=('linux42' 'linux42-headers')
 _kernelname=-MANJARO
 _basekernel=4.2
 _basever=42
-_aufs=20150921
+_aufs=20150928
 _bfq=v7r8
 pkgver=${_basekernel}.1
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -26,7 +26,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        "aufs4.2-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
         'aufs4-loopback.patch'
@@ -53,13 +53,13 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '82fc5776815590fbc6923dc8fa1377d6f2a03efafed37bd8ce1f2423168f36e6'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '2b7995347e629264e7b730d8e212b114941e7f0eba4ece03d03f011fedcdd5a8'
-            '214dffe8ccfa4aa0e17734dd6845bbf7b227401875e21031fabc26b46b003d35'
-            'd0d786f6a030f4db1b00f18b5c28f45ac694b110005b1d361fad43796878fe3b'
-            '3162ed0358a34e8b1cff25b46bd4aec7b1bd384c258c5a041cc1fcf3c7aebb71'
-            '329cfa5f5951611d8539e6b0c87fb2e07a046849f052217f39db01075f1e6663'
-            '5eb5a051fe3d1ac1fb67b7167684ef5536b6f526d260c5afbed66790da5acfba'
-            '3178da8cae4c4fac41cc2bcaf20071ead66fb311c21920cf7049feba056c5c6e'
+            'f53b79d41378b9d6506386169e2849ebe677ef4d0375e080d39b700bc3a7899d'
+            '63e244b95a7c0e7a7674e323599dff7951942ebf75db66cc87b0b4fa04e9dc07'
+            '870387384ca5877b4b9437eed8eabb6882d8d98d0927e8c58846a5327b26e272'
+            '6725319065cc5bf6e0e60fe8f064f54b6882b031a30e4fc966c49399c68a2be7'
+            '7071e02ea4cc7d177292c2823fac639c63b3794fec85b72e81180d006e5a05ef'
+            '9a0daf06bf3a46c8dfaadf22365d29acc8330e103c307cde55d8ec2ada8abf3d'
+            '9d6ef2a70f520cf975b9be005981ba920b6a55f72d30921199309012a9095fbd'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'ec0ca3c8051ea6d9a27a450998af8162464c224299deefc29044172940e96975'
@@ -118,7 +118,7 @@ prepare() {
   sed -i -e 's|f_dentry|f_path.dentry|g' "${srcdir}/aufs4-loopback.patch"
 
   # add aufs4 support
-  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4.2-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
   patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs4-loopback.patch"

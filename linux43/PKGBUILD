@@ -11,9 +11,9 @@ pkgname=('linux43' 'linux43-headers')
 _kernelname=-MANJARO
 _basekernel=4.3
 _basever=43
-_aufs=20150629
+_aufs=20150928
 _bfq=v7r8
-_rc=rc2
+_rc=rc3
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -25,19 +25,16 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
-        'config' 'config.x86_64' #'config.aufs'
+        'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        #"aufs4.x-rcN-${_aufs}.patch.bz2"
-        #'aufs4-base.patch'
-        #'aufs4-kbuild.patch'
-        #'aufs4-loopback.patch'
-        #'aufs4-mmap.patch'
-        #'aufs4-standalone.patch'
-        #'tmpfs-idr.patch'
-        #'0001-aufs-follow-change-to-follow_link-calling-convention.patch'
-        #'0001-UBUNTU-aufs4-aufs4-loopback.patch.patch'
-        #'0001-UBUNTU-aufs4-aufs4-standalone.patch.patch'
+        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        'aufs4-base.patch'
+        'aufs4-kbuild.patch'
+        'aufs4-loopback.patch'
+        'aufs4-mmap.patch'
+        'aufs4-standalone.patch'
+        'tmpfs-idr.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.1.patch"
@@ -45,22 +42,25 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.1.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
-        '0001-fix-bridge-regression.patch'
-        # Manjaro Patches
-        '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
 )
-sha256sums=('647995c4016bd3410a842c7c593d87d8f4583607dc49d6f1724b82bf411ef5d5'
-            '64677d439d86e4143b947d5333dfbff9b6ca1a8d58c6db2baeaa5b67983ecfba'
-            '2d57d4b3b7051c9c74c46beb2a908d84e500a02710b37c84b93ed288c4dc7e11'
+sha256sums=('ff6fc283b41ccd25f6e0e0e949da79f95e93e03170a07f8def6369b9127ef99f'
+            '2ea959a8f3629853ff2a3d4e7c7dd0ae3b3bba31bead7ba9ee2fbab412977544'
+            'c24bc7a7f00aa9a76c6092c21d7ec5309b0e098a01879e359893e721059316fa'
+            'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
+            '3856060756ee8f93ae3d5be5d6eeff8316a2f74b039f3ead12c59c34ff414f35'
+            'f45d75c836f885b87999d9edfaed2a2bda39376dd66fa260af86dfa2bd6a74a0'
+            '700ba3078894e932d6ef667f2d20e0f658be407868b2ce51df679d8c3df948a9'
+            '9cfa3a5c95525bf0b88b884464f2f45068498902874ba0869ab84732149847ad'
+            'b8886a7073c44f843b3a71d3ec0ab1a4a0047097eb0f407a29dbed50d2a6b3a4'
+            'ce9b53d9fabf22ab2a30719b7980999ff7adf4005bc48b522f686918772c246b'
+            'feff4cfcc0abb1c8e7c280a7c9d01b2ddbe5a9b3c1c662083944adbbcdbdfeb1'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'ec0ca3c8051ea6d9a27a450998af8162464c224299deefc29044172940e96975'
             'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '0a8fe4434e930d393c7983e335842f6cb77ee263af5592a0ca7e14bae7296183'
-            'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -73,39 +73,23 @@ prepare() {
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
 
-  # add not-yes-mainlined patch to fix bridge code
-  # https://bugzilla.kernel.org/show_bug.cgi?id=104161
-  patch -Np1 -i "${srcdir}/0001-fix-bridge-regression.patch"
-
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
 
-  # Fix Regression with 'x86/cacheinfo: Move cacheinfo sysfs code to generic infrastructure' on AMD i686
-  # https://github.com/manjaro/packages-core/issues/14
-  # https://bugzilla.kernel.org/show_bug.cgi?id=101971
-  patch -Np1 -i ../0001-cpu-cacheinfo-fix-teardown-path.patch
-
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
-  # fix aufs4
-  #sed -i -e 's|inode_sb_list_lock|blockdev_superblock->s_inode_list_lock|g' "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-  #sed -i -e 's|+extern spinlock_t blockdev_superblock->s_inode_list_lock;|+|g' "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-
   # add aufs4 support
-  #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-base.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  ##patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  ##patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
-  #patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
-  #patch -Np1 -i "${srcdir}/0001-aufs-follow-change-to-follow_link-calling-convention.patch"
-  #patch -Np1 -i "${srcdir}/0001-UBUNTU-aufs4-aufs4-loopback.patch.patch"
-  #patch -Np1 -i "${srcdir}/0001-UBUNTU-aufs4-aufs4-standalone.patch.patch"
+  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
@@ -118,7 +102,7 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-  #cat "${srcdir}/config.aufs" >> ./.config
+  cat "${srcdir}/config.aufs" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config

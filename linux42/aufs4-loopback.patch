@@ -1,4 +1,4 @@
-aufs4.x-rcN loopback patch
+aufs4.2 loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
 index 23103ad..5c3263f 100644
@@ -242,7 +242,7 @@ index 6d9864d..3322557 100644
  
  #endif /* __KERNEL__ */
 diff --git a/fs/aufs/super.c b/fs/aufs/super.c
-index ee5780d..da35759 100644
+index 7ae6ea1..1a30dc7 100644
 --- a/fs/aufs/super.c
 +++ b/fs/aufs/super.c
 @@ -807,7 +807,10 @@ static const struct super_operations aufs_sop = {
@@ -258,10 +258,10 @@ index ee5780d..da35759 100644
  
  /* ---------------------------------------------------------------------- */
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 86080ea..5f8e0f2 100644
+index 0e3fd62..999456d 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1708,6 +1708,10 @@ struct super_operations {
+@@ -1724,6 +1724,10 @@ struct super_operations {
  				  struct shrink_control *);
  	long (*free_cached_objects)(struct super_block *,
  				    struct shrink_control *);
