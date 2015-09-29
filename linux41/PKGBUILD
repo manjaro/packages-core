@@ -13,8 +13,8 @@ _basekernel=4.1
 _basever=41
 _aufs=20150928
 _bfq=v7r8
-pkgver=${_basekernel}.8
-pkgrel=3
+pkgver=${_basekernel}.9
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -42,17 +42,16 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Manjaro Patches
-        '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
-        '0002-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
-        '0003-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
-        '0004-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch::https://github.com/torvalds/linux/commit/f25801ee4680ef1db21e15c112e6e5fe3ffe8da5.patch'
-        '0005-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch::https://github.com/torvalds/linux/commit/4bacc9c9234c7c8eec44f5ed4e960d9f96fa0f01.patch'
-        '0006-ovl-fix-a-braino-in-ovl_d_select_inode.patch::https://github.com/torvalds/linux/commit/9391dd00d13c853ab4f2a85435288ae2202e0e43.patch'
+        '0001-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
+        '0002-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
+        '0003-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch::https://github.com/torvalds/linux/commit/f25801ee4680ef1db21e15c112e6e5fe3ffe8da5.patch'
+        '0004-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch::https://github.com/torvalds/linux/commit/4bacc9c9234c7c8eec44f5ed4e960d9f96fa0f01.patch'
+        '0005-ovl-fix-a-braino-in-ovl_d_select_inode.patch::https://github.com/torvalds/linux/commit/9391dd00d13c853ab4f2a85435288ae2202e0e43.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            '4373af2baaae5429be37e5257a22454d468f36b1322f784bb91a608c80ed52a1'
-            'db3d8ec1a51a0c89264bc57f0effe7148e6deb30d36cf6ff34b1d08e86303289'
-            '06cb0075c1a9d849f76b8520d05640bd09b5c6d20b99aa95ad32603ba77716fc'
+            '9912a9ce6aa47d96c526214349daf439d05c59015270dc64e19b065b309be107'
+            'e8960e484065c928ff3a271c68407a14f42a920c2723b5047394631afbcf33f9'
+            '102bb6e03ca706f7bc4fabb0cd1ca82b232821724119be4f18369a461c347dc0'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '41bd7ca63fe733f6719c0d7c79e0f796d6c902ede4c368c643df1cbdd5ecb68f'
@@ -69,7 +68,6 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             'e51c2c4ce7bce635e11a60f99580a9037d9e59a2039806537fe297ee29610e03'
             '38880e98ae93456bc67c74a639eb27f88662f6a266f25a268a50f0160ef72d2e'
@@ -87,17 +85,12 @@ prepare() {
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
 
-  # Fix Regression with 'x86/cacheinfo: Move cacheinfo sysfs code to generic infrastructure' on AMD i686
-  # https://github.com/manjaro/packages-core/issues/14
-  # https://bugzilla.kernel.org/show_bug.cgi?id=101971
-  patch -Np1 -i ../0001-cpu-cacheinfo-fix-teardown-path.patch
-
   # Fix https://github.com/manjaro/release-plan/issues/8
-  patch -Np1 -i ../0002-ovl-dont-traverse-automount-points.patch
-  patch -Np1 -i ../0003-ovl-allow-distributed-fs-as-lower-layer.patch
-  patch -Np1 -i ../0004-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch
-  patch -Np1 -i ../0005-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch
-  patch -Np1 -i ../0006-ovl-fix-a-braino-in-ovl_d_select_inode.patch
+  patch -Np1 -i ../0001-ovl-dont-traverse-automount-points.patch
+  patch -Np1 -i ../0002-ovl-allow-distributed-fs-as-lower-layer.patch
+  patch -Np1 -i ../0003-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch
+  patch -Np1 -i ../0004-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch
+  patch -Np1 -i ../0005-ovl-fix-a-braino-in-ovl_d_select_inode.patch
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
