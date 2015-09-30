@@ -42,6 +42,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Manjaro Patches
+        '0001-cpu-cacheinfo-fix-teardown-path.patch::https://patchwork.kernel.org/patch/6869641/raw/'
         '0001-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
         '0003-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch::https://github.com/torvalds/linux/commit/f25801ee4680ef1db21e15c112e6e5fe3ffe8da5.patch'
@@ -68,6 +69,7 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            'ff578988a74701131a37e87a5ba2b7888a8b468cb8dba2d4aaac6be276bd84f8'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             'e51c2c4ce7bce635e11a60f99580a9037d9e59a2039806537fe297ee29610e03'
             '38880e98ae93456bc67c74a639eb27f88662f6a266f25a268a50f0160ef72d2e'
@@ -84,6 +86,11 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # Fix Regression with 'x86/cacheinfo: Move cacheinfo sysfs code to generic infrastructure' on AMD i686
+  # https://github.com/manjaro/packages-core/issues/14
+  # https://bugzilla.kernel.org/show_bug.cgi?id=101971
+  patch -Np1 -i ../0001-cpu-cacheinfo-fix-teardown-path.patch
 
   # Fix https://github.com/manjaro/release-plan/issues/8
   patch -Np1 -i ../0001-ovl-dont-traverse-automount-points.patch
