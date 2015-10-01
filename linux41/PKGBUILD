@@ -13,7 +13,7 @@ _basekernel=4.1
 _basever=41
 _aufs=20150928
 _bfq=v7r8
-pkgver=${_basekernel}.9
+pkgver=${_basekernel}.10
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -48,9 +48,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0003-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch::https://github.com/torvalds/linux/commit/f25801ee4680ef1db21e15c112e6e5fe3ffe8da5.patch'
         '0004-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch::https://github.com/torvalds/linux/commit/4bacc9c9234c7c8eec44f5ed4e960d9f96fa0f01.patch'
         '0005-ovl-fix-a-braino-in-ovl_d_select_inode.patch::https://github.com/torvalds/linux/commit/9391dd00d13c853ab4f2a85435288ae2202e0e43.patch'
+        '0001-inet-fix-potential-deadlock-in-reqsk_queue_unlink.patch::http://git.kernel.org/cgit/linux/kernel/git/davem/net.git/patch/?id=83fccfc3940c4a2db90fd7e7079f5b465cd8c6af'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            '9912a9ce6aa47d96c526214349daf439d05c59015270dc64e19b065b309be107'
+            '1234'
             'e8960e484065c928ff3a271c68407a14f42a920c2723b5047394631afbcf33f9'
             '102bb6e03ca706f7bc4fabb0cd1ca82b232821724119be4f18369a461c347dc0'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -74,7 +75,8 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'e51c2c4ce7bce635e11a60f99580a9037d9e59a2039806537fe297ee29610e03'
             '38880e98ae93456bc67c74a639eb27f88662f6a266f25a268a50f0160ef72d2e'
             '56ddecbbe679abcc6680c676713cfe37722178f3c98d876955e8ad506d72ddf6'
-            'c0cc72732839030f4ad34f8dce902dacfa116b0b9c09b6f844926612c2696b5b')
+            'c0cc72732839030f4ad34f8dce902dacfa116b0b9c09b6f844926612c2696b5b'
+            '1234')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -98,6 +100,10 @@ prepare() {
   patch -Np1 -i ../0003-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch
   patch -Np1 -i ../0004-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch
   patch -Np1 -i ../0005-ovl-fix-a-braino-in-ovl_d_select_inode.patch
+
+  # Fix Soft lockup issue in Linux 4.1.9
+  # http://www.spinics.net/lists/kernel/msg2087337.html
+  patch -Np1 -i ../0001-inet-fix-potential-deadlock-in-reqsk_queue_unlink.patch
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
