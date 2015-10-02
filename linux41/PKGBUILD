@@ -48,7 +48,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0003-ovl-call-ovl_drop_write-earlier-in-ovl_dentry_open.patch::https://github.com/torvalds/linux/commit/f25801ee4680ef1db21e15c112e6e5fe3ffe8da5.patch'
         '0004-ovl-make-f_path-always-point-to-the-overlay-and-f_inode-to-the-underlay.patch::https://github.com/torvalds/linux/commit/4bacc9c9234c7c8eec44f5ed4e960d9f96fa0f01.patch'
         '0005-ovl-fix-a-braino-in-ovl_d_select_inode.patch::https://github.com/torvalds/linux/commit/9391dd00d13c853ab4f2a85435288ae2202e0e43.patch'
-        '0001-inet-fix-potential-deadlock-in-reqsk_queue_unlink.patch::http://git.kernel.org/cgit/linux/kernel/git/davem/net.git/patch/?id=83fccfc3940c4a2db90fd7e7079f5b465cd8c6af'
+        '0001-net-inet-fix-potential-deadlock-in-reqsk_queue_unlink.patch::http://git.kernel.org/cgit/linux/kernel/git/davem/net.git/patch/?id=83fccfc3940c4a2db90fd7e7079f5b465cd8c6af'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '1234'
@@ -103,7 +103,7 @@ prepare() {
 
   # Fix Soft lockup issue in Linux 4.1.9
   # http://www.spinics.net/lists/kernel/msg2087337.html
-  patch -Np1 -i ../0001-inet-fix-potential-deadlock-in-reqsk_queue_unlink.patch
+  patch -Np1 -i ../0001-net-inet-fix-potential-deadlock-in-reqsk_queue_unlink.patch
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
