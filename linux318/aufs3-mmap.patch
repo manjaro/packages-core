@@ -210,25 +210,6 @@ index 72b8fa3..a00bbf0 100644
  				err = 0;
  			}
  			goto out_freed;
-diff --git a/mm/madvise.c b/mm/madvise.c
-index 0938b30..0b66856 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -324,12 +324,12 @@ static long madvise_remove(struct vm_area_struct *vma,
- 	 * vma's reference to the file) can go away as soon as we drop
- 	 * mmap_sem.
- 	 */
--	get_file(f);
-+	vma_get_file(vma);
- 	up_read(&current->mm->mmap_sem);
- 	error = do_fallocate(f,
- 				FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
- 				offset, end - start);
--	fput(f);
-+	vma_fput(vma);
- 	down_read(&current->mm->mmap_sem);
- 	return error;
- }
 diff --git a/mm/memory.c b/mm/memory.c
 index d5f2ae9..0830a96 100644
 --- a/mm/memory.c
@@ -301,26 +282,6 @@ index ae91989..e3bee5c 100644
  			if (new_vma->vm_ops && new_vma->vm_ops->open)
  				new_vma->vm_ops->open(new_vma);
  			vma_link(mm, new_vma, prev, rb_link, rb_parent);
-diff --git a/mm/msync.c b/mm/msync.c
-index 992a167..ce1915b 100644
---- a/mm/msync.c
-+++ b/mm/msync.c
-@@ -84,13 +84,13 @@ SYSCALL_DEFINE3(msync, unsigned long, start, size_t, len, int, flags)
- 		start = vma->vm_end;
- 		if ((flags & MS_SYNC) && file &&
- 				(vma->vm_flags & VM_SHARED)) {
--			get_file(file);
-+			vma_get_file(vma);
- 			up_read(&mm->mmap_sem);
- 			if (vma->vm_flags & VM_NONLINEAR)
- 				error = vfs_fsync(file, 1);
- 			else
- 				error = vfs_fsync_range(file, fstart, fend, 1);
--			fput(file);
-+			vma_fput(vma);
- 			if (error || start >= end)
- 				goto out;
- 			down_read(&mm->mmap_sem);
 diff --git a/mm/nommu.c b/mm/nommu.c
 index bd1808e..c9ea035 100644
 --- a/mm/nommu.c
@@ -367,7 +328,7 @@ index bd1808e..c9ea035 100644
  	return ret;
 diff --git a/mm/prfile.c b/mm/prfile.c
 new file mode 100644
-index 0000000..4eb4ea7
+index 0000000..532e518
 --- /dev/null
 +++ b/mm/prfile.c
 @@ -0,0 +1,86 @@
@@ -392,7 +353,7 @@ index 0000000..4eb4ea7
 +{
 +#ifdef PRFILE_TRACE
 +	if (pr)
-+		pr_info("%s:%d: %s, %p\n", func, line, func2,
++		pr_info("%s:%d: %s, %s\n", func, line, func2,
 +			f ? (char *)f->f_dentry->d_name.name : "(null)");
 +#endif
 +}
