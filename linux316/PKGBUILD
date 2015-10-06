@@ -10,9 +10,9 @@ pkgname=('linux316' 'linux316-headers')
 _kernelname=-MANJARO
 _basekernel=3.16
 _basever=316
-_aufs=20150622
+_aufs=20150928 #last release
 _bfq=v7r8
-_subver=17
+_subver=18
 pkgver=${_basekernel}.7.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -59,7 +59,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.16.7.14.patch'
         '3.16.7.15.patch'
         '3.16.7.16.patch'
-        '3.16.7.17.patch')
+        '3.16.7.17.patch'
+        '3.16.7.18.patch')
 
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
@@ -67,11 +68,11 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '45602d7b1e3d10edfa174f7af904d310c5e5305e9464ebed5369728c4af891a2'
-            '016e8a20cf42b19fbc5743849f5ebead3a22b6bae0e6c128ceaab50f8d892d68'
+            '7bf3e6422850c8a91ca453dd6a634e803631025c9bc3dd1d26ab6dfff8124aef'
             'e216874f79dd2757eb385a2753dd828b7445bac03372bc5061ced717565a56d1'
             'a91c5affffb9e24cf0e34e1ab1c9e593219f67ef81834e0e4e9572281ef760c0'
-            '10807ccef4f7f00e60ad4f8381a8d205c112f7fce71b8eddb8efeab251cd3a2e'
-            '4530e544c06180ee4a1e61f7ad14968d4824cd54219705e4cfd701516781b33c'
+            '81b410f9b67ba389ef3063dda820a91c166efea07e49c2053f83fc07c5c10c8e'
+            '6c3278b7c9562d92e266386bce8c1ee3a130121190a9e2fd6f723ffa03dbc295'
             '8bb548b4dabbc2de460a8c25a77cc02e47a6b3c1e25aa44c67a65b64ccbfce05'
             '52b568d5504c88b3025ceed4620b35ff4c7a249bc0310bbbaf31c21c1cdf7899'
             'a728d65b64f1e7bc29ef1887341383af4da98ee1ab553e5e521c3cb3e725583d'
@@ -98,7 +99,8 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '2a52baaa48c5cd7cc2e792af6f2773860c489906ebbfc773be55057076d75fc2'
             'bc56130f9e2b0c8754359c21c944ef77a53a7b0eb20f2f50db5499155732ac0d'
             '3b8d5eb5a0ea244dab4531515d01a838d285a1ede8270f9d218f5c31ca9a456b'
-            '1c85a241b97cb59a8df8cf9f1d1d2726ff6d0c1bda8ddb70af3c2cc422e18ff3')
+            '1c85a241b97cb59a8df8cf9f1d1d2726ff6d0c1bda8ddb70af3c2cc422e18ff3'
+            'aa69a0a25c41c6b43b9a4de23b01364ad4b39398af04653adab58186b216eabc')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -124,6 +126,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.16.7.15.patch"
   patch -p1 -i "${srcdir}/3.16.7.16.patch"
   patch -p1 -i "${srcdir}/3.16.7.17.patch"
+  patch -p1 -i "${srcdir}/3.16.7.18.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
