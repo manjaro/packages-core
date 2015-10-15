@@ -42,6 +42,14 @@ detectDE()
 }
 
 post_upgrade() {
+
+        # fix the openrc upgrade and pull in udev-openrc & netifrc
+	pacman -Qq openrc-core &> /tmp/cmd1
+	if [ "$(vercmp $2 0.18.3-1)" -lt 0 ] && \
+		[ "$(grep 'openrc-core' /tmp/cmd1)" == "openrc-core" ];then
+		pacman --noconfirm -Syu udev-openrc netifrc &> /dev/null
+	fi
+
 	# fix oberon's signature
 	if [ "$(vercmp $2 20150814-1)" -lt 0 ]; then
 		# running dirmngr helps prevent pacman-key from failing to connect to servers
@@ -101,14 +109,14 @@ post_upgrade() {
 		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman --noconfirm -Rdd steam steam-native
 		pacman --noconfirm -S steam-manjaro
-	fi     
+	fi
 	if [[ "$(grep 'steam' /tmp/cmd1)" == "steam" && "$(grep 'steam-native' /tmp/cmd2)" == *"not"* ]]; then
 		msg "Replacing steam with steam-manjaro ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman --noconfirm -Rdd steam
 		pacman --noconfirm -S steam-manjaro
 	fi
-	
+
 	# dropbox returns to normal
 	pacman -Qq dropbox3 &> /tmp/cmd1
 	pacman -Qq dropbox2 &> /tmp/cmd2
@@ -169,7 +177,7 @@ post_upgrade() {
 		pacman-key -r B35859F8
 		pacman-key --lsign-key B35859F8
 	fi
-	
+
 	# fix cups service name for cups 2.0
 	if [ "$(vercmp $2 20141120-1)" -lt 0 ]; then
 		if [ -h "/etc/systemd/system/multi-user.target.wants/cups.service" ]; then
@@ -185,7 +193,7 @@ post_upgrade() {
 		pacman-key -r 5DCB998E
 		pacman-key --lsign-key 5DCB998E
 	fi
-	
+
 	# fix java-runtime-common replaces java-common (https://www.archlinux.org/news/java-users-manual-intervention-required-before-upgrade/)
 	if [ "$(vercmp $2 20141013-1)" -lt 0 ]; then
 		pacman -Qq java-common &> /tmp/cmd1
@@ -235,7 +243,7 @@ post_upgrade() {
 		pacman-key --lsign-key 604F8BA2
 		sed -i -e s'|^.*SyncFirst.*|SyncFirst   = manjaro-system|g' /etc/pacman.conf
 	fi
-	
+
 	# fix kwallet
 	pacman -Qq kdeutils-kwallet &> /tmp/cmd1
 	if [ "$(grep 'kdeutils-kwallet' /tmp/cmd1)" == "kdeutils-kwallet" ]; then
@@ -244,8 +252,8 @@ post_upgrade() {
 		pacman --noconfirm -Rdd kdeutils-kwallet
 		pacman --noconfirm -S kdeutils-kwalletmanager
 	fi
-	
-	
+
+
 	# fix twisted
 	pacman -Qq twisted &> /tmp/cmd1
 	pacman -Q twisted &> /tmp/cmd2
