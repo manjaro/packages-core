@@ -43,13 +43,13 @@ detectDE()
 
 post_upgrade() {
 
-        # fix the openrc upgrade and pull in udev-openrc & netifrc
+        # fix the openrc upgrade and pull in netifrc
 	pacman -Qq openrc-core &> /tmp/cmd1
-	if [ "$(vercmp $2 0.18.3-1)" -lt 0 ] && \
+	if [ "$(vercmp $2 0.18)" -gt 0 ] && \
 		[ "$(grep 'openrc-core' /tmp/cmd1)" == "openrc-core" ];then
-		msg "Installing additional 'openrc' packages ..."
+		msg "Installing additional 'openrc' package ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -Syu udev-openrc netifrc &> /dev/null
+		pacman --noconfirm -Syu netifrc &> /dev/null
 	fi
 
 	# fix oberon's signature
