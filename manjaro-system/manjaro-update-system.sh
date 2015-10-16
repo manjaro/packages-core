@@ -47,6 +47,8 @@ post_upgrade() {
 	pacman -Qq openrc-core &> /tmp/cmd1
 	if [ "$(vercmp $2 0.18.3-1)" -lt 0 ] && \
 		[ "$(grep 'openrc-core' /tmp/cmd1)" == "openrc-core" ];then
+		msg "Installing additional 'openrc' packages ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman --noconfirm -Syu udev-openrc netifrc &> /dev/null
 	fi
 
@@ -63,6 +65,8 @@ post_upgrade() {
 	pacman -Qq eudev-systemdcompat &> /tmp/cmd1
 	if [ "$(vercmp $2 211-1)" -lt 0 ] && \
 		[ "$(grep 'eudev-systemdcompat' /tmp/cmd1)" == "eudev-systemdcompat" ];then
+		msg "Fixing eudev/eudev-systemdcompat upgrade ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman --noconfirm -Syu libgudev &> /dev/null
 	fi
 
