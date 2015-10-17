@@ -52,6 +52,14 @@ post_upgrade() {
 		pacman --noconfirm -Syu netifrc &> /dev/null
 	fi
 
+        pacman -Qq dbus-openrc &> /tmp/cmd1
+	if [ "$(vercmp $2 1.10.0)" -eq 1 ] && \
+		[ "$(grep 'dbus-openrc' /tmp/cmd1)" == "dbus-openrc" ];then
+		msg "Upgrading 'dbus-openrc' ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -Syu dbus-openrc &> /dev/null
+	fi
+
 	# fix oberon's signature
 	if [ "$(vercmp $2 20150814-1)" -lt 0 ]; then
 		# running dirmngr helps prevent pacman-key from failing to connect to servers
