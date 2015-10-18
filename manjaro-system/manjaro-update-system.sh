@@ -43,21 +43,23 @@ detectDE()
 
 post_upgrade() {
 
-        pacman -Qq dbus-openrc &> /tmp/cmd1
-	if [ "$(vercmp $2 1.10.0)" -eq 1 ] && \
-		[ "$(grep 'dbus-openrc' /tmp/cmd1)" == "dbus-openrc" ];then
+        # fix the dbus-openrc upgrade and pull in netifrc
+        pacman -Qq dbus-openrc &> /tmp/cmd_dbus_rc
+	if [ "$(vercmp $2 20150611)" -gt 0 ] && \
+		[ "$(grep 'dbus-openrc' /tmp/cmd_dbus_rc)" == "dbus-openrc" ];then
 		msg "Upgrading 'dbus-openrc' ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -S dbus-openrc
+		pacman --noconfirm -Rdd dbus
+		pacman --noconfirm -Syu dbus-openrc netifrc
 	fi
 
         # fix the openrc upgrade and pull in netifrc
-	pacman -Qq openrc-core &> /tmp/cmd1
+	pacman -Qq openrc-core &> /tmp/cmd_netifrc
 	if [ "$(vercmp $2 0.18)" -gt 0 ] && \
-		[ "$(grep 'openrc-core' /tmp/cmd1)" == "openrc-core" ];then
+		[ "$(grep 'openrc-core' /tmp/cmd_netifrc)" == "openrc-core" ];then
 		msg "Installing additional 'openrc' package ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -S netifrc
+		pacman --noconfirm -Syu netifrc
 	fi
 
 	# fix oberon's signature
