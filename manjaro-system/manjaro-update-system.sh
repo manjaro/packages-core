@@ -49,7 +49,7 @@ post_upgrade() {
 		[ "$(grep 'openrc-core' /tmp/cmd1)" == "openrc-core" ];then
 		msg "Installing additional 'openrc' package ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -S netifrc &> /dev/null
+		pacman --noconfirm -Syu netifrc
 	fi
 
         pacman -Qq dbus-openrc &> /tmp/cmd1
@@ -57,7 +57,7 @@ post_upgrade() {
 		[ "$(grep 'dbus-openrc' /tmp/cmd1)" == "dbus-openrc" ];then
 		msg "Upgrading 'dbus-openrc' ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -S dbus-openrc &> /dev/null
+		pacman --noconfirm -Syu dbus-openrc
 	fi
 
 	# fix oberon's signature
@@ -75,7 +75,7 @@ post_upgrade() {
 		[ "$(grep 'eudev-systemdcompat' /tmp/cmd1)" == "eudev-systemdcompat" ];then
 		msg "Fixing eudev/eudev-systemdcompat upgrade ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -S libgudev &> /dev/null
+		pacman --noconfirm -Syu libgudev
 	fi
 
 	# add missing xdg-user-dirs
