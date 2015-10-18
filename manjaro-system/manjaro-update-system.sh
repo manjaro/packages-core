@@ -43,21 +43,21 @@ detectDE()
 
 post_upgrade() {
 
+        pacman -Qq dbus-openrc &> /tmp/cmd1
+	if [ "$(vercmp $2 1.10.0)" -eq 1 ] && \
+		[ "$(grep 'dbus-openrc' /tmp/cmd1)" == "dbus-openrc" ];then
+		msg "Upgrading 'dbus-openrc' ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -S dbus-openrc
+	fi
+
         # fix the openrc upgrade and pull in netifrc
 	pacman -Qq openrc-core &> /tmp/cmd1
 	if [ "$(vercmp $2 0.18)" -gt 0 ] && \
 		[ "$(grep 'openrc-core' /tmp/cmd1)" == "openrc-core" ];then
 		msg "Installing additional 'openrc' package ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -Syu netifrc
-	fi
-
-        pacman -Qq dbus-openrc &> /tmp/cmd1
-	if [ "$(vercmp $2 1.10.0)" -eq 1 ] && \
-		[ "$(grep 'dbus-openrc' /tmp/cmd1)" == "dbus-openrc" ];then
-		msg "Upgrading 'dbus-openrc' ..."
-		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -Syu dbus-openrc
+		pacman --noconfirm -S netifrc
 	fi
 
 	# fix oberon's signature
@@ -75,7 +75,7 @@ post_upgrade() {
 		[ "$(grep 'eudev-systemdcompat' /tmp/cmd1)" == "eudev-systemdcompat" ];then
 		msg "Fixing eudev/eudev-systemdcompat upgrade ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -Syu libgudev
+		pacman --noconfirm -S libgudev
 	fi
 
 	# add missing xdg-user-dirs
