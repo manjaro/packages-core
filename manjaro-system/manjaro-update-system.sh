@@ -43,6 +43,15 @@ detectDE()
 
 post_upgrade() {
 
+        # stop gdm attempting to use wayland
+        if [ "$(vercmp $2 20151019-1)" -lt 0 ]; then
+		pacman -Qq gdm &> /tmp/cmd1
+		if [[ "$(grep 'gdm' /tmp/cmd1)" == "gdm" ]]; then
+			msg "Stop GDM attempting to use Wayland ..."
+			sed -i -e 's/#WaylandEnable=false/WaylandEnable=false/' /etc/gdm/custom.conf
+		fi
+	fi
+
         # fix the dbus-openrc upgrade and pull in netifrc
         pacman -Qq dbus-openrc &> /tmp/cmd_dbus_rc
 	if [ "$(vercmp $2 20150611)" -gt 0 ] && \
