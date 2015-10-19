@@ -44,7 +44,7 @@ detectDE()
 post_upgrade() {
 
         # stop gdm attempting to use wayland
-        if [ "$(vercmp $2 20151019-1)" -lt 0 ]; then
+        if [ "$(vercmp $2 20151019-2)" -lt 0 ]; then
 		pacman -Qq gdm &> /tmp/cmd1
 		if [[ "$(grep 'gdm' /tmp/cmd1)" == "gdm" ]]; then
 			msg "Stop GDM attempting to use Wayland ..."

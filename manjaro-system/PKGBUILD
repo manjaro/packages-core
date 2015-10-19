@@ -6,12 +6,12 @@
 
 pkgname=manjaro-system
 pkgver=20$(date +%y%m%d)
-pkgrel=4
+pkgrel=2
 pkgdesc="Manjaro Linux System - Update script"
 arch=('any')
 url="http://www.manjaro.org"
 license=('GPL')
 groups=('base')
 depends=('mkinitcpio>=0.12.0-2' 'pcmciautils>=018-5' 'linux>=3.4' 'pacman>=4.2' 'coreutils' 'sed' 'awk' 'pacman-init')
-provides=('pacman=4.1.2') # to fix pacman 4.2 update
+provides=('pacman=4.1.2' 'dbus-openrc=20150611') # to fix pacman 4.2 and openrc 1.10.0 update
 install=manjaro-update-system.sh
