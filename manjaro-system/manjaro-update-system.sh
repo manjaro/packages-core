@@ -54,7 +54,7 @@ post_upgrade() {
 
         # fix the dbus-openrc upgrade and pull in netifrc
         pacman -Qq dbus-openrc &> /tmp/cmd_dbus_rc
-	if [ "$(vercmp $2 20150611)" -gt 0 ] && \
+	if [ "$(vercmp $2 20150611)" -eq 0 ] && \
 		[ "$(grep 'dbus-openrc' /tmp/cmd_dbus_rc)" == "dbus-openrc" ];then
 		msg "Upgrading 'dbus-openrc' ..."
 		rm /var/lib/pacman/db.lck &> /dev/null
