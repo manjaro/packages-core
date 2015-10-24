@@ -209,25 +209,6 @@ index 34feba6..5397350 100644
  				err = 0;
  			}
  			goto out_freed;
-diff --git a/mm/madvise.c b/mm/madvise.c
-index a402f8f..134e15d 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -327,12 +327,12 @@ static long madvise_remove(struct vm_area_struct *vma,
- 	 * vma's reference to the file) can go away as soon as we drop
- 	 * mmap_sem.
- 	 */
--	get_file(f);
-+	vma_get_file(vma);
- 	up_read(&current->mm->mmap_sem);
- 	error = do_fallocate(f,
- 				FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
- 				offset, end - start);
--	fput(f);
-+	vma_fput(vma);
- 	down_read(&current->mm->mmap_sem);
- 	return error;
- }
 diff --git a/mm/memory.c b/mm/memory.c
 index 749e1c6..d46df34 100644
 --- a/mm/memory.c
@@ -309,23 +290,6 @@ index d4c97ba..837741e 100644
  			if (new_vma->vm_ops && new_vma->vm_ops->open)
  				new_vma->vm_ops->open(new_vma);
  			vma_link(mm, new_vma, prev, rb_link, rb_parent);
-diff --git a/mm/msync.c b/mm/msync.c
-index 632df45..02d770e 100644
---- a/mm/msync.c
-+++ b/mm/msync.c
-@@ -80,10 +80,10 @@ SYSCALL_DEFINE3(msync, unsigned long, start, size_t, len, int, flags)
- 		start = vma->vm_end;
- 		if ((flags & MS_SYNC) && file &&
- 				(vma->vm_flags & VM_SHARED)) {
--			get_file(file);
-+			vma_get_file(vma);
- 			up_read(&mm->mmap_sem);
- 			error = vfs_fsync(file, 0);
--			fput(file);
-+			vma_fput(vma);
- 			if (error || start >= end)
- 				goto out;
- 			down_read(&mm->mmap_sem);
 diff --git a/mm/nommu.c b/mm/nommu.c
 index 76b3f90..244dd6a 100644
 --- a/mm/nommu.c
@@ -372,7 +336,7 @@ index 76b3f90..244dd6a 100644
  	return ret;
 diff --git a/mm/prfile.c b/mm/prfile.c
 new file mode 100644
-index 0000000..4eb4ea7
+index 0000000..532e518
 --- /dev/null
 +++ b/mm/prfile.c
 @@ -0,0 +1,86 @@
@@ -397,7 +361,7 @@ index 0000000..4eb4ea7
 +{
 +#ifdef PRFILE_TRACE
 +	if (pr)
-+		pr_info("%s:%d: %s, %p\n", func, line, func2,
++		pr_info("%s:%d: %s, %s\n", func, line, func2,
 +			f ? (char *)f->f_dentry->d_name.name : "(null)");
 +#endif
 +}
