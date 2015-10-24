@@ -11,9 +11,9 @@ pkgname=('linux319' 'linux319-headers')
 _kernelname=-MANJARO
 _basekernel=3.19
 _basever=319
-_aufs=20150921
+_aufs=20151012
 _bfq=v7r8
-_subver=7
+_subver=8
 pkgver=${_basekernel}.8.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -50,6 +50,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.19.8.5.patch'
         '3.19.8.6.patch'
         '3.19.8.7.patch'
+        '3.19.8.8.patch'
 )
 sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '2e4f01c2ce7ccb2ffee1722724df0a2c2ad6ba5fa74218aa816bda19f3ddcf5d'
@@ -57,10 +58,10 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             'fd9b059ff1c172071b6c04e42d10b39c228f332d6ce67009a672d635445aecf5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '45602d7b1e3d10edfa174f7af904d310c5e5305e9464ebed5369728c4af891a2'
-            '7e8273ffbc1f95eeb36935e94d03c41d83a75d16fef4bc1eeee5bd43dbf19c23'
+            '7a803485460341456d3fe672d963e4cb431722d3f55b1f863cedba889efecd4e'
             '2a011ded0cd9b3372543bc1cd7a42b55a8ac7aca1ca59326a884ed53681f776a'
             'b056b1927376bddc6a5ab8b5f2bb8566a54b89aa58a4c7749206c19eb55ea62f'
-            '7185155acaea3adcc8d024c9c1d568eb0c0684fb3384e54109147e48f4cd4c8d'
+            'c3c49a283a4cdddf32032d43aecdec3ca0154f3158b8e56fc3526db5a693913a'
             '06a41dfb75b2ebc802601364d27c4022e43c1afa448a6095b6f234060dc5d73b'
             '0b45ea1e0eb0bca8d34afddd2205761ca479f015e9d1d6edc07cbd5c225f1897'
             '1f009751593946e9e35baaeab01816d92f2b0bd5beae70dcbdd6a2865cc56b80'
@@ -77,7 +78,8 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '3819dc38a6be661672a0971831efd850a0e68878d100a08d4ebfca041f2ba456'
             '4bddf5b8e4c5259bbf4a83f492b36e9f6036a433d91f5c01708c57a8b23adeba'
             '3864caf9e18f9059355729753a968187aae237eca021969c825266ab5a37921e'
-            'd4d61ad6ef188511e14497b6e70eef098b59669c2ddf81396bc9c65dff90f2c0')
+            'd4d61ad6ef188511e14497b6e70eef098b59669c2ddf81396bc9c65dff90f2c0'
+            '61b27a13c44ea0d86afc2de8ed725b4ad30d8375d43f1fad865dbf8abb685a0e')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -93,6 +95,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.19.8.5.patch"
   patch -p1 -i "${srcdir}/3.19.8.6.patch"
   patch -p1 -i "${srcdir}/3.19.8.7.patch"
+  patch -p1 -i "${srcdir}/3.19.8.8.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
