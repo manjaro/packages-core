@@ -13,7 +13,7 @@ _basekernel=4.3
 _basever=43
 _aufs=20151012
 _bfq=v7r8
-_rc=rc6
+_rc=rc7
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -37,13 +37,13 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'tmpfs-idr.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.1.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.1.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.1.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.1.0.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.2.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.2.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.2.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.2.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.2.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.2.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
 )
-sha256sums=('fbf68fe15dfa71c0bd18a067db57ddbc40b12440602df4d1cb4aee26f1a02ea2'
+sha256sums=('da077d96da730c3c4d313d3faad8464c4ad23231f181bf2a88a8a3ed074f3706'
             '2ea959a8f3629853ff2a3d4e7c7dd0ae3b3bba31bead7ba9ee2fbab412977544'
             'c24bc7a7f00aa9a76c6092c21d7ec5309b0e098a01879e359893e721059316fa'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -57,9 +57,9 @@ sha256sums=('fbf68fe15dfa71c0bd18a067db57ddbc40b12440602df4d1cb4aee26f1a02ea2'
             'feff4cfcc0abb1c8e7c280a7c9d01b2ddbe5a9b3c1c662083944adbbcdbdfeb1'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            'ec0ca3c8051ea6d9a27a450998af8162464c224299deefc29044172940e96975'
-            'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
-            '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
+            '7121c13de897827a59cee4ac3302f512b7ba9e601f7a1af07c4587fa39afac4a'
+            'e5789fc460e508f4082d7ebcd5f6c4bcddfaa03b7cd827d0b58236b1e989e218'
+            'ca28a57d630828c7deef8f847259a4a2c2b5b7ca6dd8e0713f21bbde3d5411bc'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
