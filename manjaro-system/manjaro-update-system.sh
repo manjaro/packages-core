@@ -103,9 +103,12 @@ post_upgrade() {
 	pacman -Qq xfce4-session &> /tmp/cmd1
 	pacman -Qq lxsession &> /tmp/cmd2
 	pacman -Qq lxde-common &> /tmp/cmd3
+	pacman -Qq openbox &> /tmp/cmd4
 	if [[ "$(grep 'xfce4-session' /tmp/cmd1)" == "xfce4-session" && "$(grep 'lxsession' /tmp/cmd2)" == "lxsession" ]]; then
 		if [[ "$(grep 'lxde-common' /tmp/cmd3)" == "lxde-common" ]]; then
 			msg "Warning: You're running LXDE and XFCE. Please fix polkit-client issues on your own."
+		elif [[ "$(grep 'openbox' /tmp/cmd4)" == "openbox" ]]; then
+			msg "Warning: You're running Openbox and XFCE. Please fix polkit-client issues on your own."
 		else
 			msg "Removing lxsession ..."
 			rm /var/lib/pacman/db.lck &> /dev/null
