@@ -12,7 +12,7 @@ _basekernel=3.16
 _basever=316
 _aufs=20150928 #last release
 _bfq=v7r8
-_subver=18
+_subver=19
 pkgver=${_basekernel}.7.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -60,7 +60,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.16.7.15.patch'
         '3.16.7.16.patch'
         '3.16.7.17.patch'
-        '3.16.7.18.patch')
+        '3.16.7.18.patch'
+        '3.16.7.19.patch')
 
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
@@ -100,7 +101,8 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'bc56130f9e2b0c8754359c21c944ef77a53a7b0eb20f2f50db5499155732ac0d'
             '3b8d5eb5a0ea244dab4531515d01a838d285a1ede8270f9d218f5c31ca9a456b'
             '1c85a241b97cb59a8df8cf9f1d1d2726ff6d0c1bda8ddb70af3c2cc422e18ff3'
-            'aa69a0a25c41c6b43b9a4de23b01364ad4b39398af04653adab58186b216eabc')
+            'aa69a0a25c41c6b43b9a4de23b01364ad4b39398af04653adab58186b216eabc'
+            '86e4424c45ff30ad25b9c24b6d318a52f813b4146114076074baf7e60bc1b47c')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -127,6 +129,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.16.7.16.patch"
   patch -p1 -i "${srcdir}/3.16.7.17.patch"
   patch -p1 -i "${srcdir}/3.16.7.18.patch"
+  patch -p1 -i "${srcdir}/3.16.7.19.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git

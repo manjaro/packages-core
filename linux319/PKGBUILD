@@ -13,7 +13,7 @@ _basekernel=3.19
 _basever=319
 _aufs=20151012
 _bfq=v7r8
-_subver=8
+_subver=9
 pkgver=${_basekernel}.8.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -51,6 +51,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.19.8.6.patch'
         '3.19.8.7.patch'
         '3.19.8.8.patch'
+        '3.19.8.9.patch'
 )
 sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '2e4f01c2ce7ccb2ffee1722724df0a2c2ad6ba5fa74218aa816bda19f3ddcf5d'
@@ -79,7 +80,8 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '4bddf5b8e4c5259bbf4a83f492b36e9f6036a433d91f5c01708c57a8b23adeba'
             '3864caf9e18f9059355729753a968187aae237eca021969c825266ab5a37921e'
             'd4d61ad6ef188511e14497b6e70eef098b59669c2ddf81396bc9c65dff90f2c0'
-            '61b27a13c44ea0d86afc2de8ed725b4ad30d8375d43f1fad865dbf8abb685a0e')
+            '61b27a13c44ea0d86afc2de8ed725b4ad30d8375d43f1fad865dbf8abb685a0e'
+            '2960ff4cf1f2c1f4411c66dc618792aa0cb62da85d8c697f1f5e3279973ec40b')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -96,6 +98,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.19.8.6.patch"
   patch -p1 -i "${srcdir}/3.19.8.7.patch"
   patch -p1 -i "${srcdir}/3.19.8.8.patch"
+  patch -p1 -i "${srcdir}/3.19.8.9.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
