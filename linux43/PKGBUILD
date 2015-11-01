@@ -13,16 +13,14 @@ _basekernel=4.3
 _basever=43
 _aufs=20151012
 _bfq=v7r8
-_rc=rc7
-pkgver=${_basekernel}${_rc}
+pkgver=${_basekernel}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
-source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -44,8 +42,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'change-default-console-loglevel.patch'
 )
 sha256sums=('da077d96da730c3c4d313d3faad8464c4ad23231f181bf2a88a8a3ed074f3706'
-            '2ea959a8f3629853ff2a3d4e7c7dd0ae3b3bba31bead7ba9ee2fbab412977544'
-            'c24bc7a7f00aa9a76c6092c21d7ec5309b0e098a01879e359893e721059316fa'
+            'd5f0ab75e640b8d8fb5fc44857c13b38ef03c2ba2438f74d0e5402f2faa62bfb'
+            '970e8b4b45519e201081e2deab32669cfa7947f715637af2ec94e4fb5cd6df27'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '016247768790c5d3d8c8d2abf0d372d471c211c983cfeb0358a5e7a7842e0659'
@@ -63,7 +61,7 @@ sha256sums=('da077d96da730c3c4d313d3faad8464c4ad23231f181bf2a88a8a3ed074f3706'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
@@ -134,7 +132,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -147,7 +145,7 @@ package_linux43() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -213,7 +211,7 @@ package_linux43-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
