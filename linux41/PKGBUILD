@@ -14,7 +14,7 @@ _basever=41
 _aufs=20151012
 _bfq=v7r8
 pkgver=${_basekernel}.12
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -42,8 +42,13 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Manjaro Patches
-        '0001-ovl-dont-traverse-automount-points.patch'
-        '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
+        '0001-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
+        '0002-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
+        '0003-ovl-use-O_LARGEFILE-in-ovl_copy_up.patch::https://github.com/torvalds/linux/commit/0480334fa60488d12ae101a02d7d9e1a3d03d7dd.patch'
+        '0004-ovl-fix-dentry-reference-leak.patch::https://github.com/torvalds/linux/commit/ab79efab0a0ba01a74df782eb7fa44b044dae8b5.patch'
+        '0005-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
+        '0006-ovl-free-stack-of-paths-in-ovl_fill_super.patch::https://github.com/torvalds/linux/commit/0f95502ad84874b3c05fc7cdd9d4d9d5cddf7859.patch'
+        '0007-ovl-free-lower_mnt-array-in-ovl_put_super.patch::https://github.com/torvalds/linux/commit/5ffdbe8bf1e485026e1c7e4714d2841553cf0b40.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'f3520b06e6a2b9929173c680de75f11cde9f0a380e04195d538b5de820a549ae'
@@ -66,7 +71,12 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
-            '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9')
+            '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
+            '7521997a7591de4f69c6a2eb0aa41e44fa8a73268b7713e208b1afee9703fbad'
+            '2b336b1f5de4b5030fd53824d7937604ef3d6e6bc480e1062936395c750f813e'
+            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
+            '85bcaa22999398da6df406302118c677ab687b50d7d8d8c49bc91a09d3b792d8'
+            'c357f8589c780c9b73a5cd9ad633892311abb54764284a607a0b4e72c5948984')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -80,8 +90,14 @@ prepare() {
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
 
   # Fix https://github.com/manjaro/release-plan/issues/8
+  # Backports from v4.2 and v4.3
   patch -Np1 -i ../0001-ovl-dont-traverse-automount-points.patch
   patch -Np1 -i ../0002-ovl-allow-distributed-fs-as-lower-layer.patch
+  patch -Np1 -i ../0003-ovl-use-O_LARGEFILE-in-ovl_copy_up.patch
+  patch -Np1 -i ../0004-ovl-fix-dentry-reference-leak.patch
+  patch -Np1 -i ../0005-ovl-fix-open-in-stacked-overlay.patch
+  patch -Np1 -i ../0006-ovl-free-stack-of-paths-in-ovl_fill_super.patch
+  patch -Np1 -i ../0007-ovl-free-lower_mnt-array-in-ovl_put_super.patch
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
