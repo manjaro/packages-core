@@ -1,4 +1,4 @@
-aufs4.x-rcN mmap patch
+aufs4.3 mmap patch
 
 diff --git a/fs/buffer.c b/fs/buffer.c
 index 82283ab..477e5f3 100644
@@ -163,7 +163,7 @@ index 2ed4319..e3a53f5 100644
  obj-y += init-mm.o
  
 diff --git a/mm/filemap.c b/mm/filemap.c
-index 72940fb..42642cc 100644
+index 327910c..7bbc372 100644
 --- a/mm/filemap.c
 +++ b/mm/filemap.c
 @@ -2089,7 +2089,7 @@ int filemap_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
@@ -176,7 +176,7 @@ index 72940fb..42642cc 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/memory.c b/mm/memory.c
-index 9cb2747..d7d48fe 100644
+index deb679c..df2ce3e 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2035,7 +2035,7 @@ static inline int wp_page_reuse(struct mm_struct *mm,

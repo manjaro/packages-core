@@ -11,18 +11,17 @@ pkgname=('linux41' 'linux41-headers')
 _kernelname=-MANJARO
 _basekernel=4.1
 _basever=41
-_aufs=20151012
+_aufs=20151109
 _bfq=v7r8
-_pkgver=${_basekernel}.12
 pkgver=${_basekernel}.13
-pkgrel=0
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${_pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -46,17 +45,17 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0001-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
-        'prepatch-4.1-20151108')
+)
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            'f3520b06e6a2b9929173c680de75f11cde9f0a380e04195d538b5de820a549ae'
+            '1c3ba78cbaa1a260798d6d0d2aa319ff41ae676b443e5bf06ab441436dcdd171'
             'e8960e484065c928ff3a271c68407a14f42a920c2723b5047394631afbcf33f9'
             '102bb6e03ca706f7bc4fabb0cd1ca82b232821724119be4f18369a461c347dc0'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '60d52aaa72845d169e0b599c1acbbf0964e2a81faa965db5e8c63c8536b7af45'
+            '85a2a2d9921cf4a33b7f1afc6d7976a0716c21ea8cd7acdd00596ae6c7f94fc0'
             'b20a0ddb146d1e7e861dbdf1c6f99b92a822ff975e30fff8f3cea29e257fcfb9'
             '68baa54faa3dbb76522b1f311c8b4e780e4244836c1ae5396a8d943842ee80a7'
-            '5571fe9290f7de5534279762defc2522deff4eef6c31dc47ef61b20e18aaccaa'
+            '0e5db396e86046bd20377f8f8d17337fa2d7bbbac88c648111540600df75f287'
             'f37278b6e57ba3e371f953a91e04ab70b6ec29a50426684fdf2893753540c040'
             '99febb7e7399ea6237b42bb07e2fc877ab9eaa1d68339839ed958ad4ac248a74'
             '1f64e8e78169bc7b3658e2e948cea9d88724cef419b6e9af25101e247796cd5a'
@@ -69,20 +68,18 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
-            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
-            '39734b0ca89a53741c5dac506c92fb44520ff51e5564f0a378c1b3ce6cad85dd')
+            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${_pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
-  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
-  patch -Np1 -i "${srcdir}/prepatch-4.1-20151108"
+  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`-date +%Y%m%d`"
 
   # Fix https://github.com/manjaro/release-plan/issues/8
   # Backports from v4.2 and v4.3
@@ -129,9 +126,6 @@ prepare() {
 
   # set extraversion to pkgrel
   sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
-
-  # remove this
-  sed -ri "s|^(SUBLEVEL =).*|\1 13|" Makefile
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh
