@@ -4,135 +4,73 @@
 
 # Maintainer: Philip Müller <philm@manjaro.org>
 # Maintainer: Guinux <guillaume@manjaro.org>
+# Maintainer: Rob McCathie <rob@manjaro.org>
 
-pkgbase=linux316
-pkgname=('linux316' 'linux316-headers')
+pkgbase=linux44
+pkgname=('linux44' 'linux44-headers')
 _kernelname=-MANJARO
-_basekernel=3.16
-_basever=316
-_aufs=20150928 #last release
+_basekernel=4.4
+_basever=44
+_aufs=20151116
 _bfq=v7r8
-_subver=20
-pkgver=${_basekernel}.7.${_subver}
+_rc=rc1
+pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
-source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${_basekernel}.7.xz"
+source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs3.16-${_aufs}.patch.bz2"
-        'aufs3-base.patch'
-        'aufs3-kbuild.patch'
-        'aufs3-loopback.patch'
-        'aufs3-mmap.patch'
-        'aufs3-standalone.patch'
+        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        'aufs4-base.patch'
+        'aufs4-kbuild.patch'
+        'aufs4-loopback.patch'
+        'aufs4-mmap.patch'
+        'aufs4-standalone.patch'
         'tmpfs-idr.patch'
-        'vfs-ino.patch'
-        'aufs316-3.16.7.4.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.16.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.16.0.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.3.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.3.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.3.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
-        # Additional patches
-        '3.16.7.1.patch'
-        '3.16.7.2.patch'
-        '3.16.7.3.patch'
-        '3.16.7.4.patch'
-        '3.16.7.5.patch'
-        '3.16.7.6.patch'
-        '3.16.7.7.patch'
-        '3.16.7.8.patch'
-        '3.16.7.9.patch'
-        '3.16.7.10.patch'
-        '3.16.7.11.patch'
-        '3.16.7.12.patch'
-        '3.16.7.13.patch'
-        '3.16.7.14.patch'
-        '3.16.7.15.patch'
-        '3.16.7.16.patch'
-        '3.16.7.17.patch'
-        '3.16.7.18.patch'
-        '3.16.7.19.patch'
-        '3.16.7.20.patch')
-
-sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
-            '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
-            '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
-            'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
+        # MANJARO Patches
+        'fix-dependency-cycle-in-44rc1.patch::https://lkml.org/lkml/diff/2015/11/6/987/1'
+)
+sha256sums=('ea390fff78a62298619131ed02e1fe86c14a8f30bff99d021d558a36f746ff17'
+            '0ea4c5126b2088769fe1f5e308a4eb81c3a8d9e76f2d225748a4e1800d8a2c68'
+            '384ea5b48f960838bbb1a6284df3bdb88dbd8c3db6b349ab0711e92f23ff24a3'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
-            '45602d7b1e3d10edfa174f7af904d310c5e5305e9464ebed5369728c4af891a2'
-            '7bf3e6422850c8a91ca453dd6a634e803631025c9bc3dd1d26ab6dfff8124aef'
-            'e216874f79dd2757eb385a2753dd828b7445bac03372bc5061ced717565a56d1'
-            'a91c5affffb9e24cf0e34e1ab1c9e593219f67ef81834e0e4e9572281ef760c0'
-            '81b410f9b67ba389ef3063dda820a91c166efea07e49c2053f83fc07c5c10c8e'
-            '6c3278b7c9562d92e266386bce8c1ee3a130121190a9e2fd6f723ffa03dbc295'
-            '8bb548b4dabbc2de460a8c25a77cc02e47a6b3c1e25aa44c67a65b64ccbfce05'
-            '52b568d5504c88b3025ceed4620b35ff4c7a249bc0310bbbaf31c21c1cdf7899'
-            'a728d65b64f1e7bc29ef1887341383af4da98ee1ab553e5e521c3cb3e725583d'
-            '59f34c00c0846377ebf5bc6934a73bb98a71ee33ae93cd2b3b8415dff71d857a'
+            '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
+            '2b6f1e9111d547137fd1f8fbad0b1fd09b7e0ad85385ddf11612070ac18cef00'
+            '0a939e6482b37be951dfba37c838274fb5d764bde3f200b363cb0f81d6e64f88'
+            'd0473e4a1793a01f64e483bcfbd09314d1eea9878b165fe313e1c0b17eb5959e'
+            '319fe71b85ffbd58f6f5d4d26708f8eb671ddfdcbfe5a0445c4d12a41f04095a'
+            '7c79da78431077f44e4c0488c7ed56ed684fc23c72d6273bab427f5ff4e59c70'
+            'bee7b68605cef4b5a77a90a5b869f7258209530469cfe695ae5169b054b26a1a'
+            'f57a6c153d3190442e3aa324e7f92af8df5fc0f22d7aa0a39c7081414ae8f816'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '1abb58dc065100a2684a508c88981e5ce9b5ce4ed39f53038806d9fe3e217509'
-            'a040f22695c9368c01c0e74f5696035a731d4fab1015ce5f3c90d3ae1a74bccc'
-            'f0fc3e6159f61671a5a734ccc28091b6d8124d92c211652e620e99305b2edcef'
-            '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
-            '09f073a606dd4e66e24dd999562879f0664587ac93bab793fcad18dc5d680caa'
-            'd911f7773b06f0a6c6dee3f9366a15d6c83033a3c40ab7cb156da633342c6136'
-            'b22d9c52fd58cdfbfce8650091ebd384300653c1e8f2add6a60778476ce79190'
-            'a5ec32f3dfdd54b771586b56e6cf06f3026957176eef7e147b043b94f2c9ea49'
-            'e94a8aa92df4b331c0837cae622e1a620bd8d97bd77b021b78ad363c42a242fd'
-            '0b4d08eb76bbeb52359ea20a8c4cfd2f0a7f35f6f5c891f03f09b2c4b42bd75e'
-            'e803f19a4cea764d502e5e82c76a9405fd4fd0fc4b01a5367990a72bc268d8eb'
-            '32e5716e9fd5a659655f5cbfdc91abca928d3db1279e0fba94de287aa83ca257'
-            'b3c54a957d03af43371921e7d893d613a1bb6fc2dd56a49955c0fcf1d59194c5'
-            'dcbc8ad53dbdf83f889f05c7d03ff78119dfa3c10786d165b44c5f37cfb80f1d'
-            'ed94355e3a6d802b6f4b9470dc8850ebe1131a08c61a7656ab3404b9d73957bb'
-            '806e59b121cc129dd04c307ed38d68b390d525c9a76d6f15a57268c1e7914a84'
-            '30f5ab669565cff54aafb6fbee1e6044ad305f622b4f2ce2bcf7f203864c3eef'
-            '2a52baaa48c5cd7cc2e792af6f2773860c489906ebbfc773be55057076d75fc2'
-            'bc56130f9e2b0c8754359c21c944ef77a53a7b0eb20f2f50db5499155732ac0d'
-            '3b8d5eb5a0ea244dab4531515d01a838d285a1ede8270f9d218f5c31ca9a456b'
-            '1c85a241b97cb59a8df8cf9f1d1d2726ff6d0c1bda8ddb70af3c2cc422e18ff3'
-            'aa69a0a25c41c6b43b9a4de23b01364ad4b39398af04653adab58186b216eabc'
-            '86e4424c45ff30ad25b9c24b6d318a52f813b4146114076074baf7e60bc1b47c'
-            'd96c2403ee86e86146c0fa763d83935f9ebbcf6f7fd80d05935ac5631a08be71')
+            'ebeb62206999b2749ac43bb287a6a2a5db4f6b1b688a90cefa1ceb5db94aa490'
+            '91b7cb42b8337b768e5329da205a6b61211628ec99b1e308e0e9d5283b2c86eb'
+            '77430c7154670dd288b6d5bd45896222bf955f02029ee5d0cfe97cc5d9bc1a9d'
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            '0dc6f70fc7bea0548975b766f2213ca95a7adfa3e69b55ac77c568e206084949')
 
 prepare() {
-   cd "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${_basekernel}-${_rc}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${_basekernel}.7"
-
-  # add extended stable patch(es)
-  patch -p1 -i "${srcdir}/3.16.7.1.patch"
-  patch -p1 -i "${srcdir}/3.16.7.2.patch"
-  patch -p1 -i "${srcdir}/3.16.7.3.patch"
-  patch -p1 -i "${srcdir}/3.16.7.4.patch"
-  patch -p1 -i "${srcdir}/3.16.7.5.patch"
-  patch -p1 -i "${srcdir}/3.16.7.6.patch"
-  patch -p1 -i "${srcdir}/3.16.7.7.patch"
-  patch -p1 -i "${srcdir}/3.16.7.8.patch"
-  patch -p1 -i "${srcdir}/3.16.7.9.patch"
-  patch -p1 -i "${srcdir}/3.16.7.10.patch"
-  patch -p1 -i "${srcdir}/3.16.7.11.patch"
-  patch -p1 -i "${srcdir}/3.16.7.12.patch"
-  patch -p1 -i "${srcdir}/3.16.7.13.patch"
-  patch -p1 -i "${srcdir}/3.16.7.14.patch"
-  patch -p1 -i "${srcdir}/3.16.7.15.patch"
-  patch -p1 -i "${srcdir}/3.16.7.16.patch"
-  patch -p1 -i "${srcdir}/3.16.7.17.patch"
-  patch -p1 -i "${srcdir}/3.16.7.18.patch"
-  patch -p1 -i "${srcdir}/3.16.7.19.patch"
-  patch -p1 -i "${srcdir}/3.16.7.20.patch"
+  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/fix-dependency-cycle-in-44rc1.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -148,18 +86,18 @@ prepare() {
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
-  # add aufs3 support
-  patch -Np1 -i "${srcdir}/aufs3.16-${_aufs}.patch"
-  patch -Np1 -i "${srcdir}/aufs3-base.patch"
-  patch -Np1 -i "${srcdir}/aufs3-kbuild.patch"
-  patch -Np1 -i "${srcdir}/aufs3-loopback.patch"
-  patch -Np1 -i "${srcdir}/aufs3-mmap.patch"
-  patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
-  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
-  patch -Np1 -i "${srcdir}/vfs-ino.patch"
-  patch -Np2 -i "${srcdir}/aufs316-3.16.7.4.patch"
+  # add aufs4 support
+  #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  #patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
 
   # add BFQ scheduler
+  sed -i -e 's|__GFP_WAIT|__GFP_DIRECT_RECLAIM|g' "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
+  sed -i -e 's|__GFP_WAIT|__GFP_DIRECT_RECLAIM|g' "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
@@ -170,7 +108,7 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-  cat "${srcdir}/config.aufs" >> ./.config
+  #cat "${srcdir}/config.aufs" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
@@ -178,7 +116,7 @@ prepare() {
   fi
 
   # set extraversion to pkgrel
-  sed -ri "s|^(EXTRAVERSION =).*|\1 .${_subver}-${pkgrel}|" Makefile
+  sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh
@@ -202,20 +140,20 @@ prepare() {
 }
 
 build() {
-   cd "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${_basekernel}-${_rc}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
 }
 
-package_linux316() {
+package_linux44() {
   pkgdesc="The ${pkgbase/linux/Linux} kernel and modules"
   depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
   optdepends=('crda: to set the correct wireless channels of your country')
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-   cd "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${_basekernel}-${_rc}"
 
   KARCH=x86
 
@@ -275,13 +213,13 @@ package_linux316() {
   install -D -m644 vmlinux "${pkgdir}/usr/lib/modules/${_kernver}/build/vmlinux" 
 }
 
-package_linux316-headers() {
+package_linux44-headers() {
   pkgdesc="Header files and scripts for building modules for ${pkgbase/linux/Linux} kernel"
   provides=("linux-headers=$pkgver")
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-   cd "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${_basekernel}-${_rc}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
@@ -363,9 +301,9 @@ package_linux316-headers() {
   cp drivers/media/tuners/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/tuners/"
 
   # add xfs and shmem for aufs building
-  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs"
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/libxfs"
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/mm"
-  cp fs/xfs/xfs_sb.h "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/xfs_sb.h"
+  cp fs/xfs/libxfs/xfs_sb.h "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/libxfs/xfs_sb.h"
 
   # copy in Kconfig files
   for i in $(find . -name "Kconfig*"); do
