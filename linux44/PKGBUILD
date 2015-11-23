@@ -11,9 +11,9 @@ pkgname=('linux44' 'linux44-headers')
 _kernelname=-MANJARO
 _basekernel=4.4
 _basever=44
-_aufs=20151116
+_aufs=20151123
 _bfq=v7r8
-_rc=rc1
+_rc=rc2
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -45,17 +45,17 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         'fix-dependency-cycle-in-44rc1.patch::https://lkml.org/lkml/diff/2015/11/6/987/1'
 )
-sha256sums=('ea390fff78a62298619131ed02e1fe86c14a8f30bff99d021d558a36f746ff17'
+sha256sums=('89e513c255b869b08e1cbe0616dbd4e34a79f29c3809fb6736627b2531cdec00'
             '0ea4c5126b2088769fe1f5e308a4eb81c3a8d9e76f2d225748a4e1800d8a2c68'
             '384ea5b48f960838bbb1a6284df3bdb88dbd8c3db6b349ab0711e92f23ff24a3'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '2b6f1e9111d547137fd1f8fbad0b1fd09b7e0ad85385ddf11612070ac18cef00'
-            '0a939e6482b37be951dfba37c838274fb5d764bde3f200b363cb0f81d6e64f88'
+            '47f2750c389f72d119f36a896634410d007c32e93d0ccefbe5ee71731fe5958e'
+            'd1a14131d7c7ed6f81f900c137c2a1484a1aadf1d5fee6e90ebd66d0c14a9656'
             'd0473e4a1793a01f64e483bcfbd09314d1eea9878b165fe313e1c0b17eb5959e'
-            '319fe71b85ffbd58f6f5d4d26708f8eb671ddfdcbfe5a0445c4d12a41f04095a'
-            '7c79da78431077f44e4c0488c7ed56ed684fc23c72d6273bab427f5ff4e59c70'
-            'bee7b68605cef4b5a77a90a5b869f7258209530469cfe695ae5169b054b26a1a'
+            '51aa9e843b93cd41517ca94a53c717f626ef78f84b58c0366d78af05b02a595f'
+            '9773ed26c616be5a56f8d7bb88239a89977f17c48c6330b88471b7b64c068f81'
+            'c71977e01e3bab757a9ceec7462d710df3321d50faf73fa5da51dded6ade4343'
             'f57a6c153d3190442e3aa324e7f92af8df5fc0f22d7aa0a39c7081414ae8f816'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -87,13 +87,13 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs4 support
-  #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-base.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
-  #patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
 
   # add BFQ scheduler
   sed -i -e 's|__GFP_WAIT|__GFP_DIRECT_RECLAIM|g' "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
@@ -108,7 +108,7 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-  #cat "${srcdir}/config.aufs" >> ./.config
+  cat "${srcdir}/config.aufs" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config

@@ -1,10 +1,10 @@
 aufs4.x-rcN base patch
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 7af7f4a..5c0074f 100644
+index e9caa4b..ddb7b8a 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -2011,6 +2011,19 @@ F:	include/linux/audit.h
+@@ -2028,6 +2028,19 @@ F:	include/linux/audit.h
  F:	include/uapi/linux/audit.h
  F:	kernel/audit*
  
@@ -140,10 +140,10 @@ index f87d308..9a290b3 100644
  static inline void fput_light(struct file *file, int fput_needed)
  {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 9a1cb8c..b020f93 100644
+index 3aa5142..8d48506 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1674,6 +1674,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
+@@ -1672,6 +1672,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
  			      struct iovec *fast_pointer,
  			      struct iovec **ret_pointer);
  
