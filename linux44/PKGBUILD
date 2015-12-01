@@ -13,7 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20151123
 _bfq=v7r8
-_rc=rc2
+_rc=rc3
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -22,7 +22,8 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+        https://github.com/torvalds/linux/archive/v${_basekernel}-${_rc}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -45,7 +46,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         'fix-dependency-cycle-in-44rc1.patch::https://lkml.org/lkml/diff/2015/11/6/987/1'
 )
-sha256sums=('89e513c255b869b08e1cbe0616dbd4e34a79f29c3809fb6736627b2531cdec00'
+sha256sums=('50396673a02762a2f5d229b6b228da17ee64f9d6288b60416bd8c0aac9b5e49d'
             '0ea4c5126b2088769fe1f5e308a4eb81c3a8d9e76f2d225748a4e1800d8a2c68'
             '384ea5b48f960838bbb1a6284df3bdb88dbd8c3db6b349ab0711e92f23ff24a3'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
