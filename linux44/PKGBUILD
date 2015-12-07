@@ -13,7 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20151123
 _bfq=v7r8
-_rc=rc3
+_rc=rc4
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -44,11 +44,10 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        'fix-dependency-cycle-in-44rc1.patch::https://lkml.org/lkml/diff/2015/11/6/987/1'
 )
-sha256sums=('50396673a02762a2f5d229b6b228da17ee64f9d6288b60416bd8c0aac9b5e49d'
-            '0ea4c5126b2088769fe1f5e308a4eb81c3a8d9e76f2d225748a4e1800d8a2c68'
-            '384ea5b48f960838bbb1a6284df3bdb88dbd8c3db6b349ab0711e92f23ff24a3'
+sha256sums=('adf91a5dd8545d7db26da5a90d2a3ce490e90e9597b1b6798595544206dc1ddc'
+            'bc537cc517a99f7d2b332bb6b2e1d96db1e9c28bec61cfd382fb2d8562d8be60'
+            '63c36510f47d9753ca1ff46c3bcdd4d4db0505343947cfbe77855f6cea387bc2'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '47f2750c389f72d119f36a896634410d007c32e93d0ccefbe5ee71731fe5958e'
@@ -63,15 +62,13 @@ sha256sums=('50396673a02762a2f5d229b6b228da17ee64f9d6288b60416bd8c0aac9b5e49d'
             'ebeb62206999b2749ac43bb287a6a2a5db4f6b1b688a90cefa1ceb5db94aa490'
             '91b7cb42b8337b768e5329da205a6b61211628ec99b1e308e0e9d5283b2c86eb'
             '77430c7154670dd288b6d5bd45896222bf955f02029ee5d0cfe97cc5d9bc1a9d'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '0dc6f70fc7bea0548975b766f2213ca95a7adfa3e69b55ac77c568e206084949')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}-${_rc}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
-  patch -p1 -i "${srcdir}/fix-dependency-cycle-in-44rc1.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git

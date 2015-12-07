@@ -3,13 +3,13 @@
 # maintainer: Roland Singer <roland[at]manjaro[dog]org>
 
 pkgname=('manjaro-hotfixes')
-pkgver=2013.03
-pkgrel=1
+pkgver=2015.12
+pkgrel=2
 pkgdesc="Manjaro Linux Hotfixes"
 arch=('any')
 url="http://www.manjaro.org"
 license=('GPL')
-groups=('base')
+depends=('polkit' 'dbus')
 source=('org.freedesktop.NetworkManager.Manjaro.conf' '99-manjaro.rules')
 sha256sums=('d3bda2f77205742445580c6dab2490744a4b779daef149c9ac15726cdf211e11'
             'd28d6ecaf7682860e2b3768bb266bd94313546b7cd0ef3c2eace7b1576c47adb')
@@ -22,7 +22,7 @@ package() {
   install -D -m644 ${srcdir}/org.freedesktop.NetworkManager.Manjaro.conf etc/dbus-1/system.d/
 
   # enable power management and mount external partitions password-less
-  install -d -m700 etc/polkit-1/rules.d/
+  install -d -m750 etc/polkit-1/rules.d/
   install -D -m644 ${srcdir}/99-manjaro.rules etc/polkit-1/rules.d/
   chown 102 etc/polkit-1/rules.d
 }
