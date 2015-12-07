@@ -127,21 +127,6 @@ post_upgrade() {
 		cp /etc/lightdm/lightdm-gtk-greeter.conf.pacsave /etc/lightdm/lightdm-gtk-greeter.conf
 	fi
 
-	# steam replacement
-	pacman -Qq steam &> /tmp/cmd1
-	pacman -Qq steam-native &> /tmp/cmd2
-	if [[ "$(grep 'steam' /tmp/cmd1)" == "steam" && "$(grep 'steam-native' /tmp/cmd2)" == "steam-native" ]]; then
-		msg "Replacing steam and steam-native with steam-manjaro ..."
-		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -Rdd steam steam-native
-		pacman --noconfirm -S steam-manjaro
-	fi
-	if [[ "$(grep 'steam' /tmp/cmd1)" == "steam" && "$(grep 'steam-native' /tmp/cmd2)" == *"not"* ]]; then
-		msg "Replacing steam with steam-manjaro ..."
-		rm /var/lib/pacman/db.lck &> /dev/null
-		pacman --noconfirm -Rdd steam
-		pacman --noconfirm -S steam-manjaro
-	fi
 
 	# dropbox returns to normal
 	pacman -Qq dropbox3 &> /tmp/cmd1
