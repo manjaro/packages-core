@@ -8,8 +8,8 @@
 
 _pkgver="2.02"
 _GRUB_GIT_TAG="grub-2.02-beta2"
-_SNAPSHOT="86402b4e0fec7d0e5637f70a3103a4d9c3f62839"
-_SNAPSHOT_EXTRAS="4a56e2c2cc3d78f12f1788c27669a651071dee49"
+_SNAPSHOT="fb478079182f3b21603834eaeb9026e051f88c33"
+_SNAPSHOT_EXTRAS="60e3f37e7ba3aaf5a6f32a08f7f2a8374230c447"
 
 _UNIFONT_VER="6.3.20131217"
 
@@ -19,7 +19,7 @@ _UNIFONT_VER="6.3.20131217"
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.02.beta2
-pkgrel=10
+pkgrel=13
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -50,20 +50,18 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'grub-add-GRUB_COLOR_variables.patch'
         'grub-manjaro-modifications.patch'
         'grub-intel-ucode.patch'
-        'grub-check-blocklists-overlap-fix.patch'
         '60_memtest86+'
         'background.png'
         'grub.default'
         'grub.cfg'
         'update-grub')
 
-sha256sums=('d437844cc813565c31abd21990b64745d5eaeee6af219669f2e8ba070d1c9cb3'
-            'd4302093191086403d1902d5390a9be2f79abc3eaf02060ffb6e1af11e1bddf9'
+sha256sums=('098e2e7bd5ec3fdcbe6be10a75186f11281333049a75e757000e35e952103da7'
+            'bfb43b4fd7de4984fd83b0e66ae4a8e4f4ddf0624b21e029189cc45cf6b04dad'
             '6dc2596a0cec08f36de7fb066f12015b572456c90d4e06ddc7b399a3e50b5f89'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
-            '2aed37fc4bb2f792175d39f9377c16201f954f3924b92562cec6ffffc39eb871'
+            '05852a81e75e779178da8f3d3402be7a9abde306e0b6e8236401226494e89ba0'
             'f62734e61f4e5c566ee5de4470746e2c6e9a407ce97d0bdb5915a3e3be85d5ae'
-            '875906d25b66db07add6ce3f2256fdb6c883f0f418bf222e95860dd6d5998238'
             '2b74814338675589118c0febbde2ae178d02c53fa599b2148b06e67d166c7f56'
             'b20172d7f753cf6a636595b37406b3070cd30d33072c15aea4a50a02ba4c85a5'
             '720db20a6a1c81864ad6405ef838db02206b53298fda48f383bebdb51eac56a8'
@@ -92,10 +90,6 @@ prepare() {
 
 	msg "Patch to include Manjaro Linux Modifications"
 	patch -Np1 -i "${srcdir}/grub-manjaro-modifications.patch"
-	echo
-
-	msg "Patch to fix check blocklists overlap"
-	patch -Np1 -i "${srcdir}/grub-check-blocklists-overlap-fix.patch"
 	echo
 	
 	msg "Fix DejaVuSans.ttf location so that grub-mkfont can create *.pf2 files for starfield theme"
@@ -131,7 +125,7 @@ _build_grub-common_and_bios() {
 	
 	msg "Add the grub-extra sources for bios build"
 	install -d "${srcdir}/grub-${_pkgver}-bios/grub-extras"
-	cp -r "${srcdir}/grub-extras-${_pkgver}/915resolution" "${srcdir}/grub-${_pkgver}-bios/grub-extras/915resolution"
+	#cp -r "${srcdir}/grub-extras-${_pkgver}/915resolution" "${srcdir}/grub-${_pkgver}-bios/grub-extras/915resolution"
 	export GRUB_CONTRIB="${srcdir}/grub-${_pkgver}-bios/grub-extras/"
 	
 	msg "Unset all compiler FLAGS for bios build"
