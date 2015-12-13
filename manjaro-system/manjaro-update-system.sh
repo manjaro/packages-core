@@ -42,6 +42,13 @@ detectDE()
 }
 
 post_upgrade() {
+	
+	# fix xfprogs version
+	pacman -Qi xfsprogs | grep Version | grep 1:3 &> /tmp/cmd1
+	if [[ -n $(cat /tmp/cmd1) ]]; then
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -S xfsprogs
+	fi
 
         # stop gdm attempting to use wayland
         if [ "$(vercmp $2 20151019-2)" -lt 0 ]; then
