@@ -44,6 +44,7 @@ detectDE()
 post_upgrade() {
 	
 	# fix xfprogs version
+	export LANG=C
 	pacman -Qi xfsprogs | grep Version | grep 1:3 &> /tmp/cmd1
 	if [[ -n $(cat /tmp/cmd1) ]]; then
 		rm /var/lib/pacman/db.lck &> /dev/null

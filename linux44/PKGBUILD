@@ -13,7 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20151123
 _bfq=v7r8
-_rc=rc4
+_rc=rc5
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -44,8 +44,9 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
+        "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
 )
-sha256sums=('adf91a5dd8545d7db26da5a90d2a3ce490e90e9597b1b6798595544206dc1ddc'
+sha256sums=('b51c2a2a83caedcd94e7c1b2f0bd60554024bbbc3177f29329da164510839331'
             'bc537cc517a99f7d2b332bb6b2e1d96db1e9c28bec61cfd382fb2d8562d8be60'
             '63c36510f47d9753ca1ff46c3bcdd4d4db0505343947cfbe77855f6cea387bc2'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -62,7 +63,8 @@ sha256sums=('adf91a5dd8545d7db26da5a90d2a3ce490e90e9597b1b6798595544206dc1ddc'
             'ebeb62206999b2749ac43bb287a6a2a5db4f6b1b688a90cefa1ceb5db94aa490'
             '91b7cb42b8337b768e5329da205a6b61211628ec99b1e308e0e9d5283b2c86eb'
             '77430c7154670dd288b6d5bd45896222bf955f02029ee5d0cfe97cc5d9bc1a9d'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -99,6 +101,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
+  patch -Np1 -i "${srcdir}/0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
