@@ -19,7 +19,7 @@ index 50777b5..f9c6b3d 100644
  	kuid_t uid;		    /* Mount uid for root directory */
  	kgid_t gid;		    /* Mount gid for root directory */
 diff --git a/mm/shmem.c b/mm/shmem.c
-index 9187eee..d52f114 100644
+index 2afcdbb..4d81c75 100644
 --- a/mm/shmem.c
 +++ b/mm/shmem.c
 @@ -112,9 +112,13 @@ static unsigned long shmem_default_max_blocks(void)
@@ -58,7 +58,7 @@ index 9187eee..d52f114 100644
  	shmem_free_inode(inode->i_sb);
  	clear_inode(inode);
  }
-@@ -1424,13 +1434,13 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode
+@@ -1418,13 +1428,13 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode
  	struct inode *inode;
  	struct shmem_inode_info *info;
  	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
@@ -73,7 +73,7 @@ index 9187eee..d52f114 100644
  		inode_init_owner(inode, dir, mode);
  		inode->i_blocks = 0;
  		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-@@ -1471,6 +1481,25 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode
+@@ -1465,6 +1475,25 @@ static struct inode *shmem_get_inode(struct super_block *sb, const struct inode
  			mpol_shared_policy_init(&info->policy, NULL);
  			break;
  		}
@@ -99,7 +99,7 @@ index 9187eee..d52f114 100644
  	} else
  		shmem_free_inode(sb);
  	return inode;
-@@ -2688,8 +2717,7 @@ static struct dentry *shmem_get_parent(struct dentry *child)
+@@ -2682,8 +2711,7 @@ static struct dentry *shmem_get_parent(struct dentry *child)
  static int shmem_match(struct inode *ino, void *vfh)
  {
  	__u32 *fh = vfh;
@@ -109,7 +109,7 @@ index 9187eee..d52f114 100644
  	return ino->i_ino == inum && fh[0] == ino->i_generation;
  }
  
-@@ -2700,14 +2728,11 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
+@@ -2694,14 +2722,11 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
  	struct dentry *dentry = NULL;
  	u64 inum;
  
@@ -127,7 +127,7 @@ index 9187eee..d52f114 100644
  	if (inode) {
  		dentry = d_find_alias(inode);
  		iput(inode);
-@@ -2719,30 +2744,15 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
+@@ -2713,30 +2738,15 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
  static int shmem_encode_fh(struct inode *inode, __u32 *fh, int *len,
  				struct inode *parent)
  {
@@ -161,7 +161,7 @@ index 9187eee..d52f114 100644
  	return 1;
  }
  
-@@ -2807,7 +2817,7 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
+@@ -2801,7 +2811,7 @@ static int shmem_parse_options(char *options, struct shmem_sb_info *sbinfo,
  				goto bad_val;
  		} else if (!strcmp(this_char,"nr_inodes")) {
  			sbinfo->max_inodes = memparse(value, &rest);
@@ -170,7 +170,7 @@ index 9187eee..d52f114 100644
  				goto bad_val;
  		} else if (!strcmp(this_char,"mode")) {
  			if (remount)
-@@ -2860,7 +2870,7 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
+@@ -2854,7 +2864,7 @@ static int shmem_remount_fs(struct super_block *sb, int *flags, char *data)
  {
  	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
  	struct shmem_sb_info config = *sbinfo;
@@ -179,7 +179,7 @@ index 9187eee..d52f114 100644
  	int error = -EINVAL;
  
  	config.mpol = NULL;
-@@ -2908,7 +2918,7 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
+@@ -2902,7 +2912,7 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
  		seq_printf(seq, ",size=%luk",
  			sbinfo->max_blocks << (PAGE_CACHE_SHIFT - 10));
  	if (sbinfo->max_inodes != shmem_default_max_inodes())
@@ -188,7 +188,7 @@ index 9187eee..d52f114 100644
  	if (sbinfo->mode != (S_IRWXUGO | S_ISVTX))
  		seq_printf(seq, ",mode=%03ho", sbinfo->mode);
  	if (!uid_eq(sbinfo->uid, GLOBAL_ROOT_UID))
-@@ -2997,6 +3007,8 @@ static void shmem_put_super(struct super_block *sb)
+@@ -2991,6 +3001,8 @@ static void shmem_put_super(struct super_block *sb)
  {
  	struct shmem_sb_info *sbinfo = SHMEM_SB(sb);
  
@@ -197,7 +197,7 @@ index 9187eee..d52f114 100644
  	percpu_counter_destroy(&sbinfo->used_blocks);
  	mpol_put(sbinfo->mpol);
  	kfree(sbinfo);
-@@ -3015,6 +3027,8 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
+@@ -3009,6 +3021,8 @@ int shmem_fill_super(struct super_block *sb, void *data, int silent)
  	if (!sbinfo)
  		return -ENOMEM;
  
@@ -206,7 +206,7 @@ index 9187eee..d52f114 100644
  	sbinfo->mode = S_IRWXUGO | S_ISVTX;
  	sbinfo->uid = current_fsuid();
  	sbinfo->gid = current_fsgid();
-@@ -3118,6 +3132,15 @@ static void shmem_destroy_inodecache(void)
+@@ -3112,6 +3126,15 @@ static void shmem_destroy_inodecache(void)
  	kmem_cache_destroy(shmem_inode_cachep);
  }
  
@@ -222,7 +222,7 @@ index 9187eee..d52f114 100644
  static const struct address_space_operations shmem_aops = {
  	.writepage	= shmem_writepage,
  	.set_page_dirty	= __set_page_dirty_no_writeback,
-@@ -3254,6 +3277,7 @@ int __init shmem_init(void)
+@@ -3248,6 +3271,7 @@ int __init shmem_init(void)
  		printk(KERN_ERR "Could not kern_mount tmpfs\n");
  		goto out1;
  	}

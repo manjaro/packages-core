@@ -177,10 +177,10 @@ index fd0414e..8ace6ec 100644
  ssize_t __kernel_write(struct file *file, const char *buf, size_t count, loff_t *pos)
  {
 diff --git a/fs/splice.c b/fs/splice.c
-index 218d188..aa4f0d1 100644
+index 30a091d..c37c311 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
-@@ -1115,6 +1115,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+@@ -1123,6 +1123,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
  
  	return splice_write(pipe, out, ppos, len, flags);
  }
@@ -188,7 +188,7 @@ index 218d188..aa4f0d1 100644
  
  /*
   * Attempt to initiate a splice from a file to a pipe.
-@@ -1141,6 +1142,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
+@@ -1149,6 +1150,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
  
  	return splice_read(in, ppos, pipe, len, flags);
  }

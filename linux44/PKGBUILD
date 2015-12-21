@@ -11,9 +11,9 @@ pkgname=('linux44' 'linux44-headers')
 _kernelname=-MANJARO
 _basekernel=4.4
 _basever=44
-_aufs=20151123
+_aufs=20151221
 _bfq=v7r8
-_rc=rc5
+_rc=rc6
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -45,26 +45,28 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
+        'nvidia-304xx-mtrr-unknown-symbol.patch'
 )
-sha256sums=('b51c2a2a83caedcd94e7c1b2f0bd60554024bbbc3177f29329da164510839331'
+sha256sums=('f5baf001dd389afcb5e700240937bd5baf0b0148f9499c09f6d47c5631fb2b31'
             'bc537cc517a99f7d2b332bb6b2e1d96db1e9c28bec61cfd382fb2d8562d8be60'
             '63c36510f47d9753ca1ff46c3bcdd4d4db0505343947cfbe77855f6cea387bc2'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '47f2750c389f72d119f36a896634410d007c32e93d0ccefbe5ee71731fe5958e'
-            'd1a14131d7c7ed6f81f900c137c2a1484a1aadf1d5fee6e90ebd66d0c14a9656'
-            'd0473e4a1793a01f64e483bcfbd09314d1eea9878b165fe313e1c0b17eb5959e'
-            '51aa9e843b93cd41517ca94a53c717f626ef78f84b58c0366d78af05b02a595f'
-            '9773ed26c616be5a56f8d7bb88239a89977f17c48c6330b88471b7b64c068f81'
-            'c71977e01e3bab757a9ceec7462d710df3321d50faf73fa5da51dded6ade4343'
-            'f57a6c153d3190442e3aa324e7f92af8df5fc0f22d7aa0a39c7081414ae8f816'
+            '9d6abae83c1e0205cb378e552d284fc9c7d4b91df1e702343180b0ed224e8802'
+            '582dc9cdd83085ee1bcece6268980e1c2058b5eaf13064316c2f20dc6951ddf8'
+            '02cb8771a73bff3c10dfef65473571d28ea64e90bc42408081d7435fdd0f7574'
+            '6bbdcb2363027b155c0751786c735dcf5f3f1d27ea5f8cb4a1ec836685671d58'
+            '05bd4a0258582b544967801adee6a5040a9e414a898dacf2ed6d44229478c92a'
+            '3260e3cfdd78deb07ebda139eb6d6be01483db6057a0f8607a98d339ae9c64df'
+            '0d8ecaa41661327d592c03bb20bf5f911a515e7caf35d457de4e802a55df4498'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'ebeb62206999b2749ac43bb287a6a2a5db4f6b1b688a90cefa1ceb5db94aa490'
             '91b7cb42b8337b768e5329da205a6b61211628ec99b1e308e0e9d5283b2c86eb'
             '77430c7154670dd288b6d5bd45896222bf955f02029ee5d0cfe97cc5d9bc1a9d'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b')
+            '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
+            '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -102,6 +104,10 @@ prepare() {
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
+
+  # Fix Nvidia 304xx issue
+  # https://bugs.archlinux.org/task/47092
+  patch -Np1 -i "${srcdir}/nvidia-304xx-mtrr-unknown-symbol.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
