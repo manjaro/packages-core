@@ -11,9 +11,12 @@ pkgname=('linux42' 'linux42-headers')
 _kernelname=-MANJARO
 _basekernel=4.2
 _basever=42
-_aufs=20151109
+_aufs=20151221
 _bfq=v7r8
-pkgver=${_basekernel}.8
+_subver=1rc1
+_prepatch_snap=3a0b9585d035b77d478496dc385d550844aff7af
+_prepatch_string="http://kernel.ubuntu.com/git/ubuntu/linux.git/rawdiff/?id=${_prepatch_snap}&id2=v${_basekernel}.8"
+pkgver=${_basekernel}.8.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -21,7 +24,7 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${_basekernel}.8.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -41,6 +44,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Manjaro Patches
+        "prepatch-${pkgver}.patch::${_prepatch_string}"
 )
 sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '712f93e2f5e8985248852753189001b036b8366008b8c10e3421bb1d45fc20bf'
@@ -48,10 +52,10 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '82fc5776815590fbc6923dc8fa1377d6f2a03efafed37bd8ce1f2423168f36e6'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '5d9dad6aa82a0d4cce2865f64343ef5ceefc1f67d020ef129fa56e230ce8675f'
+            '2aa69cae0c789db690032a940dbfa3a55e689d2fd9fdcb4742667d4f8cd3b388'
             '63e244b95a7c0e7a7674e323599dff7951942ebf75db66cc87b0b4fa04e9dc07'
             '870387384ca5877b4b9437eed8eabb6882d8d98d0927e8c58846a5327b26e272'
-            '99cd00d764c5fd59432e6a78df7c75564f98352e9a49b9bb6e75079532c60588'
+            'c1349b3deac93997546c2411c71b37456f7a47a677fb446920d9b1b2fbf6d46d'
             '7071e02ea4cc7d177292c2823fac639c63b3794fec85b72e81180d006e5a05ef'
             '9a0daf06bf3a46c8dfaadf22365d29acc8330e103c307cde55d8ec2ada8abf3d'
             '9d6ef2a70f520cf975b9be005981ba920b6a55f72d30921199309012a9095fbd'
@@ -60,18 +64,18 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '7121c13de897827a59cee4ac3302f512b7ba9e601f7a1af07c4587fa39afac4a'
             'e5789fc460e508f4082d7ebcd5f6c4bcddfaa03b7cd827d0b58236b1e989e218'
             'ca28a57d630828c7deef8f847259a4a2c2b5b7ca6dd8e0713f21bbde3d5411bc'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            'bf010aff5d5771daf8faf8d177d3ed55d3cc596c49998bd3589a880d1dbcf6e2')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${_basekernel}.8"
 
   # add latest fixes from stable queue, if needed
-  # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
-  # enable only if you have "gen-stable-queue-patch.sh" executed before
-  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}-`date +%Y%m%d`"
+  # http://kernel.ubuntu.com/git/ubuntu/linux.git
+  patch -Np1 -i "${srcdir}/prepatch-${pkgver}.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
@@ -110,7 +114,7 @@ prepare() {
   fi
 
   # set extraversion to pkgrel
-  sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
+  sed -ri "s|^(EXTRAVERSION =).*|\1 .${_subver}-${pkgrel}|" Makefile
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh
