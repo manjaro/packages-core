@@ -14,7 +14,7 @@ _basever=44
 _aufs=20151221
 _bfq=v7r8
 _rc=rc8
-pkgver=${_basekernel}${_rc}
+pkgver=${_basekernel}.0
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -22,8 +22,8 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
-        https://github.com/torvalds/linux/archive/v${_basekernel}-${_rc}.tar.gz
+        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}.tar.xz"
+        https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -47,7 +47,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         'nvidia-304xx-mtrr-unknown-symbol.patch'
 )
-sha256sums=('b4eb6aa2cad44dd66982f842b7dd3af4326ac7feaecd5095b43887e6cd06c2f8'
+sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             'bc537cc517a99f7d2b332bb6b2e1d96db1e9c28bec61cfd382fb2d8562d8be60'
             '63c36510f47d9753ca1ff46c3bcdd4d4db0505343947cfbe77855f6cea387bc2'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -69,7 +69,7 @@ sha256sums=('b4eb6aa2cad44dd66982f842b7dd3af4326ac7feaecd5095b43887e6cd06c2f8'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e')
 
 prepare() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
@@ -147,7 +147,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -160,7 +160,7 @@ package_linux44() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -226,7 +226,7 @@ package_linux44-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
