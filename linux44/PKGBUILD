@@ -15,7 +15,7 @@ _aufs=20151221
 _bfq=v7r8
 _rc=rc8
 pkgver=${_basekernel}.0
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -48,8 +48,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            'bc537cc517a99f7d2b332bb6b2e1d96db1e9c28bec61cfd382fb2d8562d8be60'
-            '63c36510f47d9753ca1ff46c3bcdd4d4db0505343947cfbe77855f6cea387bc2'
+            'c435006720c970412388fc2697089f3c248465e41bcdd5a53eadaf674e04ece6'
+            'cd3935c137e370feb4a43767e74125c86e08fa49c8a0f43c98af0ad51e6c0646'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '9d6abae83c1e0205cb378e552d284fc9c7d4b91df1e702343180b0ed224e8802'
@@ -335,4 +335,9 @@ package_linux44-headers() {
 
   # remove unneeded architectures
   rm -rf "${pkgdir}"/usr/lib/modules/${_kernver}/build/arch/{alpha,arc,arm,arm26,arm64,avr32,blackfin,c6x,cris,frv,h8300,hexagon,ia64,m32r,m68k,m68knommu,metag,mips,microblaze,mn10300,openrisc,parisc,powerpc,ppc,s390,score,sh,sh64,sparc,sparc64,tile,unicore32,um,v850,xtensa}
+
+  # remove a files already in linux-docs package
+  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/Kconfig.recursion-issue-01"
+  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/Kconfig.recursion-issue-02"
+  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/Kconfig.select-break"
 }
