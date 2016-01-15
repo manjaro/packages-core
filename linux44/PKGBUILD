@@ -11,11 +11,11 @@ pkgname=('linux44' 'linux44-headers')
 _kernelname=-MANJARO
 _basekernel=4.4
 _basever=44
-_aufs=20151221
+_aufs=20160111
 _bfq=v7r8
 _rc=rc8
 pkgver=${_basekernel}.0
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -52,11 +52,11 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             'cd3935c137e370feb4a43767e74125c86e08fa49c8a0f43c98af0ad51e6c0646'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '9d6abae83c1e0205cb378e552d284fc9c7d4b91df1e702343180b0ed224e8802'
-            '582dc9cdd83085ee1bcece6268980e1c2058b5eaf13064316c2f20dc6951ddf8'
-            '02cb8771a73bff3c10dfef65473571d28ea64e90bc42408081d7435fdd0f7574'
+            '2c5a097b5cf3eead2dc569a5fa2be526dabc1d201a331e12755969b702ce2abf'
+            '65d24f254ea1151a481201a991176ad4b4c2b30bcf814e4175d12156a3151ab8'
+            '4816d48bd1b00f1b7c944bffbde8b02bbff4dc2e32d99f0f0e33fe0d2c8b8395'
             '6bbdcb2363027b155c0751786c735dcf5f3f1d27ea5f8cb4a1ec836685671d58'
-            '05bd4a0258582b544967801adee6a5040a9e414a898dacf2ed6d44229478c92a'
+            'a99d1ccda3661b7f71b49783646e5fd790afa8595ba4cec2f263d3b1d0e0f691'
             '3260e3cfdd78deb07ebda139eb6d6be01483db6057a0f8607a98d339ae9c64df'
             '0d8ecaa41661327d592c03bb20bf5f911a515e7caf35d457de4e802a55df4498'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
@@ -337,7 +337,7 @@ package_linux44-headers() {
   rm -rf "${pkgdir}"/usr/lib/modules/${_kernver}/build/arch/{alpha,arc,arm,arm26,arm64,avr32,blackfin,c6x,cris,frv,h8300,hexagon,ia64,m32r,m68k,m68knommu,metag,mips,microblaze,mn10300,openrisc,parisc,powerpc,ppc,s390,score,sh,sh64,sparc,sparc64,tile,unicore32,um,v850,xtensa}
 
   # remove a files already in linux-docs package
-  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/Kconfig.recursion-issue-01"
-  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/Kconfig.recursion-issue-02"
-  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/Kconfig.select-break"
+  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/kbuild/Kconfig.recursion-issue-01"
+  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/kbuild/Kconfig.recursion-issue-02"
+  rm -f "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/kbuild/Kconfig.select-break"
 }
