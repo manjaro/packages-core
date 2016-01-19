@@ -1,4 +1,4 @@
-aufs4.1 mmap patch
+aufs4.1.13+ mmap patch
 
 diff --git a/fs/buffer.c b/fs/buffer.c
 index c7a5602..8c50a22 100644
@@ -84,10 +84,10 @@ index 599ec2e..1740207 100644
  		ino = inode->i_ino;
  		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 0755b9f..2ee5500 100644
+index b208558..bda1930 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -1172,6 +1172,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
+@@ -1200,6 +1200,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
  }
  #endif
  
@@ -117,10 +117,10 @@ index 0755b9f..2ee5500 100644
  extern int access_remote_vm(struct mm_struct *mm, unsigned long addr,
  		void *buf, int len, int write);
 diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 8d37e26..ce89d4c 100644
+index c0c6b33..e65090c 100644
 --- a/include/linux/mm_types.h
 +++ b/include/linux/mm_types.h
-@@ -241,6 +241,7 @@ struct vm_region {
+@@ -232,6 +232,7 @@ struct vm_region {
  	unsigned long	vm_top;		/* region allocated to here */
  	unsigned long	vm_pgoff;	/* the offset in vm_file corresponding to vm_start */
  	struct file	*vm_file;	/* the backing file or NULL */
@@ -128,7 +128,7 @@ index 8d37e26..ce89d4c 100644
  
  	int		vm_usage;	/* region usage count (access under nommu_region_sem) */
  	bool		vm_icache_flushed : 1; /* true if the icache has been flushed for
-@@ -305,6 +306,7 @@ struct vm_area_struct {
+@@ -296,6 +297,7 @@ struct vm_area_struct {
  	unsigned long vm_pgoff;		/* Offset (within vm_file) in PAGE_SIZE
  					   units, *not* PAGE_CACHE_SIZE */
  	struct file * vm_file;		/* File we map to (can be NULL). */
@@ -137,7 +137,7 @@ index 8d37e26..ce89d4c 100644
  
  #ifndef CONFIG_MMU
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 03c1eaa..7e215ba 100644
+index 8209fa2..7c655e8 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
 @@ -456,7 +456,7 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
@@ -163,7 +163,7 @@ index 98c4eae..3f0c9b9 100644
  obj-y += init-mm.o
  
 diff --git a/mm/filemap.c b/mm/filemap.c
-index 6bf5e42..a863d0f 100644
+index 1ffef05..13a1981 100644
 --- a/mm/filemap.c
 +++ b/mm/filemap.c
 @@ -2062,7 +2062,7 @@ int filemap_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
@@ -176,7 +176,7 @@ index 6bf5e42..a863d0f 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/memory.c b/mm/memory.c
-index 22e037e..62096a2 100644
+index 2a9e098..2a8d5ec 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2034,7 +2034,7 @@ static inline int wp_page_reuse(struct mm_struct *mm,

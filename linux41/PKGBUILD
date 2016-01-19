@@ -11,10 +11,10 @@ pkgname=('linux41' 'linux41-headers')
 _kernelname=-MANJARO
 _basekernel=4.1
 _basever=41
-_aufs=20151109
+_aufs=20160118
 _bfq=v7r8
 pkgver=${_basekernel}.15
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -26,7 +26,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs4.1-${_aufs}.patch.bz2"
+        "aufs4.1.13+-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
         'aufs4-loopback.patch'
@@ -45,6 +45,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0001-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
+        '0001-key-fix-keyring-ref-leak-in-join_session_keyring.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '0ffca8557f1aa191da2f2260ad279c9cc858e6308a8af8a76f7ca3d3c0540344'
@@ -52,14 +53,14 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '102bb6e03ca706f7bc4fabb0cd1ca82b232821724119be4f18369a461c347dc0'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '85a2a2d9921cf4a33b7f1afc6d7976a0716c21ea8cd7acdd00596ae6c7f94fc0'
-            'b20a0ddb146d1e7e861dbdf1c6f99b92a822ff975e30fff8f3cea29e257fcfb9'
-            '68baa54faa3dbb76522b1f311c8b4e780e4244836c1ae5396a8d943842ee80a7'
-            '0e5db396e86046bd20377f8f8d17337fa2d7bbbac88c648111540600df75f287'
-            'f37278b6e57ba3e371f953a91e04ab70b6ec29a50426684fdf2893753540c040'
-            '99febb7e7399ea6237b42bb07e2fc877ab9eaa1d68339839ed958ad4ac248a74'
+            '0a86769e46298d26d1bcb79a2bc38bd83da4c0cb080417c7398634600528f41a'
+            '389a4abfd24331f57ec0e031b4877a047735597c1a9c49e82ee1cbf20750be08'
+            '5851830aa6c621589b0241507976cfde15f64f7ee1b4711b2f9f3364283fbde1'
+            '08cbefe9b8fecc6336fc69c6e8ba74ab59da1cce65eacca11b39f39883aa36b6'
+            '15e3afcba22f51b6e5ad13b8739501a8ca94401cf153d6de899d7d707f3d0cff'
+            '30deee2fa1e6d98a991258f632b413cfcf2e2373e86ace89aa2b337aa095ebe7'
             '1f64e8e78169bc7b3658e2e948cea9d88724cef419b6e9af25101e247796cd5a'
-            '9129c349305fa1d003bd47fdf11a768a69805c852a3c269af5a04f0d6f50eeea'
+            'be8472d78af18cd34fb821d9fb6992e42ad35e8c88c6e32a697be2b30f070637'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'ec0ca3c8051ea6d9a27a450998af8162464c224299deefc29044172940e96975'
@@ -68,7 +69,8 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
-            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b')
+            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
+            'b6ce060a6997861e14d1061d72b96c35476e8967dd26c8020fcff4a5f0fe453d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -80,6 +82,9 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`-date +%Y%m%d`"
+
+  # Fix CVE-2016-0728
+  patch -Np1 -i ../0001-key-fix-keyring-ref-leak-in-join_session_keyring.patch
 
   # Fix https://github.com/manjaro/release-plan/issues/8
   # Backports from v4.2 and v4.3

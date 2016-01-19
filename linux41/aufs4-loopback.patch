@@ -1,10 +1,10 @@
-aufs4.1 loopback patch
+aufs4.1.13+ loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 0160952..866f8e2 100644
+index a5b343d..d697561 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
-@@ -419,7 +419,7 @@ static int do_req_filebacked(struct loop_device *lo, struct request *rq)
+@@ -417,7 +417,7 @@ static int do_req_filebacked(struct loop_device *lo, struct request *rq)
  }
  
  struct switch_request {
@@ -13,7 +13,7 @@ index 0160952..866f8e2 100644
  	struct completion wait;
  };
  
-@@ -439,6 +439,7 @@ static void do_loop_switch(struct loop_device *lo, struct switch_request *p)
+@@ -437,6 +437,7 @@ static void do_loop_switch(struct loop_device *lo, struct switch_request *p)
  	mapping = file->f_mapping;
  	mapping_set_gfp_mask(old_file->f_mapping, lo->old_gfp_mask);
  	lo->lo_backing_file = file;
@@ -21,7 +21,7 @@ index 0160952..866f8e2 100644
  	lo->lo_blocksize = S_ISBLK(mapping->host->i_mode) ?
  		mapping->host->i_bdev->bd_block_size : PAGE_SIZE;
  	lo->old_gfp_mask = mapping_gfp_mask(mapping);
-@@ -450,11 +451,13 @@ static void do_loop_switch(struct loop_device *lo, struct switch_request *p)
+@@ -448,11 +449,13 @@ static void do_loop_switch(struct loop_device *lo, struct switch_request *p)
   * First it needs to flush existing IO, it does this by sending a magic
   * BIO down the pipe. The completion of this BIO does the actual switch.
   */
@@ -36,7 +36,7 @@ index 0160952..866f8e2 100644
  
  	/* freeze queue and wait for completion of scheduled requests */
  	blk_mq_freeze_queue(lo->lo_queue);
-@@ -473,7 +476,16 @@ static int loop_switch(struct loop_device *lo, struct file *file)
+@@ -471,7 +474,16 @@ static int loop_switch(struct loop_device *lo, struct file *file)
   */
  static int loop_flush(struct loop_device *lo)
  {
@@ -54,7 +54,7 @@ index 0160952..866f8e2 100644
  }
  
  /*
-@@ -488,6 +500,7 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
+@@ -486,6 +498,7 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
  			  unsigned int arg)
  {
  	struct file	*file, *old_file;
@@ -62,7 +62,7 @@ index 0160952..866f8e2 100644
  	struct inode	*inode;
  	int		error;
  
-@@ -504,9 +517,16 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
+@@ -502,9 +515,16 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
  	file = fget(arg);
  	if (!file)
  		goto out;
@@ -79,7 +79,7 @@ index 0160952..866f8e2 100644
  
  	error = -EINVAL;
  
-@@ -518,17 +538,21 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
+@@ -516,17 +536,21 @@ static int loop_change_fd(struct loop_device *lo, struct block_device *bdev,
  		goto out_putf;
  
  	/* and ... switch */
@@ -102,7 +102,7 @@ index 0160952..866f8e2 100644
   out:
  	return error;
  }
-@@ -689,7 +713,7 @@ static void loop_config_discard(struct loop_device *lo)
+@@ -687,7 +711,7 @@ static void loop_config_discard(struct loop_device *lo)
  static int loop_set_fd(struct loop_device *lo, fmode_t mode,
  		       struct block_device *bdev, unsigned int arg)
  {
@@ -111,7 +111,7 @@ index 0160952..866f8e2 100644
  	struct inode	*inode;
  	struct address_space *mapping;
  	unsigned lo_blocksize;
-@@ -704,6 +728,12 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
+@@ -702,6 +726,12 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
  	file = fget(arg);
  	if (!file)
  		goto out;
@@ -124,7 +124,7 @@ index 0160952..866f8e2 100644
  
  	error = -EBUSY;
  	if (lo->lo_state != Lo_unbound)
-@@ -752,6 +782,7 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
+@@ -756,6 +786,7 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
  	lo->lo_device = bdev;
  	lo->lo_flags = lo_flags;
  	lo->lo_backing_file = file;
@@ -132,7 +132,7 @@ index 0160952..866f8e2 100644
  	lo->transfer = NULL;
  	lo->ioctl = NULL;
  	lo->lo_sizelimit = 0;
-@@ -783,6 +814,8 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
+@@ -787,6 +818,8 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
  
   out_putf:
  	fput(file);
@@ -141,7 +141,7 @@ index 0160952..866f8e2 100644
   out:
  	/* This is safe: open() is still holding a reference. */
  	module_put(THIS_MODULE);
-@@ -829,6 +862,7 @@ loop_init_xfer(struct loop_device *lo, struct loop_func_table *xfer,
+@@ -833,6 +866,7 @@ loop_init_xfer(struct loop_device *lo, struct loop_func_table *xfer,
  static int loop_clr_fd(struct loop_device *lo)
  {
  	struct file *filp = lo->lo_backing_file;
@@ -149,7 +149,7 @@ index 0160952..866f8e2 100644
  	gfp_t gfp = lo->old_gfp_mask;
  	struct block_device *bdev = lo->lo_device;
  
-@@ -857,6 +891,7 @@ static int loop_clr_fd(struct loop_device *lo)
+@@ -861,6 +895,7 @@ static int loop_clr_fd(struct loop_device *lo)
  	spin_lock_irq(&lo->lo_lock);
  	lo->lo_state = Lo_rundown;
  	lo->lo_backing_file = NULL;
@@ -157,7 +157,7 @@ index 0160952..866f8e2 100644
  	spin_unlock_irq(&lo->lo_lock);
  
  	loop_release_xfer(lo);
-@@ -898,6 +933,8 @@ static int loop_clr_fd(struct loop_device *lo)
+@@ -904,6 +939,8 @@ static int loop_clr_fd(struct loop_device *lo)
  	 * bd_mutex which is usually taken before lo_ctl_mutex.
  	 */
  	fput(filp);
@@ -167,7 +167,7 @@ index 0160952..866f8e2 100644
  }
  
 diff --git a/drivers/block/loop.h b/drivers/block/loop.h
-index 301c27f..df84aa0 100644
+index 49564ed..83a7860 100644
 --- a/drivers/block/loop.h
 +++ b/drivers/block/loop.h
 @@ -46,7 +46,7 @@ struct loop_device {
@@ -242,10 +242,10 @@ index 6d9864d..3322557 100644
  
  #endif /* __KERNEL__ */
 diff --git a/fs/aufs/super.c b/fs/aufs/super.c
-index 08b7fcc..ee40dfb 100644
+index 7ded31a..3ab5291 100644
 --- a/fs/aufs/super.c
 +++ b/fs/aufs/super.c
-@@ -830,7 +830,10 @@ static const struct super_operations aufs_sop = {
+@@ -831,7 +831,10 @@ static const struct super_operations aufs_sop = {
  	.statfs		= aufs_statfs,
  	.put_super	= aufs_put_super,
  	.sync_fs	= aufs_sync_fs,
@@ -258,10 +258,10 @@ index 08b7fcc..ee40dfb 100644
  
  /* ---------------------------------------------------------------------- */
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 3229f97..f63cc0d 100644
+index da37e51..10ee750 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1696,6 +1696,10 @@ struct super_operations {
+@@ -1710,6 +1710,10 @@ struct super_operations {
  				  struct shrink_control *);
  	long (*free_cached_objects)(struct super_block *,
  				    struct shrink_control *);
