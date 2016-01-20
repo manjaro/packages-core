@@ -1,4 +1,4 @@
-aufs4.x-rcN mmap patch
+aufs4.4 mmap patch
 
 diff --git a/fs/proc/base.c b/fs/proc/base.c
 index 4bd5d31..aa41f2a 100644
@@ -124,10 +124,10 @@ index f8d1492..c3a3760 100644
  
  #ifndef CONFIG_MMU
 diff --git a/kernel/fork.c b/kernel/fork.c
-index fce002e..2230a0f 100644
+index 1155eac..c001ea4 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -464,7 +464,7 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
+@@ -465,7 +465,7 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
  			struct inode *inode = file_inode(file);
  			struct address_space *mapping = file->f_mapping;
  
