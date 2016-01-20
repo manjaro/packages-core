@@ -11,9 +11,9 @@ pkgname=('linux42' 'linux42-headers')
 _kernelname=-MANJARO
 _basekernel=4.2
 _basever=42
-_aufs=20151221
+_aufs=20160118
 _bfq=v7r8
-_subver=1
+_subver=2
 #_prepatch_snap=3a0b9585d035b77d478496dc385d550844aff7af
 #_prepatch_string="http://kernel.ubuntu.com/git/ubuntu/linux.git/rawdiff/?id=${_prepatch_snap}&id2=v${_basekernel}.8"
 pkgver=${_basekernel}.8.${_subver}
@@ -45,15 +45,17 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # Additional patches
         '4.2.8.1.patch'
+        '4.2.8.2.patch'
         # Manjaro Patches
+        '0001-key-fix-keyring-ref-leak-in-join_session_keyring.patch'
 )
 sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '712f93e2f5e8985248852753189001b036b8366008b8c10e3421bb1d45fc20bf'
-            'e0e3cc4100f6a45227ea063b122f95603983f9a402dd9e58b2b684f001370dab'
-            '82fc5776815590fbc6923dc8fa1377d6f2a03efafed37bd8ce1f2423168f36e6'
+            '0b7f5e203a63df5e16530d3519b56c1f860dd5717357e3ee576427be6cc5fade'
+            '35a59fe0fa337ff8bd163154e3cb1af651f27841865838a1b4921eb4f32efce2'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '2aa69cae0c789db690032a940dbfa3a55e689d2fd9fdcb4742667d4f8cd3b388'
+            '8d63587f6d18d499ffa606a738eb662c19a09b12ef36267131c1b10e45c99738'
             '63e244b95a7c0e7a7674e323599dff7951942ebf75db66cc87b0b4fa04e9dc07'
             '870387384ca5877b4b9437eed8eabb6882d8d98d0927e8c58846a5327b26e272'
             'c1349b3deac93997546c2411c71b37456f7a47a677fb446920d9b1b2fbf6d46d'
@@ -66,7 +68,9 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             'e5789fc460e508f4082d7ebcd5f6c4bcddfaa03b7cd827d0b58236b1e989e218'
             'ca28a57d630828c7deef8f847259a4a2c2b5b7ca6dd8e0713f21bbde3d5411bc'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '38f88f9671db2ebf976c754f6532265173db577ee73b6f2dcd7ea08899a6330f')
+            '38f88f9671db2ebf976c754f6532265173db577ee73b6f2dcd7ea08899a6330f'
+            '9e13bd726864762d7600129e8b252885cf017a86119b3633ab7142ccdf9d1af4'
+            'b6ce060a6997861e14d1061d72b96c35476e8967dd26c8020fcff4a5f0fe453d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -76,10 +80,15 @@ prepare() {
 
   # add extended stable patch(es)
   patch -p1 -i "${srcdir}/4.2.8.1.patch"
+  patch -p1 -i "${srcdir}/4.2.8.2.patch"
 
   # add latest fixes from stable queue, if needed
   # http://kernel.ubuntu.com/git/ubuntu/linux.git
   #patch -Np1 -i "${srcdir}/prepatch-${pkgver}.patch"
+
+  # fixes #47820 CVE-2016-0728.patch
+  # https://github.com/manjaro/packages-core/issues/28
+  patch -Np1 -i "${srcdir}/0001-key-fix-keyring-ref-leak-in-join_session_keyring.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
