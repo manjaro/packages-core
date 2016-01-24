@@ -13,8 +13,8 @@ _basekernel=4.1
 _basever=41
 _aufs=20160118
 _bfq=v7r8
-pkgver=${_basekernel}.15
-pkgrel=2
+pkgver=${_basekernel}.16
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -45,12 +45,11 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0001-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
-        '0001-key-fix-keyring-ref-leak-in-join_session_keyring.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            '0ffca8557f1aa191da2f2260ad279c9cc858e6308a8af8a76f7ca3d3c0540344'
-            'e8960e484065c928ff3a271c68407a14f42a920c2723b5047394631afbcf33f9'
-            '102bb6e03ca706f7bc4fabb0cd1ca82b232821724119be4f18369a461c347dc0'
+            '53eb9ab07a1b23b350f899f86962a92635faf917ca2ca8554343fa3e58e565fd'
+            'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
+            'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '0a86769e46298d26d1bcb79a2bc38bd83da4c0cb080417c7398634600528f41a'
@@ -69,8 +68,7 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
-            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
-            'b6ce060a6997861e14d1061d72b96c35476e8967dd26c8020fcff4a5f0fe453d')
+            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -82,9 +80,6 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`-date +%Y%m%d`"
-
-  # Fix CVE-2016-0728
-  patch -Np1 -i ../0001-key-fix-keyring-ref-leak-in-join_session_keyring.patch
 
   # Fix https://github.com/manjaro/release-plan/issues/8
   # Backports from v4.2 and v4.3
