@@ -13,9 +13,8 @@ _basekernel=4.4
 _basever=44
 _aufs=20160118
 _bfq=v7r8
-_rc=rc8
 pkgver=${_basekernel}.1
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -48,11 +47,13 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         '0001-tpmdd-devel-v3-base-platform-fix-binding-for-drivers-without-probe-callback.patch'
         '0001-sdhci-revert.patch'
+        '0001-4.4-revert-xfs.patch'
+        '0001-4.4-revert-btrfs.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             'c0218043e61da3921cd14579ae4a8774a6fdad91667a9fdb851d0a35f62edb48'
-            'c435006720c970412388fc2697089f3c248465e41bcdd5a53eadaf674e04ece6'
-            'cd3935c137e370feb4a43767e74125c86e08fa49c8a0f43c98af0ad51e6c0646'
+            'd51e5649e88de56891c9270d1872c18dde28dee4b86cb157ce22da4f3eacc55a'
+            'f2f6e7fbe1612eb5bb79f3337992c6c8c1b4f9b0ad9812446231304acdfb0719'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             'd55b0bae793e9cad34421d416f82c95edb39e25e1809d63eb2cfafc713622831'
@@ -71,7 +72,9 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             'ab57037ecee0a425c612babdff47c831378bca0bff063a1308599989a350226d'
-            '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375')
+            '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
+            'ffbfaa192d17bfc7c6293aa9a07efe57f65177051ae3d8033d5e45a7bca2e0ad'
+            '51586b733e9f178bebe577258b6057b035eded516ffe8bf8bbb26cb0b26c4958')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -94,6 +97,10 @@ prepare() {
   # https://bugzilla.kernel.org/show_bug.cgi?id=110751
   # https://github.com/manjaro/packages-core/issues/27
   patch -Np1 -i "${srcdir}/0001-tpmdd-devel-v3-base-platform-fix-binding-for-drivers-without-probe-callback.patch"
+
+  # #47757 fix broken suspend from btrfs and xfs
+  patch -Np1 -i "${srcdir}/0001-4.4-revert-xfs.patch"
+  patch -Np1 -i "${srcdir}/0001-4.4-revert-btrfs.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
