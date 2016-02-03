@@ -7,8 +7,8 @@
 # Maintainer: Rob McCathie <rob@manjaro.org>
 
 pkgname=pacman
-pkgver=4.2.1
-pkgrel=4.1
+pkgver=5.0.0
+pkgrel=1
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
@@ -29,8 +29,6 @@ source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
         pacman.conf.i686
         pacman.conf.x86_64
         makepkg.conf
-        ensure-matching-database-and-package-version.patch
-        #pacman-updated-locales.patch
         pacman-sync-first-option.patch
         etc-pacman.d-gnupg.mount
         pacman-init.service)
@@ -38,15 +36,12 @@ source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
 prepare() {
   cd $srcdir/$pkgname-$pkgver
 
-  # Archlinux patches
-  patch -p1 -i $srcdir/ensure-matching-database-and-package-version.patch
-
   # Manjaro patches
   patch -p1 -i $srcdir/pacman-sync-first-option.patch
   #patch -p1 -i $srcdir/pacman-updated-locales.patch
 
   # fix bad translation mistake - corrected in transifex
-  sed -i 's#pacman-db-update#pacman-db-upgrade#' src/pacman/po/nl.po
+  #sed -i 's#pacman-db-update#pacman-db-upgrade#' src/pacman/po/nl.po
 
   ./configure --prefix=/usr --sysconfdir=/etc \
     --localstatedir=/var --enable-doc \
@@ -65,7 +60,7 @@ prepare() {
 
 build() {
   cd $srcdir/$pkgname-$pkgver
-  make
+  make V=1
   make -C contrib
 }
 
@@ -123,11 +118,10 @@ package() {
   install -m644 $srcdir/pacman-init.service $pkgdir/usr/lib/systemd/system/pacman-init.service
 }
 
-sha256sums=('a142593c409ef21f6fde0075c7649a58a8ee0edbd2af3f82e4dc05cfc1d0b545'
-            'e10c4ce87b0694b81a4ea6c6e7d2134bd717cf256295538b9a85ff7a5a546a3e'
-            '51b381cdf06896905438715b517d2bc1e81f129e0b8f8eeca6f50eef73f0941a'
-            'a9f1d448ca8876ec6efc92c4f40ff384ad000c827914ad3a841acf5d2af50b28'
-            'c4510fa2fdc68379ecb5e75795f232b37695b1d7eb72444476a16f8be48ea313'
+sha256sums=('6a1b6e5bc4a682a3a2da5e402434a2a35bf6d492586508776098cbfec1074711'
+            '811307fac47ab1b8405da798feb122dfdd61be099dad236199503e8e6969bf5f'
+            '92e68dabb8724ebaa5fd0fd50e2c8a5f2bba65797295c74571f720ee7e2c513d'
+            'bdd06f1e52ff4bb8e8d5d6be785e172b74809b1266cbcd33e2c42c9927493eee'
             'feb18bf548343ce6bd60b1e9252ad4b0643c21ac1a53149d93afbd6028a7a37d'
             'b6d14727ec465bb66d0a0358163b1bbfafcb4eaed55a0f57c30aabafae7eed68'
             'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae')
