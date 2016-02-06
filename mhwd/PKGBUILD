@@ -5,7 +5,7 @@
 pkgbase=mhwd
 pkgname=('mhwd' 'mhwd-db')
 pkgver=0.5.6
-pkgrel=10
+pkgrel=11
 pkgdesc="Manjaro Linux Hardware Detection"
 arch=('i686' 'x86_64')
 url="http://git.manjaro.org"
@@ -97,7 +97,7 @@ package_mhwd-db() {
   pkgdesc="Manjaro Linux Hardware Detection Database"
   #arch=('i686' 'x86_64')
   arch=('any')
-  depends=('mhwd-nvidia' 'mhwd-nvidia-304xx' 'mhwd-nvidia-340xx' 'mhwd-catalyst')
+  depends=('mhwd-nvidia' 'mhwd-nvidia-304xx' 'mhwd-nvidia-340xx' 'mhwd-catalyst' 'mhwd-amdgpu')
   conflicts=("mhwd-db-catalyst")
   provides=("mhwd-db-catalyst")
   replaces=("mhwd-db-catalyst")

@@ -1,0 +1,23 @@
+# Maintainer: Philip Müller <philm[at]manjaro[dog]org>
+# Maintainer: Roland Singer <roland[at]manjaro[dog]org>
+
+pkgname=('mhwd-amdgpu')
+pkgver=1.0.0
+pkgrel=1
+
+pkgdesc="MHWD module-ids for amdgpu $pkgver"
+arch=('any')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+source=(${url}/releases/individual/driver/xf86-video-amdgpu-${pkgver}.tar.bz2 mhwd-amdgpu)
+
+sha256sums=('296bd5376f4921bbdb3d0e6e6bc100ff2682312ae5965a43d3cab53f50f92a6a'
+            '98ff6b7a8cc0b69ebf1e7b6b04a15717e9d8aae43d9b771b3ac83a5f4d44e157')
+
+package() {
+    install -d -m755 "${pkgdir}/var/lib/mhwd/ids/pci/"
+    # Generate mhwd database
+    sh -e ${srcdir}/mhwd-amdgpu \
+    ${srcdir}/xf86-video-amdgpu-$pkgver/src/pcidb/ati_pciids.csv \
+    > ${pkgdir}/var/lib/mhwd/ids/pci/amdgpu.ids
+}
