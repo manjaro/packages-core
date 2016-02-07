@@ -38,9 +38,9 @@ update_configs() {
          if [ "$(echo ${local_config_ver} | sed -e 's/\.//g')" -lt "$(echo ${db_config_ver} | sed -e 's/\.//g')" ]; then
             msg "Updating Config: '${local_config_dir}/${NAME}'"
             if [ -e "${db_config_dir}/graphic_drivers/${db_config}/MHWDCONFIG" ] ; then
-               cp ${db_config_dir}/graphic_drivers/${db_config}/MHWDCONFIG ${local_config_dir}/${NAME}
+               \cp -f ${db_config_dir}/graphic_drivers/${db_config}/MHWDCONFIG ${local_config_dir}/${NAME}
             else
-               cp ${db_config_dir}/network_drivers/${db_config}/MHWDCONFIG ${local_config_dir}/${NAME}
+               \cp -f ${db_config_dir}/network_drivers/${db_config}/MHWDCONFIG ${local_config_dir}/${NAME}
             fi
          fi
       fi

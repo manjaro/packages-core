@@ -1,0 +1,21 @@
+# Maintainer: Guinux <nuxgui@gmail.com>
+
+pkgname=manjaro-release-dev
+pkgver=16.06
+pkgrel=0
+pkgdesc="Manjaro's release definition"
+arch=("any")
+url="http://manjarolinux.org/"
+license=('GPL2')
+depends=('lsb-release')
+source=('lsb-release')
+conflicts=('manjaro-release')
+install="manjaro-release.install"
+sha256sums=('0b7abc0bb22c4218ffb0447d6ed083b5af8089b04b4a3528f33ef65bf2d4ba69')
+
+package() {
+    # Copy files
+    mkdir -p ${pkgdir}/etc
+    install -m644 ${srcdir}/lsb-release ${pkgdir}/etc/
+
+}
