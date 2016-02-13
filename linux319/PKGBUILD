@@ -11,9 +11,9 @@ pkgname=('linux319' 'linux319-headers')
 _kernelname=-MANJARO
 _basekernel=3.19
 _basever=319
-_aufs=20160118
+_aufs=20160215
 _bfq=v7r8
-_subver=14
+_subver=15
 pkgver=${_basekernel}.8.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -58,6 +58,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.19.8.12.patch'
         '3.19.8.13.patch'
         '3.19.8.14.patch'
+        '3.19.8.15.patch'
 )
 sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '2e4f01c2ce7ccb2ffee1722724df0a2c2ad6ba5fa74218aa816bda19f3ddcf5d'
@@ -65,12 +66,12 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             'fd9b059ff1c172071b6c04e42d10b39c228f332d6ce67009a672d635445aecf5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '45602d7b1e3d10edfa174f7af904d310c5e5305e9464ebed5369728c4af891a2'
-            'a29e055bdc66220249d816bbfcafcbcb686ff4792b019847beb0a8997601414a'
+            '4b497c364357d6b88f17a25e89f2ad89c1ced5d3593c018c796992a4342909e5'
             '2a011ded0cd9b3372543bc1cd7a42b55a8ac7aca1ca59326a884ed53681f776a'
             'b056b1927376bddc6a5ab8b5f2bb8566a54b89aa58a4c7749206c19eb55ea62f'
-            'a6d90525823b86454d8f28c580d2ac771d32885aa3329357466196830bbca4c8'
+            '166ebb9c1eabba1f5a190ecd5e6c8ff29fbdfe9bd739e96a4674933e9d776be3'
             '06a41dfb75b2ebc802601364d27c4022e43c1afa448a6095b6f234060dc5d73b'
-            '0b45ea1e0eb0bca8d34afddd2205761ca479f015e9d1d6edc07cbd5c225f1897'
+            '529470637abd840f45d0408f388de4b7c21ed0695b89c5e4175951deb3844a22'
             '1f009751593946e9e35baaeab01816d92f2b0bd5beae70dcbdd6a2865cc56b80'
             '134a378395412e3cb638795f667ef14c3b01d11bc464844e9007b3fa23224091'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
@@ -93,7 +94,8 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '975d92c23937237e56b8980fc1e0d3653f4f699d1e5e5cddbfbd621e90776f86'
             '9b8af1d0f03103224d9b137bcd53d408ba8efed8362173199b962acc48b3f27a'
             '328d4e65d82a58a406e1522e18f84568baf3d6c89ac5631515233c14d6dbc877'
-            'e8301af21b304b7834ea10df639d3584f1f404f4e280ec3527af69faede59972')
+            'e8301af21b304b7834ea10df639d3584f1f404f4e280ec3527af69faede59972'
+            'ef447bbc44e32fcbff5f65410601d4e6ccdcf571addabdfddcaa527bd3c0f415')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"

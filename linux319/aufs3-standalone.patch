@@ -13,7 +13,7 @@ index eaed72c..3b4386e 100644
  /*
   * Search for at least 1 mount point in the dentry's subdirs.
 diff --git a/fs/file_table.c b/fs/file_table.c
-index 3f85411..00e9dcf 100644
+index 3f85411..8975b8f 100644
 --- a/fs/file_table.c
 +++ b/fs/file_table.c
 @@ -147,6 +147,7 @@ over:
@@ -24,7 +24,23 @@ index 3f85411..00e9dcf 100644
  
  /**
   * alloc_file - allocate and initialize a 'struct file'
-@@ -308,6 +309,7 @@ void put_filp(struct file *file)
+@@ -258,6 +259,7 @@ void flush_delayed_fput(void)
+ {
+ 	delayed_fput(NULL);
+ }
++EXPORT_SYMBOL_GPL(flush_delayed_fput);
+ 
+ static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput);
+ 
+@@ -300,6 +302,7 @@ void __fput_sync(struct file *file)
+ }
+ 
+ EXPORT_SYMBOL(fput);
++EXPORT_SYMBOL_GPL(__fput_sync);
+ 
+ void put_filp(struct file *file)
+ {
+@@ -308,6 +311,7 @@ void put_filp(struct file *file)
  		file_free(file);
  	}
  }
@@ -196,6 +212,15 @@ index 4ef6985..6bb6303 100644
  
  /* Compare an extended attribute value with the given value */
  int vfs_xattr_cmp(struct dentry *dentry, const char *xattr_name,
+diff --git a/kernel/task_work.c b/kernel/task_work.c
+index 8727032..7003e5a 100644
+--- a/kernel/task_work.c
++++ b/kernel/task_work.c
+@@ -126,3 +126,4 @@ void task_work_run(void)
+ 		} while (work);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(task_work_run);
 diff --git a/security/commoncap.c b/security/commoncap.c
 index 2915d85..58382dd 100644
 --- a/security/commoncap.c
