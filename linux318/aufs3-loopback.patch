@@ -1,4 +1,4 @@
-aufs3.18.1+ loopback patch
+aufs3.18.25+ loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
 index 30efd68..77b31b4 100644
@@ -196,7 +196,7 @@ index 90df5d6..cb91822 100644
  	unsigned	lo_blocksize;
  	void		*key_data; 
 diff --git a/fs/aufs/f_op.c b/fs/aufs/f_op.c
-index 95ff59f..79cc7b6 100644
+index d46ca4f..3b4469d 100644
 --- a/fs/aufs/f_op.c
 +++ b/fs/aufs/f_op.c
 @@ -398,7 +398,7 @@ static ssize_t aufs_splice_read(struct file *file, loff_t *ppos,
@@ -209,7 +209,7 @@ index 95ff59f..79cc7b6 100644
  		if (file->f_mapping != h_file->f_mapping) {
  			file->f_mapping = h_file->f_mapping;
 diff --git a/fs/aufs/loop.c b/fs/aufs/loop.c
-index 76dcecc..302d7ae 100644
+index c9d9659..4e19ced 100644
 --- a/fs/aufs/loop.c
 +++ b/fs/aufs/loop.c
 @@ -131,3 +131,19 @@ void au_loopback_fin(void)
@@ -233,7 +233,7 @@ index 76dcecc..302d7ae 100644
 +	return f;
 +}
 diff --git a/fs/aufs/loop.h b/fs/aufs/loop.h
-index 6d9864d..3322557 100644
+index 48bf070..66afec7 100644
 --- a/fs/aufs/loop.h
 +++ b/fs/aufs/loop.h
 @@ -25,7 +25,11 @@ void au_warn_loopback(struct super_block *h_sb);
@@ -258,7 +258,7 @@ index 6d9864d..3322557 100644
  
  #endif /* __KERNEL__ */
 diff --git a/fs/aufs/super.c b/fs/aufs/super.c
-index 8d2a4bd..6f61601 100644
+index b9fa96e..eef5a01 100644
 --- a/fs/aufs/super.c
 +++ b/fs/aufs/super.c
 @@ -834,7 +834,10 @@ static const struct super_operations aufs_sop = {
@@ -274,10 +274,10 @@ index 8d2a4bd..6f61601 100644
  
  /* ---------------------------------------------------------------------- */
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index aabcbba..1a634f5 100644
+index e35dc41..1e9ea4a 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1594,6 +1594,10 @@ struct super_operations {
+@@ -1593,6 +1593,10 @@ struct super_operations {
  	int (*bdev_try_to_free_page)(struct super_block*, struct page*, gfp_t);
  	long (*nr_cached_objects)(struct super_block *, int);
  	long (*free_cached_objects)(struct super_block *, long, int);

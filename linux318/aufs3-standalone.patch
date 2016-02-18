@@ -1,10 +1,10 @@
-aufs3.18.1+ standalone patch
+aufs3.18.25+ standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index da7342e..b147b6c 100644
+index 857990a..4d3b72c 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1124,6 +1124,7 @@ rename_retry:
+@@ -1127,6 +1127,7 @@ rename_retry:
  	seq = 1;
  	goto again;
  }
@@ -13,7 +13,7 @@ index da7342e..b147b6c 100644
  /*
   * Search for at least 1 mount point in the dentry's subdirs.
 diff --git a/fs/file_table.c b/fs/file_table.c
-index 3f85411..00e9dcf 100644
+index 3f85411..8975b8f 100644
 --- a/fs/file_table.c
 +++ b/fs/file_table.c
 @@ -147,6 +147,7 @@ over:
@@ -24,7 +24,23 @@ index 3f85411..00e9dcf 100644
  
  /**
   * alloc_file - allocate and initialize a 'struct file'
-@@ -308,6 +309,7 @@ void put_filp(struct file *file)
+@@ -258,6 +259,7 @@ void flush_delayed_fput(void)
+ {
+ 	delayed_fput(NULL);
+ }
++EXPORT_SYMBOL_GPL(flush_delayed_fput);
+ 
+ static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput);
+ 
+@@ -300,6 +302,7 @@ void __fput_sync(struct file *file)
+ }
+ 
+ EXPORT_SYMBOL(fput);
++EXPORT_SYMBOL_GPL(__fput_sync);
+ 
+ void put_filp(struct file *file)
+ {
+@@ -308,6 +311,7 @@ void put_filp(struct file *file)
  		file_free(file);
  	}
  }
@@ -33,7 +49,7 @@ index 3f85411..00e9dcf 100644
  void __init files_init(unsigned long mempages)
  { 
 diff --git a/fs/inode.c b/fs/inode.c
-index df21e66..c8df03d 100644
+index 2998e86..dc11e3c 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
 @@ -57,6 +57,7 @@ static struct hlist_head *inode_hashtable __read_mostly;
@@ -53,7 +69,7 @@ index df21e66..c8df03d 100644
  /**
   *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 5b66b2b..68ff4e4 100644
+index da23ad8..1fe9810 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -454,6 +454,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
@@ -64,7 +80,7 @@ index 5b66b2b..68ff4e4 100644
  
  /**
   * mnt_drop_write - give up write access to a mount
-@@ -1727,6 +1728,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+@@ -1736,6 +1737,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
  	}
  	return 0;
  }
@@ -109,7 +125,7 @@ index d16b62c..06ca6bc 100644
  int fsnotify_fasync(int fd, struct file *file, int on)
  {
 diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index 34c38fa..d40cf58 100644
+index 28c90a6..b48025e 100644
 --- a/fs/notify/mark.c
 +++ b/fs/notify/mark.c
 @@ -109,6 +109,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
@@ -136,7 +152,7 @@ index 34c38fa..d40cf58 100644
  
  int fsnotify_add_mark(struct fsnotify_mark *mark, struct fsnotify_group *group,
  		      struct inode *inode, struct vfsmount *mnt, int allow_dups)
-@@ -372,6 +375,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
+@@ -392,6 +395,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
  	atomic_set(&mark->refcnt, 1);
  	mark->free_mark = free_mark;
  }
@@ -145,7 +161,7 @@ index 34c38fa..d40cf58 100644
  static int fsnotify_mark_destroy(void *ignored)
  {
 diff --git a/fs/open.c b/fs/open.c
-index de92c13..e3384c0 100644
+index d058ff1..696084a 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -62,6 +62,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -171,7 +187,7 @@ index de92c13..e3384c0 100644
 +EXPORT_SYMBOL_GPL(open_check_o_direct);
  
  static int do_dentry_open(struct file *f,
- 			  int (*open)(struct inode *, struct file *),
+ 			  struct inode *inode,
 diff --git a/fs/splice.c b/fs/splice.c
 index 619359a..c14f60e 100644
 --- a/fs/splice.c
@@ -204,6 +220,15 @@ index 64e83ef..bd71e53 100644
  
  /* Compare an extended attribute value with the given value */
  int vfs_xattr_cmp(struct dentry *dentry, const char *xattr_name,
+diff --git a/kernel/task_work.c b/kernel/task_work.c
+index 8727032..7003e5a 100644
+--- a/kernel/task_work.c
++++ b/kernel/task_work.c
+@@ -126,3 +126,4 @@ void task_work_run(void)
+ 		} while (work);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(task_work_run);
 diff --git a/security/commoncap.c b/security/commoncap.c
 index bab0611..3fa2f82 100644
 --- a/security/commoncap.c

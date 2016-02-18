@@ -11,9 +11,9 @@ pkgname=('linux45' 'linux45-headers')
 _kernelname=-MANJARO
 _basekernel=4.5
 _basever=45
-_aufs=20160118
+_aufs=20160215
 _bfq=v7r8
-_rc=rc3
+_rc=rc4
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -27,16 +27,17 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}-${_r
         https://github.com/torvalds/linux/archive/v${_basekernel}-${_rc}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
-        'config' 'config.x86_64' #'config.aufs'
+        'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        #"aufs4.x-rcN-${_aufs}.patch.bz2"
-        #'aufs4-base.patch'
-        #'aufs4-kbuild.patch'
-        #'aufs4-loopback.patch'
-        #'aufs4-mmap.patch'
-        #'aufs4-standalone.patch'
-        #'tmpfs-idr.patch'
+        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        'aufs4-base.patch'
+        'aufs4-kbuild.patch'
+        'aufs4-loopback.patch'
+        'aufs4-mmap.patch'
+        'aufs4-standalone.patch'
+        'tmpfs-idr.patch'
+        'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.3.patch"
@@ -48,10 +49,19 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}-${_r
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         'nvidia-304xx-mtrr-unknown-symbol.patch'
 )
-sha256sums=('c3241e8cb6c194fb07127a4b8971f223432264d7ae30bcb4733d3ad427d771b7'
-            'ef4d3e04f560e50163182e9e361cc1b09ae3f05d9f5017140f72d38b9b806e86'
-            '397ded768a9cc0ef534fe9bd4f09cad26afe74664df866b4d56f3078251ce84f'
+sha256sums=('f3b15e8c7cd22f4c3f6b206d6ef31a755e30f66b731f945fd7e3a766f95d2c71'
+            '093701b40d78f7fe3d0041ea300208de5a7af48ed011bf822142307b024a51ed'
+            '315182bbd0de5d1c906b7c5b48280b82a9e364ea32e9f6e87f79670c9e70e989'
+            'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
+            '7a1fc286b8d2fc7e0b0054a164dddec3845331c1ddd330270a37b2d87643f46a'
+            '27277cbd49eefe6c3a67915e76ce820086e5460f936eb7660189106097a1a338'
+            'ddf7886d1edeb4c4f47d52cf019065a6267b1334a87481fd513562f271ff4304'
+            '6155ec109528aa04fbd189ca25bc3a9bb2c7621ae1c511a46f9bdf9910d5917f'
+            '0e085f128e1dd49517405a9ce5690d4569e688285840a83bf81c6fd83a2632e6'
+            '4b35c0961e2b0010a737af601c85a808381eb94be9d6eb8d692574af69e268fa'
+            '1419e6aa021e5cd8686291205a84f0fc018f34bf6a3c46a037090116b6f5d021'
+            'ab579473760cd7abcd5cdfe7508930d1ed5d533e220861ad40a7ac8bf564ceac'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'ebeb62206999b2749ac43bb287a6a2a5db4f6b1b688a90cefa1ceb5db94aa490'
@@ -82,14 +92,14 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs4 support
-  # broken due the follow_link() interface was retired in favor of get_link()
-  #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-base.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
-  #patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
   sed -i -e 's|__GFP_WAIT|__GFP_DIRECT_RECLAIM|g' "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
@@ -109,7 +119,7 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-  #cat "${srcdir}/config.aufs" >> ./.config
+  cat "${srcdir}/config.aufs" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
