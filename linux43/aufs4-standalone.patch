@@ -25,7 +25,7 @@ index b06623a..b9206c5 100644
  #ifdef CONFIG_USELIB
  /*
 diff --git a/fs/file_table.c b/fs/file_table.c
-index ad17e05..df66450 100644
+index ad17e05..38e046a 100644
 --- a/fs/file_table.c
 +++ b/fs/file_table.c
 @@ -147,6 +147,7 @@ over:
@@ -36,7 +36,23 @@ index ad17e05..df66450 100644
  
  /**
   * alloc_file - allocate and initialize a 'struct file'
-@@ -308,6 +309,7 @@ void put_filp(struct file *file)
+@@ -258,6 +259,7 @@ void flush_delayed_fput(void)
+ {
+ 	delayed_fput(NULL);
+ }
++EXPORT_SYMBOL_GPL(flush_delayed_fput);
+ 
+ static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput);
+ 
+@@ -300,6 +302,7 @@ void __fput_sync(struct file *file)
+ }
+ 
+ EXPORT_SYMBOL(fput);
++EXPORT_SYMBOL_GPL(__fput_sync);
+ 
+ void put_filp(struct file *file)
+ {
+@@ -308,6 +311,7 @@ void put_filp(struct file *file)
  		file_free(file);
  	}
  }
@@ -208,6 +224,15 @@ index 072fee1..a7677af 100644
  
  /* Compare an extended attribute value with the given value */
  int vfs_xattr_cmp(struct dentry *dentry, const char *xattr_name,
+diff --git a/kernel/task_work.c b/kernel/task_work.c
+index 53fa971..f80d564 100644
+--- a/kernel/task_work.c
++++ b/kernel/task_work.c
+@@ -118,3 +118,4 @@ void task_work_run(void)
+ 		} while (work);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(task_work_run);
 diff --git a/security/commoncap.c b/security/commoncap.c
 index 1832cf7..987ff5f 100644
 --- a/security/commoncap.c

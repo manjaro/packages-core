@@ -13,8 +13,8 @@ git checkout origin/aufs4.1.13+
 # create the patch with the directories: fs, include and Documentation
 
 rm -v $(find . -type f -name '*.orig')
-grep -qse 'EXPORT_SYMBOL(' aufs4-standalone.patch && \
-sed -i-old -e 's|EXPORT_SYMBOL(|EXPORT_SYMBOL_GPL(|' aufs4-standalone.patch
+#grep -qse 'EXPORT_SYMBOL(' aufs4-standalone.patch && \
+#sed -i-old -e 's|EXPORT_SYMBOL(|EXPORT_SYMBOL_GPL(|' aufs4-standalone.patch
 rm -rf ../tmp/linux-4.1
 mkdir -p ../tmp/linux-4.1
 cp -a fs ../tmp/linux-4.1
