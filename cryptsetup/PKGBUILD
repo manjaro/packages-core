@@ -1,0 +1,48 @@
+# $Id: PKGBUILD 250120 2015-11-04 22:05:09Z bpiotrowski $
+# Maintainer: Thomas Bächler <thomas@archlinux.org>
+pkgname=cryptsetup
+pkgver=1.7.0
+pkgrel=1.1
+pkgdesc="Userspace setup tool for transparent encryption of block devices using dm-crypt"
+arch=(i686 x86_64)
+license=('GPL')
+url="http://code.google.com/p/cryptsetup/"
+groups=('base')
+depends=('device-mapper' 'libgcrypt' 'popt' 'libutil-linux')
+makedepends=('util-linux')
+options=('!emptydirs')
+source=(https://www.kernel.org/pub/linux/utils/cryptsetup/v1.7/${pkgname}-${pkgver}.tar.xz
+        #https://www.kernel.org/pub/linux/utils/cryptsetup/v1.7/${pkgname}-${pkgver}.tar.sign
+        encrypt_hook
+        encrypt_install
+        sd-encrypt
+        set-skcipher-key-before-accept-call-in-kernel-crypto-backend.patch::https://gitlab.com/cryptsetup/cryptsetup/commit/93ed401b7c1d298de0a3fe38ae45d96529a8511c.patch
+        fix-kernel-crypto-backend-to-set-key-before-accept-call-even-for-HMAC.patch::https://gitlab.com/cryptsetup/cryptsetup/commit/4dc88e8ffb6442ebba7ad8d14fa55691734371e0.patch)
+#validpgpkeys=('2A2918243FDE46648D0686F9D9B0577BD93E98FC') # Milan Broz <gmazyland@gmail.com>
+sha256sums=('075524a7cc0db36d12119fa79116750accb1c6c8825d5faa2534b74b8ce3d148'
+            '4406f8dc83f4f1b408e49d557515f721d91b358355c71fbe51f74ab27e5c84ff'
+            'cfe465bdad3d958bb2332a05e04f2e1e884422a5714dfd1a0a3b9b74bf7dc6ae'
+            'd442304e6a78b3513ebc53be3fe2f1276a7df470c8da701b3ece971d59979bdd'
+            '995eaf919c1132a29d77138b320f06baba2275039ea27a6254cda4069be012bc'
+            'a18be6227d22d457a1ed5cd4ffd380550e85bef473d22959193640fafe559547')
+
+prepare() {
+  cd "${srcdir}"/$pkgname-${pkgver}
+  patch -Np1 -i "${srcdir}"/set-skcipher-key-before-accept-call-in-kernel-crypto-backend.patch
+  patch -Np1 -i "${srcdir}"/fix-kernel-crypto-backend-to-set-key-before-accept-call-even-for-HMAC.patch
+}
+
+build() {
+  cd "${srcdir}"/$pkgname-${pkgver}
+  ./configure --prefix=/usr --sbindir=/usr/bin --disable-static --enable-cryptsetup-reencrypt
+  make
+}
+
+package() {
+  cd "${srcdir}"/$pkgname-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  # install hook
+  install -D -m644 "${srcdir}"/encrypt_hook "${pkgdir}"/usr/lib/initcpio/hooks/encrypt
+  install -D -m644 "${srcdir}"/encrypt_install "${pkgdir}"/usr/lib/initcpio/install/encrypt
+  install -D -m644 "${srcdir}"/sd-encrypt "${pkgdir}"/usr/lib/initcpio/install/sd-encrypt
+}
