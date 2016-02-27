@@ -11,9 +11,9 @@ pkgname=('linux44' 'linux44-headers')
 _kernelname=-MANJARO
 _basekernel=4.4
 _basever=44
-_aufs=20160215
+_aufs=20160223
 _bfq=v7r8
-pkgver=${_basekernel}.2
+pkgver=${_basekernel}.3
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -47,21 +47,19 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         '0001-sdhci-revert.patch'
-        '0001-4.4-revert-xfs.patch'
-        '0001-4.4-revert-btrfs.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            '5c55d48ca6b2a9b89ed786e656ed17f9a86192eba6d209fa408e0bca8de57b9c'
+            '4a24c79c40b2cb820ce9f22d44f31edcbde5971432753ab0289772946ed05b7b'
             'd51e5649e88de56891c9270d1872c18dde28dee4b86cb157ce22da4f3eacc55a'
             'f2f6e7fbe1612eb5bb79f3337992c6c8c1b4f9b0ad9812446231304acdfb0719'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            'ddd41f41b01e2758822cc28e075e5b3abfb4325cf2c5b641f89c07a7b4bd0ef3'
+            'f82c15ddf7a15e4ddc0a398e59fa46b9ecccf34f14d92167ec4df5926fe7d70b'
             '45f31b5d175a1243e98145d605f20614f9bd204a3ff3dd3b97904567a2e5461c'
             '31ba01590164e89cf275de5a9f2700c4044e79b1d880bafc0b1bfbcaf09ca37c'
-            'da05bd05386adf68f81837b6c5448550e2bfcbb1985c586d23ec090de3f21ecd'
+            '61e69bbc008e2ee2683c05a0effb8c846052e3f703bd4ad26d58c6500fb40b20'
             'e732b259c3a49dcf77f4e59af2f99a9eee0a03b897ef72e445b2c327c0b75bb4'
-            'd83ece8b5aa0093f8728608a185cfbb00b94b1eb9a6dafe398666cc63d966ae9'
+            'f12c2f37d993a2f56a3547dd49420f0da150899b8fae9bac7692cb00bac6460d'
             '0d8ecaa41661327d592c03bb20bf5f911a515e7caf35d457de4e802a55df4498'
             '6f7aa69101d690df2286dd2642a23bce835efab96273389b243dafbec15a1d0c'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
@@ -72,9 +70,7 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
-            '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
-            'ffbfaa192d17bfc7c6293aa9a07efe57f65177051ae3d8033d5e45a7bca2e0ad'
-            '51586b733e9f178bebe577258b6057b035eded516ffe8bf8bbb26cb0b26c4958')
+            '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -92,10 +88,6 @@ prepare() {
   # https://bugzilla.kernel.org/show_bug.cgi?id=106541
   # https://github.com/manjaro/packages-core/issues/27
   patch -Rp1 -i "${srcdir}/0001-sdhci-revert.patch"
-
-  # #47757 fix broken suspend from btrfs and xfs
-  patch -Np1 -i "${srcdir}/0001-4.4-revert-xfs.patch"
-  patch -Np1 -i "${srcdir}/0001-4.4-revert-btrfs.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
