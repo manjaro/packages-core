@@ -11,10 +11,10 @@ pkgname=('linux41' 'linux41-headers')
 _kernelname=-MANJARO
 _basekernel=4.1
 _basever=41
-_aufs=20160215
+_aufs=20160223
 _bfq=v7r8
 pkgver=${_basekernel}.18
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -45,6 +45,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0001-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch::https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
+        '0001-crypto-algif_skcipher-require-setkey-before-accept2.patch'
+        '0002-crypto-algif_skcipher-add-nokey-compatibility-path.patch'
+        '0003-crypto-algif_skcipher-remove-custom-release-parent-function.patch'
+        '0004-crypto-algif_skcipher-fix-race-condition-in-skcipher_check_key.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'c69cbff479740d6bbd452d2264ba0afefa99ae51bb7ae52bfbde348ea8d8b20c'
@@ -52,12 +56,12 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '709596a245212d47cc01628be4ad0a56735dd9852eb5a1c5f80a7da8f9aaa818'
+            '14fd1b67db5ec8e72943f58a2035db03e37c64fca44b776c3281c6e6edfa092e'
             '389a4abfd24331f57ec0e031b4877a047735597c1a9c49e82ee1cbf20750be08'
             '5851830aa6c621589b0241507976cfde15f64f7ee1b4711b2f9f3364283fbde1'
-            'a52822c0de4956a43530c42ceabe28af3ab8982375094f8b13f74a0246438588'
+            '0502b0282bb8f68ef95cc5f05e3de99029cf4bff1bdd791cf4b14728b3b5cc31'
             '15e3afcba22f51b6e5ad13b8739501a8ca94401cf153d6de899d7d707f3d0cff'
-            '9296a6cb966df48db3e799eb368949c6166404d233d04844dd01ace1eb25737e'
+            '6010fb2136bff8d1e43b00d250c2cec3174a05cb7ea0f4b488cd6b12c44170fa'
             '1f64e8e78169bc7b3658e2e948cea9d88724cef419b6e9af25101e247796cd5a'
             'be8472d78af18cd34fb821d9fb6992e42ad35e8c88c6e32a697be2b30f070637'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
@@ -68,7 +72,11 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
-            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b')
+            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
+            'ad6d2ea92c3f50b585a16fc5c5dad23bcc729369c15baf2074e79996a9eed7a3'
+            '400b718e8217be14116e90c150094c62067a19ed18a64d9fa81d84fdfe370cb5'
+            'a402eb3fa5e050380f99347951d5b33e06ebb797e39ebac5cabf1d3e1f95e41c'
+            '79e99d5d0fee46a0071fb879f5bf8e91950ed8e38691d422ddded99372bffbf9')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -80,6 +88,13 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`-date +%Y%m%d`"
+
+  # Fix https://bugs.archlinux.org/task/48230
+  # See also: http://www.spinics.net/lists/stable/msg121576.html
+  patch -Np1 -i ../0001-crypto-algif_skcipher-require-setkey-before-accept2.patch
+  patch -Np1 -i ../0002-crypto-algif_skcipher-add-nokey-compatibility-path.patch
+  patch -Np1 -i ../0003-crypto-algif_skcipher-remove-custom-release-parent-function.patch
+  patch -Np1 -i ../0004-crypto-algif_skcipher-fix-race-condition-in-skcipher_check_key.patch
 
   # Fix https://github.com/manjaro/release-plan/issues/8
   # Backports from v4.2 and v4.3
