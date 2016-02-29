@@ -176,7 +176,7 @@ index 635451a..f589a4e 100644
  
  	return VM_FAULT_WRITE;
 diff --git a/mm/mmap.c b/mm/mmap.c
-index 2f2415a..d5943a1 100644
+index 76d1ec2..fdd163e 100644
 --- a/mm/mmap.c
 +++ b/mm/mmap.c
 @@ -290,7 +290,7 @@ static struct vm_area_struct *remove_vma(struct vm_area_struct *vma)
@@ -233,8 +233,8 @@ index 2f2415a..d5943a1 100644
  
  	pr_warn_once("%s (%d) uses deprecated remap_file_pages() syscall. "
  			"See Documentation/vm/remap_file_pages.txt.\n",
-@@ -2684,10 +2683,10 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
- 		munlock_vma_pages_range(vma, start, start + size);
+@@ -2708,10 +2707,10 @@ SYSCALL_DEFINE5(remap_file_pages, unsigned long, start, unsigned long, size,
+ 		}
  	}
  
 -	file = get_file(vma->vm_file);
@@ -246,7 +246,7 @@ index 2f2415a..d5943a1 100644
  out:
  	up_write(&mm->mmap_sem);
  	if (populate)
-@@ -2958,7 +2957,7 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
+@@ -2982,7 +2981,7 @@ struct vm_area_struct *copy_vma(struct vm_area_struct **vmap,
  		if (anon_vma_clone(new_vma, vma))
  			goto out_free_mempol;
  		if (new_vma->vm_file)
