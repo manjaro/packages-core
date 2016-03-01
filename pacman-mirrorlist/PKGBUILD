@@ -8,8 +8,9 @@ pkgrel=1
 pkgdesc="Manjaro Linux mirror list for use by pacman"
 arch=('any')
 depends=('python')
-makedepends=('git')
-optdepends=('gtk3: for GTK UI' 'python-gobject: for GTK UI')
+makedepends=('git' 'python-babel' 'python-setuptools')
+optdepends=('gtk3: for interactive mode (GUI)' 
+            'python-gobject: for interactive mode (GUI)')
 url="https://github.com/manjaro/pacman-mirrors.git"
 license=('GPL')
 install=pacman-mirrorlist.install

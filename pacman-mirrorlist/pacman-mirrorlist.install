@@ -2,12 +2,16 @@
 
 post_install() {
 	/usr/bin/pacman-mirrors -g
-
-	echo ""
-	echo "hint: use \`pacman-mirrors\` to generate and update your pacman mirrorlist."
+	message
 }
 
 
 post_upgrade() {
-	post_install
+	/usr/bin/pacman-mirrors -g --no-update
+	message
+}
+
+message() {
+	echo ""
+	echo "hint: use \`pacman-mirrors\` to generate and update your pacman mirrorlist."
 }
