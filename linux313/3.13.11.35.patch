@@ -1,0 +1,713 @@
+diff --git a/Makefile b/Makefile
+index 85fc0f0..5a0834c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 3
+ PATCHLEVEL = 13
+ SUBLEVEL = 11
+-EXTRAVERSION = -ckt34
++EXTRAVERSION = -ckt35
+ NAME = King of Alienated Frog Porn
+ 
+ # *DOCUMENTATION*
+diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+index dcc2685..7167963 100644
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -20,6 +20,7 @@ LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
+ KBUILD_DEFCONFIG := defconfig
+ 
+ KBUILD_CFLAGS	+= -mgeneral-regs-only
++KBUILD_CFLAGS	+= $(call cc-option, -mpc-relative-literal-loads)
+ ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
+ KBUILD_CPPFLAGS	+= -mbig-endian
+ AS		+= -EB
+diff --git a/arch/powerpc/perf/power8-pmu.c b/arch/powerpc/perf/power8-pmu.c
+index 79b7e20..d68494a 100644
+--- a/arch/powerpc/perf/power8-pmu.c
++++ b/arch/powerpc/perf/power8-pmu.c
+@@ -608,7 +608,7 @@ static struct power_pmu power8_pmu = {
+ 	.get_constraint		= power8_get_constraint,
+ 	.get_alternatives	= power8_get_alternatives,
+ 	.disable_pmc		= power8_disable_pmc,
+-	.flags			= PPMU_HAS_SSLOT | PPMU_HAS_SIER | PPMU_ARCH_207S,
++	.flags			= PPMU_HAS_SIER | PPMU_ARCH_207S,
+ 	.n_generic		= ARRAY_SIZE(power8_generic_events),
+ 	.generic_events		= power8_generic_events,
+ 	.attr_groups		= power8_pmu_attr_groups,
+diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
+index e63a5bd..94a3320 100644
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -3610,6 +3610,7 @@ void __init setup_ioapic_dest(void)
+ {
+ 	int pin, ioapic, irq, irq_entry;
+ 	const struct cpumask *mask;
++	struct irq_desc *desc;
+ 	struct irq_data *idata;
+ 
+ 	if (skip_ioapic_setup == 1)
+@@ -3625,7 +3626,9 @@ void __init setup_ioapic_dest(void)
+ 		if ((ioapic > 0) && (irq > 16))
+ 			continue;
+ 
+-		idata = irq_get_irq_data(irq);
++		desc = irq_to_desc(irq);
++		raw_spin_lock_irq(&desc->lock);
++		idata = irq_desc_get_irq_data(desc);
+ 
+ 		/*
+ 		 * Honour affinities which have been set in early boot
+@@ -3636,6 +3639,7 @@ void __init setup_ioapic_dest(void)
+ 			mask = apic->target_cpus();
+ 
+ 		x86_io_apic_ops.set_affinity(idata, mask, false);
++		raw_spin_unlock_irq(&desc->lock);
+ 	}
+ 
+ }
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index aabdf76..0fcd960 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -32,7 +32,7 @@ struct cpa_data {
+ 	unsigned long	*vaddr;
+ 	pgprot_t	mask_set;
+ 	pgprot_t	mask_clr;
+-	int		numpages;
++	unsigned long	numpages;
+ 	int		flags;
+ 	unsigned long	pfn;
+ 	unsigned	force_split : 1;
+@@ -884,7 +884,7 @@ static int __change_page_attr_set_clr(struct cpa_data *cpa, int checkalias)
+ 		 * CPA operation. Either a large page has been
+ 		 * preserved or a single page update happened.
+ 		 */
+-		BUG_ON(cpa->numpages > numpages);
++		BUG_ON(cpa->numpages > numpages || !cpa->numpages);
+ 		numpages -= cpa->numpages;
+ 		if (cpa->flags & (CPA_PAGES_ARRAY | CPA_ARRAY))
+ 			cpa->curpage++;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+index 6c792f7..d5a22de 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+@@ -25,6 +25,7 @@
+  *
+  **************************************************************************/
+ #include <linux/module.h>
++#include <linux/console.h>
+ 
+ #include <drm/drmP.h>
+ #include "vmwgfx_drv.h"
+@@ -1290,6 +1291,12 @@ static int vmw_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ static int __init vmwgfx_init(void)
+ {
+ 	int ret;
++
++#ifdef CONFIG_VGA_CONSOLE
++	if (vgacon_text_force())
++		return -EINVAL;
++#endif
++
+ 	ret = drm_pci_init(&driver, &vmw_pci_driver);
+ 	if (ret)
+ 		DRM_ERROR("Failed initializing DRM.\n");
+diff --git a/drivers/iio/imu/adis_buffer.c b/drivers/iio/imu/adis_buffer.c
+index cb32b59..36607d5 100644
+--- a/drivers/iio/imu/adis_buffer.c
++++ b/drivers/iio/imu/adis_buffer.c
+@@ -43,7 +43,7 @@ int adis_update_scan_mode(struct iio_dev *indio_dev,
+ 		return -ENOMEM;
+ 
+ 	rx = adis->buffer;
+-	tx = rx + indio_dev->scan_bytes;
++	tx = rx + scan_count;
+ 
+ 	spi_message_init(&adis->msg);
+ 
+diff --git a/drivers/media/usb/usbvision/usbvision-video.c b/drivers/media/usb/usbvision/usbvision-video.c
+index 5c9e312..ad5070a 100644
+--- a/drivers/media/usb/usbvision/usbvision-video.c
++++ b/drivers/media/usb/usbvision/usbvision-video.c
+@@ -1522,7 +1522,7 @@ static int usbvision_probe(struct usb_interface *intf,
+ 	const struct usb_host_interface *interface;
+ 	struct usb_usbvision *usbvision = NULL;
+ 	const struct usb_endpoint_descriptor *endpoint;
+-	int model, i;
++	int model, i, ret;
+ 
+ 	PDEBUG(DBG_PROBE, "VID=%#04x, PID=%#04x, ifnum=%u",
+ 				dev->descriptor.idVendor,
+@@ -1531,33 +1531,58 @@ static int usbvision_probe(struct usb_interface *intf,
+ 	model = devid->driver_info;
+ 	if (model < 0 || model >= usbvision_device_data_size) {
+ 		PDEBUG(DBG_PROBE, "model out of bounds %d", model);
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto err_usb;
+ 	}
+ 	printk(KERN_INFO "%s: %s found\n", __func__,
+ 				usbvision_device_data[model].model_string);
+ 
++	/*
++	 * this is a security check.
++	 * an exploit using an incorrect bInterfaceNumber is known
++	 */
++	if (ifnum >= USB_MAXINTERFACES || !dev->actconfig->interface[ifnum])
++		return -ENODEV;
++
+ 	if (usbvision_device_data[model].interface >= 0)
+ 		interface = &dev->actconfig->interface[usbvision_device_data[model].interface]->altsetting[0];
+-	else
++	else if (ifnum < dev->actconfig->desc.bNumInterfaces)
+ 		interface = &dev->actconfig->interface[ifnum]->altsetting[0];
++	else {
++		dev_err(&intf->dev, "interface %d is invalid, max is %d\n",
++		    ifnum, dev->actconfig->desc.bNumInterfaces - 1);
++		ret = -ENODEV;
++		goto err_usb;
++	}
++
++	if (interface->desc.bNumEndpoints < 2) {
++		dev_err(&intf->dev, "interface %d has %d endpoints, but must"
++		    " have minimum 2\n", ifnum, interface->desc.bNumEndpoints);
++		ret = -ENODEV;
++		goto err_usb;
++	}
+ 	endpoint = &interface->endpoint[1].desc;
++
+ 	if (!usb_endpoint_xfer_isoc(endpoint)) {
+ 		dev_err(&intf->dev, "%s: interface %d. has non-ISO endpoint!\n",
+ 		    __func__, ifnum);
+ 		dev_err(&intf->dev, "%s: Endpoint attributes %d",
+ 		    __func__, endpoint->bmAttributes);
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto err_usb;
+ 	}
+ 	if (usb_endpoint_dir_out(endpoint)) {
+ 		dev_err(&intf->dev, "%s: interface %d. has ISO OUT endpoint!\n",
+ 		    __func__, ifnum);
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto err_usb;
+ 	}
+ 
+ 	usbvision = usbvision_alloc(dev, intf);
+ 	if (usbvision == NULL) {
+ 		dev_err(&intf->dev, "%s: couldn't allocate USBVision struct\n", __func__);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto err_usb;
+ 	}
+ 
+ 	if (dev->descriptor.bNumConfigurations > 1)
+@@ -1576,8 +1601,8 @@ static int usbvision_probe(struct usb_interface *intf,
+ 	usbvision->alt_max_pkt_size = kmalloc(32 * usbvision->num_alt, GFP_KERNEL);
+ 	if (usbvision->alt_max_pkt_size == NULL) {
+ 		dev_err(&intf->dev, "usbvision: out of memory!\n");
+-		usbvision_release(usbvision);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto err_pkt;
+ 	}
+ 
+ 	for (i = 0; i < usbvision->num_alt; i++) {
+@@ -1612,6 +1637,12 @@ static int usbvision_probe(struct usb_interface *intf,
+ 
+ 	PDEBUG(DBG_PROBE, "success");
+ 	return 0;
++
++err_pkt:
++	usbvision_release(usbvision);
++err_usb:
++	usb_put_dev(dev);
++	return ret;
+ }
+ 
+ 
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index ec8ccda..8cd15fe 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -965,6 +965,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
+ 	qeth_l2_request_initial_mac(card);
+ 	SET_NETDEV_DEV(card->dev, &card->gdev->dev);
+ 	netif_napi_add(card->dev, &card->napi, qeth_l2_poll, QETH_NAPI_WEIGHT);
++	netif_carrier_off(card->dev);
+ 	return register_netdev(card->dev);
+ }
+ 
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index c1b0b27..c882aab 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -3307,6 +3307,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 
+ 	SET_NETDEV_DEV(card->dev, &card->gdev->dev);
+ 	netif_napi_add(card->dev, &card->napi, qeth_l3_poll, QETH_NAPI_WEIGHT);
++	netif_carrier_off(card->dev);
+ 	return register_netdev(card->dev);
+ }
+ 
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 6e26021..7fee8c0 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -3134,8 +3134,8 @@ static int sd_suspend_common(struct device *dev, bool ignore_stop_errors)
+ 	struct scsi_disk *sdkp = scsi_disk_get_from_dev(dev);
+ 	int ret = 0;
+ 
+-	if (!sdkp)
+-		return 0;	/* this can happen */
++	if (!sdkp)	/* E.g.: runtime suspend following sd_remove() */
++		return 0;
+ 
+ 	if (sdkp->WCE && sdkp->media_present) {
+ 		sd_printk(KERN_NOTICE, sdkp, "Synchronizing SCSI cache\n");
+@@ -3176,6 +3176,9 @@ static int sd_resume(struct device *dev)
+ 	struct scsi_disk *sdkp = scsi_disk_get_from_dev(dev);
+ 	int ret = 0;
+ 
++	if (!sdkp)	/* E.g.: runtime resume at the start of sd_probe() */
++		return 0;
++
+ 	if (!sdkp->device->manage_start_stop)
+ 		goto done;
+ 
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 119d67f..1ac9943 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -142,6 +142,9 @@ static int sr_runtime_suspend(struct device *dev)
+ {
+ 	struct scsi_cd *cd = dev_get_drvdata(dev);
+ 
++	if (!cd)	/* E.g.: runtime suspend following sr_remove() */
++		return 0;
++
+ 	if (cd->media_present)
+ 		return -EBUSY;
+ 	else
+@@ -1006,6 +1009,7 @@ static int sr_remove(struct device *dev)
+ 
+ 	blk_queue_prep_rq(cd->device->request_queue, scsi_prep_fn);
+ 	del_gendisk(cd->disk);
++	dev_set_drvdata(dev, NULL);
+ 
+ 	mutex_lock(&sr_ref_mutex);
+ 	kref_put(&cd->kref, sr_kref_release);
+diff --git a/drivers/tty/n_tty.c b/drivers/tty/n_tty.c
+index efc4075..9238ce9 100644
+--- a/drivers/tty/n_tty.c
++++ b/drivers/tty/n_tty.c
+@@ -276,15 +276,13 @@ static void n_tty_check_throttle(struct tty_struct *tty)
+ 
+ static void n_tty_check_unthrottle(struct tty_struct *tty)
+ {
+-	if (tty->driver->type == TTY_DRIVER_TYPE_PTY &&
+-	    tty->link->ldisc->ops->write_wakeup == n_tty_write_wakeup) {
++	if (tty->driver->type == TTY_DRIVER_TYPE_PTY) {
+ 		if (chars_in_buffer(tty) > TTY_THRESHOLD_UNTHROTTLE)
+ 			return;
+ 		if (!tty->count)
+ 			return;
+ 		n_tty_set_room(tty);
+-		n_tty_write_wakeup(tty->link);
+-		wake_up_interruptible_poll(&tty->link->write_wait, POLLOUT);
++		tty_wakeup(tty->link);
+ 		return;
+ 	}
+ 
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index 84b7f1d..f7cb064 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -2585,6 +2585,28 @@ static int tiocsetd(struct tty_struct *tty, int __user *p)
+ }
+ 
+ /**
++ *	tiocgetd	-	get line discipline
++ *	@tty: tty device
++ *	@p: pointer to user data
++ *
++ *	Retrieves the line discipline id directly from the ldisc.
++ *
++ *	Locking: waits for ldisc reference (in case the line discipline
++ *		is changing or the tty is being hungup)
++ */
++
++static int tiocgetd(struct tty_struct *tty, int __user *p)
++{
++	struct tty_ldisc *ld;
++	int ret;
++
++	ld = tty_ldisc_ref_wait(tty);
++	ret = put_user(ld->ops->num, p);
++	tty_ldisc_deref(ld);
++	return ret;
++}
++
++/**
+  *	send_break	-	performed time break
+  *	@tty: device to break on
+  *	@duration: timeout in mS
+@@ -2798,7 +2820,7 @@ long tty_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	case TIOCGSID:
+ 		return tiocgsid(tty, real_tty, p);
+ 	case TIOCGETD:
+-		return put_user(tty->ldisc->ops->num, (int __user *)p);
++		return tiocgetd(tty, p);
+ 	case TIOCSETD:
+ 		return tiocsetd(tty, p);
+ 	case TIOCVHANGUP:
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 87f216d..81edbac 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -399,7 +399,8 @@ static void acm_read_bulk_callback(struct urb *urb)
+ 	if (urb->status) {
+ 		dev_dbg(&acm->data->dev, "%s - non-zero urb status: %d\n",
+ 							__func__, urb->status);
+-		return;
++		if ((urb->status != -ENOENT) || (urb->actual_length == 0))
++			return;
+ 	}
+ 	acm_process_read_urb(acm, urb);
+ 
+@@ -1271,6 +1272,8 @@ made_compressed_probe:
+ 				usb_sndbulkpipe(usb_dev, epwrite->bEndpointAddress),
+ 				NULL, acm->writesize, acm_write_bulk, snd);
+ 		snd->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++		if (quirks & SEND_ZERO_PACKET)
++			snd->urb->transfer_flags |= URB_ZERO_PACKET;
+ 		snd->instance = acm;
+ 	}
+ 
+@@ -1719,6 +1722,11 @@ static const struct usb_device_id acm_ids[] = {
+ 	},
+ #endif
+ 
++	/*Samsung phone in firmware update mode */
++	{ USB_DEVICE(0x04e8, 0x685d),
++	.driver_info = IGNORE_DEVICE,
++	},
++
+ 	/* Exclude Infineon Flash Loader utility */
+ 	{ USB_DEVICE(0x058b, 0x0041),
+ 	.driver_info = IGNORE_DEVICE,
+@@ -1742,6 +1750,10 @@ static const struct usb_device_id acm_ids[] = {
+ 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
+ 		USB_CDC_ACM_PROTO_AT_CDMA) },
+ 
++	{ USB_DEVICE(0x1519, 0x0452), /* Intel 7260 modem */
++	.driver_info = SEND_ZERO_PACKET,
++	},
++
+ 	{ }
+ };
+ 
+diff --git a/drivers/usb/class/cdc-acm.h b/drivers/usb/class/cdc-acm.h
+index 9c40036..5efb502 100644
+--- a/drivers/usb/class/cdc-acm.h
++++ b/drivers/usb/class/cdc-acm.h
+@@ -130,3 +130,4 @@ struct acm {
+ #define NO_DATA_INTERFACE		16
+ #define IGNORE_DEVICE			32
+ #define CLEAR_HALT_CONDITIONS		128
++#define SEND_ZERO_PACKET		256
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index d8ab60d..3a2960f 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -5206,7 +5206,6 @@ static int usb_reset_and_verify_device(struct usb_device *udev)
+ 	set_bit(port1, parent_hub->busy_bits);
+ 
+ 	bos = udev->bos;
+-	udev->bos = NULL;
+ 
+ 	for (i = 0; i < SET_CONFIG_TRIES; ++i) {
+ 
+@@ -5297,8 +5296,11 @@ done:
+ 	usb_set_usb2_hardware_lpm(udev, 1);
+ 	usb_unlocked_enable_lpm(udev);
+ 	usb_enable_ltm(udev);
+-	usb_release_bos_descriptor(udev);
+-	udev->bos = bos;
++	/* release the new BOS descriptor allocated  by hub_port_init() */
++	if (udev->bos != bos) {
++		usb_release_bos_descriptor(udev);
++		udev->bos = bos;
++	}
+ 	return 0;
+ 
+ re_enumerate:
+diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+index caa08a70..8971c2c 100644
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -98,6 +98,7 @@ static const struct usb_device_id id_table[] = {
+ 	{ USB_DEVICE(0x10C4, 0x81AC) }, /* MSD Dash Hawk */
+ 	{ USB_DEVICE(0x10C4, 0x81AD) }, /* INSYS USB Modem */
+ 	{ USB_DEVICE(0x10C4, 0x81C8) }, /* Lipowsky Industrie Elektronik GmbH, Baby-JTAG */
++	{ USB_DEVICE(0x10C4, 0x81D7) }, /* IAI Corp. RCB-CV-USB USB to RS485 Adaptor */
+ 	{ USB_DEVICE(0x10C4, 0x81E2) }, /* Lipowsky Industrie Elektronik GmbH, Baby-LIN */
+ 	{ USB_DEVICE(0x10C4, 0x81E7) }, /* Aerocomm Radio */
+ 	{ USB_DEVICE(0x10C4, 0x81E8) }, /* Zephyr Bioharness */
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index 50505a8..811bbd9 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -838,6 +838,7 @@ static struct usb_device_id id_table_combined [] = {
+ 	{ USB_DEVICE(FTDI_VID, FTDI_TURTELIZER_PID),
+ 		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
+ 	{ USB_DEVICE(RATOC_VENDOR_ID, RATOC_PRODUCT_ID_USB60F) },
++	{ USB_DEVICE(RATOC_VENDOR_ID, RATOC_PRODUCT_ID_SCU18) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_REU_TINY_PID) },
+ 
+ 	/* Papouch devices based on FTDI chip */
+diff --git a/drivers/usb/serial/ftdi_sio_ids.h b/drivers/usb/serial/ftdi_sio_ids.h
+index 2943b97..7850071 100644
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -615,6 +615,7 @@
+  */
+ #define RATOC_VENDOR_ID		0x0584
+ #define RATOC_PRODUCT_ID_USB60F	0xb020
++#define RATOC_PRODUCT_ID_SCU18	0xb03a
+ 
+ /*
+  * Infineon Technologies
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index f807079..1f193fd 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -271,6 +271,8 @@ static void option_instat_callback(struct urb *urb);
+ #define TELIT_PRODUCT_CC864_SINGLE		0x1006
+ #define TELIT_PRODUCT_DE910_DUAL		0x1010
+ #define TELIT_PRODUCT_UE910_V2			0x1012
++#define TELIT_PRODUCT_LE922_USBCFG0		0x1042
++#define TELIT_PRODUCT_LE922_USBCFG3		0x1043
+ #define TELIT_PRODUCT_LE920			0x1200
+ #define TELIT_PRODUCT_LE910			0x1201
+ 
+@@ -630,6 +632,16 @@ static const struct option_blacklist_info sierra_mc73xx_blacklist = {
+ 	.reserved = BIT(8) | BIT(10) | BIT(11),
+ };
+ 
++static const struct option_blacklist_info telit_le922_blacklist_usbcfg0 = {
++	.sendsetup = BIT(2),
++	.reserved = BIT(0) | BIT(1) | BIT(3),
++};
++
++static const struct option_blacklist_info telit_le922_blacklist_usbcfg3 = {
++	.sendsetup = BIT(0),
++	.reserved = BIT(1) | BIT(2) | BIT(3),
++};
++
+ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_COLT) },
+ 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_RICOLA) },
+@@ -1177,6 +1189,10 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_CC864_SINGLE) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_DE910_DUAL) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_UE910_V2) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG0),
++		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg0 },
++	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG3),
++		.driver_info = (kernel_ulong_t)&telit_le922_blacklist_usbcfg3 },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
+ 		.driver_info = (kernel_ulong_t)&telit_le910_blacklist },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920),
+@@ -1688,7 +1704,7 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_EU3_P) },
+ 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_PH8),
+ 		.driver_info = (kernel_ulong_t)&net_intf4_blacklist },
+-	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_AHXX) },
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_AHXX, 0xff) },
+ 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_PLXX),
+ 		.driver_info = (kernel_ulong_t)&net_intf4_blacklist },
+ 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_HC28_MDM) }, 
+diff --git a/drivers/usb/serial/visor.c b/drivers/usb/serial/visor.c
+index 727905d..605068e 100644
+--- a/drivers/usb/serial/visor.c
++++ b/drivers/usb/serial/visor.c
+@@ -551,6 +551,11 @@ static int treo_attach(struct usb_serial *serial)
+ 		(serial->num_interrupt_in == 0))
+ 		return 0;
+ 
++	if (serial->num_bulk_in < 2 || serial->num_interrupt_in < 2) {
++		dev_err(&serial->interface->dev, "missing endpoints\n");
++		return -ENODEV;
++	}
++
+ 	/*
+ 	* It appears that Treos and Kyoceras want to use the
+ 	* 1st bulk in endpoint to communicate with the 2nd bulk out endpoint,
+@@ -604,8 +609,10 @@ static int clie_5_attach(struct usb_serial *serial)
+ 	 */
+ 
+ 	/* some sanity check */
+-	if (serial->num_ports < 2)
+-		return -1;
++	if (serial->num_bulk_out < 2) {
++		dev_err(&serial->interface->dev, "missing bulk out endpoints\n");
++		return -ENODEV;
++	}
+ 
+ 	/* port 0 now uses the modified endpoint Address */
+ 	port = serial->port[0];
+diff --git a/lib/asn1_decoder.c b/lib/asn1_decoder.c
+index 11b9b01..3787d02 100644
+--- a/lib/asn1_decoder.c
++++ b/lib/asn1_decoder.c
+@@ -208,9 +208,8 @@ next_op:
+ 		unsigned char tmp;
+ 
+ 		/* Skip conditional matches if possible */
+-		if ((op & ASN1_OP_MATCH__COND &&
+-		     flags & FLAG_MATCHED) ||
+-		    dp == datalen) {
++		if ((op & ASN1_OP_MATCH__COND && flags & FLAG_MATCHED) ||
++		    (op & ASN1_OP_MATCH__SKIP && dp == datalen)) {
+ 			pc += asn1_op_lengths[op];
+ 			goto next_op;
+ 		}
+diff --git a/sound/core/compress_offload.c b/sound/core/compress_offload.c
+index 85fde7e..4983f30 100644
+--- a/sound/core/compress_offload.c
++++ b/sound/core/compress_offload.c
+@@ -44,6 +44,13 @@
+ #include <sound/compress_offload.h>
+ #include <sound/compress_driver.h>
+ 
++/* struct snd_compr_codec_caps overflows the ioctl bit size for some
++ * architectures, so we need to disable the relevant ioctls.
++ */
++#if _IOC_SIZEBITS < 14
++#define COMPR_CODEC_CAPS_OVERFLOW
++#endif
++
+ /* TODO:
+  * - add substream support for multiple devices in case of
+  *	SND_DYNAMIC_MINORS is not used
+@@ -438,6 +445,7 @@ out:
+ 	return retval;
+ }
+ 
++#ifndef COMPR_CODEC_CAPS_OVERFLOW
+ static int
+ snd_compr_get_codec_caps(struct snd_compr_stream *stream, unsigned long arg)
+ {
+@@ -461,6 +469,7 @@ out:
+ 	kfree(caps);
+ 	return retval;
+ }
++#endif /* !COMPR_CODEC_CAPS_OVERFLOW */
+ 
+ /* revisit this with snd_pcm_preallocate_xxx */
+ static int snd_compr_allocate_buffer(struct snd_compr_stream *stream,
+@@ -802,9 +811,11 @@ static long snd_compr_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+ 	case _IOC_NR(SNDRV_COMPRESS_GET_CAPS):
+ 		retval = snd_compr_get_caps(stream, arg);
+ 		break;
++#ifndef COMPR_CODEC_CAPS_OVERFLOW
+ 	case _IOC_NR(SNDRV_COMPRESS_GET_CODEC_CAPS):
+ 		retval = snd_compr_get_codec_caps(stream, arg);
+ 		break;
++#endif
+ 	case _IOC_NR(SNDRV_COMPRESS_SET_PARAMS):
+ 		retval = snd_compr_set_params(stream, arg);
+ 		break;
+diff --git a/sound/core/seq/oss/seq_oss_init.c b/sound/core/seq/oss/seq_oss_init.c
+index b3f39b5..caa68d5 100644
+--- a/sound/core/seq/oss/seq_oss_init.c
++++ b/sound/core/seq/oss/seq_oss_init.c
+@@ -206,7 +206,7 @@ snd_seq_oss_open(struct file *file, int level)
+ 
+ 	dp->index = i;
+ 	if (i >= SNDRV_SEQ_OSS_MAX_CLIENTS) {
+-		snd_printk(KERN_ERR "too many applications\n");
++		snd_printk(KERN_DEBUG "too many applications\n");
+ 		rc = -ENOMEM;
+ 		goto _error;
+ 	}
+diff --git a/sound/core/seq/oss/seq_oss_synth.c b/sound/core/seq/oss/seq_oss_synth.c
+index c5b773a..4a09c30 100644
+--- a/sound/core/seq/oss/seq_oss_synth.c
++++ b/sound/core/seq/oss/seq_oss_synth.c
+@@ -310,7 +310,7 @@ snd_seq_oss_synth_cleanup(struct seq_oss_devinfo *dp)
+ 	struct seq_oss_synth *rec;
+ 	struct seq_oss_synthinfo *info;
+ 
+-	if (snd_BUG_ON(dp->max_synthdev >= SNDRV_SEQ_OSS_MAX_SYNTH_DEVS))
++	if (snd_BUG_ON(dp->max_synthdev > SNDRV_SEQ_OSS_MAX_SYNTH_DEVS))
+ 		return;
+ 	for (i = 0; i < dp->max_synthdev; i++) {
+ 		info = &dp->synths[i];
+diff --git a/sound/drivers/dummy.c b/sound/drivers/dummy.c
+index 915b4d7..f4d626c 100644
+--- a/sound/drivers/dummy.c
++++ b/sound/drivers/dummy.c
+@@ -87,7 +87,7 @@ MODULE_PARM_DESC(pcm_substreams, "PCM substreams # (1-128) for dummy driver.");
+ module_param(fake_buffer, bool, 0444);
+ MODULE_PARM_DESC(fake_buffer, "Fake buffer allocations.");
+ #ifdef CONFIG_HIGH_RES_TIMERS
+-module_param(hrtimer, bool, 0644);
++module_param(hrtimer, bool, 0444);
+ MODULE_PARM_DESC(hrtimer, "Use hrtimer as the timer source.");
+ #endif
+ 
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index c3af0ce..44a04f3 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1113,8 +1113,12 @@ void snd_usb_set_interface_quirk(struct usb_device *dev)
+ 	 * "Playback Design" products need a 50ms delay after setting the
+ 	 * USB interface.
+ 	 */
+-	if (le16_to_cpu(dev->descriptor.idVendor) == 0x23ba)
++	switch (le16_to_cpu(dev->descriptor.idVendor)) {
++	case 0x23ba: /* Playback Design */
++	case 0x0644: /* TEAC Corp. */
+ 		mdelay(50);
++		break;
++	}
+ }
+ 
+ void snd_usb_ctl_msg_quirk(struct usb_device *dev, unsigned int pipe,
+@@ -1129,6 +1133,14 @@ void snd_usb_ctl_msg_quirk(struct usb_device *dev, unsigned int pipe,
+ 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		mdelay(20);
+ 
++	/*
++	 * "TEAC Corp." products need a 20ms delay after each
++	 * class compliant request
++	 */
++	if ((le16_to_cpu(dev->descriptor.idVendor) == 0x0644) &&
++	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
++		mdelay(20);
++
+ 	/* Marantz/Denon devices with USB DAC functionality need a delay
+ 	 * after each class compliant request
+ 	 */
+diff --git a/tools/perf/ui/browsers/annotate.c b/tools/perf/ui/browsers/annotate.c
+index f0697a3..4cc7d05 100644
+--- a/tools/perf/ui/browsers/annotate.c
++++ b/tools/perf/ui/browsers/annotate.c
+@@ -711,11 +711,11 @@ static int annotate_browser__run(struct annotate_browser *browser,
+ 				nd = browser->curr_hot;
+ 			break;
+ 		case K_UNTAB:
+-			if (nd != NULL)
++			if (nd != NULL) {
+ 				nd = rb_next(nd);
+ 				if (nd == NULL)
+ 					nd = rb_first(&browser->entries);
+-			else
++			} else
+ 				nd = browser->curr_hot;
+ 			break;
+ 		case K_F1:

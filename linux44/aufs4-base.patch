@@ -25,7 +25,7 @@ index 233f834..c250892 100644
  M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
  W:	http://miguelojeda.es/auxdisplay.htm
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 423f4ca..abfdd2b 100644
+index 423f4ca..0b816b2 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -706,6 +706,24 @@ static inline int is_loop_device(struct file *file)
@@ -48,7 +48,7 @@ index 423f4ca..abfdd2b 100644
 +	}
 +	return ret;
 +}
-+EXPORT_SYMBOL(loop_backing_file);
++EXPORT_SYMBOL_GPL(loop_backing_file);
 +
  /* loop sysfs attributes */
  
@@ -66,6 +66,28 @@ index 5c33aeb..8aa7f26 100644
  		   enum d_walk_ret (*enter)(void *, struct dentry *),
  		   void (*finish)(void *))
  {
+diff --git a/fs/fcntl.c b/fs/fcntl.c
+index ee85cd4..dacbf71 100644
+--- a/fs/fcntl.c
++++ b/fs/fcntl.c
+@@ -29,7 +29,7 @@
+ 
+ #define SETFL_MASK (O_APPEND | O_NONBLOCK | O_NDELAY | O_DIRECT | O_NOATIME)
+ 
+-static int setfl(int fd, struct file * filp, unsigned long arg)
++int setfl(int fd, struct file * filp, unsigned long arg)
+ {
+ 	struct inode * inode = file_inode(filp);
+ 	int error = 0;
+@@ -59,6 +59,8 @@ static int setfl(int fd, struct file * filp, unsigned long arg)
+ 
+ 	if (filp->f_op->check_flags)
+ 		error = filp->f_op->check_flags(arg);
++	if (!error && filp->f_op->setfl)
++		error = filp->f_op->setfl(filp, arg);
+ 	if (error)
+ 		return error;
+ 
 diff --git a/fs/read_write.c b/fs/read_write.c
 index 819ef3f..fd0414e 100644
 --- a/fs/read_write.c
@@ -140,10 +162,26 @@ index f87d308..9a290b3 100644
  static inline void fput_light(struct file *file, int fput_needed)
  {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 3aa5142..8d48506 100644
+index 3aa5142..62cd83f 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1672,6 +1672,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
+@@ -1233,6 +1233,7 @@ extern void fasync_free(struct fasync_struct *);
+ /* can be called from interrupts */
+ extern void kill_fasync(struct fasync_struct **, int, int);
+ 
++extern int setfl(int fd, struct file * filp, unsigned long arg);
+ extern void __f_setown(struct file *filp, struct pid *, enum pid_type, int force);
+ extern void f_setown(struct file *filp, unsigned long arg, int force);
+ extern void f_delown(struct file *filp);
+@@ -1619,6 +1620,7 @@ struct file_operations {
+ 	ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);
+ 	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
+ 	int (*check_flags)(int);
++	int (*setfl)(struct file *, unsigned long);
+ 	int (*flock) (struct file *, int, struct file_lock *);
+ 	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *, loff_t *, size_t, unsigned int);
+ 	ssize_t (*splice_read)(struct file *, loff_t *, struct pipe_inode_info *, size_t, unsigned int);
+@@ -1672,6 +1674,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
  			      struct iovec *fast_pointer,
  			      struct iovec **ret_pointer);
  
