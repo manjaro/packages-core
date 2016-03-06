@@ -1,7 +1,7 @@
 aufs3.18.25+ standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 857990a..4d3b72c 100644
+index 857990a..acf6243 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
 @@ -1127,6 +1127,7 @@ rename_retry:
@@ -12,8 +12,20 @@ index 857990a..4d3b72c 100644
  
  /*
   * Search for at least 1 mount point in the dentry's subdirs.
+diff --git a/fs/fcntl.c b/fs/fcntl.c
+index de1a407..e21df1d 100644
+--- a/fs/fcntl.c
++++ b/fs/fcntl.c
+@@ -81,6 +81,7 @@ int setfl(int fd, struct file * filp, unsigned long arg)
+  out:
+ 	return error;
+ }
++EXPORT_SYMBOL_GPL(setfl);
+ 
+ static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
+                      int force)
 diff --git a/fs/file_table.c b/fs/file_table.c
-index 3f85411..8975b8f 100644
+index 3f85411..19c816b 100644
 --- a/fs/file_table.c
 +++ b/fs/file_table.c
 @@ -147,6 +147,7 @@ over:
@@ -49,7 +61,7 @@ index 3f85411..8975b8f 100644
  void __init files_init(unsigned long mempages)
  { 
 diff --git a/fs/inode.c b/fs/inode.c
-index 2998e86..dc11e3c 100644
+index 2998e86..ceacb17 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
 @@ -57,6 +57,7 @@ static struct hlist_head *inode_hashtable __read_mostly;
@@ -69,7 +81,7 @@ index 2998e86..dc11e3c 100644
  /**
   *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
-index da23ad8..1fe9810 100644
+index da23ad8..354b831 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -454,6 +454,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
@@ -89,7 +101,7 @@ index da23ad8..1fe9810 100644
  static void cleanup_group_ids(struct mount *mnt, struct mount *end)
  {
 diff --git a/fs/notify/group.c b/fs/notify/group.c
-index d16b62c..06ca6bc 100644
+index d16b62c..53e45b6 100644
 --- a/fs/notify/group.c
 +++ b/fs/notify/group.c
 @@ -22,6 +22,7 @@
@@ -125,7 +137,7 @@ index d16b62c..06ca6bc 100644
  int fsnotify_fasync(int fd, struct file *file, int on)
  {
 diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index 28c90a6..b48025e 100644
+index 28c90a6..5e26d8a 100644
 --- a/fs/notify/mark.c
 +++ b/fs/notify/mark.c
 @@ -109,6 +109,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
@@ -161,7 +173,7 @@ index 28c90a6..b48025e 100644
  static int fsnotify_mark_destroy(void *ignored)
  {
 diff --git a/fs/open.c b/fs/open.c
-index d058ff1..696084a 100644
+index d058ff1..c81c907 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -62,6 +62,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -189,7 +201,7 @@ index d058ff1..696084a 100644
  static int do_dentry_open(struct file *f,
  			  struct inode *inode,
 diff --git a/fs/splice.c b/fs/splice.c
-index 619359a..c14f60e 100644
+index 619359a..03c0dc1 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
 @@ -1127,6 +1127,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
@@ -209,7 +221,7 @@ index 619359a..c14f60e 100644
  /**
   * splice_direct_to_actor - splices data directly between two non-pipes
 diff --git a/fs/xattr.c b/fs/xattr.c
-index 64e83ef..bd71e53 100644
+index 64e83ef..bdc63ae 100644
 --- a/fs/xattr.c
 +++ b/fs/xattr.c
 @@ -207,6 +207,7 @@ vfs_getxattr_alloc(struct dentry *dentry, const char *name, char **xattr_value,
@@ -221,7 +233,7 @@ index 64e83ef..bd71e53 100644
  /* Compare an extended attribute value with the given value */
  int vfs_xattr_cmp(struct dentry *dentry, const char *xattr_name,
 diff --git a/kernel/task_work.c b/kernel/task_work.c
-index 8727032..7003e5a 100644
+index 8727032..e7279d1 100644
 --- a/kernel/task_work.c
 +++ b/kernel/task_work.c
 @@ -126,3 +126,4 @@ void task_work_run(void)
@@ -230,7 +242,7 @@ index 8727032..7003e5a 100644
  }
 +EXPORT_SYMBOL_GPL(task_work_run);
 diff --git a/security/commoncap.c b/security/commoncap.c
-index bab0611..3fa2f82 100644
+index bab0611..ec321c4 100644
 --- a/security/commoncap.c
 +++ b/security/commoncap.c
 @@ -979,9 +979,11 @@ int cap_mmap_addr(unsigned long addr)
@@ -246,7 +258,7 @@ index bab0611..3fa2f82 100644
  }
 +EXPORT_SYMBOL_GPL(cap_mmap_file);
 diff --git a/security/device_cgroup.c b/security/device_cgroup.c
-index 188c1d2..426d9af 100644
+index 188c1d2..6bc2fa5 100644
 --- a/security/device_cgroup.c
 +++ b/security/device_cgroup.c
 @@ -7,6 +7,7 @@
@@ -266,7 +278,7 @@ index 188c1d2..426d9af 100644
  int devcgroup_inode_mknod(int mode, dev_t dev)
  {
 diff --git a/security/security.c b/security/security.c
-index 18b35c6..12c67af 100644
+index 18b35c6..28fa514 100644
 --- a/security/security.c
 +++ b/security/security.c
 @@ -407,6 +407,7 @@ int security_path_rmdir(struct path *dir, struct dentry *dentry)

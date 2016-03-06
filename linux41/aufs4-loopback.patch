@@ -1,7 +1,7 @@
 aufs4.1.13+ loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index a5b343d..d697561 100644
+index 20fc2be..9c3e659 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -417,7 +417,7 @@ static int do_req_filebacked(struct loop_device *lo, struct request *rq)
@@ -180,7 +180,7 @@ index 49564ed..83a7860 100644
  	unsigned	lo_blocksize;
  	void		*key_data; 
 diff --git a/fs/aufs/f_op.c b/fs/aufs/f_op.c
-index 2baacd7..22bcb89 100644
+index 145dec8..60e1fea 100644
 --- a/fs/aufs/f_op.c
 +++ b/fs/aufs/f_op.c
 @@ -399,7 +399,7 @@ static ssize_t aufs_splice_read(struct file *file, loff_t *ppos,
@@ -258,10 +258,10 @@ index 575e1d9..07b72a1 100644
  
  /* ---------------------------------------------------------------------- */
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index da37e51..10ee750 100644
+index d6cf36a..84b9488 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1710,6 +1710,10 @@ struct super_operations {
+@@ -1712,6 +1712,10 @@ struct super_operations {
  				  struct shrink_control *);
  	long (*free_cached_objects)(struct super_block *,
  				    struct shrink_control *);
