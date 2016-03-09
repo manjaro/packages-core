@@ -150,10 +150,10 @@ index 2ed4319..e3a53f5 100644
  obj-y += init-mm.o
  
 diff --git a/mm/filemap.c b/mm/filemap.c
-index 23edcce..dea5687 100644
+index 3461d97..97e1609 100644
 --- a/mm/filemap.c
 +++ b/mm/filemap.c
-@@ -2210,7 +2210,7 @@ int filemap_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
+@@ -2206,7 +2206,7 @@ int filemap_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
  	int ret = VM_FAULT_LOCKED;
  
  	sb_start_pagefault(inode->i_sb);
@@ -163,7 +163,7 @@ index 23edcce..dea5687 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/memory.c b/mm/memory.c
-index 635451a..f589a4e 100644
+index 8132787..3f7de66 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2042,7 +2042,7 @@ static inline int wp_page_reuse(struct mm_struct *mm,
