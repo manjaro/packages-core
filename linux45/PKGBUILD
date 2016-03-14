@@ -13,18 +13,17 @@ _basekernel=4.5
 _basever=45
 _aufs=20160301
 _bfq=v7r8
-_rc=rc7
-pkgver=${_basekernel}${_rc}
+pkgver=${_basekernel}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
-source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}-${_rc}.tar.xz"
-        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}.tar.xz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        https://github.com/torvalds/linux/archive/v${_basekernel}-${_rc}.tar.gz
+        https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -49,7 +48,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}-${_r
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         'nvidia-304xx-mtrr-unknown-symbol.patch'
 )
-sha256sums=('adda17340c9f8795346ce7a62bfc78dcf9d722bfeeab7c96c097311f8ae1b740'
+sha256sums=('2454bde0da3619d33c7075286d4ff0336ec43c856ed6d3f3d603d06421bb77e4'
             '093701b40d78f7fe3d0041ea300208de5a7af48ed011bf822142307b024a51ed'
             '315182bbd0de5d1c906b7c5b48280b82a9e364ea32e9f6e87f79670c9e70e989'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -72,7 +71,7 @@ sha256sums=('adda17340c9f8795346ce7a62bfc78dcf9d722bfeeab7c96c097311f8ae1b740'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e')
 
 prepare() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
@@ -151,7 +150,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -164,7 +163,7 @@ package_linux45() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -230,7 +229,7 @@ package_linux45-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
