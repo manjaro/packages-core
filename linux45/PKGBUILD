@@ -12,9 +12,9 @@ _kernelname=-MANJARO
 _basekernel=4.5
 _basever=45
 _aufs=20160301
-_bfq=v7r8
+_bfq=v7r11
 pkgver=${_basekernel}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -22,7 +22,6 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}.tar.xz"
-        #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
@@ -39,18 +38,17 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.3.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.3.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.3.0.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.4.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.4.0.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.4.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.4.0.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.4.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         'nvidia-304xx-mtrr-unknown-symbol.patch'
 )
 sha256sums=('2454bde0da3619d33c7075286d4ff0336ec43c856ed6d3f3d603d06421bb77e4'
-            '093701b40d78f7fe3d0041ea300208de5a7af48ed011bf822142307b024a51ed'
-            '315182bbd0de5d1c906b7c5b48280b82a9e364ea32e9f6e87f79670c9e70e989'
+            '3692ba0cbbe0c963b9576a3647aecd90055638039d1223d354e7b25308e13d93'
+            '609d8cb4704a467954a760dc91f0c2185ba53779d1e9b650e5830191bec836a9'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '7e76deaee7051dfe21a8eac028be6475f10ba08aa89fb887bfd9ac95de2ba35b'
@@ -63,11 +61,10 @@ sha256sums=('2454bde0da3619d33c7075286d4ff0336ec43c856ed6d3f3d603d06421bb77e4'
             '8fd87c9ab764ad599c61c6878148d7e3ecd2d082257061da9708a6567fc5ba45'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            'ebeb62206999b2749ac43bb287a6a2a5db4f6b1b688a90cefa1ceb5db94aa490'
-            '91b7cb42b8337b768e5329da205a6b61211628ec99b1e308e0e9d5283b2c86eb'
-            '77430c7154670dd288b6d5bd45896222bf955f02029ee5d0cfe97cc5d9bc1a9d'
+            'd1cf14cc696b0f716454fe8eb9746383700889d5d22ad829611f0433cc77b4ce'
+            'b17c3fb18c5b8c20a45a38198f293679ca6aef08d16f12cd816a5cfafac4b2c4'
+            '69a21bc286a628128cfc4723558829cb6ff6c2d7c4dfd4468457898674187b25'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e')
 
 prepare() {
@@ -106,7 +103,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
-  patch -Np1 -i "${srcdir}/0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
 
   # Fix Nvidia 304xx issue
   # https://bugs.archlinux.org/task/47092
