@@ -11,9 +11,9 @@ pkgname=('linux41' 'linux41-headers')
 _kernelname=-MANJARO
 _basekernel=4.1
 _basever=41
-_aufs=20160301
+_aufs=20160321
 _bfq=v7r8
-pkgver=${_basekernel}.19
+pkgver=${_basekernel}.20
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -47,12 +47,12 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            'be12d828fd185db6f51c261dd41b2bf30e866ee85d2e2c166c3035d8084f7b8e'
+            'c9cb7370fe790df645a13967919628e5bcf1ff333f334fedac6a3c474714c45d'
             'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
             'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '03a6c061952b02f5999a6c1688b3ea215a3210ab64c580d67c89ad465c8c5764'
+            'b2d7e30e2f7e4c2a48a3a96cfe8304622bdefcc609ee9d98d4eae5a9cca57c04'
             'eeebcaf7633006ea8450383248ca02c54617e0506da22a7ef55dd273cce27376'
             '5851830aa6c621589b0241507976cfde15f64f7ee1b4711b2f9f3364283fbde1'
             '6132b8f16dad6c709720e261ecc031ec07fc70a0a05fa737821ea542b1a465da'
@@ -68,7 +68,7 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
-            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b')
+            'b60c3c5606da11289f7bfb5aad252c098ac995694a25b7934798955dece3abd7')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
