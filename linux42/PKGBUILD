@@ -11,9 +11,9 @@ pkgname=('linux42' 'linux42-headers')
 _kernelname=-MANJARO
 _basekernel=4.2
 _basever=42
-_aufs=20160301
+_aufs=20160321
 _bfq=v7r8
-_subver=5
+_subver=6
 #_prepatch_snap=3a0b9585d035b77d478496dc385d550844aff7af
 #_prepatch_string="http://kernel.ubuntu.com/git/ubuntu/linux.git/rawdiff/?id=${_prepatch_snap}&id2=v${_basekernel}.8"
 pkgver=${_basekernel}.8.${_subver}
@@ -50,6 +50,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '4.2.8.3.patch'
         '4.2.8.4.patch'
         '4.2.8.5.patch'
+        '4.2.8.6.patch'
         # Manjaro Patches
 )
 sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
@@ -58,7 +59,7 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '35a59fe0fa337ff8bd163154e3cb1af651f27841865838a1b4921eb4f32efce2'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            'e13b5c63340e2b9b66c889445a9c0a00c4da6cd3b4e9895c14668618e6c62e19'
+            '98e4c608e34c450f17c8857aa4619ad146516500496253c381fa1c6d8a23a141'
             '8ceb4ad1bdd10e4e5d7577fd6e9b4cb5fa4a0bcf88e6c27a6963535b138976c7'
             '870387384ca5877b4b9437eed8eabb6882d8d98d0927e8c58846a5327b26e272'
             '473d0953113403e376810b87e00d9e2a50e2195fd35973e16316237c14d58e8c'
@@ -76,7 +77,8 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '9e13bd726864762d7600129e8b252885cf017a86119b3633ab7142ccdf9d1af4'
             '4964b50c4d53aeec48c46d319aa07fa336a7b5dd49159cec3855342ffe2a1652'
             'b219813b3b61d6aa39d5df89dc38a8d821554c424f69d609cb6912771f8fabc2'
-            'f1891c8a6d7809e23badb6ee4538271c2347d52eaa39c90bcb84e3f99304139a')
+            'f1891c8a6d7809e23badb6ee4538271c2347d52eaa39c90bcb84e3f99304139a'
+            '1aeafe69ecedf7866dc2d696f05af8af5003fc8a5478842d744f07c68503ed81')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -90,6 +92,7 @@ prepare() {
   patch -p1 -i "${srcdir}/4.2.8.3.patch"
   patch -p1 -i "${srcdir}/4.2.8.4.patch"
   patch -p1 -i "${srcdir}/4.2.8.5.patch"
+  patch -p1 -i "${srcdir}/4.2.8.6.patch"
 
   # add latest fixes from stable queue, if needed
   # http://kernel.ubuntu.com/git/ubuntu/linux.git
