@@ -1,7 +1,7 @@
 aufs3.19 loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 30efd68..2a9b789 100644
+index 12678be..1945aa8 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -514,7 +514,7 @@ out:
@@ -196,10 +196,10 @@ index 90df5d6..cb91822 100644
  	unsigned	lo_blocksize;
  	void		*key_data; 
 diff --git a/fs/aufs/f_op.c b/fs/aufs/f_op.c
-index 336a6f3..2cf3d3c 100644
+index 99b88b0..c8139bc 100644
 --- a/fs/aufs/f_op.c
 +++ b/fs/aufs/f_op.c
-@@ -399,7 +399,7 @@ static ssize_t aufs_splice_read(struct file *file, loff_t *ppos,
+@@ -409,7 +409,7 @@ static ssize_t aufs_splice_read(struct file *file, loff_t *ppos,
  	if (IS_ERR(h_file))
  		goto out;
  
@@ -274,10 +274,10 @@ index 5d68f7e..af61343 100644
  
  /* ---------------------------------------------------------------------- */
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index f634198..bfecf84 100644
+index 6b82b96..6fd39cf 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1620,6 +1620,10 @@ struct super_operations {
+@@ -1622,6 +1622,10 @@ struct super_operations {
  	int (*bdev_try_to_free_page)(struct super_block*, struct page*, gfp_t);
  	long (*nr_cached_objects)(struct super_block *, int);
  	long (*free_cached_objects)(struct super_block *, long, int);

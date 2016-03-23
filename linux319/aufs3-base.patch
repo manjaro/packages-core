@@ -26,7 +26,7 @@ index d66a97d..1c113a4 100644
  M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
  W:	http://miguelojeda.es/auxdisplay.htm
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 6cb1beb..30efd68 100644
+index 6cb1beb..12678be 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -692,6 +692,24 @@ static inline int is_loop_device(struct file *file)
@@ -49,7 +49,7 @@ index 6cb1beb..30efd68 100644
 +	}
 +	return ret;
 +}
-+EXPORT_SYMBOL(loop_backing_file);
++EXPORT_SYMBOL_GPL(loop_backing_file);
 +
  /* loop sysfs attributes */
  
@@ -67,6 +67,28 @@ index e368d4f..eaed72c 100644
  		   enum d_walk_ret (*enter)(void *, struct dentry *),
  		   void (*finish)(void *))
  {
+diff --git a/fs/fcntl.c b/fs/fcntl.c
+index ee85cd4..dacbf71 100644
+--- a/fs/fcntl.c
++++ b/fs/fcntl.c
+@@ -29,7 +29,7 @@
+ 
+ #define SETFL_MASK (O_APPEND | O_NONBLOCK | O_NDELAY | O_DIRECT | O_NOATIME)
+ 
+-static int setfl(int fd, struct file * filp, unsigned long arg)
++int setfl(int fd, struct file * filp, unsigned long arg)
+ {
+ 	struct inode * inode = file_inode(filp);
+ 	int error = 0;
+@@ -59,6 +59,8 @@ static int setfl(int fd, struct file * filp, unsigned long arg)
+ 
+ 	if (filp->f_op->check_flags)
+ 		error = filp->f_op->check_flags(arg);
++	if (!error && filp->f_op->setfl)
++		error = filp->f_op->setfl(filp, arg);
+ 	if (error)
+ 		return error;
+ 
 diff --git a/fs/inode.c b/fs/inode.c
 index aa149e7..98d87de 100644
 --- a/fs/inode.c
@@ -121,10 +143,26 @@ index f87d308..9a290b3 100644
  static inline void fput_light(struct file *file, int fput_needed)
  {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 42efe13..f634198 100644
+index 42efe13..6b82b96 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -2690,6 +2690,7 @@ extern int inode_change_ok(const struct inode *, struct iattr *);
+@@ -1166,6 +1166,7 @@ extern void fasync_free(struct fasync_struct *);
+ /* can be called from interrupts */
+ extern void kill_fasync(struct fasync_struct **, int, int);
+ 
++extern int setfl(int fd, struct file * filp, unsigned long arg);
+ extern void __f_setown(struct file *filp, struct pid *, enum pid_type, int force);
+ extern void f_setown(struct file *filp, unsigned long arg, int force);
+ extern void f_delown(struct file *filp);
+@@ -1529,6 +1530,7 @@ struct file_operations {
+ 	ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);
+ 	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
+ 	int (*check_flags)(int);
++	int (*setfl)(struct file *, unsigned long);
+ 	int (*flock) (struct file *, int, struct file_lock *);
+ 	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *, loff_t *, size_t, unsigned int);
+ 	ssize_t (*splice_read)(struct file *, loff_t *, struct pipe_inode_info *, size_t, unsigned int);
+@@ -2690,6 +2692,7 @@ extern int inode_change_ok(const struct inode *, struct iattr *);
  extern int inode_newsize_ok(const struct inode *, loff_t offset);
  extern void setattr_copy(struct inode *inode, const struct iattr *attr);
  
