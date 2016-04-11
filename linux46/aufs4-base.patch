@@ -1,10 +1,10 @@
 aufs4.x-rcN base patch
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index da3e4d8..e5c5ecf 100644
+index f17159a..532681a 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -2082,6 +2082,19 @@ F:	include/linux/audit.h
+@@ -2120,6 +2120,19 @@ F:	include/linux/audit.h
  F:	include/uapi/linux/audit.h
  F:	kernel/audit*
  
@@ -54,10 +54,10 @@ index 423f4ca..0b816b2 100644
  
  static ssize_t loop_attr_show(struct device *dev, char *page,
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 92d5140..63b22d7 100644
+index 32ceae3..bc599d0 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1167,7 +1167,7 @@ enum d_walk_ret {
+@@ -1156,7 +1156,7 @@ enum d_walk_ret {
   *
   * The @enter() and @finish() callbacks are called with d_lock held.
   */
@@ -89,7 +89,7 @@ index 350a2c8..6f42279 100644
  		return error;
  
 diff --git a/fs/read_write.c b/fs/read_write.c
-index dadf24e..c8b5b7a 100644
+index cf377cf..0ebcdc5 100644
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
 @@ -534,6 +534,28 @@ ssize_t __vfs_write(struct file *file, const char __user *p, size_t count,
@@ -122,10 +122,10 @@ index dadf24e..c8b5b7a 100644
  {
  	mm_segment_t old_fs;
 diff --git a/fs/splice.c b/fs/splice.c
-index 82bc0d6..93aee51 100644
+index 9947b5c..9037c8c 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
-@@ -1108,8 +1108,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
+@@ -1111,8 +1111,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
  /*
   * Attempt to initiate a splice from pipe to file.
   */
@@ -136,7 +136,7 @@ index 82bc0d6..93aee51 100644
  {
  	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *,
  				loff_t *, size_t, unsigned int);
-@@ -1125,9 +1125,9 @@ static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+@@ -1128,9 +1128,9 @@ static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
  /*
   * Attempt to initiate a splice from a file to a pipe.
   */
@@ -162,10 +162,10 @@ index f87d308..9a290b3 100644
  static inline void fput_light(struct file *file, int fput_needed)
  {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index ae68100..99fc2bd 100644
+index bb703ef..aff4f16 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1260,6 +1260,7 @@ extern void fasync_free(struct fasync_struct *);
+@@ -1261,6 +1261,7 @@ extern void fasync_free(struct fasync_struct *);
  /* can be called from interrupts */
  extern void kill_fasync(struct fasync_struct **, int, int);
  
@@ -173,7 +173,7 @@ index ae68100..99fc2bd 100644
  extern void __f_setown(struct file *filp, struct pid *, enum pid_type, int force);
  extern void f_setown(struct file *filp, unsigned long arg, int force);
  extern void f_delown(struct file *filp);
-@@ -1646,6 +1647,7 @@ struct file_operations {
+@@ -1642,6 +1643,7 @@ struct file_operations {
  	ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);
  	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
  	int (*check_flags)(int);
@@ -181,7 +181,7 @@ index ae68100..99fc2bd 100644
  	int (*flock) (struct file *, int, struct file_lock *);
  	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *, loff_t *, size_t, unsigned int);
  	ssize_t (*splice_read)(struct file *, loff_t *, struct pipe_inode_info *, size_t, unsigned int);
-@@ -1704,6 +1706,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
+@@ -1700,6 +1702,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
  			      struct iovec *fast_pointer,
  			      struct iovec **ret_pointer);
  

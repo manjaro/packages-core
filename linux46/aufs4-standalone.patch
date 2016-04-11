@@ -1,10 +1,10 @@
 aufs4.x-rcN standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 63b22d7..e597961 100644
+index bc599d0..1b735a9 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1272,6 +1272,7 @@ rename_retry:
+@@ -1261,6 +1261,7 @@ rename_retry:
  	seq = 1;
  	goto again;
  }
@@ -13,10 +13,10 @@ index 63b22d7..e597961 100644
  /*
   * Search for at least 1 mount point in the dentry's subdirs.
 diff --git a/fs/exec.c b/fs/exec.c
-index dcd4ac7..09a7818 100644
+index 9bdf0ed..8c87f6c 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -103,6 +103,7 @@ bool path_noexec(const struct path *path)
+@@ -104,6 +104,7 @@ bool path_noexec(const struct path *path)
  	return (path->mnt->mnt_flags & MNT_NOEXEC) ||
  	       (path->mnt->mnt_sb->s_iflags & SB_I_NOEXEC);
  }
@@ -185,7 +185,7 @@ index 55bdc75..fd1df73 100644
  static int do_dentry_open(struct file *f,
  			  struct inode *inode,
 diff --git a/fs/read_write.c b/fs/read_write.c
-index c8b5b7a..9461d12 100644
+index 0ebcdc5..0a43d7b 100644
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
 @@ -544,6 +544,7 @@ vfs_readf_t vfs_readf(struct file *file)
@@ -205,10 +205,10 @@ index c8b5b7a..9461d12 100644
  ssize_t __kernel_write(struct file *file, const char *buf, size_t count, loff_t *pos)
  {
 diff --git a/fs/splice.c b/fs/splice.c
-index 93aee51..52d2f5b 100644
+index 9037c8c..72cc871 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
-@@ -1121,6 +1121,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+@@ -1124,6 +1124,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
  
  	return splice_write(pipe, out, ppos, len, flags);
  }
@@ -216,7 +216,7 @@ index 93aee51..52d2f5b 100644
  
  /*
   * Attempt to initiate a splice from a file to a pipe.
-@@ -1147,6 +1148,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
+@@ -1150,6 +1151,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
  
  	return splice_read(in, ppos, pipe, len, flags);
  }
@@ -285,7 +285,7 @@ index 03c1652..f88c84b 100644
  int devcgroup_inode_mknod(int mode, dev_t dev)
  {
 diff --git a/security/security.c b/security/security.c
-index e8ffd92..51fa026 100644
+index 3644b03..593879b 100644
 --- a/security/security.c
 +++ b/security/security.c
 @@ -433,6 +433,7 @@ int security_path_rmdir(struct path *dir, struct dentry *dentry)
