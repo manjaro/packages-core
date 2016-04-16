@@ -10,11 +10,14 @@ ARCH=
 post_install () {
   # EOL
   echo ">>> NOTE, 3.16.7 was the last maintained maintenance release"
-  echo "    by Greg Kroah-Hartman. It is recommend to move on to linux318-series."
-  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux318'"
+  echo "    by Greg Kroah-Hartman. "
   echo "    "
-  echo "    The Ubuntu kernel team will be providing extended stable support for the"
-  echo "    Linux 3.16 kernel until April 2016."
+  echo "    3.16.7.27 was the last maintained point-release by Luis Henriques."
+  echo "    The Ubuntu kernel team had providing extended stable support for the"
+  echo "    Linux 3.16 kernel until April 2016. "
+  echo "    "
+  echo "    It is recommend to move on to linux318-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux318'"
   echo "    "
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
@@ -40,11 +43,14 @@ post_install () {
 post_upgrade() {
   # EOL
   echo ">>> NOTE, 3.16.7 was the last maintained maintenance release"
-  echo "    by Greg Kroah-Hartman. It is recommend to move on to linux318-series."
-  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux318'"
+  echo "    by Greg Kroah-Hartman. "
   echo "    "
-  echo "    The Ubuntu kernel team will be providing extended stable support for the"
-  echo "    Linux 3.16 kernel until April 2016."
+  echo "    3.16.7.27 was the last maintained point-release by Luis Henriques."
+  echo "    The Ubuntu kernel team had providing extended stable support for the"
+  echo "    Linux 3.16 kernel until April 2016. "
+  echo "    "
+  echo "    It is recommend to move on to linux318-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux318'"
   echo "    "
   # reminder notice
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then

@@ -13,7 +13,7 @@ _basekernel=4.2
 _basever=42
 _aufs=20160328
 _bfq=v7r8
-_subver=7
+_subver=8
 #_prepatch_snap=3a0b9585d035b77d478496dc385d550844aff7af
 #_prepatch_string="http://kernel.ubuntu.com/git/ubuntu/linux.git/rawdiff/?id=${_prepatch_snap}&id2=v${_basekernel}.8"
 pkgver=${_basekernel}.8.${_subver}
@@ -52,6 +52,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '4.2.8.5.patch'
         '4.2.8.6.patch'
         '4.2.8.7.patch'
+        '4.2.8.8.patch'
         # Manjaro Patches
 )
 sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
@@ -80,7 +81,8 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             'b219813b3b61d6aa39d5df89dc38a8d821554c424f69d609cb6912771f8fabc2'
             'f1891c8a6d7809e23badb6ee4538271c2347d52eaa39c90bcb84e3f99304139a'
             '1aeafe69ecedf7866dc2d696f05af8af5003fc8a5478842d744f07c68503ed81'
-            '45f8044dd2400eee127d4130d1f36419f9384837d5d70110828d3f51fda00c3b')
+            '45f8044dd2400eee127d4130d1f36419f9384837d5d70110828d3f51fda00c3b'
+            '6957cd71d96ca0b9008d9641220fca99d977ff5623b30cd97e0b528645c2a33a')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -96,6 +98,7 @@ prepare() {
   patch -p1 -i "${srcdir}/4.2.8.5.patch"
   patch -p1 -i "${srcdir}/4.2.8.6.patch"
   patch -p1 -i "${srcdir}/4.2.8.7.patch"
+  patch -p1 -i "${srcdir}/4.2.8.8.patch"
 
   # add latest fixes from stable queue, if needed
   # http://kernel.ubuntu.com/git/ubuntu/linux.git
