@@ -64,8 +64,7 @@ post_upgrade() {
   fi
   
   # remove old initcpio
-  rm -f /boot/initramfs-${KERNEL_BASE}*-${ARCH}*.img
-  rm -f /boot/initramfs-${BASEVER}-${ARCH}*.img
+  rm -f /boot/initramfs-${KERNEL_BASE}-${ARCH}*.img
   
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
