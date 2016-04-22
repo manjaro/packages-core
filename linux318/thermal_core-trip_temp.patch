@@ -1,0 +1,12 @@
+diff -rupN linux-3.18.orig/drivers/thermal/thermal_core.c linux-3.18/drivers/thermal/thermal_core.c
+--- linux-3.18.orig/drivers/thermal/thermal_core.c	2016-04-22 14:19:15.948446410 +0200
++++ linux-3.18/drivers/thermal/thermal_core.c	2016-04-22 14:15:40.117107000 +0200
+@@ -1491,7 +1491,7 @@ struct thermal_zone_device *thermal_zone
+ {
+ 	struct thermal_zone_device *tz;
+ 	enum thermal_trip_type trip_type;
+-	int trip_temp;
++	unsigned long trip_temp;
+ 	int result;
+ 	int count;
+ 	int passive = 0;

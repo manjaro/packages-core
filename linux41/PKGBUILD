@@ -14,7 +14,7 @@ _basever=41
 _aufs=20160328
 _bfq=v7r8
 pkgver=${_basekernel}.22
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -46,6 +46,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # Not exactly the same as https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
+	'thermal_core-trip_temp.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '0d9411d7cc7b32ac17538885aa1d3861cd34af09637c1aa81b228d2e0a732956'
@@ -69,7 +70,8 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
-            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b')
+            'b60c3c5606da11289f7bfb5aad252c098ac995694a25b7934798955dece3abd7'
+            '4cbd75b1ff82498dd42dd9e0f909744db842029935fff14e7e825f8e112376ab')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -106,6 +108,9 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
+
+  # add thermal_core-trip_temp.patch
+  patch -Np1 -i "${srcdir}/thermal_core-trip_temp.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
