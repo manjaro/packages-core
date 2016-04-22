@@ -46,8 +46,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # Not exactly the same as https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
-	'thermal_core-trip_temp.patch'
-)
+        'thermal_core-trip_temp.patch')
+
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '0d9411d7cc7b32ac17538885aa1d3861cd34af09637c1aa81b228d2e0a732956'
             'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
@@ -71,7 +71,7 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
             'b60c3c5606da11289f7bfb5aad252c098ac995694a25b7934798955dece3abd7'
-            '4cbd75b1ff82498dd42dd9e0f909744db842029935fff14e7e825f8e112376ab')
+            '37e2193a832414e89382e19939ea4251c64f29aa174fd7badd05af3e36c635e4')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
