@@ -13,15 +13,17 @@ _basekernel=3.18
 _basever=318
 _aufs=20160328
 _bfq=v7r8
-pkgver=${_basekernel}.31
-pkgrel=2
+pkgver=${_basekernel}.32
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        #"http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${_basekernel}.31.xz"
+	"patch-${_basekernel}.31-to-${pkgver}.patch::https://git.kernel.org/cgit/linux/kernel/git/sashal/linux-stable.git/patch/?id=refs/tags/v${pkgver}&id2=refs/tags/v${_basekernel}.31"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -41,10 +43,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.18.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.18.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
-        'thermal_core-trip_temp.patch')
-
+)
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             '662adba40afd4df9987a90e1b79af4b7d57895274a7032aeff5fd9922b1a4e73'
+            '0f462c71aee819efa006ae41bcc2048390c8ec3b7b4bc3fef960711e80059170'
             'ef4cf563bdd12a37d8c9b8573d8aadb4bcc39c5f4c8d96eccafd9cd482b31911'
             '883a97c734ba791d5b4a615453391351cc66a57d7d7ad5c8c25d6ef1da93e7cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -62,14 +64,15 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             'b44bc1dde3bf9c7f766583b12c47b99ce4dcd9deff5b8144ad72c3375ce05659'
             'e2c926a3f08fdcf4a3f1e200b7046346a7c85cf8093e1378469ad663148350a2'
             'e51cbeb8a42e719a2040762507ad0b27bffbde7559bf2a86e86980d4ec8979b6'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '37e2193a832414e89382e19939ea4251c64f29aa174fd7badd05af3e36c635e4')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${pkgver}"
+  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${_basekernel}.31"
+  patch -p1 -i "${srcdir}/patch-${_basekernel}.31-to-${pkgver}.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -94,9 +97,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs3-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
-
-  # add thermal_core-trip_temp.patch
-  patch -Np1 -i "${srcdir}/thermal_core-trip_temp.patch"
 
   # fix base_cftypes renaming
   sed -i -e 's|base_cftypes|legacy_cftypes|g' "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
