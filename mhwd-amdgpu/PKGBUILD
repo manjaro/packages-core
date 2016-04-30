@@ -3,7 +3,7 @@
 
 pkgname=('mhwd-amdgpu')
 pkgver=1.1.0
-pkgrel=1
+pkgrel=2
 
 pkgdesc="MHWD module-ids for amdgpu $pkgver"
 arch=('any')
@@ -20,4 +20,11 @@ package() {
     sh -e ${srcdir}/mhwd-amdgpu \
     ${srcdir}/xf86-video-amdgpu-$pkgver/src/pcidb/ati_pciids.csv \
     > ${pkgdir}/var/lib/mhwd/ids/pci/amdgpu.ids
+    # remove experimental IDs
+    # see also https://github.com/manjaro/packages-core/issues/37
+    sed -i '/6900/'d ${pkgdir}/var/lib/mhwd/ids/pci/amdgpu.ids
+    sed -i '/6901/'d ${pkgdir}/var/lib/mhwd/ids/pci/amdgpu.ids
+    sed -i '/6902/'d ${pkgdir}/var/lib/mhwd/ids/pci/amdgpu.ids
+    sed -i '/6903/'d ${pkgdir}/var/lib/mhwd/ids/pci/amdgpu.ids
+    sed -i '/6907/'d ${pkgdir}/var/lib/mhwd/ids/pci/amdgpu.ids
 }
