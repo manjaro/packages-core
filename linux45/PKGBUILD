@@ -13,7 +13,7 @@ _basekernel=4.5
 _basever=45
 _aufs=20160328
 _bfq=v7r11
-pkgver=${_basekernel}.2
+pkgver=${_basekernel}.3
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -45,11 +45,13 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         'nvidia-304xx-mtrr-unknown-symbol.patch'
+        'revert-intel-asoc.patch'
+        'bpf-fix-double-fdput-in-replace_map_fd_with_map_ptr.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=8358b02bf67d3a5d8a825070e1aa73f25fb2e4c7'
 )
 sha256sums=('2454bde0da3619d33c7075286d4ff0336ec43c856ed6d3f3d603d06421bb77e4'
-            'a9913a04ddbd06acde9b00b3179c41fddb99f61168ef5d01d3e8cf72385038b1'
-            '5db19726ba679d02463643cec2dc81013984a81a393fffb4f6f844361fc01841'
-            '93b4a5a88aaa91a50b1a8c8cac4f8e293a3a72c571216f3cd13555cab9440b08'
+            '02a1a3fb190031130f6a304a1d3ebb72ce0b4e6dcc608c9e423780e4df10dec7'
+            'ef168c46008bccef8de0e13bbc211f5c3dcdcaaf347b05d4bc3b69b55eca4161'
+            '876978f921c347d59341048dcdc6735be9efe1e1c7d029386be31103f766a716'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '1e52caf0febac5edefb5a1e81bf3fe1de1876c794913934e21694d8a787f5b65'
@@ -66,13 +68,18 @@ sha256sums=('2454bde0da3619d33c7075286d4ff0336ec43c856ed6d3f3d603d06421bb77e4'
             'b17c3fb18c5b8c20a45a38198f293679ca6aef08d16f12cd816a5cfafac4b2c4'
             '69a21bc286a628128cfc4723558829cb6ff6c2d7c4dfd4468457898674187b25'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e')
+            '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
+            '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
+            'fe87a83c9fa1e2d97ae0395551733edd0086c81e6019a8b226d58df8baf2bf1d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # https://cxsecurity.com/issue/WLB-2016050014
+  patch -p1 -i "${srcdir}"/bpf-fix-double-fdput-in-replace_map_fd_with_map_ptr.patch
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -106,6 +113,10 @@ prepare() {
   # Fix Nvidia 304xx issue
   # https://bugs.archlinux.org/task/47092
   patch -Np1 -i "${srcdir}/nvidia-304xx-mtrr-unknown-symbol.patch"
+
+  # Deal with the Intel ASoC issue
+  # https://github.com/manjaro/packages-core/issues/35
+  patch -Rp1 -i "${srcdir}/revert-intel-asoc.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config

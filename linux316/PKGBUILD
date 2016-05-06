@@ -12,8 +12,7 @@ _basekernel=3.16
 _basever=316
 _aufs=20150928 #last release
 _bfq=v7r8
-_subver=27
-pkgver=${_basekernel}.7.${_subver}
+pkgver=${_basekernel}.35
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -21,7 +20,7 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${_basekernel}.7.xz"
+        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -43,36 +42,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Additional patches
-        '3.16.7.1.patch'
-        '3.16.7.2.patch'
-        '3.16.7.3.patch'
-        '3.16.7.4.patch'
-        '3.16.7.5.patch'
-        '3.16.7.6.patch'
-        '3.16.7.7.patch'
-        '3.16.7.8.patch'
-        '3.16.7.9.patch'
-        '3.16.7.10.patch'
-        '3.16.7.11.patch'
-        '3.16.7.12.patch'
-        '3.16.7.13.patch'
-        '3.16.7.14.patch'
-        '3.16.7.15.patch'
-        '3.16.7.16.patch'
-        '3.16.7.17.patch'
-        '3.16.7.18.patch'
-        '3.16.7.19.patch'
-        '3.16.7.20.patch'
-        '3.16.7.21.patch'
-        '3.16.7.22.patch'
-        '3.16.7.23.patch'
-        '3.16.7.24.patch'
-        '3.16.7.25.patch'
-        '3.16.7.26.patch'
-        '3.16.7.27.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
-            '7e2bbcbbff818e8839a2919fbc208762618498ed56337ab3f20be31c187105ab'
+            '721c550daf6caf0d6910787097fee9b4f5ed74daeee913bb3a0ad33bb45acf58'
             '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -91,69 +63,13 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '1abb58dc065100a2684a508c88981e5ce9b5ce4ed39f53038806d9fe3e217509'
             'a040f22695c9368c01c0e74f5696035a731d4fab1015ce5f3c90d3ae1a74bccc'
             'f0fc3e6159f61671a5a734ccc28091b6d8124d92c211652e620e99305b2edcef'
-            '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
-            '09f073a606dd4e66e24dd999562879f0664587ac93bab793fcad18dc5d680caa'
-            'd911f7773b06f0a6c6dee3f9366a15d6c83033a3c40ab7cb156da633342c6136'
-            'b22d9c52fd58cdfbfce8650091ebd384300653c1e8f2add6a60778476ce79190'
-            'a5ec32f3dfdd54b771586b56e6cf06f3026957176eef7e147b043b94f2c9ea49'
-            'e94a8aa92df4b331c0837cae622e1a620bd8d97bd77b021b78ad363c42a242fd'
-            '0b4d08eb76bbeb52359ea20a8c4cfd2f0a7f35f6f5c891f03f09b2c4b42bd75e'
-            'e803f19a4cea764d502e5e82c76a9405fd4fd0fc4b01a5367990a72bc268d8eb'
-            '32e5716e9fd5a659655f5cbfdc91abca928d3db1279e0fba94de287aa83ca257'
-            'b3c54a957d03af43371921e7d893d613a1bb6fc2dd56a49955c0fcf1d59194c5'
-            'dcbc8ad53dbdf83f889f05c7d03ff78119dfa3c10786d165b44c5f37cfb80f1d'
-            'ed94355e3a6d802b6f4b9470dc8850ebe1131a08c61a7656ab3404b9d73957bb'
-            '806e59b121cc129dd04c307ed38d68b390d525c9a76d6f15a57268c1e7914a84'
-            '30f5ab669565cff54aafb6fbee1e6044ad305f622b4f2ce2bcf7f203864c3eef'
-            '2a52baaa48c5cd7cc2e792af6f2773860c489906ebbfc773be55057076d75fc2'
-            'bc56130f9e2b0c8754359c21c944ef77a53a7b0eb20f2f50db5499155732ac0d'
-            '3b8d5eb5a0ea244dab4531515d01a838d285a1ede8270f9d218f5c31ca9a456b'
-            '1c85a241b97cb59a8df8cf9f1d1d2726ff6d0c1bda8ddb70af3c2cc422e18ff3'
-            'aa69a0a25c41c6b43b9a4de23b01364ad4b39398af04653adab58186b216eabc'
-            '86e4424c45ff30ad25b9c24b6d318a52f813b4146114076074baf7e60bc1b47c'
-            'd96c2403ee86e86146c0fa763d83935f9ebbcf6f7fd80d05935ac5631a08be71'
-            'a56f2376eb8f40ef575e30a13c904213c0c71ad9d8ea4b08fbe0697695e17cd4'
-            'f06b2906aa86a1363aeb551ae07ab915b384b9c4b6427c8ac7fe67f16b55fd4d'
-            'c985819c65c087c07e3a05e36fe10f73472238862f90d12a319c449ccafd6d62'
-            'bed6e05968db8e09000c335f22fda3a9f323cb77fde9e2637622cf32b42c3a96'
-            '29ac1ab0087bfab47bd95c129bcfa17685552dc34a1eb346dbfcc36c21796cd6'
-            'ad740beb38e897042ffaa5107dce73d86e39ca1bbfa7eb13d18e2cdd5c6c3922'
-            '58ebe4e0c2db82eddc77024f4d52ad3b021a0d4b49db026f9f535a6b3de8008f')
+            '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${_basekernel}.7"
-
-  # add extended stable patch(es)
-  patch -p1 -i "${srcdir}/3.16.7.1.patch"
-  patch -p1 -i "${srcdir}/3.16.7.2.patch"
-  patch -p1 -i "${srcdir}/3.16.7.3.patch"
-  patch -p1 -i "${srcdir}/3.16.7.4.patch"
-  patch -p1 -i "${srcdir}/3.16.7.5.patch"
-  patch -p1 -i "${srcdir}/3.16.7.6.patch"
-  patch -p1 -i "${srcdir}/3.16.7.7.patch"
-  patch -p1 -i "${srcdir}/3.16.7.8.patch"
-  patch -p1 -i "${srcdir}/3.16.7.9.patch"
-  patch -p1 -i "${srcdir}/3.16.7.10.patch"
-  patch -p1 -i "${srcdir}/3.16.7.11.patch"
-  patch -p1 -i "${srcdir}/3.16.7.12.patch"
-  patch -p1 -i "${srcdir}/3.16.7.13.patch"
-  patch -p1 -i "${srcdir}/3.16.7.14.patch"
-  patch -p1 -i "${srcdir}/3.16.7.15.patch"
-  patch -p1 -i "${srcdir}/3.16.7.16.patch"
-  patch -p1 -i "${srcdir}/3.16.7.17.patch"
-  patch -p1 -i "${srcdir}/3.16.7.18.patch"
-  patch -p1 -i "${srcdir}/3.16.7.19.patch"
-  patch -p1 -i "${srcdir}/3.16.7.20.patch"
-  patch -p1 -i "${srcdir}/3.16.7.21.patch"
-  patch -p1 -i "${srcdir}/3.16.7.22.patch"
-  patch -p1 -i "${srcdir}/3.16.7.23.patch"
-  patch -p1 -i "${srcdir}/3.16.7.24.patch"
-  patch -p1 -i "${srcdir}/3.16.7.25.patch"
-  patch -p1 -i "${srcdir}/3.16.7.26.patch"
-  patch -p1 -i "${srcdir}/3.16.7.27.patch"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -199,7 +115,7 @@ prepare() {
   fi
 
   # set extraversion to pkgrel
-  sed -ri "s|^(EXTRAVERSION =).*|\1 .${_subver}-${pkgrel}|" Makefile
+  sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh
