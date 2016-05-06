@@ -47,6 +47,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         '0001-sdhci-revert.patch'
         'bpf-fix-double-fdput-in-replace_map_fd_with_map_ptr.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=8358b02bf67d3a5d8a825070e1aa73f25fb2e4c7'
+        'i8042.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44be6ca02de24c3f2041d0000d163a458a62d75e926e54b628cc30e41e9fde6b'
@@ -70,7 +71,8 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
-            'fe87a83c9fa1e2d97ae0395551733edd0086c81e6019a8b226d58df8baf2bf1d')
+            'fe87a83c9fa1e2d97ae0395551733edd0086c81e6019a8b226d58df8baf2bf1d'
+            'ba1e9dd69f04da2f019680d1a50af9606cff5f694799e72fd648698231566feb')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -119,6 +121,9 @@ prepare() {
   # Fix Nvidia 304xx issue
   # https://bugs.archlinux.org/task/47092
   patch -Np1 -i "${srcdir}/nvidia-304xx-mtrr-unknown-symbol.patch"
+
+  # Fix X455LB touchpad not working after resuming from suspend issue
+  patch -Np1 -i "${srcdir}/i8042.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
