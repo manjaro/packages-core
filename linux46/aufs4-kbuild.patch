@@ -1,10 +1,10 @@
 aufs4.x-rcN kbuild patch
 
 diff --git a/fs/Kconfig b/fs/Kconfig
-index 9adee0d..5e9cfb2 100644
+index 6725f59..2ced198 100644
 --- a/fs/Kconfig
 +++ b/fs/Kconfig
-@@ -232,6 +232,7 @@ source "fs/pstore/Kconfig"
+@@ -235,6 +235,7 @@ source "fs/pstore/Kconfig"
  source "fs/sysv/Kconfig"
  source "fs/ufs/Kconfig"
  source "fs/exofs/Kconfig"
@@ -13,16 +13,16 @@ index 9adee0d..5e9cfb2 100644
  endif # MISC_FILESYSTEMS
  
 diff --git a/fs/Makefile b/fs/Makefile
-index 79f5225..a7c7f16 100644
+index 85b6e13..e7bb164 100644
 --- a/fs/Makefile
 +++ b/fs/Makefile
-@@ -126,3 +126,4 @@ obj-y				+= exofs/ # Multiple modules
+@@ -128,3 +128,4 @@ obj-y				+= exofs/ # Multiple modules
  obj-$(CONFIG_CEPH_FS)		+= ceph/
  obj-$(CONFIG_PSTORE)		+= pstore/
  obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
 +obj-$(CONFIG_AUFS_FS)           += aufs/
 diff --git a/include/uapi/linux/Kbuild b/include/uapi/linux/Kbuild
-index 0495884..9764295 100644
+index 813ffb2e..ac2202e 100644
 --- a/include/uapi/linux/Kbuild
 +++ b/include/uapi/linux/Kbuild
 @@ -59,6 +59,7 @@ header-y += atmsvc.h

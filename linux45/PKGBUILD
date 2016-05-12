@@ -11,9 +11,9 @@ pkgname=('linux45' 'linux45-headers')
 _kernelname=-MANJARO
 _basekernel=4.5
 _basever=45
-_aufs=20160328
+_aufs=20160509
 _bfq=v7r11
-pkgver=${_basekernel}.3
+pkgver=${_basekernel}.4
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -28,7 +28,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        "aufs4.5-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
         'aufs4-loopback.patch'
@@ -49,18 +49,18 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'bpf-fix-double-fdput-in-replace_map_fd_with_map_ptr.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=8358b02bf67d3a5d8a825070e1aa73f25fb2e4c7'
 )
 sha256sums=('2454bde0da3619d33c7075286d4ff0336ec43c856ed6d3f3d603d06421bb77e4'
-            '02a1a3fb190031130f6a304a1d3ebb72ce0b4e6dcc608c9e423780e4df10dec7'
+            '6a9cfe691ac77346c48b7f83375a1880ebb379594de1000acad45da45d711e42'
             'ef168c46008bccef8de0e13bbc211f5c3dcdcaaf347b05d4bc3b69b55eca4161'
             '876978f921c347d59341048dcdc6735be9efe1e1c7d029386be31103f766a716'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '1e52caf0febac5edefb5a1e81bf3fe1de1876c794913934e21694d8a787f5b65'
-            'f013d6c39809d3455185a38b0fedd9a5a78226eb881b24df760bf4e42cb69056'
-            '6d47f56dfe2937c1d8c0a0e9f10d9d3c02e39db394077544d0b7a7138b76c1ac'
-            '01641ed867f9fca3616eef7b2bf496a744257e91220d2ca7d0995133a11f489b'
-            '103bec6851fb24f2d1c5fef011d8ff2a4fb2d288ca2276f361d5cefc6822089f'
-            '22814996b9c428dcca7badf6695829cfb951b199663fda15fbb83cb97f4042a8'
-            '7a5cd24c4752aac4c662493050eab33d871d5d35e9858636ad6c2a0f14227ac4'
+            'e6026591b6f7d81dfd908728fbcdacd36a3d5b1df676c3b2d2244c80a962b55d'
+            '09630c57d4f21460cfa67590a4c649c7d0274c8818ace4b63a02763c989e8bb1'
+            'd5160abec88b6da0b9488dd01813b4a5b31da31e0ed40289987668bf16f368c2'
+            'dd6ba9cdf10221a7b1f0f837eba1b52d6688512713903f8bc421027a932993f7'
+            '1602893d5a8cdcb747d46d3762750b11a12f545de59646d8c0f779e7e16badc7'
+            '8c71002f0463712d0da9530a107716b78923d6cca4e048bb4404d50b0fa2acd4'
+            '1419e6aa021e5cd8686291205a84f0fc018f34bf6a3c46a037090116b6f5d021'
             '8fd87c9ab764ad599c61c6878148d7e3ecd2d082257061da9708a6567fc5ba45'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
@@ -96,7 +96,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs4 support
-  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4.5-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
   patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs4-loopback.patch"

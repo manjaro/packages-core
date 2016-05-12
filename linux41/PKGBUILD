@@ -11,9 +11,9 @@ pkgname=('linux41' 'linux41-headers')
 _kernelname=-MANJARO
 _basekernel=4.1
 _basever=41
-_aufs=20160328
+_aufs=20160509
 _bfq=v7r8
-pkgver=${_basekernel}.23
+pkgver=${_basekernel}.24
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -21,9 +21,7 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
-        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${_basekernel}.22.xz"
-	"patch-${_basekernel}.22-to-${pkgver}.patch::https://git.kernel.org/cgit/linux/kernel/git/sashal/linux-stable.git/patch/?id=refs/tags/v${pkgver}&id2=refs/tags/v${_basekernel}.22"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -50,13 +48,12 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            '0d9411d7cc7b32ac17538885aa1d3861cd34af09637c1aa81b228d2e0a732956'
-            'cd04fe6c06b50585c31d8c1ddf4b2e53110ef9d3e3fb2f680fa7088e0ee9cf7b'
+            '8a0274f1eb508d64131d86e5d457ee7310ae8b0ee722fd2a3e4dada91f380fcd'
             'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
             'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '54b0fcce9ff45fbac818021ee11dfe62bded5890c51b6093daf0fb79e05c398a'
+            'c575805a91d3e408e81bbe59bed0a2c414acbb4c611e239ed579945f7e9ae9ba'
             'eeebcaf7633006ea8450383248ca02c54617e0506da22a7ef55dd273cce27376'
             '5851830aa6c621589b0241507976cfde15f64f7ee1b4711b2f9f3364283fbde1'
             '6132b8f16dad6c709720e261ecc031ec07fc70a0a05fa737821ea542b1a465da'
@@ -78,9 +75,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
-  patch -p1 -i "${srcdir}/patch-${_basekernel}.22"
-  patch -p1 -i "${srcdir}/patch-${_basekernel}.22-to-${pkgver}.patch"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git

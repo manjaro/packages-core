@@ -1,7 +1,7 @@
 aufs4.x-rcN standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index bc599d0..1b735a9 100644
+index 4de75b2..0dd0237 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
 @@ -1261,6 +1261,7 @@ rename_retry:
@@ -13,7 +13,7 @@ index bc599d0..1b735a9 100644
  /*
   * Search for at least 1 mount point in the dentry's subdirs.
 diff --git a/fs/exec.c b/fs/exec.c
-index 9bdf0ed..8c87f6c 100644
+index c4010b8..c2b225f 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
 @@ -104,6 +104,7 @@ bool path_noexec(const struct path *path)
@@ -165,7 +165,7 @@ index 7115c5d..ac2bd69 100644
  static void fsnotify_mark_destroy(struct work_struct *work)
  {
 diff --git a/fs/open.c b/fs/open.c
-index 55bdc75..fd1df73 100644
+index 17cb6b1..4516fe3 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -64,6 +64,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -205,7 +205,7 @@ index 0ebcdc5..0a43d7b 100644
  ssize_t __kernel_write(struct file *file, const char *buf, size_t count, loff_t *pos)
  {
 diff --git a/fs/splice.c b/fs/splice.c
-index 9037c8c..72cc871 100644
+index d8c6500..1eb3f47 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
 @@ -1124,6 +1124,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,

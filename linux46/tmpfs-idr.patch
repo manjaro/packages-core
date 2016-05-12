@@ -19,7 +19,7 @@ index 4d4780c..0723633 100644
  	kuid_t uid;		    /* Mount uid for root directory */
  	kgid_t gid;		    /* Mount gid for root directory */
 diff --git a/mm/shmem.c b/mm/shmem.c
-index 9428c51..b4860b3 100644
+index 719bd6b..2f65081 100644
 --- a/mm/shmem.c
 +++ b/mm/shmem.c
 @@ -112,9 +112,13 @@ static unsigned long shmem_default_max_blocks(void)
@@ -181,7 +181,7 @@ index 9428c51..b4860b3 100644
  	config.mpol = NULL;
 @@ -2942,7 +2952,7 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
  		seq_printf(seq, ",size=%luk",
- 			sbinfo->max_blocks << (PAGE_CACHE_SHIFT - 10));
+ 			sbinfo->max_blocks << (PAGE_SHIFT - 10));
  	if (sbinfo->max_inodes != shmem_default_max_inodes())
 -		seq_printf(seq, ",nr_inodes=%lu", sbinfo->max_inodes);
 +		seq_printf(seq, ",nr_inodes=%d", sbinfo->max_inodes);
