@@ -47,6 +47,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         'revert-intel-asoc.patch'
         'bpf-fix-double-fdput-in-replace_map_fd_with_map_ptr.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=8358b02bf67d3a5d8a825070e1aa73f25fb2e4c7'
+        'i8042.patch'
 )
 sha256sums=('2454bde0da3619d33c7075286d4ff0336ec43c856ed6d3f3d603d06421bb77e4'
             '6a9cfe691ac77346c48b7f83375a1880ebb379594de1000acad45da45d711e42'
@@ -70,7 +71,8 @@ sha256sums=('2454bde0da3619d33c7075286d4ff0336ec43c856ed6d3f3d603d06421bb77e4'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
-            'fe87a83c9fa1e2d97ae0395551733edd0086c81e6019a8b226d58df8baf2bf1d')
+            'fe87a83c9fa1e2d97ae0395551733edd0086c81e6019a8b226d58df8baf2bf1d'
+            '7a0c7b12d83f89e277bce8893ec380b29565777dd6d82cb11b3849166665bd66')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -117,6 +119,9 @@ prepare() {
   # Deal with the Intel ASoC issue
   # https://github.com/manjaro/packages-core/issues/35
   patch -Rp1 -i "${srcdir}/revert-intel-asoc.patch"
+
+  # Fix X455LB touchpad not working after resuming from suspend issue
+  patch -Np1 -i "${srcdir}/i8042.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
