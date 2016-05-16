@@ -11,10 +11,9 @@ pkgname=('linux46' 'linux46-headers')
 _kernelname=-MANJARO
 _basekernel=4.6
 _basever=46
-_aufs=20160509
+_aufs=20160516
 _bfq=v7r11
-_rc=rc7
-pkgver=${_basekernel}${_rc}
+pkgver=${_basekernel}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -23,7 +22,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}.tar.xz"
-        https://github.com/torvalds/linux/archive/v${_basekernel}-${_rc}.tar.gz
+        https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -47,17 +46,18 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         'revert-intel-asoc.patch'
+        'i8042-asus-x455lab-dmi.patch'
 )
-sha256sums=('a04584f1c33ddee62a0f09dfdfc70f252cda87e05abbb6dd4f4b70d8382d7aa4'
-            'c146edef50e5da88fbf1f2b83c800e3bd68ac906d2612b130bd5ac5388abeb37'
-            '4196b967c14aec5f03ede316c733963678cf1b3e1abb3160c812fb14f1b6d451'
+sha256sums=('1f2bcc9167668eca62fda7d22b6dd07052c87420bacc6d47d451ed6d441daf61'
+            '16f98b322328b3ba473a10223556c39eebfdc945afb48d9a38916c016fba7603'
+            'c506f3459717fee39a6c9943161fe99f8665b4636b3eeb00e6b12ea893e270cf'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '696bc63fa9f4dbae27b143fea355c24e5bef59f168a2c0517840da2c3de4e13f'
-            'e26cadb6fa40536c760f65a8dbc8c05999a1b415198698733fb6ba091fd19848'
+            '2812d70634775c5076d558c11435ce725681b2b4761259cba4121d8b508df016'
+            '879fa03a5c8d9ca68232e21d85834f65d8c2cf958d2da8800a1c0c3b60acd734'
             'cb3586eaf2df4facbba1742a954b4ffde550c66897fe53d9d5ec39d6899e81c7'
             '22fd35260c1273221ba85124254fc22e179b79e19d2b26e4c23fdc04aba55c7d'
-            '654568afd849a748b3eb9e5695d2afe1f2e31576b82fd2ead9e9b67bbd62bb88'
+            'a534a65891e605f9dbebc368f1a85584089aef8c51a8402967cd990a2da364f0'
             'f8eea46544bfa99f91a829ad9b4639b2ff9afb267a14372684f707179f04e00b'
             '51842a579a8ecb3962b253ecd7ae4b6f3cc974b697dafd80c58491f3cf05a53d'
             '8fd87c9ab764ad599c61c6878148d7e3ecd2d082257061da9708a6567fc5ba45'
@@ -68,10 +68,11 @@ sha256sums=('a04584f1c33ddee62a0f09dfdfc70f252cda87e05abbb6dd4f4b70d8382d7aa4'
             '69a21bc286a628128cfc4723558829cb6ff6c2d7c4dfd4468457898674187b25'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
-            '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43')
+            '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
+            'eaffd380604e9460d7bbd995915c85fea6ba636847a1ed9c523ea171b9345d2d')
 
 prepare() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
@@ -85,6 +86,10 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # fix X455LB touchpad issue
+  # https://github.com/manjaro/packages-core/pull/39
+  patch -p1 -i "${srcdir}/i8042-asus-x455lab-dmi.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
@@ -151,7 +156,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -164,7 +169,7 @@ package_linux46() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -230,7 +235,7 @@ package_linux46-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \

@@ -1,0 +1,71 @@
+From 32b4766f4afe349dde51043f4c9dd06b69e323cc Mon Sep 17 00:00:00 2001
+From: John Hiesey <john@hiesey.com>
+Date: Wed, 23 Sep 2015 19:09:33 -0700
+Subject: [PATCH] Input: i8042 - don't run self test on Asus X455LAB
+
+On this model, any time the self test command is sent to the
+i8042 controller the trackpad stops sending data. Never send the
+self test command when this model is detected with DMI.
+
+---
+diff -Npur linux-4.6.orig/drivers/input/serio/i8042.c linux-4.6/drivers/input/serio/i8042.c
+--- linux-4.6.orig/drivers/input/serio/i8042.c	2016-05-16 00:43:13.000000000 +0200
++++ linux-4.6/drivers/input/serio/i8042.c	2016-05-16 03:46:21.206129875 +0200
+@@ -24,6 +24,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/i8042.h>
+ #include <linux/slab.h>
++#include <linux/dmi.h>
+ #include <linux/suspend.h>
+ 
+ #include <asm/io.h>
+@@ -138,6 +139,7 @@ static bool i8042_mux_present;
+ static bool i8042_kbd_irq_registered;
+ static bool i8042_aux_irq_registered;
+ static unsigned char i8042_suppress_kbd_ack;
++static bool i8042_noselftest;
+ static struct platform_device *i8042_platform_device;
+ static struct notifier_block i8042_kbd_bind_notifier_block;
+ 
+@@ -891,6 +893,13 @@ static int i8042_controller_selftest(voi
+ 	int i = 0;
+ 
+ 	/*
++	 * On some hardware just running the self test causes problems.
++	 * In that case, don't run the test and just assume success.
++	 */
++	if (i8042_noselftest)
++		return 0;
++
++	/*
+ 	 * We try this 5 times; on some really fragile systems this does not
+ 	 * take the first time...
+ 	 */
+@@ -1547,6 +1556,16 @@ static int i8042_remove(struct platform_
+ 	return 0;
+ }
+ 
++static const struct dmi_system_id i8042_dmi_noselftest_table[] __initconst = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "X455LAB"),
++		},
++	},
++	{}
++};
++
+ static struct platform_driver i8042_driver = {
+ 	.driver		= {
+ 		.name	= "i8042",
+@@ -1568,6 +1587,8 @@ static int __init i8042_init(void)
+ 	int err;
+ 
+ 	dbg_init();
++	if (dmi_check_system(i8042_dmi_noselftest_table))
++		i8042_noselftest = true;
+ 
+ 	err = i8042_platform_init();
+ 	if (err)
+-- 
+2.5.3
