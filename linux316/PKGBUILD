@@ -44,6 +44,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # Additional patches
         '3.16.35.compiler-gcc-integrate-the-various-compiler-gcc.h-files.patch'
         'https://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/releases/3.14.69/compiler-gcc-disable-ftracer-for-__noclone-functions.patch'
+        'fix-mod_devicetable.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '721c550daf6caf0d6910787097fee9b4f5ed74daeee913bb3a0ad33bb45acf58'
@@ -66,8 +67,9 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'a040f22695c9368c01c0e74f5696035a731d4fab1015ce5f3c90d3ae1a74bccc'
             'f0fc3e6159f61671a5a734ccc28091b6d8124d92c211652e620e99305b2edcef'
             '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
-            'dd422d15f9c6fb0064a28703a24d68e75c22f6876d45b62658b62409c184adda'
-            '2aadcc614502841c5f00354ac834a74f7b58f49058516581a3362ccdf0c1ea33')
+            '1448e58054c834f98822a088264e27f17cc353eadd9f4df0b1989ae07091f420'
+            '2aadcc614502841c5f00354ac834a74f7b58f49058516581a3362ccdf0c1ea33'
+            '641f406a5e7fac1a7d1fe84b4ab1184603bf5d10546c60f7b1b1c66585da875e')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -88,6 +90,7 @@ prepare() {
   # fix gcc61
   patch -Np1 -i "${srcdir}/3.16.35.compiler-gcc-integrate-the-various-compiler-gcc.h-files.patch"
   patch -Np1 -i "${srcdir}/compiler-gcc-disable-ftracer-for-__noclone-functions.patch"
+  patch -Np1 -i "${srcdir}/fix-mod_devicetable.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"

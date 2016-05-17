@@ -41,6 +41,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.18.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.18.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
+        'fix-mod_devicetable.patch'
 )
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             '1380ee1cfa7ededaf0b206c0a8e4d364fa16285e0b4b2d653f22f01a29694faf'
@@ -61,7 +62,8 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             'b44bc1dde3bf9c7f766583b12c47b99ce4dcd9deff5b8144ad72c3375ce05659'
             'e2c926a3f08fdcf4a3f1e200b7046346a7c85cf8093e1378469ad663148350a2'
             'e51cbeb8a42e719a2040762507ad0b27bffbde7559bf2a86e86980d4ec8979b6'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            '0608108bc19f1b08d0d9952926d5b6ad95e49d8a9469ca08d64e25e6d9a3caf3')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -78,7 +80,7 @@ prepare() {
   # drivers/hid/hid-hyperv.c:594:1: note: in expansion of macro ‘MODULE_DEVICE_TABLE’
   #  MODULE_DEVICE_TABLE(vmbus, id_table);
   #  ^~~~~~~~~~~~~~~~~~~
-  #patch -Rp1 -i "${srcdir}/revert-module-2016-changes.patch"
+  patch -Rp1 -i "${srcdir}/fix-mod_devicetable.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
