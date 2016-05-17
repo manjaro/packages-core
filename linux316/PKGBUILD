@@ -13,7 +13,7 @@ _basever=316
 _aufs=20150928 #last release
 _bfq=v7r8
 pkgver=${_basekernel}.35
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -42,6 +42,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Additional patches
+        '3.16.35.compiler-gcc-integrate-the-various-compiler-gcc.h-files.patch'
+        'https://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/releases/3.14.69/compiler-gcc-disable-ftracer-for-__noclone-functions.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '721c550daf6caf0d6910787097fee9b4f5ed74daeee913bb3a0ad33bb45acf58'
@@ -63,7 +65,9 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '1abb58dc065100a2684a508c88981e5ce9b5ce4ed39f53038806d9fe3e217509'
             'a040f22695c9368c01c0e74f5696035a731d4fab1015ce5f3c90d3ae1a74bccc'
             'f0fc3e6159f61671a5a734ccc28091b6d8124d92c211652e620e99305b2edcef'
-            '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99')
+            '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
+            'dd422d15f9c6fb0064a28703a24d68e75c22f6876d45b62658b62409c184adda'
+            '2aadcc614502841c5f00354ac834a74f7b58f49058516581a3362ccdf0c1ea33')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -80,6 +84,10 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # fix gcc61
+  patch -Np1 -i "${srcdir}/3.16.35.compiler-gcc-integrate-the-various-compiler-gcc.h-files.patch"
+  patch -Np1 -i "${srcdir}/compiler-gcc-disable-ftracer-for-__noclone-functions.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
