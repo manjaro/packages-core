@@ -49,8 +49,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('1f2bcc9167668eca62fda7d22b6dd07052c87420bacc6d47d451ed6d441daf61'
-            '9d93f7f8bdbea12a3beea09efdc3b8ba9275fcaab251ec911de12ede20d9a53c'
-            'cb3933bf595ec3dac9f575a1489b0d0c5fe2aad22aa8c5996598165317cf7638'
+            '53fd8b393c521c3d46a914dde95535013cd68a4e296c8279519630edfaee41e6'
+            'f423ec4e9c80037017722dbff1c560bc506893149f9e32bf16e39df0b70066eb'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '2812d70634775c5076d558c11435ce725681b2b4761259cba4121d8b508df016'
@@ -326,6 +326,12 @@ package_linux46-headers() {
     mkdir -p "${pkgdir}"/usr/lib/modules/${_kernver}/build/`echo ${i} | sed 's|/Kconfig.*||'`
     cp ${i} "${pkgdir}/usr/lib/modules/${_kernver}/build/${i}"
   done
+
+  # add objtool for external module building and enabled VALIDATION_STACK option
+  if [ -f tools/objtool/objtool ]; then
+    mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/tools/objtool"
+    cp -a tools/objtool/objtool ${pkgdir}/usr/lib/modules/${_kernver}/build/tools/objtool/
+  fi
 
   chown -R root.root "${pkgdir}/usr/lib/modules/${_kernver}/build"
   find "${pkgdir}/usr/lib/modules/${_kernver}/build" -type d -exec chmod 755 {} \;
