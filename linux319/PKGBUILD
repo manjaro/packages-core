@@ -67,6 +67,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # Additional fixes
         '3.19.8.21-compiler-gcc-join-gcc.h-files.patch'
         'compiler-gcc-ftracer.patch::https://github.com/torvalds/linux/commit/95272c29378ee7dc15f43fa2758cb28a5913a06d.patch'
+        'fix-mod_devicetable.patch'
 )
 sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             '2e4f01c2ce7ccb2ffee1722724df0a2c2ad6ba5fa74218aa816bda19f3ddcf5d'
@@ -110,7 +111,8 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             'add9197c11c5ab580c6aea1095e10eb2272933ba2b27e356f77f09cf9fcebb85'
             '89264f821a6d0a150d33a6a9601236e3f827a59d4624a6b19afb771e7bdff742'
             '888b766b49dd458b52b8ec26c9e27ad04ebcecf4107437a78920ff57472c3065'
-            '1f4bed68e802fe7fe857bc8a9fe6556bb579c03df3e308df2a02d659bea0bb34')
+            '1f4bed68e802fe7fe857bc8a9fe6556bb579c03df3e308df2a02d659bea0bb34'
+            'a3d21434443dc336879f2280e55307a30711e958945f59efb3fe1c16b65dce45')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -144,6 +146,7 @@ prepare() {
   # add gcc6 compatibility
   patch -p1 -i "${srcdir}/3.19.8.21-compiler-gcc-join-gcc.h-files.patch"
   patch -p1 -i "${srcdir}/compiler-gcc-ftracer.patch"
+  patch -Np1 -i "${srcdir}/fix-mod_devicetable.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
