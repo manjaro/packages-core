@@ -13,7 +13,7 @@ _basever=310
 _aufs=20141215 #last version
 _bfq=v7r8
 pkgver=${_basekernel}.101
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -46,7 +46,9 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.10.13-Revert-zram-use-zram--lock-to-protect-zram_free_page-in-swap-free-notify-path.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.10.8.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.10.8.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch")
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch"
+        '3.10.101.compiler-gcc-join-gcc.h-files.patch'
+        "compiler-gcc-ftracer.patch::https://git.kernel.org/cgit/linux/kernel/git/jirislaby/linux-stable.git/patch/include/linux/?id=0a0ff4ebd29deed338d7b6989b93333df75b462a")
 
 sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '6a23fe951e7c4f50b4b0ca54bc31a3190406327dfb44be91b351ad13cad39e4b'
@@ -66,8 +68,8 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '24ed088936a63925e2df26c0e2ba2cf5bca54f05e384d5b4a5c890c9eb92c3e2'
             '9151b754d8b06fe737c179c75e6229d81cc197fb4ab14baf959dc7f631819a62'
             '56bd99e54429a25a144f2d221718b67f516344ffd518fd7dcdd752206ec5be69'
-            '633e5c46b78ad187c1eb741e2883d05c97e2cc69964bb1b22bd66be07eec1ba7'
-            '1bfe370466bf63258285af39c91723c8ec8509adb22479beb3ea364f3ac50bb1'
+            '8d76b789d9a85cfaa92e3b3a5b13a42e00c01e3ac809f5fe49aa659b33465b58'
+            'd8110b08354c2b941c8ecf428d9011b9da01230c72a2e42dac66428f0965a626'
             '8ef4a6c16e3d0df0c211fef7875089eda3821db4b1335cac79ca02511a4d6f5c'
             '9d7eab1ffec60f2b0d2121221d957f17a02918d95f11ea52902c227df5105e25'
             '59ad742a02bc24d58bc06eee584175a164cb82550b905ba9f402a6dc399d3ed1'
@@ -75,7 +77,9 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '9d7e80e30a60137b9b88dc37d17c65c6834c4e455e9be8db80d98238dfabb1a1'
             '41fbe09c3d1b22818fbd5f1e24c4d64cf7b7e935eeed0abd721a9b3bf6e337a4'
             'ac0730dc24529970185ae527e98fb03ee427e1bce44ba9360c4c386ff63792ee'
-            '3e818d3dec6a960033668e52b471cc8eaf277ad147d2006fbd73453981c18a91')
+            '3e818d3dec6a960033668e52b471cc8eaf277ad147d2006fbd73453981c18a91'
+            '587261ac6edffe3d199f7a4512954a582cadc9ea14ee561af0ca7f1b91c8e63f'
+            'd3d91a02392025d2d4ba2d2ef02af47ab96bb4f56e2a9657af40724e0a6603b2')
 
 prepare() {
   # fix aufs patches
@@ -95,6 +99,10 @@ prepare() {
   # seems to be gcc5 issues
   patch -p1 -i "${srcdir}/apm-asmlinkage.patch"
   patch -p1 -i "${srcdir}/lguest-asmlinkage.patch"
+
+  # add gcc6 compatibility
+  patch -p1 -i "${srcdir}/3.10.101.compiler-gcc-join-gcc.h-files.patch"
+  patch -p1 -i "${srcdir}/compiler-gcc-ftracer.patch"
 
   # fix zram
   patch -p1 -i "${srcdir}/3.10.13-Revert-zram-use-zram--lock-to-protect-zram_free_page-in-swap-free-notify-path.patch"
