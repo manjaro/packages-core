@@ -11,9 +11,9 @@ pkgname=('linux41' 'linux41-headers')
 _kernelname=-MANJARO
 _basekernel=4.1
 _basever=41
-_aufs=20160509
+_aufs=20160523
 _bfq=v7r8
-pkgver=${_basekernel}.24
+pkgver=${_basekernel}.25
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -46,18 +46,19 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # Not exactly the same as https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
+        'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            '8a0274f1eb508d64131d86e5d457ee7310ae8b0ee722fd2a3e4dada91f380fcd'
+            '18a27122adc79efa24be2129b858ccf5f742f7dddb456b5119b66b9ab36c7a49'
             'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
             'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            'c575805a91d3e408e81bbe59bed0a2c414acbb4c611e239ed579945f7e9ae9ba'
+            '8dff82ffc8d28af02cbc3382a6eaf9d0657673c5c6cf635cfc57667721d0f1b8'
             'eeebcaf7633006ea8450383248ca02c54617e0506da22a7ef55dd273cce27376'
             '5851830aa6c621589b0241507976cfde15f64f7ee1b4711b2f9f3364283fbde1'
-            '6132b8f16dad6c709720e261ecc031ec07fc70a0a05fa737821ea542b1a465da'
-            '15e3afcba22f51b6e5ad13b8739501a8ca94401cf153d6de899d7d707f3d0cff'
+            'f34046af529d21d1ad91f1bd854ca36d3a34add2cb11f89a3b51cb2d4ed9f0f9'
+            '32e873621d81fb274410b9f43dd9310b9781496d597df8d2c84f3530a92efe5f'
             '3c02f98bc6c6b06ba361cc1280d7648259104fe9029134dfbbdb1f85887ac26e'
             '1f64e8e78169bc7b3658e2e948cea9d88724cef419b6e9af25101e247796cd5a'
             'be8472d78af18cd34fb821d9fb6992e42ad35e8c88c6e32a697be2b30f070637'
@@ -69,7 +70,8 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
-            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b')
+            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
+            'e4de9334b2d3158c79f93758ff6fbb632ceb758cef61394cfdf3bf37a3da160b')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -92,6 +94,10 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # fix X455LB touchpad issue
+  # https://github.com/manjaro/packages-core/pull/39
+  patch -p1 -i "${srcdir}/i8042-asus-x455lab-dmi.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"

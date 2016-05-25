@@ -8,7 +8,7 @@
 
 pkgname=pacman
 pkgver=5.0.1
-pkgrel=3
+pkgrel=4
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
@@ -32,12 +32,13 @@ source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
         pacman-sync-first-option.patch
         etc-pacman.d-gnupg.mount
         pacman-init.service
-        0001-libmakepkg-fix-is_array-function.patch)
+        pacman-5.0.1-roundup.patch)
 
 prepare() {
   cd $srcdir/$pkgname-$pkgver
 
-  patch -p1 -i $srcdir/0001-libmakepkg-fix-is_array-function.patch
+  # v5.0.1..pacman-5.0.1..c2f97580
+  patch -p1 -i $srcdir/pacman-5.0.1-roundup.patch
 
   # Manjaro patches
   patch -p1 -i $srcdir/pacman-sync-first-option.patch
@@ -128,4 +129,4 @@ sha256sums=('8bd5f407ce8e05c4be8f1c4be4d8dcc8550ea5e494937da5220ea2c23cbb8e04'
             'feb18bf548343ce6bd60b1e9252ad4b0643c21ac1a53149d93afbd6028a7a37d'
             'b6d14727ec465bb66d0a0358163b1bbfafcb4eaed55a0f57c30aabafae7eed68'
             'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae'
-            '79b196f8ddefe66bb0825ef356368b1592a67ac2f6290ba93dea12b244658963')
+            'e9d65724f1784026dfe94b8038012bb2f4988abeed993b83307537fd93a7e695')

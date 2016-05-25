@@ -11,9 +11,9 @@ pkgname=('linux44' 'linux44-headers')
 _kernelname=-MANJARO
 _basekernel=4.4
 _basever=44
-_aufs=20160509
+_aufs=20160516
 _bfq=v7r11
-pkgver=${_basekernel}.10
+pkgver=${_basekernel}.11
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -46,19 +46,19 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         '0001-sdhci-revert.patch'
-        'bpf-fix-double-fdput-in-replace_map_fd_with_map_ptr.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=8358b02bf67d3a5d8a825070e1aa73f25fb2e4c7'
+        'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            'df66bd2532cac85dfb85d6ca9b750689e02278442652a0b047304e3322947d17'
+            '394c3970865c092f21cd02b8f433024adbf8539114567d6bde197fed6612f553'
             '389490eab392a70e9882251df4eef4a55a64090c3f81ac554f620bcb16c5fbed'
             '4aba669ec026c2546a5c36432cb33a69994be141ead32b4e2aaa7c579970f3d4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '78aa6022f4c42043be0b3e5a92dc91e3aab0ad4adc3f5589c6c67678c48fb2c1'
+            '6d589a37b20b38fb808916619c7e406aef8cc2102591daf92f55b822007a983d'
             '7cb45ddfd34ce6dd6857e86e1ea0d0b842f943f46c5bc07b5f353085720e509a'
             '31ba01590164e89cf275de5a9f2700c4044e79b1d880bafc0b1bfbcaf09ca37c'
             '07b5f6825f447946b0bf72cdc9cbbf5d4ef4157b69c37ab3f02d67ccac7fd214'
-            'e732b259c3a49dcf77f4e59af2f99a9eee0a03b897ef72e445b2c327c0b75bb4'
+            '883aa66f3c010bb9511b7eeeaffdcb10b1e1e1c05bef1ac7206fc654011fe9a6'
             'f049740233777e7a7d46a36b10bdc7dd65afc6bce44c2fd300ca19446b6a93c4'
             '0d8ecaa41661327d592c03bb20bf5f911a515e7caf35d457de4e802a55df4498'
             '6f7aa69101d690df2286dd2642a23bce835efab96273389b243dafbec15a1d0c'
@@ -70,16 +70,13 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
-            'fe87a83c9fa1e2d97ae0395551733edd0086c81e6019a8b226d58df8baf2bf1d')
+            'eaffd380604e9460d7bbd995915c85fea6ba636847a1ed9c523ea171b9345d2d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
-
-  # https://cxsecurity.com/issue/WLB-2016050014
-  patch -p1 -i "${srcdir}"/bpf-fix-double-fdput-in-replace_map_fd_with_map_ptr.patch
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -96,6 +93,10 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # fix X455LB touchpad issue
+  # https://github.com/manjaro/packages-core/pull/39
+  patch -p1 -i "${srcdir}/i8042-asus-x455lab-dmi.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
