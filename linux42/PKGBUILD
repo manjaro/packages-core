@@ -11,9 +11,9 @@ pkgname=('linux42' 'linux42-headers')
 _kernelname=-MANJARO
 _basekernel=4.2
 _basever=42
-_aufs=20160509
+_aufs=20160523
 _bfq=v7r8
-_subver=10
+_subver=11
 #_prepatch_snap=3a0b9585d035b77d478496dc385d550844aff7af
 #_prepatch_string="http://kernel.ubuntu.com/git/ubuntu/linux.git/rawdiff/?id=${_prepatch_snap}&id2=v${_basekernel}.8"
 pkgver=${_basekernel}.8.${_subver}
@@ -55,6 +55,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '4.2.8.8.patch'
         '4.2.8.9.patch'
         '4.2.8.10.patch'
+        '4.2.8.11.patch'
         # Manjaro Patches
 )
 sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
@@ -63,11 +64,11 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '35a59fe0fa337ff8bd163154e3cb1af651f27841865838a1b4921eb4f32efce2'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            'db5a1289fe534dc24909171e5d77f5ab0a2e9c7ecc10dadda098ab81fe337ccd'
+            '7967cc38f262ca9e73fbf3073e2d0ede8ce77c3872662d1521f5488f398255b9'
             '8ceb4ad1bdd10e4e5d7577fd6e9b4cb5fa4a0bcf88e6c27a6963535b138976c7'
             '870387384ca5877b4b9437eed8eabb6882d8d98d0927e8c58846a5327b26e272'
-            '473d0953113403e376810b87e00d9e2a50e2195fd35973e16316237c14d58e8c'
-            '7071e02ea4cc7d177292c2823fac639c63b3794fec85b72e81180d006e5a05ef'
+            '05cbf8b3497e7ac52e28bbb2dc620a1dc4f92d81f8ba38390e7d84bc5cdb0a0c'
+            '5f08c80a6c5cfee7a71785216afa914c2d1821f40ef1d7841209adacb5ef731e'
             '3360fa6e13ed76b3ff80b21bdd8163ee64d1a8212974cb39b2a4a37303b82ccc'
             '9d6ef2a70f520cf975b9be005981ba920b6a55f72d30921199309012a9095fbd'
             'd0bc7f18c3db92dc2d9f3e5ab8fbac3dfa75a03d8326364ea26718ba236f8e27'
@@ -86,7 +87,8 @@ sha256sums=('cf20e044f17588d2a42c8f2a450b0fd84dfdbd579b489d93e9ab7d0e8b45dbeb'
             '45f8044dd2400eee127d4130d1f36419f9384837d5d70110828d3f51fda00c3b'
             '6957cd71d96ca0b9008d9641220fca99d977ff5623b30cd97e0b528645c2a33a'
             'e5d699894806137cb1a4565e3ed5796e85d152bcc6671bd79780cd463c43f27d'
-            '6e5fe0fba7ec82cced2db2af9f05006b82be19fdf31eb029287bc284a9bcd459')
+            '6e5fe0fba7ec82cced2db2af9f05006b82be19fdf31eb029287bc284a9bcd459'
+            '161bc7638627f6d5a5e40d45a67aa54ab8e929eaaa4eabfbcfebe0b193d2c00f')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -105,6 +107,7 @@ prepare() {
   patch -p1 -i "${srcdir}/4.2.8.8.patch"
   patch -p1 -i "${srcdir}/4.2.8.9.patch"
   patch -p1 -i "${srcdir}/4.2.8.10.patch"
+  patch -p1 -i "${srcdir}/4.2.8.11.patch"
 
   # add latest fixes from stable queue, if needed
   # http://kernel.ubuntu.com/git/ubuntu/linux.git
