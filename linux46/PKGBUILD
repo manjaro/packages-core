@@ -11,9 +11,9 @@ pkgname=('linux46' 'linux46-headers')
 _kernelname=-MANJARO
 _basekernel=4.6
 _basever=46
-_aufs=20160516
+_aufs=20160530
 _bfq=v7r11
-pkgver=${_basekernel}.0
+pkgver=${_basekernel}.1
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -23,12 +23,12 @@ options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}.tar.xz"
         https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        "aufs4.6-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
         'aufs4-loopback.patch'
@@ -49,16 +49,17 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('1f2bcc9167668eca62fda7d22b6dd07052c87420bacc6d47d451ed6d441daf61'
+            '023d192ebb487657ce24cbd758c8a6cfcb66a26c61b4e0f2395528953c45da9b'
             '53fd8b393c521c3d46a914dde95535013cd68a4e296c8279519630edfaee41e6'
             'f423ec4e9c80037017722dbff1c560bc506893149f9e32bf16e39df0b70066eb'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '2812d70634775c5076d558c11435ce725681b2b4761259cba4121d8b508df016'
-            '879fa03a5c8d9ca68232e21d85834f65d8c2cf958d2da8800a1c0c3b60acd734'
-            'cb3586eaf2df4facbba1742a954b4ffde550c66897fe53d9d5ec39d6899e81c7'
-            '22fd35260c1273221ba85124254fc22e179b79e19d2b26e4c23fdc04aba55c7d'
-            'a534a65891e605f9dbebc368f1a85584089aef8c51a8402967cd990a2da364f0'
-            'f8eea46544bfa99f91a829ad9b4639b2ff9afb267a14372684f707179f04e00b'
+            '90fa81a100841369c0914c662e61dc4a17f0d186bdd56ea6cfbba65d0d2d57b9'
+            '393194f85b10c1cf6c94b627501614a526c4150783bdf4d6433a574413b28d64'
+            '341d156ee730ca5c2cc1ac6572ddfc5760cdbcd02c2a47fa21eeb78b1f10c474'
+            '002b2017feae850a4381b28a33107f93f4224aa2f8489a90599384e3a61bfcc5'
+            '553a9167905c64c9e9ad16d4ca885ecbda6c75b5282da82999397187d0178abd'
+            '73f203ab4ad9c6f8d24acfab48695d2ccababa9ba4339809c5e647361f8cadea'
             '51842a579a8ecb3962b253ecd7ae4b6f3cc974b697dafd80c58491f3cf05a53d'
             '8fd87c9ab764ad599c61c6878148d7e3ecd2d082257061da9708a6567fc5ba45'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
@@ -75,7 +76,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -96,7 +97,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs4 support
-  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4.6-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
   patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
