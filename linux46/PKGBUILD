@@ -13,8 +13,9 @@ _basekernel=4.6
 _basever=46
 _aufs=20160530
 _bfq=v7r11
-pkgver=${_basekernel}.2
-pkgrel=1
+_rtpatchver=rt3
+pkgver=${_basekernel}.1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -48,6 +49,9 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         'revert-intel-asoc.patch'
         'i8042-asus-x455lab-dmi.patch'
+        # RT Patch
+        "https://www.kernel.org/pub/linux/kernel/projects/rt/${_basekernel}/older/patch-${pkgver}-${_rtpatchver}.patch.xz"
+        "https://www.kernel.org/pub/linux/kernel/projects/rt/${_basekernel}/older/patch-${pkgver}-${_rtpatchver}.patch.sign"
 )
 sha256sums=('1f2bcc9167668eca62fda7d22b6dd07052c87420bacc6d47d451ed6d441daf61'
             '0dc509a19c68ab547a62158bf2017965b843854b63be46ae039c37724dccca21'
@@ -72,7 +76,11 @@ sha256sums=('1f2bcc9167668eca62fda7d22b6dd07052c87420bacc6d47d451ed6d441daf61'
             'ae0d16e81a915fae130125ba9d0b6fd2427e06f50b8b9514abc4029efe61ee98'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
-            'eaffd380604e9460d7bbd995915c85fea6ba636847a1ed9c523ea171b9345d2d')
+            'eaffd380604e9460d7bbd995915c85fea6ba636847a1ed9c523ea171b9345d2d'
+            '705c7387492b119850d4ebe1510fd0bb67d58fd79100d21346ee5634aa96f58b'
+            'SKIP')
+
+validpgpkeys=('64254695FFF0AA4466CC19E67B96E8162A8CF5D1' # Sebastian Andrzej Siewior)
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -97,6 +105,10 @@ prepare() {
   # fix X455LB touchpad issue
   # https://github.com/manjaro/packages-core/pull/39
   patch -p1 -i "${srcdir}/i8042-asus-x455lab-dmi.patch"
+
+  # add RT patch
+  msg "applying patch-${pkgver}-${_rtpatchver}.patch"
+  patch -p1 -i "${srcdir}/patch-${pkgver}-${_rtpatchver}.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
