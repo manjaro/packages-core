@@ -147,6 +147,11 @@ prepare() {
 
   cat "${srcdir}/config.rt" >> ./.config
 
+  # Set processor interupt frequency to 1000Hz
+  sed -i "s|CONFIG_HZ_300=y|# CONFIG_HZ_300 is not set|g" ./.config
+  sed -i "s|# CONFIG_HZ_1000 is not set|CONFIG_HZ_1000=y|g" ./.config
+  sed -i "s|CONFIG_HZ=300|CONFIG_HZ=1000|g" ./.config
+
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
     sed -i "s|CONFIG_LOCALVERSION_AUTO=.*|CONFIG_LOCALVERSION_AUTO=n|" ./.config
