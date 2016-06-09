@@ -29,14 +29,14 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'config' 'config.x86_64' 'config.aufs' 'config.rt'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs4.6-${_aufs}.patch.bz2"
-        'aufs4-base.patch'
-        'aufs4-kbuild.patch'
-        'aufs4-loopback.patch'
-        'aufs4-mmap.patch'
-        'aufs4-standalone.patch'
-        'tmpfs-idr.patch'
-        'vfs-ino.patch'
+        #"aufs4.6-${_aufs}.patch.bz2"
+        #'aufs4-base.patch'
+        #'aufs4-kbuild.patch'
+        #'aufs4-loopback.patch'
+        #'aufs4-mmap.patch'
+        #'aufs4-standalone.patch'
+        #'tmpfs-idr.patch'
+        #'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.4.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.4.0.patch"
@@ -60,14 +60,14 @@ sha256sums=('1f2bcc9167668eca62fda7d22b6dd07052c87420bacc6d47d451ed6d441daf61'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             'ea525250852ce56b6840ceb79c498d3ecf4ab5ea628fbcda069388353b91a6b4'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '90fa81a100841369c0914c662e61dc4a17f0d186bdd56ea6cfbba65d0d2d57b9'
-            '393194f85b10c1cf6c94b627501614a526c4150783bdf4d6433a574413b28d64'
-            '341d156ee730ca5c2cc1ac6572ddfc5760cdbcd02c2a47fa21eeb78b1f10c474'
-            '002b2017feae850a4381b28a33107f93f4224aa2f8489a90599384e3a61bfcc5'
-            '553a9167905c64c9e9ad16d4ca885ecbda6c75b5282da82999397187d0178abd'
-            '73f203ab4ad9c6f8d24acfab48695d2ccababa9ba4339809c5e647361f8cadea'
-            '51842a579a8ecb3962b253ecd7ae4b6f3cc974b697dafd80c58491f3cf05a53d'
-            '8fd87c9ab764ad599c61c6878148d7e3ecd2d082257061da9708a6567fc5ba45'
+            #'90fa81a100841369c0914c662e61dc4a17f0d186bdd56ea6cfbba65d0d2d57b9'
+            #'393194f85b10c1cf6c94b627501614a526c4150783bdf4d6433a574413b28d64'
+            #'341d156ee730ca5c2cc1ac6572ddfc5760cdbcd02c2a47fa21eeb78b1f10c474'
+            #'002b2017feae850a4381b28a33107f93f4224aa2f8489a90599384e3a61bfcc5'
+            #'553a9167905c64c9e9ad16d4ca885ecbda6c75b5282da82999397187d0178abd'
+            #'73f203ab4ad9c6f8d24acfab48695d2ccababa9ba4339809c5e647361f8cadea'
+            #'51842a579a8ecb3962b253ecd7ae4b6f3cc974b697dafd80c58491f3cf05a53d'
+            #'8fd87c9ab764ad599c61c6878148d7e3ecd2d082257061da9708a6567fc5ba45'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'd1cf14cc696b0f716454fe8eb9746383700889d5d22ad829611f0433cc77b4ce'
@@ -116,14 +116,14 @@ prepare() {
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs4 support
-  patch -Np1 -i "${srcdir}/aufs4.6-${_aufs}.patch"
-  patch -Np1 -i "${srcdir}/aufs4-base.patch"
-  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
-  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
-  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
-  patch -Np1 -i "${srcdir}/vfs-ino.patch"
+  #patch -Np1 -i "${srcdir}/aufs4.6-${_aufs}.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  #patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  #patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
@@ -144,7 +144,7 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-  cat "${srcdir}/config.aufs" >> ./.config
+  #cat "${srcdir}/config.aufs" >> ./.config
 
   cat "${srcdir}/config.rt" >> ./.config
 
