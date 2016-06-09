@@ -26,7 +26,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
-        'config' 'config.x86_64' 'config.aufs'
+        'config' 'config.x86_64' 'config.aufs' 'config.rt'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
         "aufs4.6-${_aufs}.patch.bz2"
@@ -144,6 +144,8 @@ prepare() {
   fi
 
   cat "${srcdir}/config.aufs" >> ./.config
+
+  cat "${srcdir}/config.rt" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
