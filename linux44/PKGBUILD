@@ -14,7 +14,7 @@ _basever=44
 _aufs=20160530
 _bfq=v7r11
 _rtpatchver=rt19
-pkgver=${_basekernel}.12
+pkgver=${_basekernel}.13
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -49,14 +49,15 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0001-sdhci-revert.patch'
         'i8042-asus-x455lab-dmi.patch'
         # RT Patch
-        "https://www.kernel.org/pub/linux/kernel/projects/rt/${_basekernel}/older/patch-${pkgver}-${_rtpatchver}.patch.xz"
-        "https://www.kernel.org/pub/linux/kernel/projects/rt/${_basekernel}/older/patch-${pkgver}-${_rtpatchver}.patch.sign"
+        "https://www.kernel.org/pub/linux/kernel/projects/rt/${_basekernel}/older/patch-4.4.12-${_rtpatchver}.patch.xz"
+        "https://www.kernel.org/pub/linux/kernel/projects/rt/${_basekernel}/older/patch-4.4.12-${_rtpatchver}.patch.sign"
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             'be42ec5fecf89c6f730f4d7af7db1dac56ac8f6451aed9246a500302ad8f3899'
             '389490eab392a70e9882251df4eef4a55a64090c3f81ac554f620bcb16c5fbed'
             '4aba669ec026c2546a5c36432cb33a69994be141ead32b4e2aaa7c579970f3d4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
+            'ea525250852ce56b6840ceb79c498d3ecf4ab5ea628fbcda069388353b91a6b4'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '635e8d382761fb7d6dbeb9c53f5a4bc4cdb9dcf40488d1b9d166a2efd1d2198d'
             '7cb45ddfd34ce6dd6857e86e1ea0d0b842f943f46c5bc07b5f353085720e509a'
@@ -78,7 +79,8 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '0fe3f95956b73d0682c44c0520eef11a9de067739d799c33eaf8bc1130331a1d'
             'SKIP')
 
-validpgpkeys={'64254695FFF0AA4466CC19E67B96E8162A8CF5D1' # Sebastian Andrzej Siewior)
+validpgpkeys=('64254695FFF0AA4466CC19E67B96E8162A8CF5D1' # Sebastian Andrzej Siewior
+             )
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -108,7 +110,7 @@ prepare() {
 
   # Add RT patch
   msg "applying patch-${pkgver}-${_rtpatchver}.patch"
-  patch -p1 -i "${srcdir}/patch-${pkgver}-${_rtpatchver}.patch"
+  patch -p1 -i "${srcdir}/patch-4.4.12-${_rtpatchver}.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
