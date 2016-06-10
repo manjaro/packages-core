@@ -13,6 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20160530
 _bfq=v7r11
+_rtpatchver=rt19
 pkgver=${_basekernel}.13
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -25,17 +26,17 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
-        'config' 'config.x86_64' 'config.aufs'
+        'config' 'config.x86_64' 'config.aufs' 'config.rt'
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
-        "aufs4.4-${_aufs}.patch.bz2"
-        'aufs4-base.patch'
-        'aufs4-kbuild.patch'
-        'aufs4-loopback.patch'
-        'aufs4-mmap.patch'
-        'aufs4-standalone.patch'
-        'tmpfs-idr.patch'
-        'vfs-ino.patch'
+        #"aufs4.4-${_aufs}.patch.bz2"
+        #'aufs4-base.patch'
+        #'aufs4-kbuild.patch'
+        #'aufs4-loopback.patch'
+        #'aufs4-mmap.patch'
+        #'aufs4-standalone.patch'
+        #'tmpfs-idr.patch'
+        #'vfs-ino.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://sources.gentoo.org/cgi-bin/viewvc.cgi/linux-patches/genpatches-2.6/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.4.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.4.0.patch"
@@ -47,21 +48,25 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         '0001-sdhci-revert.patch'
         'i8042-asus-x455lab-dmi.patch'
+        # RT Patch
+        "https://www.kernel.org/pub/linux/kernel/projects/rt/${_basekernel}/older/patch-4.4.12-${_rtpatchver}.patch.xz"
+        "https://www.kernel.org/pub/linux/kernel/projects/rt/${_basekernel}/older/patch-4.4.12-${_rtpatchver}.patch.sign"
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             'be42ec5fecf89c6f730f4d7af7db1dac56ac8f6451aed9246a500302ad8f3899'
             '389490eab392a70e9882251df4eef4a55a64090c3f81ac554f620bcb16c5fbed'
             '4aba669ec026c2546a5c36432cb33a69994be141ead32b4e2aaa7c579970f3d4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
+            'ea525250852ce56b6840ceb79c498d3ecf4ab5ea628fbcda069388353b91a6b4'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '635e8d382761fb7d6dbeb9c53f5a4bc4cdb9dcf40488d1b9d166a2efd1d2198d'
-            '7cb45ddfd34ce6dd6857e86e1ea0d0b842f943f46c5bc07b5f353085720e509a'
-            '31ba01590164e89cf275de5a9f2700c4044e79b1d880bafc0b1bfbcaf09ca37c'
-            '5c03d55aded51b71164c91339e258bd43989ffa352a78828b995ef069c861b33'
-            '883aa66f3c010bb9511b7eeeaffdcb10b1e1e1c05bef1ac7206fc654011fe9a6'
-            'f049740233777e7a7d46a36b10bdc7dd65afc6bce44c2fd300ca19446b6a93c4'
-            '0d8ecaa41661327d592c03bb20bf5f911a515e7caf35d457de4e802a55df4498'
-            '6f7aa69101d690df2286dd2642a23bce835efab96273389b243dafbec15a1d0c'
+            #'635e8d382761fb7d6dbeb9c53f5a4bc4cdb9dcf40488d1b9d166a2efd1d2198d'
+            #'7cb45ddfd34ce6dd6857e86e1ea0d0b842f943f46c5bc07b5f353085720e509a'
+            #'31ba01590164e89cf275de5a9f2700c4044e79b1d880bafc0b1bfbcaf09ca37c'
+            #'5c03d55aded51b71164c91339e258bd43989ffa352a78828b995ef069c861b33'
+            #'883aa66f3c010bb9511b7eeeaffdcb10b1e1e1c05bef1ac7206fc654011fe9a6'
+            #'f049740233777e7a7d46a36b10bdc7dd65afc6bce44c2fd300ca19446b6a93c4'
+            #'0d8ecaa41661327d592c03bb20bf5f911a515e7caf35d457de4e802a55df4498'
+            #'6f7aa69101d690df2286dd2642a23bce835efab96273389b243dafbec15a1d0c'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'd1cf14cc696b0f716454fe8eb9746383700889d5d22ad829611f0433cc77b4ce'
@@ -70,7 +75,12 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
-            'eaffd380604e9460d7bbd995915c85fea6ba636847a1ed9c523ea171b9345d2d')
+            'eaffd380604e9460d7bbd995915c85fea6ba636847a1ed9c523ea171b9345d2d'
+            '0fe3f95956b73d0682c44c0520eef11a9de067739d799c33eaf8bc1130331a1d'
+            'SKIP')
+
+validpgpkeys=('64254695FFF0AA4466CC19E67B96E8162A8CF5D1' # Sebastian Andrzej Siewior
+             )
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -98,19 +108,23 @@ prepare() {
   # https://github.com/manjaro/packages-core/pull/39
   patch -p1 -i "${srcdir}/i8042-asus-x455lab-dmi.patch"
 
+  # Add RT patch
+  msg "applying patch-${pkgver}-${_rtpatchver}.patch"
+  patch -p1 -i "${srcdir}/patch-4.4.12-${_rtpatchver}.patch"
+
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"
   patch -Np1 -i "${srcdir}/2700_ThinkPad-30-brightness-control-fix.patch"
 
   # add aufs4 support
-  patch -Np1 -i "${srcdir}/aufs4.4-${_aufs}.patch"
-  patch -Np1 -i "${srcdir}/aufs4-base.patch"
-  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
-  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
-  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
-  patch -Np1 -i "${srcdir}/vfs-ino.patch"
+  #patch -Np1 -i "${srcdir}/aufs4.4-${_aufs}.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  #patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  #patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
@@ -127,7 +141,14 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-  cat "${srcdir}/config.aufs" >> ./.config
+  #cat "${srcdir}/config.aufs" >> ./.config
+
+  cat "${srcdir}/config.rt" >> ./.config
+
+  # Set processor interupt frequency to 1000Hz
+  sed -i "s|CONFIG_HZ_300=y|# CONFIG_HZ_300 is not set|g" ./.config
+  sed -i "s|# CONFIG_HZ_1000 is not set|CONFIG_HZ_1000=y|g" ./.config
+  sed -i "s|CONFIG_HZ=300|CONFIG_HZ=1000|g" ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
