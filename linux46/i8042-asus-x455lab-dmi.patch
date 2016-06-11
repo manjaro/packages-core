@@ -47,9 +47,17 @@ diff -Npur linux-4.6.orig/drivers/input/serio/i8042.c linux-4.6/drivers/input/se
  
 +static const struct dmi_system_id i8042_dmi_noselftest_table[] __initconst = {
 +	{
++		/* ASUSTeK X455L */
 +		.matches = {
 +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 +			DMI_MATCH(DMI_PRODUCT_NAME, "X455LAB"),
++		},
++	},
++	{
++		/* ASUSTeK X455LB */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "X455LB"),
 +		},
 +	},
 +	{}

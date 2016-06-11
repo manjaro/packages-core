@@ -16,9 +16,9 @@ diff -Npur linux-4.6.orig/drivers/input/serio/i8042.c linux-4.6/drivers/input/se
  #include <linux/i8042.h>
  #include <linux/slab.h>
 +#include <linux/dmi.h>
+ #include <linux/suspend.h>
  
  #include <asm/io.h>
- 
 @@ -138,6 +139,7 @@ static bool i8042_mux_present;
  static bool i8042_kbd_irq_registered;
  static bool i8042_aux_irq_registered;
@@ -47,9 +47,17 @@ diff -Npur linux-4.6.orig/drivers/input/serio/i8042.c linux-4.6/drivers/input/se
  
 +static const struct dmi_system_id i8042_dmi_noselftest_table[] __initconst = {
 +	{
++		/* ASUSTeK X455L */
 +		.matches = {
 +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
 +			DMI_MATCH(DMI_PRODUCT_NAME, "X455LAB"),
++		},
++	},
++	{
++		/* ASUSTeK X455LB */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "X455LB"),
 +		},
 +	},
 +	{}
