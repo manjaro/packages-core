@@ -16,9 +16,9 @@ diff -Npur linux-4.6.orig/drivers/input/serio/i8042.c linux-4.6/drivers/input/se
  #include <linux/i8042.h>
  #include <linux/slab.h>
 +#include <linux/dmi.h>
+ #include <linux/suspend.h>
  
  #include <asm/io.h>
- 
 @@ -138,6 +139,7 @@ static bool i8042_mux_present;
  static bool i8042_kbd_irq_registered;
  static bool i8042_aux_irq_registered;
@@ -41,7 +41,7 @@ diff -Npur linux-4.6.orig/drivers/input/serio/i8042.c linux-4.6/drivers/input/se
  	 * We try this 5 times; on some really fragile systems this does not
  	 * take the first time...
  	 */
-@@ -1547,6 +1556,16 @@ static int i8042_remove(struct platform_
+@@ -1547,6 +1547,24 @@ static int i8042_remove(struct platform_
  	return 0;
  }
  
