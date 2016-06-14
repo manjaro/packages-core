@@ -12,8 +12,8 @@ _basekernel=3.10
 _basever=310
 _aufs=20141215 #last version
 _bfq=v7r8
-pkgver=${_basekernel}.101
-pkgrel=2
+pkgver=${_basekernel}.102
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -46,13 +46,10 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '3.10.13-Revert-zram-use-zram--lock-to-protect-zram_free_page-in-swap-free-notify-path.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.10.8.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.10.8.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch"
-        '3.10.101.compiler-gcc-join-gcc.h-files.patch'
-        "compiler-gcc-ftracer.patch::https://git.kernel.org/cgit/linux/kernel/git/jirislaby/linux-stable.git/patch/include/linux/?id=0a0ff4ebd29deed338d7b6989b93333df75b462a"
-        'fix-mod_devicetable.patch')
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch")
 
 sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
-            '6a23fe951e7c4f50b4b0ca54bc31a3190406327dfb44be91b351ad13cad39e4b'
+            '148be5b90ce84a86bf23f8984808680696db19c08e97dcbb2a76bea2c9568c5d'
             '1fd1a2835badd1243343021eb2338e11eaa07b718503ad6f247225315f4bfe40'
             '581d427a701099f76a535389f1ae175d0d9a1fd34de8d416c36cdedcc136b2cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -78,10 +75,7 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '9d7e80e30a60137b9b88dc37d17c65c6834c4e455e9be8db80d98238dfabb1a1'
             '41fbe09c3d1b22818fbd5f1e24c4d64cf7b7e935eeed0abd721a9b3bf6e337a4'
             'ac0730dc24529970185ae527e98fb03ee427e1bce44ba9360c4c386ff63792ee'
-            '3e818d3dec6a960033668e52b471cc8eaf277ad147d2006fbd73453981c18a91'
-            '587261ac6edffe3d199f7a4512954a582cadc9ea14ee561af0ca7f1b91c8e63f'
-            'd3d91a02392025d2d4ba2d2ef02af47ab96bb4f56e2a9657af40724e0a6603b2'
-            '3154a83402b5573c0822e57c537f33668587e26f92b41ef59d9843d6b8031c54')
+            '3e818d3dec6a960033668e52b471cc8eaf277ad147d2006fbd73453981c18a91')
 
 prepare() {
   # fix aufs patches
@@ -101,11 +95,6 @@ prepare() {
   # seems to be gcc5 issues
   patch -p1 -i "${srcdir}/apm-asmlinkage.patch"
   patch -p1 -i "${srcdir}/lguest-asmlinkage.patch"
-
-  # add gcc6 compatibility
-  patch -p1 -i "${srcdir}/3.10.101.compiler-gcc-join-gcc.h-files.patch"
-  patch -p1 -i "${srcdir}/compiler-gcc-ftracer.patch"
-  patch -p1 -i "${srcdir}/fix-mod_devicetable.patch"
 
   # fix zram
   patch -p1 -i "${srcdir}/3.10.13-Revert-zram-use-zram--lock-to-protect-zram_free_page-in-swap-free-notify-path.patch"
