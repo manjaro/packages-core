@@ -12,8 +12,8 @@ _basekernel=3.16
 _basever=316
 _aufs=20150928 #last release
 _bfq=v7r8
-pkgver=${_basekernel}.35
-pkgrel=2
+pkgver=${_basekernel}.36
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -42,12 +42,11 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Additional patches
-        '3.16.35.compiler-gcc-integrate-the-various-compiler-gcc.h-files.patch'
         'https://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/releases/3.14.69/compiler-gcc-disable-ftracer-for-__noclone-functions.patch'
         'fix-mod_devicetable.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
-            '721c550daf6caf0d6910787097fee9b4f5ed74daeee913bb3a0ad33bb45acf58'
+            '45e78049c6ea88f617680acafeef0dd2a17543c7e83c2988d7554946baef0761'
             '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -67,7 +66,6 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'a040f22695c9368c01c0e74f5696035a731d4fab1015ce5f3c90d3ae1a74bccc'
             'f0fc3e6159f61671a5a734ccc28091b6d8124d92c211652e620e99305b2edcef'
             '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
-            '1448e58054c834f98822a088264e27f17cc353eadd9f4df0b1989ae07091f420'
             '2aadcc614502841c5f00354ac834a74f7b58f49058516581a3362ccdf0c1ea33'
             '641f406a5e7fac1a7d1fe84b4ab1184603bf5d10546c60f7b1b1c66585da875e')
 
@@ -88,7 +86,6 @@ prepare() {
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
 
   # fix gcc61
-  patch -Np1 -i "${srcdir}/3.16.35.compiler-gcc-integrate-the-various-compiler-gcc.h-files.patch"
   patch -Np1 -i "${srcdir}/compiler-gcc-disable-ftracer-for-__noclone-functions.patch"
   patch -Np1 -i "${srcdir}/fix-mod_devicetable.patch"
 
