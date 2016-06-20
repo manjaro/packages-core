@@ -11,9 +11,9 @@ pkgname=('linux47' 'linux47-headers')
 _kernelname=-MANJARO
 _basekernel=4.7
 _basever=47
-_aufs=20160530
+_aufs=20160620
 _bfq=v7r11
-_rc=rc3
+_rc=rc4
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -46,31 +46,27 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         'revert-intel-asoc.patch'
         'i8042-asus-x455lab-dmi.patch'
-        'aufs4-c8b8e32d.patch'
-        'aufs4-9902af79.patch'
 )
-sha256sums=('a75dfef1866d828bd3e02bb13cdbf72b67d12ba7432eba381a0ccba65a840b12'
+sha256sums=('eb630f480617ef879747a8055a494bcdc502c1159df8c9a5bb36bdbf47ce754d'
             '4fbb6c3fa6d0fdba5de25b54e8f95376385c496511f2b3f86040770685258dd3'
             '27ea4ffe91f609f7abcd09e7ee5019aac0f91203ff0a73ca8f682db7a4c5ccbf'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '3e29d161556c90722bbd9f9747080db7e6dc62e8cfa0da7b02e4ceb0fde6a3aa'
-            'bec9398dd6b746ab59ed5de7f56068739abce13f254604350f27ba4b2a3538bc'
-            'cb3586eaf2df4facbba1742a954b4ffde550c66897fe53d9d5ec39d6899e81c7'
-            '1db3d0f125ee93a9362b557f81576cff7f4f0180ca502ff537e78eb62f47cdf6'
-            '2f2311dc6d9a2e1abd44d6bdc13786b4f9a7e601634d7d9485485fcb636b1ea5'
-            'ac0789432f9183e84a250a45fa666bb4ede6da64233140581e5e4850cbc348e2'
-            '51842a579a8ecb3962b253ecd7ae4b6f3cc974b697dafd80c58491f3cf05a53d'
-            '8fd87c9ab764ad599c61c6878148d7e3ecd2d082257061da9708a6567fc5ba45'
+            '44eafd6cbaf5ce3eba13b2b9fa079865914a0cb2208d7931ebd19ccbf815d168'
+            '6de52dd8f94155919342fd364e7d52089175962364dbf89fe594a06d53ad3c69'
+            'b10d4d1a1d6db788c576fa615597a4d3073f2a1cf28de1f36bf3afb0302332a8'
+            '0766c936235ef7578641ae18efb804c7f5b8e5c21207a64907a086261bc82698'
+            '76626230d7a8194bd0d0ff45b9b1c4fd10c15ad13b063bbff9592a8cfc42f155'
+            '1493b0c4687f9a212cd15fde06be9b94b7d22f9539b8cd8cd6e2933cc44e2e39'
+            '8316df7f0138510c312a5624cd88eafd5af5e3507657a3d287d543db9da8bbfe'
+            'e0d8417ad6f5fb82a54064a0ff5cbc3f121eafbecb9aaae405e82dce9adabcb7'
             'd1cf14cc696b0f716454fe8eb9746383700889d5d22ad829611f0433cc77b4ce'
             'b17c3fb18c5b8c20a45a38198f293679ca6aef08d16f12cd816a5cfafac4b2c4'
             '69a21bc286a628128cfc4723558829cb6ff6c2d7c4dfd4468457898674187b25'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
-            'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d'
-            'bad6520de73ff10c9bf9e3aca65fc7c6fba43b2201dab923cf003d96787df3a9'
-            'a81a5d1f5813f706cea9f73770341a297283302dd9d8142830731c1a97d6cb81')
+            'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -101,10 +97,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
-  # https://github.com/torvalds/linux/commit/c8b8e32d700fe943a935e435ae251364d016c497
-  patch -Np1 -i "${srcdir}/aufs4-c8b8e32d.patch"
-  # https://github.com/torvalds/linux/commit/9902af79c01a8e39bb99b922fa3eef6d4ea23d69
-  patch -Np1 -i "${srcdir}/aufs4-9902af79.patch"
 
   # add BFQ scheduler
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"

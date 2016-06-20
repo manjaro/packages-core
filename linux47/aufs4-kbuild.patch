@@ -1,10 +1,10 @@
 aufs4.x-rcN kbuild patch
 
 diff --git a/fs/Kconfig b/fs/Kconfig
-index 6725f59..2ced198 100644
+index b8fcb41..78adefb 100644
 --- a/fs/Kconfig
 +++ b/fs/Kconfig
-@@ -235,6 +235,7 @@ source "fs/pstore/Kconfig"
+@@ -236,6 +236,7 @@ source "fs/pstore/Kconfig"
  source "fs/sysv/Kconfig"
  source "fs/ufs/Kconfig"
  source "fs/exofs/Kconfig"
@@ -22,7 +22,7 @@ index 85b6e13..e7bb164 100644
  obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
 +obj-$(CONFIG_AUFS_FS)           += aufs/
 diff --git a/include/uapi/linux/Kbuild b/include/uapi/linux/Kbuild
-index 813ffb2e..ac2202e 100644
+index 8bdae34..65dbd5f 100644
 --- a/include/uapi/linux/Kbuild
 +++ b/include/uapi/linux/Kbuild
 @@ -59,6 +59,7 @@ header-y += atmsvc.h

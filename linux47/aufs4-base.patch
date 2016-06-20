@@ -1,10 +1,10 @@
 aufs4.x-rcN base patch
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 9c567a4..a62aea4 100644
+index 16700e4..6ed2706 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -2128,6 +2128,19 @@ F:	include/linux/audit.h
+@@ -2209,6 +2209,19 @@ F:	include/linux/audit.h
  F:	include/uapi/linux/audit.h
  F:	kernel/audit*
  
@@ -25,7 +25,7 @@ index 9c567a4..a62aea4 100644
  M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
  W:	http://miguelojeda.es/auxdisplay.htm
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 80cf8ad..ba9e4a7 100644
+index 1fa8cc2..7339e65 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -712,6 +712,24 @@ static inline int is_loop_device(struct file *file)
@@ -54,10 +54,10 @@ index 80cf8ad..ba9e4a7 100644
  
  static ssize_t loop_attr_show(struct device *dev, char *page,
 diff --git a/fs/dcache.c b/fs/dcache.c
-index d5ecc6e..4de75b2 100644
+index 817c243..8438780 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1156,7 +1156,7 @@ enum d_walk_ret {
+@@ -1169,7 +1169,7 @@ enum d_walk_ret {
   *
   * The @enter() and @finish() callbacks are called with d_lock held.
   */
@@ -89,10 +89,10 @@ index 350a2c8..6f42279 100644
  		return error;
  
 diff --git a/fs/read_write.c b/fs/read_write.c
-index cf377cf..0ebcdc5 100644
+index 933b53a..2d13282 100644
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
-@@ -534,6 +534,28 @@ ssize_t __vfs_write(struct file *file, const char __user *p, size_t count,
+@@ -515,6 +515,28 @@ ssize_t __vfs_write(struct file *file, const char __user *p, size_t count,
  }
  EXPORT_SYMBOL(__vfs_write);
  
@@ -150,7 +150,7 @@ index dd9bf7e..9326c2a 100644
  	ssize_t (*splice_read)(struct file *, loff_t *,
  			       struct pipe_inode_info *, size_t, unsigned int);
 diff --git a/include/linux/file.h b/include/linux/file.h
-index f87d308..9a290b3 100644
+index 7444f5f..bdac0be 100644
 --- a/include/linux/file.h
 +++ b/include/linux/file.h
 @@ -19,6 +19,7 @@ struct dentry;
@@ -162,10 +162,10 @@ index f87d308..9a290b3 100644
  static inline void fput_light(struct file *file, int fput_needed)
  {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 70e61b5..351bb05 100644
+index dd28814..3966328 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1277,6 +1277,7 @@ extern void fasync_free(struct fasync_struct *);
+@@ -1306,6 +1306,7 @@ extern void fasync_free(struct fasync_struct *);
  /* can be called from interrupts */
  extern void kill_fasync(struct fasync_struct **, int, int);
  
@@ -173,7 +173,7 @@ index 70e61b5..351bb05 100644
  extern void __f_setown(struct file *filp, struct pid *, enum pid_type, int force);
  extern void f_setown(struct file *filp, unsigned long arg, int force);
  extern void f_delown(struct file *filp);
-@@ -1660,6 +1661,7 @@ struct file_operations {
+@@ -1690,6 +1691,7 @@ struct file_operations {
  	ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);
  	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
  	int (*check_flags)(int);
@@ -181,7 +181,7 @@ index 70e61b5..351bb05 100644
  	int (*flock) (struct file *, int, struct file_lock *);
  	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *, loff_t *, size_t, unsigned int);
  	ssize_t (*splice_read)(struct file *, loff_t *, struct pipe_inode_info *, size_t, unsigned int);
-@@ -1718,6 +1720,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
+@@ -1750,6 +1752,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
  			      struct iovec *fast_pointer,
  			      struct iovec **ret_pointer);
  
