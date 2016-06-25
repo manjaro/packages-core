@@ -11,9 +11,9 @@ pkgname=('linux46' 'linux46-headers')
 _kernelname=-MANJARO
 _basekernel=4.6
 _basever=46
-_aufs=20160530
+_aufs=20160620
 _bfq=v7r11
-pkgver=${_basekernel}.2
+pkgver=${_basekernel}.3
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -50,15 +50,15 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('1f2bcc9167668eca62fda7d22b6dd07052c87420bacc6d47d451ed6d441daf61'
-            '0dc509a19c68ab547a62158bf2017965b843854b63be46ae039c37724dccca21'
+            '036f83f8a3475d9e7e0b8edc188f9a4f495abc3b187ed87748cdbc063c0c419f'
             '53fd8b393c521c3d46a914dde95535013cd68a4e296c8279519630edfaee41e6'
             'f423ec4e9c80037017722dbff1c560bc506893149f9e32bf16e39df0b70066eb'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '90fa81a100841369c0914c662e61dc4a17f0d186bdd56ea6cfbba65d0d2d57b9'
+            '0d70778a574de90423e33232d41736163900119492d6b52585bde412ce97042b'
             '393194f85b10c1cf6c94b627501614a526c4150783bdf4d6433a574413b28d64'
             '341d156ee730ca5c2cc1ac6572ddfc5760cdbcd02c2a47fa21eeb78b1f10c474'
-            '002b2017feae850a4381b28a33107f93f4224aa2f8489a90599384e3a61bfcc5'
+            '16aee1d471c09a94e654aca151f7b183048efefadca2f424aadda07294ff7ff5'
             '553a9167905c64c9e9ad16d4ca885ecbda6c75b5282da82999397187d0178abd'
             '73f203ab4ad9c6f8d24acfab48695d2ccababa9ba4339809c5e647361f8cadea'
             '51842a579a8ecb3962b253ecd7ae4b6f3cc974b697dafd80c58491f3cf05a53d'
@@ -72,7 +72,7 @@ sha256sums=('1f2bcc9167668eca62fda7d22b6dd07052c87420bacc6d47d451ed6d441daf61'
             'ae0d16e81a915fae130125ba9d0b6fd2427e06f50b8b9514abc4029efe61ee98'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
-            'eaffd380604e9460d7bbd995915c85fea6ba636847a1ed9c523ea171b9345d2d')
+            'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
