@@ -1,10 +1,10 @@
 aufs4.x-rcN standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 8438780..5865df8 100644
+index c3c0b6d..c99d2d2 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1274,6 +1274,7 @@ rename_retry:
+@@ -1310,6 +1310,7 @@ rename_retry:
  	seq = 1;
  	goto again;
  }
@@ -72,6 +72,18 @@ index ad17e05..ae9f267 100644
  
  void __init files_init(void)
  { 
+diff --git a/fs/inode.c b/fs/inode.c
+index aa6d071..f336032 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -1600,6 +1600,7 @@ int update_time(struct inode *inode, struct timespec *time, int flags)
+ 
+ 	return update_time(inode, time, flags);
+ }
++EXPORT_SYMBOL_GPL(update_time);
+ 
+ /**
+  *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
 index a7ec92c..1eb52ea 100644
 --- a/fs/namespace.c
