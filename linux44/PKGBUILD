@@ -14,7 +14,7 @@ _basever=44
 _aufs=20160620
 _bfq=v7r11
 pkgver=${_basekernel}.14
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -47,6 +47,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         '0001-sdhci-revert.patch'
         'i8042-asus-x455lab-dmi.patch'
+        'ecryptfs.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '63b67f25867d6f0c9e8721d0d4c39c902622d0351055808ada340909ed566509'
@@ -70,7 +71,8 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
-            'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
+            'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d'
+            'dec8f85c8ebabeaceaa4d37780d89ceaa53a50e7287b42e2f41f789d345f1164')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -82,6 +84,9 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # https://forum.manjaro.org/t/kenel-4-4-14-lts-has-issues-with-ecryptfs-on-testing-29-june-2016
+  patch -Np1 -i "${srcdir}/ecryptfs.patch"
 
   # revert http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9faac7b95ea4f9e83b7a914084cc81ef1632fd91
   # fixes #47778 sdhci broken on some boards
