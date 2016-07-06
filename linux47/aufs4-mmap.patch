@@ -71,7 +71,7 @@ index faacb0c..17b43be 100644
  		ino = inode->i_ino;
  		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 5df5feb..886921a 100644
+index ece042d..1e24513 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
 @@ -1239,6 +1239,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
@@ -124,7 +124,7 @@ index ca3e517..10bc491 100644
  
  #ifndef CONFIG_MMU
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 5c2c355..f94efa6 100644
+index 4a7ec0c..8c8f7ac 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
 @@ -479,7 +479,7 @@ static int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
@@ -150,7 +150,7 @@ index 78c6f7d..aea4230 100644
  obj-y += init-mm.o
  
 diff --git a/mm/filemap.c b/mm/filemap.c
-index 00ae878..0d1d6b0 100644
+index 20f3b1f..ee827ce 100644
 --- a/mm/filemap.c
 +++ b/mm/filemap.c
 @@ -2208,7 +2208,7 @@ int filemap_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
@@ -163,7 +163,7 @@ index 00ae878..0d1d6b0 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/memory.c b/mm/memory.c
-index 15322b7..c6bb601 100644
+index cd1f29e..f0c204c 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2100,7 +2100,7 @@ static inline int wp_page_reuse(struct mm_struct *mm,
