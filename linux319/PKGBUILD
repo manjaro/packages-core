@@ -13,7 +13,7 @@ _basekernel=3.19
 _basever=319
 _aufs=20160530
 _bfq=v7r8
-_subver=22
+_subver=23
 pkgver=${_basekernel}.8.${_subver}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -65,6 +65,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         '3.19.8.20.patch'
         '3.19.8.21.patch'
         '3.19.8.22.patch'
+        '3.19.8.23.patch'
         # Additional fixes
         'compiler-gcc-ftracer.patch::https://github.com/torvalds/linux/commit/95272c29378ee7dc15f43fa2758cb28a5913a06d.patch'
 )
@@ -110,6 +111,7 @@ sha256sums=('be42511fe5321012bb4a2009167ce56a9e5fe362b4af43e8c371b3666859806c'
             'add9197c11c5ab580c6aea1095e10eb2272933ba2b27e356f77f09cf9fcebb85'
             '89264f821a6d0a150d33a6a9601236e3f827a59d4624a6b19afb771e7bdff742'
             'ec43bff14a488f041a6fe68d3de04af2f6672f27991a3894f77f01a8a2343eef'
+            '69d832e49896cec5e4d28355b2451eeef92521b91f03b9955d78749876fcf134'
             '1f4bed68e802fe7fe857bc8a9fe6556bb579c03df3e308df2a02d659bea0bb34')
 
 prepare() {
@@ -141,6 +143,7 @@ prepare() {
   patch -p1 -i "${srcdir}/3.19.8.20.patch"
   patch -p1 -i "${srcdir}/3.19.8.21.patch"
   patch -p1 -i "${srcdir}/3.19.8.22.patch"
+  patch -p1 -i "${srcdir}/3.19.8.23.patch"
 
   # add gcc6 compatibility
   patch -p1 -i "${srcdir}/compiler-gcc-ftracer.patch"

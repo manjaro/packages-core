@@ -9,12 +9,12 @@ ARCH=
 
 post_install () {
   # EOL
-  echo ">>> NOTE, 3.19.8 was the last maintained maintenance release"
-  echo "    by Greg Kroah-Hartman. It is recommend to move on to linux41-series."
-  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux41'"
+  echo ">>> NOTE, 3.19.8 was the last maintained point release"
+  echo "    by Greg Kroah-Hartman. 3.19.8.23 was the last extended 
+  echo "    stable supported release by Kamal Mostafa."
   echo "    "
-  echo "    The Ubuntu kernel team will be providing extended stable support for the"
-  echo "    Linux 3.19 kernel until July 2016."
+  echo "    It is recommend to move on to linux41-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux41'"
   echo "    "
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
@@ -39,12 +39,12 @@ post_install () {
 
 post_upgrade() {
   # EOL
-  echo ">>> NOTE, 3.19.8 was the last maintained maintenance release"
-  echo "    by Greg Kroah-Hartman. It is recommend to move on to linux41-series."
-  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux41'"
+  echo ">>> NOTE, 3.19.8 was the last maintained point release"
+  echo "    by Greg Kroah-Hartman. 3.19.8.23 was the last extended 
+  echo "    stable supported release by Kamal Mostafa."
   echo "    "
-  echo "    The Ubuntu kernel team will be providing extended stable support for the"
-  echo "    Linux 3.19 kernel until July 2016."
+  echo "    It is recommend to move on to linux41-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux41'"
   echo "    "
   # reminder notice
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
