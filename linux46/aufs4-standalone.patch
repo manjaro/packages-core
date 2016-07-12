@@ -72,6 +72,18 @@ index ad17e05..ae9f267 100644
  
  void __init files_init(void)
  { 
+diff --git a/fs/inode.c b/fs/inode.c
+index bae35a9..a41481e 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -1599,6 +1599,7 @@ int update_time(struct inode *inode, struct timespec *time, int flags)
+ 
+ 	return update_time(inode, time, flags);
+ }
++EXPORT_SYMBOL_GPL(update_time);
+ 
+ /**
+  *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
 index 4fb1691..97654d2 100644
 --- a/fs/namespace.c
