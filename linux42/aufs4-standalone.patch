@@ -61,7 +61,7 @@ index ad17e05..ae9f267 100644
  void __init files_init(void)
  { 
 diff --git a/fs/inode.c b/fs/inode.c
-index d30640f..064de50 100644
+index f1f0b6f..b85923c 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
 @@ -58,6 +58,7 @@ static struct hlist_head *inode_hashtable __read_mostly;
@@ -72,6 +72,14 @@ index d30640f..064de50 100644
  
  /*
   * Empty aops. Can be used for the cases where the user does not
+@@ -1581,6 +1582,7 @@ int update_time(struct inode *inode, struct timespec *time, int flags)
+ 
+ 	return update_time(inode, time, flags);
+ }
++EXPORT_SYMBOL_GPL(update_time);
+ 
+ /**
+  *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
 index 2b8aa15..962807b 100644
 --- a/fs/namespace.c

@@ -13,7 +13,7 @@ _basever=314
 _aufs=20150928 #Last version
 _bfq=v7r8
 pkgver=${_basekernel}.73
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -45,7 +45,8 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '0003-module-remove-MODULE_GENERIC_TABLE.patch'
         '0006-genksyms-fix-typeof-handling.patch'
         # Manjaro Patches
-        'ecryptfs.patch')
+        '0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch::https://github.com/torvalds/linux/commit/78c4e172412de5d0456dc00d2b34050aa0b683b5.patch'
+        '0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch::https://github.com/torvalds/linux/commit/f0fe970df3838c202ef6c07a4c2b36838ef0a88b.patch')
 
 sha256sums=('61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa'
             'f51bf0acdfd1ba9aaf33643f35dce834c0da01187cc75a5cbad469a10412bcf7'
@@ -71,7 +72,8 @@ sha256sums=('61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa'
             '52dec83a8805a8642d74d764494acda863e0aa23e3d249e80d4b457e20a3fd29'
             '65d58f63215ee3c5f9c4fc6bce36fc5311a6c7dbdbe1ad29de40647b47ff9c0d'
             'cf2e7a2d00787f754028e7459688c2755a406e632ce48b60952fa4ff7ed6f4b7'
-            'a2e240ab338f02ebde278131cf5810e9aa3846a8238e3d26dc235eace05ab4e7')
+            '234214d64cb994028332bd3079db810fd8e9e27de291967d0d7f7d2d37f7ad5c'
+            '77455384524828e43b7ea2d70599f12cc064f719210858002b32180a6b983faa')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -85,7 +87,8 @@ prepare() {
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
 
   # https://forum.manjaro.org/t/kenel-4-4-14-lts-has-issues-with-ecryptfs-on-testing-29-june-2016
-  patch -Np1 -i "${srcdir}/ecryptfs.patch"
+  patch -Np1 -i "${srcdir}/0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch"
+  patch -Np1 -i "${srcdir}/0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream

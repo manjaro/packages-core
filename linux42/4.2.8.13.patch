@@ -1,0 +1,208 @@
+diff --git a/Makefile b/Makefile
+index ff59f01..e8eb500 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 4
+ PATCHLEVEL = 2
+ SUBLEVEL = 8
+-EXTRAVERSION = -ckt12
++EXTRAVERSION = -ckt13
+ NAME = Hare's hurried rump
+ 
+ # *DOCUMENTATION*
+diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
+index 10510de..cd148c3 100644
+--- a/arch/powerpc/platforms/pseries/iommu.c
++++ b/arch/powerpc/platforms/pseries/iommu.c
+@@ -913,7 +913,8 @@ machine_arch_initcall(pseries, find_existing_ddw_windows);
+ static int query_ddw(struct pci_dev *dev, const u32 *ddw_avail,
+ 			struct ddw_query_response *query)
+ {
+-	struct eeh_dev *edev;
++	struct device_node *dn;
++	struct pci_dn *pdn;
+ 	u32 cfg_addr;
+ 	u64 buid;
+ 	int ret;
+@@ -924,11 +925,10 @@ static int query_ddw(struct pci_dev *dev, const u32 *ddw_avail,
+ 	 * Retrieve them from the pci device, not the node with the
+ 	 * dma-window property
+ 	 */
+-	edev = pci_dev_to_eeh_dev(dev);
+-	cfg_addr = edev->config_addr;
+-	if (edev->pe_config_addr)
+-		cfg_addr = edev->pe_config_addr;
+-	buid = edev->phb->buid;
++	dn = pci_device_to_OF_node(dev);
++	pdn = PCI_DN(dn);
++	buid = pdn->phb->buid;
++	cfg_addr = ((pdn->busno << 16) | (pdn->devfn << 8));
+ 
+ 	ret = rtas_call(ddw_avail[0], 3, 5, (u32 *)query,
+ 		  cfg_addr, BUID_HI(buid), BUID_LO(buid));
+@@ -942,7 +942,8 @@ static int create_ddw(struct pci_dev *dev, const u32 *ddw_avail,
+ 			struct ddw_create_response *create, int page_shift,
+ 			int window_shift)
+ {
+-	struct eeh_dev *edev;
++	struct device_node *dn;
++	struct pci_dn *pdn;
+ 	u32 cfg_addr;
+ 	u64 buid;
+ 	int ret;
+@@ -953,11 +954,10 @@ static int create_ddw(struct pci_dev *dev, const u32 *ddw_avail,
+ 	 * Retrieve them from the pci device, not the node with the
+ 	 * dma-window property
+ 	 */
+-	edev = pci_dev_to_eeh_dev(dev);
+-	cfg_addr = edev->config_addr;
+-	if (edev->pe_config_addr)
+-		cfg_addr = edev->pe_config_addr;
+-	buid = edev->phb->buid;
++	dn = pci_device_to_OF_node(dev);
++	pdn = PCI_DN(dn);
++	buid = pdn->phb->buid;
++	cfg_addr = ((pdn->busno << 16) | (pdn->devfn << 8));
+ 
+ 	do {
+ 		/* extra outputs are LIOBN and dma-addr (hi, lo) */
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index 910c12e..348dd50 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -798,6 +798,9 @@ static int can_validate(struct nlattr *tb[], struct nlattr *data[])
+ 	 * - control mode with CAN_CTRLMODE_FD set
+ 	 */
+ 
++	if (!data)
++		return 0;
++
+ 	if (data[IFLA_CAN_CTRLMODE]) {
+ 		struct can_ctrlmode *cm = nla_data(data[IFLA_CAN_CTRLMODE]);
+ 
+diff --git a/mm/migrate.c b/mm/migrate.c
+index fcb6204..a14784c 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -30,6 +30,7 @@
+ #include <linux/mempolicy.h>
+ #include <linux/vmalloc.h>
+ #include <linux/security.h>
++#include <linux/backing-dev.h>
+ #include <linux/memcontrol.h>
+ #include <linux/syscalls.h>
+ #include <linux/hugetlb.h>
+@@ -310,6 +311,8 @@ int migrate_page_move_mapping(struct address_space *mapping,
+ 		struct buffer_head *head, enum migrate_mode mode,
+ 		int extra_count)
+ {
++	struct zone *oldzone, *newzone;
++	int dirty;
+ 	int expected_count = 1 + extra_count;
+ 	void **pslot;
+ 
+@@ -320,6 +323,9 @@ int migrate_page_move_mapping(struct address_space *mapping,
+ 		return MIGRATEPAGE_SUCCESS;
+ 	}
+ 
++	oldzone = page_zone(page);
++	newzone = page_zone(newpage);
++
+ 	spin_lock_irq(&mapping->tree_lock);
+ 
+ 	pslot = radix_tree_lookup_slot(&mapping->page_tree,
+@@ -360,6 +366,13 @@ int migrate_page_move_mapping(struct address_space *mapping,
+ 		set_page_private(newpage, page_private(page));
+ 	}
+ 
++	/* Move dirty while page refs frozen and newpage not yet exposed */
++	dirty = PageDirty(page);
++	if (dirty) {
++		ClearPageDirty(page);
++		SetPageDirty(newpage);
++	}
++
+ 	radix_tree_replace_slot(pslot, newpage);
+ 
+ 	/*
+@@ -369,6 +382,9 @@ int migrate_page_move_mapping(struct address_space *mapping,
+ 	 */
+ 	page_unfreeze_refs(page, expected_count - 1);
+ 
++	spin_unlock(&mapping->tree_lock);
++	/* Leave irq disabled to prevent preemption while updating stats */
++
+ 	/*
+ 	 * If moved to a different zone then also account
+ 	 * the page for that zone. Other VM counters will be
+@@ -379,13 +395,19 @@ int migrate_page_move_mapping(struct address_space *mapping,
+ 	 * via NR_FILE_PAGES and NR_ANON_PAGES if they
+ 	 * are mapped to swap space.
+ 	 */
+-	__dec_zone_page_state(page, NR_FILE_PAGES);
+-	__inc_zone_page_state(newpage, NR_FILE_PAGES);
+-	if (!PageSwapCache(page) && PageSwapBacked(page)) {
+-		__dec_zone_page_state(page, NR_SHMEM);
+-		__inc_zone_page_state(newpage, NR_SHMEM);
++	if (newzone != oldzone) {
++		__dec_zone_state(oldzone, NR_FILE_PAGES);
++		__inc_zone_state(newzone, NR_FILE_PAGES);
++		if (PageSwapBacked(page) && !PageSwapCache(page)) {
++			__dec_zone_state(oldzone, NR_SHMEM);
++			__inc_zone_state(newzone, NR_SHMEM);
++		}
++		if (dirty && mapping_cap_account_dirty(mapping)) {
++			__dec_zone_state(oldzone, NR_FILE_DIRTY);
++			__inc_zone_state(newzone, NR_FILE_DIRTY);
++		}
+ 	}
+-	spin_unlock_irq(&mapping->tree_lock);
++	local_irq_enable();
+ 
+ 	return MIGRATEPAGE_SUCCESS;
+ }
+@@ -509,20 +531,9 @@ void migrate_page_copy(struct page *newpage, struct page *page)
+ 	if (PageMappedToDisk(page))
+ 		SetPageMappedToDisk(newpage);
+ 
+-	if (PageDirty(page)) {
+-		clear_page_dirty_for_io(page);
+-		/*
+-		 * Want to mark the page and the radix tree as dirty, and
+-		 * redo the accounting that clear_page_dirty_for_io undid,
+-		 * but we can't use set_page_dirty because that function
+-		 * is actually a signal that all of the page has become dirty.
+-		 * Whereas only part of our page may be dirty.
+-		 */
+-		if (PageSwapBacked(page))
+-			SetPageDirty(newpage);
+-		else
+-			__set_page_dirty_nobuffers(newpage);
+- 	}
++	/* Move dirty on pages not done by migrate_page_move_mapping() */
++	if (PageDirty(page))
++		SetPageDirty(newpage);
+ 
+ 	/*
+ 	 * Copy NUMA information to the new page, to prevent over-eager
+diff --git a/tools/perf/tests/vmlinux-kallsyms.c b/tools/perf/tests/vmlinux-kallsyms.c
+index 8de34ea..b34c5fc 100644
+--- a/tools/perf/tests/vmlinux-kallsyms.c
++++ b/tools/perf/tests/vmlinux-kallsyms.c
+@@ -54,14 +54,8 @@ int test__vmlinux_matches_kallsyms(void)
+ 	 * Step 3:
+ 	 *
+ 	 * Load and split /proc/kallsyms into multiple maps, one per module.
+-	 * Do not use kcore, as this test was designed before kcore support
+-	 * and has parts that only make sense if using the non-kcore code.
+-	 * XXX: extend it to stress the kcorre code as well, hint: the list
+-	 * of modules extracted from /proc/kcore, in its current form, can't
+-	 * be compacted against the list of modules found in the "vmlinux"
+-	 * code and with the one got from /proc/modules from the "kallsyms" code.
+ 	 */
+-	if (__machine__load_kallsyms(&kallsyms, "/proc/kallsyms", type, true, NULL) <= 0) {
++	if (machine__load_kallsyms(&kallsyms, "/proc/kallsyms", type, NULL) <= 0) {
+ 		pr_debug("dso__load_kallsyms ");
+ 		goto out;
+ 	}

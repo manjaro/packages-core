@@ -14,7 +14,7 @@ _basever=41
 _aufs=20160620
 _bfq=v7r8
 pkgver=${_basekernel}.27
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -47,7 +47,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
         'i8042-asus-x455lab-dmi.patch'
-        'ecryptfs.patch'
+        '0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch::https://github.com/torvalds/linux/commit/78c4e172412de5d0456dc00d2b34050aa0b683b5.patch'
+        '0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch::https://github.com/torvalds/linux/commit/f0fe970df3838c202ef6c07a4c2b36838ef0a88b.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '18259667ddd31c21568d9172e784c194fc613c62678131e446683e0ad81c690c'
@@ -73,7 +74,8 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
             '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
             '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d'
-            'a2e240ab338f02ebde278131cf5810e9aa3846a8238e3d26dc235eace05ab4e7')
+            '234214d64cb994028332bd3079db810fd8e9e27de291967d0d7f7d2d37f7ad5c'
+            '77455384524828e43b7ea2d70599f12cc064f719210858002b32180a6b983faa')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -87,7 +89,8 @@ prepare() {
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`-date +%Y%m%d`"
 
   # https://forum.manjaro.org/t/kenel-4-4-14-lts-has-issues-with-ecryptfs-on-testing-29-june-2016
-  patch -Np1 -i "${srcdir}/ecryptfs.patch"
+  patch -Np1 -i "${srcdir}/0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch"
+  patch -Np1 -i "${srcdir}/0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch"
 
   # Fix https://github.com/manjaro/release-plan/issues/8
   # Backports from v4.2 and v4.3
