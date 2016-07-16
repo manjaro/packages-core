@@ -1,0 +1,57 @@
+diff --git a/drivers/gpu/drm/radeon/r600_cs.c b/drivers/gpu/drm/radeon/r600_cs.c
+index 7b399dc..2812c7d1a 100644
+--- a/drivers/gpu/drm/radeon/r600_cs.c
++++ b/drivers/gpu/drm/radeon/r600_cs.c
+@@ -1007,8 +1007,22 @@ static int r600_cs_check_reg(struct radeon_cs_parser *p, u32 reg, u32 idx)
+ 	case R_008C64_SQ_VSTMP_RING_SIZE:
+ 	case R_0288C8_SQ_GS_VERT_ITEMSIZE:
+ 		/* get value to populate the IB don't remove */
+-		tmp =radeon_get_ib_value(p, idx);
+-		ib[idx] = 0;
++		/*tmp =radeon_get_ib_value(p, idx);
++		  ib[idx] = 0;*/
++		break;
++	case SQ_ESGS_RING_BASE:
++	case SQ_GSVS_RING_BASE:
++	case SQ_ESTMP_RING_BASE:
++	case SQ_GSTMP_RING_BASE:
++	case SQ_PSTMP_RING_BASE:
++	case SQ_VSTMP_RING_BASE:
++		r = radeon_cs_packet_next_reloc(p, &reloc, 0);
++		if (r) {
++			dev_warn(p->dev, "bad SET_CONTEXT_REG "
++					"0x%04X\n", reg);
++			return -EINVAL;
++		}
++		ib[idx] += (u32)((reloc->lobj.gpu_offset >> 8) & 0xffffffff);
+ 		break;
+ 	case SQ_CONFIG:
+ 		track->sq_config = radeon_get_ib_value(p, idx);
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index ec8c388..84a1bbb7 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -78,9 +78,10 @@
+  *   2.34.0 - Add CIK tiling mode array query
+  *   2.35.0 - Add CIK macrotile mode array query
+  *   2.36.0 - Fix CIK DCE tiling setup
++ *   2.37.0 - allow GS ring setup on r6xx/r7xx
+  */
+ #define KMS_DRIVER_MAJOR	2
+-#define KMS_DRIVER_MINOR	36
++#define KMS_DRIVER_MINOR	37
+ #define KMS_DRIVER_PATCHLEVEL	0
+ int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags);
+ int radeon_driver_unload_kms(struct drm_device *dev);
+diff --git a/drivers/gpu/drm/radeon/reg_srcs/r600 b/drivers/gpu/drm/radeon/reg_srcs/r600
+index 20bfbda..ec0c682 100644
+--- a/drivers/gpu/drm/radeon/reg_srcs/r600
++++ b/drivers/gpu/drm/radeon/reg_srcs/r600
+@@ -18,6 +18,7 @@ r600 0x9400
+ 0x00028A3C VGT_GROUP_VECT_1_FMT_CNTL
+ 0x00028A40 VGT_GS_MODE
+ 0x00028A6C VGT_GS_OUT_PRIM_TYPE
++0x00028B38 VGT_GS_MAX_VERT_OUT
+ 0x000088C8 VGT_GS_PER_ES
+ 0x000088E8 VGT_GS_PER_VS
+ 0x000088D4 VGT_GS_VERTEX_REUSE
