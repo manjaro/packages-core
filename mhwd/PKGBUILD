@@ -4,8 +4,8 @@
 
 pkgbase=mhwd
 pkgname=('mhwd' 'mhwd-db')
-pkgver=0.5.7
-pkgrel=8
+pkgver=0.5.8
+pkgrel=1
 pkgdesc="Manjaro Linux Hardware Detection"
 arch=('i686' 'x86_64')
 url="http://git.manjaro.org"
@@ -63,17 +63,13 @@ package_mhwd() {
      optdepends=('lib32-mesa: for 32bit support')
   fi
   install=mhwd.install
-  provides=('libgl' 'mesa-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
+  provides=('libgl' 'libgles' 'libegl' 'mesa-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
   if [ "${CARCH}" = "x86_64" ]; then
        provides+=('lib32-libgl' 'lib32-mesa-libgl' 'lib32-catalyst-libgl')
   fi
-  replaces=('libgl' 'mesa-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
+  conflicts=('libgl' 'libgles' 'libegl' 'mesa-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
   if [ "${CARCH}" = "x86_64" ]; then
-       replaces+=('lib32-libgl' 'lib32-mesa-libgl' 'lib32-catalyst-libgl')
-  fi
-  conflicts=('libgl' 'mesa-libgl' 'catalyst-libgl' 'catalyst-legacy-libgl')
-  if [ "${CARCH}" = "x86_64" ]; then
-       conflicts+=('lib32-libgl' 'lib32-mesa-libgl' 'lib32-catalyst-libgl')
+       conflicts+=('lib32-libgl' 'lib32-libgles' 'lib32-libegl' 'lib32-mesa-libgl' 'lib32-catalyst-libgl')
   fi
 
   cd ${srcdir}/${pkgname}
