@@ -13,8 +13,8 @@ _basekernel=4.1
 _basever=41
 _aufs=20160627
 _bfq=v7r8
-pkgver=${_basekernel}.28
-pkgrel=2
+pkgver=${_basekernel}.29
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -47,12 +47,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
         'i8042-asus-x455lab-dmi.patch'
-        '0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch::https://github.com/torvalds/linux/commit/78c4e172412de5d0456dc00d2b34050aa0b683b5.patch'
-        '0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch::https://github.com/torvalds/linux/commit/f0fe970df3838c202ef6c07a4c2b36838ef0a88b.patch'
-        'fix-bad-backport-of-8f182270dfec.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            '3e5b53807c942f7289907d411794dfb10fccae2b3f900cbcd25af6121d3c5680'
+            'bbef89cded79a11127950651bc65d7979ba79ac7703a7e8e8d1deb5c8a237539'
             'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
             'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -74,10 +71,7 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
             '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
-            '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d'
-            '234214d64cb994028332bd3079db810fd8e9e27de291967d0d7f7d2d37f7ad5c'
-            '77455384524828e43b7ea2d70599f12cc064f719210858002b32180a6b983faa'
-            'dc2fae416603914429e5ff4a43c5a03003417790c381c5ed3d6da272309ce629')
+            '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -85,17 +79,10 @@ prepare() {
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
 
-  # http://www.spinics.net/lists/stable/msg138760.html
-  patch -p1 -i "${srcdir}/fix-bad-backport-of-8f182270dfec.patch"
-
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`-date +%Y%m%d`"
-
-  # https://forum.manjaro.org/t/kenel-4-4-14-lts-has-issues-with-ecryptfs-on-testing-29-june-2016
-  patch -Np1 -i "${srcdir}/0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch"
-  patch -Np1 -i "${srcdir}/0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch"
 
   # Fix https://github.com/manjaro/release-plan/issues/8
   # Backports from v4.2 and v4.3

@@ -13,8 +13,8 @@ _basekernel=3.18
 _basever=318
 _aufs=20160627
 _bfq=v7r8
-pkgver=${_basekernel}.37
-pkgrel=2
+pkgver=${_basekernel}.38
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -42,12 +42,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         'fix-mod_devicetable.patch'
-        '0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch::https://github.com/torvalds/linux/commit/78c4e172412de5d0456dc00d2b34050aa0b683b5.patch'
-        '0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch::https://github.com/torvalds/linux/commit/f0fe970df3838c202ef6c07a4c2b36838ef0a88b.patch'
-        'fix-bad-backport-of-8f182270dfec.patch'
 )
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
-            'c0784339517f5cfb71f17430314d1ef72fee5be2e4eef2ef981cf20414a0e646'
+            '75fbe8f752c237b1d1f2aaa06f650a542d4301250fe065527da52fbc54fe0c35'
             'ef4cf563bdd12a37d8c9b8573d8aadb4bcc39c5f4c8d96eccafd9cd482b31911'
             '883a97c734ba791d5b4a615453391351cc66a57d7d7ad5c8c25d6ef1da93e7cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -66,19 +63,13 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             'e2c926a3f08fdcf4a3f1e200b7046346a7c85cf8093e1378469ad663148350a2'
             'e51cbeb8a42e719a2040762507ad0b27bffbde7559bf2a86e86980d4ec8979b6'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'a3d21434443dc336879f2280e55307a30711e958945f59efb3fe1c16b65dce45'
-            '234214d64cb994028332bd3079db810fd8e9e27de291967d0d7f7d2d37f7ad5c'
-            '77455384524828e43b7ea2d70599f12cc064f719210858002b32180a6b983faa'
-            'dc2fae416603914429e5ff4a43c5a03003417790c381c5ed3d6da272309ce629')
+            'a3d21434443dc336879f2280e55307a30711e958945f59efb3fe1c16b65dce45')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
-
-  # http://www.spinics.net/lists/stable/msg138760.html
-  patch -p1 -i "${srcdir}/fix-bad-backport-of-8f182270dfec.patch"
 
   # issue with hid-hyperv.c
   # 
@@ -90,10 +81,6 @@ prepare() {
   #  MODULE_DEVICE_TABLE(vmbus, id_table);
   #  ^~~~~~~~~~~~~~~~~~~
   patch -Np1 -i "${srcdir}/fix-mod_devicetable.patch"
-
-  # https://forum.manjaro.org/t/kenel-4-4-14-lts-has-issues-with-ecryptfs-on-testing-29-june-2016
-  patch -Np1 -i "${srcdir}/0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch"
-  patch -Np1 -i "${srcdir}/0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
