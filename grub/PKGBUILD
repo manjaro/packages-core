@@ -19,7 +19,7 @@ _UNIFONT_VER="6.3.20131217"
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.02.beta3
-pkgrel=1
+pkgrel=2
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -50,19 +50,19 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'grub-add-GRUB_COLOR_variables.patch'
         'grub-manjaro-modifications.patch'
         'grub-intel-ucode.patch'
-        '60_memtest86+'
+        'grub-fix-security-issue-when-reading-username-and-password.patch'
         'background.png'
         'grub.default'
         'grub.cfg'
         'update-grub')
 
-sha256sums=('6ebf9b43ed17a288e0eb3a549d77938ae8bbf932ce5078f24fef6a846fb96438'
-            'd31fd7e30352d797fa3ec7c6c5d2c76d1886818503e0f078ec73a830fe6220c6'
+sha256sums=('810dd7994d3e1fd133c232e85ace207e84d9177c9d7179f0e8d12be283de2645'
+            '196e9e3c1ae7c0e4ce1149bd46ef74ca03c0edb6542a5c235a65d2aeb6034438'
             '6dc2596a0cec08f36de7fb066f12015b572456c90d4e06ddc7b399a3e50b5f89'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
             '05852a81e75e779178da8f3d3402be7a9abde306e0b6e8236401226494e89ba0'
             'f62734e61f4e5c566ee5de4470746e2c6e9a407ce97d0bdb5915a3e3be85d5ae'
-            '2b74814338675589118c0febbde2ae178d02c53fa599b2148b06e67d166c7f56'
+            '6a85a2a93a27f64bac68bef513e3239a898a0502221978b3cb99e41994021b05'
             'b20172d7f753cf6a636595b37406b3070cd30d33072c15aea4a50a02ba4c85a5'
             '720db20a6a1c81864ad6405ef838db02206b53298fda48f383bebdb51eac56a8'
             '7fc95d49c0febe98a76e56b606a280565cb736580adecf163bc6b5aca8e7cbd8'
@@ -86,6 +86,11 @@ prepare() {
 	msg "Patch to enable GRUB_COLOR_* variables in grub-mkconfig"
 	## Based on http://lists.gnu.org/archive/html/grub-devel/2012-02/msg00021.html
 	patch -Np1 -i "${srcdir}/grub-add-GRUB_COLOR_variables.patch"
+	echo
+
+	msg "Patch to fix CVE-2015-8370"
+	# CVE-2015-8370
+	patch -Np1 -i "${srcdir}/grub-fix-security-issue-when-reading-username-and-password.patch"
 	echo
 
 	msg "Patch to include Manjaro Linux Modifications"
@@ -249,9 +254,6 @@ _package_grub-common_and_bios() {
 	rm -f "${pkgdir}/usr/lib/grub/i386-pc"/*.module || true
 	rm -f "${pkgdir}/usr/lib/grub/i386-pc"/*.image || true
 	rm -f "${pkgdir}/usr/lib/grub/i386-pc"/{kernel.exec,gdb_grub,gmodule.pl} || true
-	
-	msg "Install extra /etc/grub.d/ files"
-	install -D -m0755 "${srcdir}/60_memtest86+" "${pkgdir}/etc/grub.d/60_memtest86+"
 	
 	msg "Install /etc/default/grub (used by grub-mkconfig)"
 	install -D -m0644 "${srcdir}/grub.default" "${pkgdir}/etc/default/grub"
