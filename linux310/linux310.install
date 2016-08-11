@@ -20,7 +20,7 @@ post_install () {
   mkinitcpio -p linux${BASEVER}
   
   # update grub.cfg
-  if [ -f /usr/sbin/update-grub ]; then
+  if [ -f /usr/bin/update-grub ]; then
       update-grub
   else
       echo "WARNING: It seems that grub is not installed - Your system might not boot."
@@ -51,7 +51,7 @@ post_upgrade() {
   mkinitcpio -p linux${BASEVER}
   
   # update grub.cfg
-  if [ -f /usr/sbin/update-grub ]; then
+  if [ -f /usr/bin/update-grub ]; then
       update-grub
   else
       echo "WARNING: It seems that grub is not installed - Your system might not boot."
@@ -66,7 +66,7 @@ post_remove() {
   rm -f /boot/initramfs-${KERNEL_BASE}-${ARCH}*.img
   
   # update grub.cfg
-  if [ -f /usr/sbin/update-grub ]; then
+  if [ -f /usr/bin/update-grub ]; then
       update-grub
   fi
 }
