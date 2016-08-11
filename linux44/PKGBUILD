@@ -11,9 +11,9 @@ pkgname=('linux44' 'linux44-headers')
 _kernelname=-MANJARO
 _basekernel=4.4
 _basever=44
-_aufs=20160627
+_aufs=20160808
 _bfq=v7r11
-pkgver=${_basekernel}.16
+pkgver=${_basekernel}.17
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -47,19 +47,17 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'nvidia-304xx-mtrr-unknown-symbol.patch'
         '0001-sdhci-revert.patch'
         'i8042-asus-x455lab-dmi.patch'
-        '0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch::https://github.com/torvalds/linux/commit/78c4e172412de5d0456dc00d2b34050aa0b683b5.patch'
-        '0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch::https://github.com/torvalds/linux/commit/f0fe970df3838c202ef6c07a4c2b36838ef0a88b.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            '7181b6cb3a1611dab9179f57846a3f03bf2705aa3e4cddd9fbd0398bde50d5f9'
+            '294960bddb6dcef7c80d80aa13b7d1fb9c4555975f16196b9dddb05728436604'
             '389490eab392a70e9882251df4eef4a55a64090c3f81ac554f620bcb16c5fbed'
             '4aba669ec026c2546a5c36432cb33a69994be141ead32b4e2aaa7c579970f3d4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '9379d17aec7c7a730e842c416bbf4e443148fb0f49abc003a820ca3b061956b7'
+            '8635a51467e0798c79cdd25127b1705336119ab59da393741d835e32b0a30200'
             '1e87237f38cebef6db711c3eab003a0821afe222cfe5ec35d24e508db2bd0b09'
             '31ba01590164e89cf275de5a9f2700c4044e79b1d880bafc0b1bfbcaf09ca37c'
-            'b1cfd0165abc277d5820da41ff0344df266fce9121c7a6c8314cdfffe5bacb56'
+            'ca046609bd48216e5c5012c620cecf5bc8e81dc70bced103fde9aaa9a183adfd'
             '883aa66f3c010bb9511b7eeeaffdcb10b1e1e1c05bef1ac7206fc654011fe9a6'
             '445033eb764012cd4a4df9ded68190385868d57ea0a4bc701b722441529c6d7b'
             '0d8ecaa41661327d592c03bb20bf5f911a515e7caf35d457de4e802a55df4498'
@@ -72,9 +70,7 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
-            'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d'
-            '234214d64cb994028332bd3079db810fd8e9e27de291967d0d7f7d2d37f7ad5c'
-            '77455384524828e43b7ea2d70599f12cc064f719210858002b32180a6b983faa')
+            'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -86,10 +82,6 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
-
-  # https://forum.manjaro.org/t/kenel-4-4-14-lts-has-issues-with-ecryptfs-on-testing-29-june-2016
-  patch -Np1 -i "${srcdir}/0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch"
-  patch -Np1 -i "${srcdir}/0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch"
 
   # revert http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9faac7b95ea4f9e83b7a914084cc81ef1632fd91
   # fixes #47778 sdhci broken on some boards

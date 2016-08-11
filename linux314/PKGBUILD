@@ -12,7 +12,7 @@ _basekernel=3.14
 _basever=314
 _aufs=20150928 #Last version
 _bfq=v7r8
-pkgver=${_basekernel}.74
+pkgver=${_basekernel}.75
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -45,11 +45,9 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         '0003-module-remove-MODULE_GENERIC_TABLE.patch'
         '0006-genksyms-fix-typeof-handling.patch'
         # Manjaro Patches
-        '0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch::https://github.com/torvalds/linux/commit/78c4e172412de5d0456dc00d2b34050aa0b683b5.patch'
-        '0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch::https://github.com/torvalds/linux/commit/f0fe970df3838c202ef6c07a4c2b36838ef0a88b.patch')
-
+)
 sha256sums=('61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa'
-            '4cfd1ae6b0d5d42ca1fde75fd8826618f96873170d4f3d28a7f81e323667bf27'
+            'd402bbdd9c33c80e6b6b85b2b6f191b4d085ae974ef5f79457e381bb438c3056'
             '19602e12972e1ef635a11a467b1ee00fabc949347e5d5e3454c29027544039e7'
             '073c5c5cb58db8745c2cb279a6c52575a1bd00862c8cfb743a8f4bb1f16cb6f9'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -71,9 +69,7 @@ sha256sums=('61558aa490855f42b6340d1a1596be47454909629327c49a5e4e10268065dffa'
             '6d72e14552df59e6310f16c176806c408355951724cd5b48a47bf01591b8be02'
             '52dec83a8805a8642d74d764494acda863e0aa23e3d249e80d4b457e20a3fd29'
             '65d58f63215ee3c5f9c4fc6bce36fc5311a6c7dbdbe1ad29de40647b47ff9c0d'
-            'cf2e7a2d00787f754028e7459688c2755a406e632ce48b60952fa4ff7ed6f4b7'
-            '234214d64cb994028332bd3079db810fd8e9e27de291967d0d7f7d2d37f7ad5c'
-            '77455384524828e43b7ea2d70599f12cc064f719210858002b32180a6b983faa')
+            'cf2e7a2d00787f754028e7459688c2755a406e632ce48b60952fa4ff7ed6f4b7')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -85,10 +81,6 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
-
-  # https://forum.manjaro.org/t/kenel-4-4-14-lts-has-issues-with-ecryptfs-on-testing-29-june-2016
-  patch -Np1 -i "${srcdir}/0001-ecryptfs-revert-forbid-opening-files-without-mmap-handler.patch"
-  patch -Np1 -i "${srcdir}/0002-ecryptfs-dont-allow-mmap-when-the-lower-fs-doesnt-support-it.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
