@@ -1,4 +1,4 @@
-aufs4.x-rcN mmap patch
+aufs4.7 mmap patch
 
 diff --git a/fs/proc/base.c b/fs/proc/base.c
 index a11eb71..8f10865 100644
@@ -163,7 +163,7 @@ index 20f3b1f..ee827ce 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/memory.c b/mm/memory.c
-index cd1f29e..f0c204c 100644
+index 9e04681..06980d1 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2100,7 +2100,7 @@ static inline int wp_page_reuse(struct mm_struct *mm,

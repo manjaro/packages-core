@@ -11,9 +11,9 @@ pkgname=('linux47' 'linux47-headers')
 _kernelname=-MANJARO
 _basekernel=4.7
 _basever=47
-_aufs=20160704
+_aufs=20160815
 _bfq=v7r11
-pkgver=${_basekernel}.0
+pkgver=${_basekernel}.1
 pkgrel=0
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -23,12 +23,12 @@ options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgbase}.preset"
-        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        "aufs4.7-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
         'aufs4-loopback.patch'
@@ -47,18 +47,19 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('5190c3d1209aeda04168145bf50569dc0984f80467159b1dc50ad731e3285f10'
-            'e5220e79082f2e44fd776871e5e58a103fbb83342bf6e3ac94b9a93418485754'
-            '40502e2462170f997d72264c58c13322d93eadb4256c4d822f7b3d3efe6855b1'
+            '838fa595436fbf9f70759aa43c1cacd83cc0adc95d166648c1625ebd50fad04e'
+            '6feb28453ebc9ecd5eec39543471bf9038b71bb982850a2476685291ed14b4b4'
+            '17179bd498c4e3672ff241d12f8c892f144bb747b43ceb3858b343efe4d0a62b'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            '893e99913cd00e3b7a70fec8da44af07bf9185475c4ece92471f58555bf58f95'
-            '9d0babdf6db09a9f10cf66446f0d2e1240a8b73ca58d6ca7fa107eacf2772fc7'
-            'b10d4d1a1d6db788c576fa615597a4d3073f2a1cf28de1f36bf3afb0302332a8'
-            '66227ee905a411ec49012fdc30308cbdd11c53000c8e8a30bf1b60b30367f182'
-            '9f11c275a7e881c86adf3acd9814c5267e4e2cb38c057cff6fe6d5788cdc4bc3'
-            'fbba94140758b450d22224786efec2880e271482062a475ad7d268316d748f18'
-            '17bb40d2484ac18c5efaac8390565175f6dc47031005668b974cda652a8dc5a2'
-            'e0d8417ad6f5fb82a54064a0ff5cbc3f121eafbecb9aaae405e82dce9adabcb7'
+            '82fb918fac8c41c8c439cb78d249708c69cfe3c85d9c815188a56f97154de24f'
+            '2b55e7775ba6d8a3ca1ae982af1c30dc8e6c8b616c45da6560bc3e1e7f2ab99c'
+            'bc14d5d8c6530672db0384f036ade6486da382bf1aa82e3ff1696d81a0695e98'
+            'e069e46fa1c4d2201711399c7a73311c5592d455a2f5a56d215e3a452efae37d'
+            '83a2e9345a1263283fcba44681f4d4ef711eff8a49fd2e1044e4bf8e3fd31c65'
+            '92c60acc5fce8fca76e2787d0d75b6df5cf5ddda0b13e71ce9d11d25a019d86a'
+            'a1d7847435ed539e6b3383bf0f897547eb1ff9ede97734a7ee117716034d7304'
+            '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
             'd1cf14cc696b0f716454fe8eb9746383700889d5d22ad829611f0433cc77b4ce'
             'b17c3fb18c5b8c20a45a38198f293679ca6aef08d16f12cd816a5cfafac4b2c4'
             '69a21bc286a628128cfc4723558829cb6ff6c2d7c4dfd4468457898674187b25'
@@ -71,7 +72,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -88,7 +89,7 @@ prepare() {
   patch -p1 -i "${srcdir}/i8042-asus-x455lab-dmi.patch"
 
   # add aufs4 support
-  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4.7-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
   patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
