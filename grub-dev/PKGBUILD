@@ -20,7 +20,7 @@ pkgname="grub-dev"
 _pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.02.beta3
-pkgrel=1
+pkgrel=2
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -28,9 +28,8 @@ backup=('boot/grub/grub.cfg' 'etc/default/grub' 'etc/grub.d/40_custom')
 install="${_pkgname}.install"
 options=('!makeflags')
 
-conflicts=('grub-common' 'grub-bios' "grub-efi-${_EFI_ARCH}" 'grub-legacy')
-replaces=('grub-common' 'grub-bios' "grub-efi-${_EFI_ARCH}" 'grub')
-provides=('grub-common' 'grub-bios' "grub-efi-${_EFI_ARCH}")
+conflicts=('grub-common' 'grub-bios' "grub-efi-${_EFI_ARCH}" 'grub-legacy' 'grub')
+provides=('grub-common' 'grub-bios' "grub-efi-${_EFI_ARCH}" 'grub')
 
 makedepends=('git' 'rsync' 'xz' 'freetype2' 'ttf-dejavu' 'python' 'autogen'
              'texinfo' 'help2man' 'gettext' 'device-mapper' 'fuse')
