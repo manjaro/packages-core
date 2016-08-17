@@ -1,0 +1,86 @@
+--- 30_os-prober.in	2016-08-16 19:29:20.304355000 +0200
++++ 30_os-prober-new.in	2016-08-16 18:25:32.777687000 +0200
+@@ -17,15 +17,29 @@
+ # You should have received a copy of the GNU General Public License
+ # along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
+ 
+-prefix="@prefix@"
+-exec_prefix="@exec_prefix@"
+-datarootdir="@datarootdir@"
++prefix="/usr"
++exec_prefix="/usr"
++datarootdir="/usr/share"
++quick_boot="1"
+ 
+-export TEXTDOMAIN=@PACKAGE@
+-export TEXTDOMAINDIR="@localedir@"
++export TEXTDOMAIN=grub
++export TEXTDOMAINDIR="${datarootdir}/locale"
+ 
+ . "$pkgdatadir/grub-mkconfig_lib"
+ 
++found_other_os=
++
++adjust_timeout () {
++  if [ "$quick_boot" = 1 ] && [ "x${found_other_os}" != "x" ]; then
++    cat << EOF
++set timeout_style=menu
++if [ "\${timeout}" = 0 ]; then
++  set timeout=10
++fi
++EOF
++  fi
++}
++
+ if [ "x${GRUB_DISABLE_OS_PROBER}" = "xtrue" ]; then
+   exit 0
+ fi
+@@ -42,6 +56,7 @@
+ fi
+ 
+ osx_entry() {
++    found_other_os=1
+     if [ x$2 = x32 ]; then
+         # TRANSLATORS: it refers to kernel architecture (32-bit)
+ 	bitstr="$(gettext "(32-bit)")"
+@@ -176,6 +191,7 @@
+     ;;
+     efi)
+ 
++	found_other_os=1
+ 	EFIPATH=${DEVICE#*@}
+ 	DEVICE=${DEVICE%@*}
+ 	onstr="$(gettext_printf "(on %s)" "${DEVICE}")"
+@@ -219,6 +235,12 @@
+ 	  LINITRD="${LINITRD#/boot}"
+ 	fi
+ 
++	if [ -z "${prepare_boot_cache}" ]; then
++	  prepare_boot_cache="$(prepare_grub_to_access_device ${LBOOT} | grub_add_tab)"
++	  [ "${prepare_boot_cache}" ] || continue
++	fi
++
++	found_other_os=1
+ 	onstr="$(gettext_printf "(on %s)" "${DEVICE}")"
+ 	recovery_params="$(echo "${LPARAMS}" | grep single)" || true
+ 	counter=1
+@@ -291,6 +313,7 @@
+       fi
+     ;;
+     hurd)
++      found_other_os=1
+       onstr="$(gettext_printf "(on %s)" "${DEVICE}")"
+       cat << EOF
+ menuentry '$(echo "${LONGNAME} $onstr" | grub_quote)' --class hurd --class gnu --class os \$menuentry_id_option 'osprober-gnuhurd-/boot/gnumach.gz-false-$(grub_get_device_id "${DEVICE}")' {
+@@ -328,8 +351,11 @@
+ EOF
+     ;;
+     *)
++      echo -n "  "
+       # TRANSLATORS: %s is replaced by OS name.
+       gettext_printf "%s is not yet supported by grub-mkconfig.\n" "  ${LONGNAME}" >&2
+     ;;
+   esac
+ done
++
++adjust_timeout

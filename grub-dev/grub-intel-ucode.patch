@@ -1,0 +1,37 @@
+diff --git a/util/grub.d/10_linux.in b/util/grub.d/10_linux.in
+index d2e2a8f..f67e50f 100644
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -65,6 +65,12 @@ case x"$GRUB_FS" in
+ 	;;
+ esac
+ 
++intel_ucode=
++if test -e "/boot/intel-ucode.img" ; then
++    gettext_printf "Found Intel Microcode image\n" >&2
++    intel_ucode="$(make_system_path_relative_to_its_root /boot/intel-ucode.img)"
++fi
++
+ title_correction_code=
+ 
+ linux_entry ()
+@@ -136,7 +142,7 @@ EOF
+     message="$(gettext_printf "Loading initial ramdisk ...")"
+     sed "s/^/$submenu_indentation/" << EOF
+ 	echo	'$(echo "$message" | grub_quote)'
+-	initrd	${rel_dirname}/${initrd}
++	initrd	${intel_ucode} ${rel_dirname}/${initrd}
+ EOF
+   fi
+   sed "s/^/$submenu_indentation/" << EOF
+--- a/util/grub.d/30_os-prober.in
++++ b/util/grub.d/30_os-prober.in
+@@ -200,7 +200,7 @@ EOF
+         LBOOT="`echo ${LINUX} | cut -d ':' -f 2`"
+         LLABEL="`echo ${LINUX} | cut -d ':' -f 3 | tr '^' ' '`"
+         LKERNEL="`echo ${LINUX} | cut -d ':' -f 4`"
+-        LINITRD="`echo ${LINUX} | cut -d ':' -f 5`"
++        LINITRD="`echo ${LINUX} | cut -d ':' -f 5 | tr '^' ' '`"
+         LPARAMS="`echo ${LINUX} | cut -d ':' -f 6- | tr '^' ' '`"
+ 
+         if [ -z "${LLABEL}" ] ; then

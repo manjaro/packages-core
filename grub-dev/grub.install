@@ -1,0 +1,35 @@
+infodir="usr/share/info"
+filelist=('grub.info' 'grub-dev.info')
+
+post_install() {
+  if [ -f /etc/default/grub.pacsave ]; then
+    echo "Copying /etc/default/grub.pacsave to /etc/default/grub"
+    install -D -m0644 /etc/default/grub.pacsave /etc/default/grub
+    if [ -f /boot/grub/grub.cfg.pacsave ]; then
+       echo "Copying /boot/grub/grub.cfg.pacsave to /boot/grub/grub.cfg"
+       install -D -m0644 /boot/grub/grub.cfg.pacsave /boot/grub/grub.cfg
+    else
+       update-grub
+    fi
+  else
+    update-grub
+  fi
+
+  for file in ${filelist[@]}; do
+    install-info ${infodir}/${file}.gz ${infodir}/dir 2> /dev/null
+  done
+}
+
+post_upgrade() {
+  update-grub
+  
+  for file in ${filelist[@]}; do
+    install-info ${infodir}/${file}.gz ${infodir}/dir 2> /dev/null
+  done
+}
+
+pre_remove() {
+  for file in ${filelist[@]}; do
+    install-info --delete ${infodir}/${file} ${infodir}/dir 2> /dev/null
+  done
+}

@@ -1,0 +1,148 @@
+--- 00_header.in	2016-08-16 19:29:20.307689000 +0200
++++ 00_header-new.in	2016-08-16 18:19:40.616435000 +0200
+@@ -17,13 +17,15 @@
+ # You should have received a copy of the GNU General Public License
+ # along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
+ 
+-prefix="@prefix@"
+-exec_prefix="@exec_prefix@"
+-datarootdir="@datarootdir@"
++prefix="/usr"
++exec_prefix="/usr"
++datarootdir="/usr/share"
+ grub_lang=`echo $LANG | cut -d . -f 1`
++grubdir="`echo "/boot/grub" | sed 's,//*,/,g'`"
++quick_boot="1"
+ 
+-export TEXTDOMAIN=@PACKAGE@
+-export TEXTDOMAINDIR="@localedir@"
++export TEXTDOMAIN=grub
++export TEXTDOMAINDIR="${datarootdir}/locale"
+ 
+ . "$pkgdatadir/grub-mkconfig_lib"
+ 
+@@ -44,6 +46,7 @@
+ 
+ cat << EOF
+ if [ -s \$prefix/grubenv ]; then
++  set have_grubenv=true
+   load_env
+ fi
+ EOF
+@@ -96,7 +99,50 @@
+     save_env saved_entry
+   fi
+ }
++EOF
++
++if [ "$quick_boot" = 1 ]; then
++    cat <<EOF
++function recordfail {
++  set recordfail=1
++EOF
++
++  check_writable () {
++    abstractions="$(grub-probe --target=abstraction "${grubdir}")"
++    for abstraction in $abstractions; do
++      case "$abstraction" in
++        diskfilter | lvm)
++          cat <<EOF
++  # GRUB lacks write support for $abstraction, so recordfail support is disabled.
++EOF
++          return
++          ;;
++      esac
++    done
++
++    FS="$(grub-probe --target=fs "${grubdir}")"
++    case "$FS" in
++      btrfs | cpiofs | newc | odc | romfs | squash4 | tarfs | zfs)
++	cat <<EOF
++  # GRUB lacks write support for $FS, so recordfail support is disabled.
++EOF
++	return
++	;;
++    esac
++
++    cat <<EOF
++  if [ -n "\${have_grubenv}" ]; then if [ -z "\${boot_once}" ]; then save_env recordfail; fi; fi
++EOF
++  }
++
++  check_writable
++
++  cat <<EOF
++}
++EOF
++fi
+ 
++cat <<EOF
+ function load_video {
+ EOF
+ if [ -n "${GRUB_VIDEO_BACKEND}" ]; then
+@@ -160,7 +206,7 @@
+ if loadfont `make_system_path_relative_to_its_root "${GRUB_FONT}"` ; then
+ EOF
+     else
+-	for dir in "${pkgdatadir}" "`echo '/@bootdirname@/@grubdirname@' | sed "s,//*,/,g"`" /usr/share/grub ; do
++	for dir in "${pkgdatadir}" "`echo '/boot/grub' | sed "s,//*,/,g"`" /usr/share/grub ; do
+ 	    for basename in unicode unifont ascii; do
+ 		path="${dir}/${basename}.pf2"
+ 		if is_path_readable_by_grub "${path}" > /dev/null ; then
+@@ -290,10 +336,16 @@
+ 
+ make_timeout ()
+ {
++    cat << EOF
++if [ "\${recordfail}" = 1 ] ; then
++  set timeout=${GRUB_RECORDFAIL_TIMEOUT:-30}
++else
++EOF
+     if [ "x${3}" != "x" ] ; then
+ 	timeout="${2}"
+ 	style="${3}"
+-    elif [ "x${1}" != "x" ] && [ "x${1}" != "x0" ] ; then
++    elif [ "x${1}" != "x" ] && \
++	 ([ "$quick_boot" = 1 ] || [ "x${1}" != "x0" ]) ; then
+ 	# Handle the deprecated GRUB_HIDDEN_TIMEOUT scheme.
+ 	timeout="${1}"
+ 	if [ "x${2}" != "x0" ] ; then
+@@ -312,26 +364,27 @@
+ 	style="menu"
+     fi
+     cat << EOF
+-if [ x\$feature_timeout_style = xy ] ; then
+-  set timeout_style=${style}
+-  set timeout=${timeout}
++  if [ x\$feature_timeout_style = xy ] ; then
++    set timeout_style=${style}
++    set timeout=${timeout}
+ EOF
+     if [ "x${style}" = "xmenu" ] ; then
+ 	cat << EOF
+-# Fallback normal timeout code in case the timeout_style feature is
+-# unavailable.
+-else
+-  set timeout=${timeout}
++  # Fallback normal timeout code in case the timeout_style feature is
++  # unavailable.
++  else
++    set timeout=${timeout}
+ EOF
+     else
+ 	cat << EOF
+-# Fallback hidden-timeout code in case the timeout_style feature is
+-# unavailable.
+-elif sleep${verbose} --interruptible ${timeout} ; then
+-  set timeout=0
++  # Fallback hidden-timeout code in case the timeout_style feature is
++  # unavailable.
++  elif sleep${verbose} --interruptible ${timeout} ; then
++    set timeout=0
+ EOF
+     fi
+     cat << EOF
++  fi
+ fi
+ EOF
+ }

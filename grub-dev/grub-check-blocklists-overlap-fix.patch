@@ -1,0 +1,47 @@
+From 2a54e1b19aa1e080f9795a00d7381c0be85b2a4b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=D0=A0=D0=BE=D0=BC=D0=B0=D0=BD=20=D0=9F=D0=B5=D1=85=D0=BE?=
+ =?UTF-8?q?=D0=B2?= <roman_pekhov>
+Date: Sun, 22 Jun 2014 03:51:50 +0400
+Subject: * grub-core/commands/loadenv.c (check_blocklists): Fix overlap check.
+
+Bug: http://savannah.gnu.org/bugs/?42134
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/1311247
+Origin: upstream, http://git.savannah.gnu.org/cgit/grub.git/commit/?id=1f6af2a9f8b02a71f213b4717d8e62c8a6b14fc5
+Last-Update: 2015-01-23
+
+Patch-Name: check_blocklists_overlap_fix.patch
+---
+ grub-core/commands/loadenv.c | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
+
+diff --git a/grub-core/commands/loadenv.c b/grub-core/commands/loadenv.c
+index 6af8112..acd93d1 100644
+--- a/grub-core/commands/loadenv.c
++++ b/grub-core/commands/loadenv.c
+@@ -263,7 +263,7 @@ check_blocklists (grub_envblk_t envblk, struct blocklist *blocklists,
+       for (q = p->next; q; q = q->next)
+         {
+ 	  grub_disk_addr_t s1, s2;
+-	  grub_disk_addr_t e1, e2, t;
++	  grub_disk_addr_t e1, e2;
+ 
+ 	  s1 = p->sector;
+ 	  e1 = s1 + ((p->length + GRUB_DISK_SECTOR_SIZE - 1) >> GRUB_DISK_SECTOR_BITS);
+@@ -271,16 +271,7 @@ check_blocklists (grub_envblk_t envblk, struct blocklist *blocklists,
+ 	  s2 = q->sector;
+ 	  e2 = s2 + ((q->length + GRUB_DISK_SECTOR_SIZE - 1) >> GRUB_DISK_SECTOR_BITS);
+ 
+-	  if (s2 > s1)
+-	    {
+-	      t = s2;
+-	      s2 = s1;
+-	      s1 = t;
+-	      t = e2;
+-	      e2 = e1;
+-	      e1 = t;
+-	    }
+-          if (e1 > s2)
++	  if (s1 < e2 && s2 < e1)
+             {
+               /* This might be actually valid, but it is unbelievable that
+                  any filesystem makes such a silly allocation.  */
