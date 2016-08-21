@@ -18,9 +18,10 @@ _UNIFONT_VER="6.3.20131217"
 
 pkgname="grub-dev"
 _pkgname="grub"
-pkgdesc="GNU GRand Unified Bootloader (2)"
+pkgdesc="GNU GRand Unified Bootloader (Silent grub menu version )"
 pkgver=2.02.beta3
-pkgrel=2
+_pkgver=2.02
+pkgrel=3
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -56,7 +57,8 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'grub.cfg'
         'update-grub'
 	'00_header.in.patch'
-	'30_os-prober.in.patch')
+	'30_os-prober.in.patch'
+	'https://anonscm.debian.org/cgit/pkg-grub/grub.git/plain/debian/patches/maybe_quiet.patch')
 
 sha256sums=('9e9318e11f323ffe8bbf78e709e317f52cfc7b4dbd3760e23d335653b1150e12'
             '2844601914cea6b1231eca0104853a93c4d67a5209933a0766f1475953300646'
@@ -66,11 +68,12 @@ sha256sums=('9e9318e11f323ffe8bbf78e709e317f52cfc7b4dbd3760e23d335653b1150e12'
             'f62734e61f4e5c566ee5de4470746e2c6e9a407ce97d0bdb5915a3e3be85d5ae'
             '6a85a2a93a27f64bac68bef513e3239a898a0502221978b3cb99e41994021b05'
             'b20172d7f753cf6a636595b37406b3070cd30d33072c15aea4a50a02ba4c85a5'
-            '839615e3778421c4c82b996e2628785f32f8111473196a79ec836eb773411b77'
+            'c8b8ca4fb3906e69b09ebfe8df83a8a3ea00d0ad6330f54171ac97c80533946e'
             '7fc95d49c0febe98a76e56b606a280565cb736580adecf163bc6b5aca8e7cbd8'
             '467b0101154076fee99d9574a5fb6b772a3923cc200a1f4ca08fe17be8d68111'
             '8675f35b82cc745aff95ba1097b8ef6e33be28125c7f484a14e90b29e809517d'
-            'eae59c76d4874478bab84bdf4807aaf5d634492a8994d947b68860abc1422e74')
+            'eae59c76d4874478bab84bdf4807aaf5d634492a8994d947b68860abc1422e74'
+            '96f12d98e805c47b9236cc5a5dbf3c1677fe3f17ec5646da16088691d7f19d00')
 
 #pkgver() {
 #	cd "${srcdir}/grub-${_pkgver}/"
@@ -118,9 +121,17 @@ prepare() {
 	cp "${srcdir}/unifont-${_UNIFONT_VER}.bdf" "${srcdir}/grub-${_pkgver}/unifont.bdf"
 
 	msg "Add code to hide grub menu if Manjaro is the only system"
-	cd ${srcdir}/grub-2.02/util/grub.d
+	cd ${srcdir}/$_pkgname-$_pkgver/util/grub.d
 	patch -N -i ${srcdir}/00_header.in.patch
 	patch -N -i ${srcdir}/30_os-prober.in.patch
+	echo	
+
+	msg "Delete the last n line of ubuntu patch because in manjaro not exist the rescue mode"
+	#See here https://answers.launchpad.net/ubuntu/+source/grub2/+question/353038 ( thank to Colin Watson )
+	cd ${srcdir}
+	sed -i.bak '339,$d' maybe_quiet.patch
+	cd ${srcdir}/$_pkgname-$_pkgver
+	patch -p1 -i ${srcdir}/maybe_quiet.patch	
 	echo
 	
 }
@@ -179,7 +190,9 @@ _build_grub-common_and_bios() {
 		--with-bootdir="/boot" \
 		--with-grubdir="grub" \
 		--disable-silent-rules \
-		--disable-werror
+		--disable-werror \
+		--enable-quiet-boot \
+		--enable-quick-boot
 	echo
 	
 	msg "Run make for bios build"
@@ -229,7 +242,9 @@ _build_grub-efi() {
 		--with-bootdir="/boot" \
 		--with-grubdir="grub" \
 		--disable-silent-rules \
-		--disable-werror
+		--disable-werror \
+		--enable-quiet-boot \
+		--enable-quick-boot
 	echo
 	
 	msg "Run make for ${_EFI_ARCH} efi build"
