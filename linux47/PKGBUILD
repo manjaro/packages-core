@@ -43,7 +43,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         'nvidia-304xx-mtrr-unknown-symbol.patch'
-        'revert-intel-asoc.patch'
         'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('5190c3d1209aeda04168145bf50569dc0984f80467159b1dc50ad731e3285f10'
@@ -65,7 +64,6 @@ sha256sums=('5190c3d1209aeda04168145bf50569dc0984f80467159b1dc50ad731e3285f10'
             '69a21bc286a628128cfc4723558829cb6ff6c2d7c4dfd4468457898674187b25'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
-            '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
             'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
 
 prepare() {
@@ -106,10 +104,6 @@ prepare() {
   # Fix Nvidia 304xx issue
   # https://bugs.archlinux.org/task/47092
   patch -Np1 -i "${srcdir}/nvidia-304xx-mtrr-unknown-symbol.patch"
-
-  # Deal with the Intel ASoC issue
-  # https://github.com/manjaro/packages-core/issues/35
-  patch -Rp1 -i "${srcdir}/revert-intel-asoc.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
@@ -239,7 +233,7 @@ package_linux47-headers() {
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/include"
 
   for i in acpi asm-generic config crypto drm generated keys linux math-emu \
-    media net pcmcia scsi sound trace uapi video xen; do
+    media net pcmcia scsi soc sound trace uapi video xen; do
     cp -a include/${i} "${pkgdir}/usr/lib/modules/${_kernver}/build/include/"
   done
 
