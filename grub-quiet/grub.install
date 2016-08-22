@@ -6,10 +6,9 @@ post_install() {
     echo "Copying /etc/default/grub.pacsave to /etc/default/grub"
     install -D -m0644 /etc/default/grub.pacsave /etc/default/grub
 #Add parameter to hidden grub
-    cd /etc/default
-    sed 's/GRUB_TIMEOUT=/GRUB_TIMEOUT=0' grub
-    sed 's/#GRUB_HIDDEN_TIMEOUT=/GRUB_HIDDEN_TIMEOUT=3' grub
-    sed 's/#GRUB_HIDDEN_TIMEOUT_QUIET=/GRUB_HIDDEN_TIMEOUT_QUIET=true' grub
+    sed -i 's/GRUB_TIMEOUT=/GRUB_TIMEOUT=0/' /etc/default/grub
+    sed -i 's/#GRUB_HIDDEN_TIMEOUT=/GRUB_HIDDEN_TIMEOUT=3/' /etc/default/grub
+    sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub
     
     if [ -f /boot/grub/grub.cfg.pacsave ]; then
        echo "Copying /boot/grub/grub.cfg.pacsave to /boot/grub/grub.cfg"

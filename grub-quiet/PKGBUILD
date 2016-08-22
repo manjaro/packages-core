@@ -22,7 +22,7 @@ _pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (Silent grub menu version )"
 pkgver=2.02.beta3
 _pkgver=2.02
-pkgrel=3
+pkgrel=1
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -32,6 +32,7 @@ options=('!makeflags')
 
 conflicts=('grub-common' 'grub-bios' "grub-efi-${_EFI_ARCH}" 'grub-legacy' 'grub')
 provides=('grub-common' 'grub-bios' "grub-efi-${_EFI_ARCH}" 'grub')
+replaces=('grub-dev')
 
 makedepends=('git' 'rsync' 'xz' 'freetype2' 'ttf-dejavu' 'python' 'autogen'
              'texinfo' 'help2man' 'gettext' 'device-mapper' 'fuse')
@@ -121,20 +122,18 @@ prepare() {
 	msg "Avoid problem with unifont during compile of grub, http://savannah.gnu.org/bugs/?40330 and https://bugs.archlinux.org/task/37847"
 	cp "${srcdir}/unifont-${_UNIFONT_VER}.bdf" "${srcdir}/grub-${_pkgver}/unifont.bdf"
 
-	msg "Add code to hide grub menu if Manjaro is the only system"
+	#Add code to hide grub menu if Manjaro is the only system
 	cd ${srcdir}/$_pkgname-$_pkgver/util/grub.d
 	patch -N -i ${srcdir}/00_header.in.patch
 	patch -N -i ${srcdir}/30_os-prober.in.patch
-	echo	
 
-	msg "Apply and Delete the last n line of ubuntu patch (maybe_quiet) because manjaro not provide a rescue mode"
+	#Apply and Delete the last n line of ubuntu patch (maybe_quiet) because manjaro not provide a rescue mode
 	#See here https://answers.launchpad.net/ubuntu/+source/grub2/+question/353038 ( thank to Colin Watson )
 	cd ${srcdir}
 	sed -i.bak '339,$d' maybe_quiet.patch
 	cd ${srcdir}/$_pkgname-$_pkgver
-	patch -p1 -i ${srcdir}/maybe_quiet.patch	
-	echo
-	
+	patch -p1 -i ${srcdir}/maybe_quiet.patch
+
 }
 
 _build_grub-common_and_bios() {
