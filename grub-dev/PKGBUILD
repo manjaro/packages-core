@@ -5,6 +5,7 @@
 
 # Maintainer: Philip Mueller <philm|manjaro|org>
 # Maintainer: Guinux <nuxgui|gmail|com>
+# Maintainer: Stefano Capitani <stefanoatmanjarodotorg>
 
 _pkgver="2.02"
 _GRUB_GIT_TAG="grub-2.02-beta3"
@@ -16,7 +17,7 @@ _UNIFONT_VER="6.3.20131217"
 [[ "${CARCH}" == "x86_64" ]] && _EFI_ARCH="x86_64"
 [[ "${CARCH}" == "i686" ]] && _EFI_ARCH="i386"
 
-pkgname="grub-dev"
+pkgname="grub-quiet"
 _pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (Silent grub menu version )"
 pkgver=2.02.beta3
@@ -126,7 +127,7 @@ prepare() {
 	patch -N -i ${srcdir}/30_os-prober.in.patch
 	echo	
 
-	msg "Delete the last n line of ubuntu patch because in manjaro not exist the rescue mode"
+	msg "Apply and Delete the last n line of ubuntu patch (maybe_quiet) because manjaro not provide a rescue mode"
 	#See here https://answers.launchpad.net/ubuntu/+source/grub2/+question/353038 ( thank to Colin Watson )
 	cd ${srcdir}
 	sed -i.bak '339,$d' maybe_quiet.patch

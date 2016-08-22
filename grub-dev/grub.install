@@ -5,6 +5,12 @@ post_install() {
   if [ -f /etc/default/grub.pacsave ]; then
     echo "Copying /etc/default/grub.pacsave to /etc/default/grub"
     install -D -m0644 /etc/default/grub.pacsave /etc/default/grub
+#Add parameter to hidden grub
+    cd /etc/default
+    sed 's/GRUB_TIMEOUT=/GRUB_TIMEOUT=0' grub
+    sed 's/#GRUB_HIDDEN_TIMEOUT=/GRUB_HIDDEN_TIMEOUT=3' grub
+    sed 's/#GRUB_HIDDEN_TIMEOUT_QUIET=/GRUB_HIDDEN_TIMEOUT_QUIET=true' grub
+    
     if [ -f /boot/grub/grub.cfg.pacsave ]; then
        echo "Copying /boot/grub/grub.cfg.pacsave to /boot/grub/grub.cfg"
        install -D -m0644 /boot/grub/grub.cfg.pacsave /boot/grub/grub.cfg
@@ -18,6 +24,8 @@ post_install() {
   for file in ${filelist[@]}; do
     install-info ${infodir}/${file}.gz ${infodir}/dir 2> /dev/null
   done
+  echo "Remember to run : # grub-install --recheck --target=i386-pc /dev/sdx"
+  echo "https://wiki.manjaro.org/index.php/Restore_the_GRUB_Bootloader#Restore_GRUB"
 }
 
 post_upgrade() {
