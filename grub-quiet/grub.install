@@ -2,14 +2,18 @@ infodir="usr/share/info"
 filelist=('grub.info' 'grub-dev.info')
 
 post_install() {
-  if [ -f /etc/default/grub.pacsave ]; then
+ if [ -f /etc/default/grub.pacsave ]; then
     echo "Copying /etc/default/grub.pacsave to /etc/default/grub"
     install -D -m0644 /etc/default/grub.pacsave /etc/default/grub
-#Add parameter to hidden grub
-    sed -i 's/GRUB_TIMEOUT=/GRUB_TIMEOUT=0/' /etc/default/grub
-    sed -i 's/#GRUB_HIDDEN_TIMEOUT=/GRUB_HIDDEN_TIMEOUT=3/' /etc/default/grub
-    sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub
-    
+#Add tag '#grub-quiet' into grub to prevent the resetting of timer choice by user
+    grep "#grub-quiet" /etc/default/grub
+      if [ $? -eq 1 ] ; then
+	   sed -i '1,1s/^/#grub-quiet \n/g' /etc/default/grub
+           sed -i -e 's,.*GRUB_TIMEOUT=.*,GRUB_TIMEOUT=0,' /etc/default/grub
+           sed -i -e 's,.*#GRUB_HIDDEN_TIMEOUT=.*,GRUB_HIDDEN_TIMEOUT=3,' /etc/default/grub
+           sed -i -e 's,.*#GRUB_HIDDEN_TIMEOUT_QUIET=.*,GRUB_HIDDEN_TIMEOUT_QUIET=true,' /etc/default/grub
+           rm /boot/grub/grub.cfg.pacsave
+      fi
     if [ -f /boot/grub/grub.cfg.pacsave ]; then
        echo "Copying /boot/grub/grub.cfg.pacsave to /boot/grub/grub.cfg"
        install -D -m0644 /boot/grub/grub.cfg.pacsave /boot/grub/grub.cfg
@@ -18,7 +22,7 @@ post_install() {
     fi
   else
     update-grub
-  fi
+ fi
 
   for file in ${filelist[@]}; do
     install-info ${infodir}/${file}.gz ${infodir}/dir 2> /dev/null
