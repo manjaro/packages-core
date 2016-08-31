@@ -12,7 +12,7 @@ _basekernel=3.10
 _basever=310
 _aufs=20141215 #last version
 _bfq=v7r8
-pkgver=${_basekernel}.102
+pkgver=${_basekernel}.103
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -37,7 +37,6 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         'change-default-console-loglevel.patch'
-        'apm-asmlinkage.patch::http://kernel.opensuse.org/cgit/kernel/patch/?id=54c2f3fdb941204cad136024c7b854b7ad112ab6'
         'lguest-asmlinkage.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/drivers/lguest/x86/core.c?id=cdd77e87eae52b7251acc5990207a1c4500a84ce'
         'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.10/1700_enable-thinkpad-micled.patch'
         'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.10/2700_ThinkPad-30-brightness-control-fix.patch'
@@ -49,7 +48,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch")
 
 sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
-            '148be5b90ce84a86bf23f8984808680696db19c08e97dcbb2a76bea2c9568c5d'
+            'ea9a27fd1644f6686098df421623dfe772d320c926e45f9edf97f0b305774353'
             '1fd1a2835badd1243343021eb2338e11eaa07b718503ad6f247225315f4bfe40'
             '581d427a701099f76a535389f1ae175d0d9a1fd34de8d416c36cdedcc136b2cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -66,7 +65,6 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '24ed088936a63925e2df26c0e2ba2cf5bca54f05e384d5b4a5c890c9eb92c3e2'
             '9151b754d8b06fe737c179c75e6229d81cc197fb4ab14baf959dc7f631819a62'
             '56bd99e54429a25a144f2d221718b67f516344ffd518fd7dcdd752206ec5be69'
-            '8d76b789d9a85cfaa92e3b3a5b13a42e00c01e3ac809f5fe49aa659b33465b58'
             'd8110b08354c2b941c8ecf428d9011b9da01230c72a2e42dac66428f0965a626'
             '8ef4a6c16e3d0df0c211fef7875089eda3821db4b1335cac79ca02511a4d6f5c'
             '9d7eab1ffec60f2b0d2121221d957f17a02918d95f11ea52902c227df5105e25'
@@ -93,7 +91,6 @@ prepare() {
 
   # fix https://github.com/manjaro/packages-core/issues/13
   # seems to be gcc5 issues
-  patch -p1 -i "${srcdir}/apm-asmlinkage.patch"
   patch -p1 -i "${srcdir}/lguest-asmlinkage.patch"
 
   # fix zram
