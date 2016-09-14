@@ -16,7 +16,7 @@ provides=('libdbus' "dbus=$pkgver")
 conflicts=('libdbus' 'dbus')
 #replaces=(libdbus)
 depends=(libsystemd expat)
-makedepends=(systemd xmlto docbook-xsl python yelp-tools doxygen)
+makedepends=(systemd xmlto docbook-xsl python yelp-tools doxygen libx11)
 source=(https://dbus.freedesktop.org/releases/$_pkgname/$_pkgname-$pkgver.tar.gz{,.asc}
         0001-Drop-Install-sections-from-user-services.patch)
 sha256sums=('9d8f1d069ab4d1a0255d7b400ea3bcef4430c42e729b1012abb2890e3f739a43'
