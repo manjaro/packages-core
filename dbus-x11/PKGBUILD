@@ -7,12 +7,12 @@
 pkgname=dbus-x11
 _pkgname=dbus
 pkgver=1.10.10
-pkgrel=3.2
+pkgrel=3.3
 pkgdesc="Freedesktop.org message bus system"
 url="https://wiki.freedesktop.org/www/Software/dbus/"
 arch=(i686 x86_64)
 license=(GPL custom)
-provides=('libdbus' 'dbus')
+provides=('libdbus' "dbus=$pkgver")
 conflicts=('libdbus' 'dbus')
 #replaces=(libdbus)
 depends=(libsystemd expat)
