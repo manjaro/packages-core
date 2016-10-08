@@ -11,20 +11,19 @@ pkgname=('linux48' 'linux48-headers')
 _kernelname=-MANJARO
 _basekernel=4.8
 _basever=48
-_aufs=20160926
+_aufs=20161003
 _bfq=v8r3
-_rc=rc8
-pkgver=${_basekernel}${_rc}
+pkgver=${_basekernel}.1
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
 options=('!strip')
-source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}.tar.xz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -37,7 +36,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}.patch::https://github.com/linusw/linux-bfq/compare/5924bbecd0267d87c24110cbe2041b5075173a25...e60fee8a1137975857e41069d06c40fe02b3a6db.patch"
+        "0001-BFQ-${_bfq}.patch::https://github.com/linusw/linux-bfq/compare/08895a8...6d63618.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
@@ -45,30 +44,31 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'revert-intel-asoc.patch'
         'i8042-asus-x455lab-dmi.patch'
 )
-sha256sums=('676b5e3e0529385a75baa650b2e2395a4b001821447869735baa83616942597f'
+sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
+            '79c7bda5b4ac4dee7791f34448464f7aa74d498f80df6e1e5ab73f96c5baea41'
             'a9efde59ed7eda3027bd452e44b05655f4590ef00eb91eea1cdc1837bd04062a'
             'f1984ed91b1acccee48254ec81d25b57d20c25f5a32d49870389b35d14ec0011'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
-            'b9efe0207be780d353bb695a7360e8f5caf2d94b07f15d202399d7558bbc18fd'
-            'c125075a18be07b1a3cc821225831183b082559fd41590806a5fe75ab8305ca6'
+            '69b3b00500c743927883d8cd8700ade4713c9c76120a552c29ff63bd52206b02'
+            '3ad57ac97f54049091a09dd897868d7df264fc43b987475f08df197e220a9f45'
             'bc14d5d8c6530672db0384f036ade6486da382bf1aa82e3ff1696d81a0695e98'
             '312244bbfad0d6e884243fd0d2822c9af67c8687e984399f517a227a131c3c1d'
-            '8f07d64f95eb083d1ef375db760bd6e8a1d61d70f4e7586eb1bccfdc76d11f40'
-            '92c60acc5fce8fca76e2787d0d75b6df5cf5ddda0b13e71ce9d11d25a019d86a'
-            'e66e054ae17d3ef35582cbb69a6ba2d87a97f12cd71db46ce32d8803f10df20f'
+            'e5edf0b89319459016276f9b7cb5882f3afdca63dbd2cfd795efa19e1963c39c'
+            '0f676a23b6132eab805d87f9e7bac5fd4f83cb939f161e919dc203278913576a'
+            'e6cb25e63c38a2557dc1eff0ab81b58b7bf37851b550de0b7954704947ddc181'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
-            'fd3078ca273a3064d4a958f7c983f3f9a513068cfb92feae417cb8b88587d0a7'
+            '4d055493222ce4e1e59dd8b34c2eeef8bdd4c90e9dfb68698712cbf5c86c7d07'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
             'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
 
 prepare() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -97,7 +97,8 @@ prepare() {
 echo "AUFS done!"
 
   # add BFQ scheduler
-  sed -i -e "s|EXTRAVERSION = -rc6|EXTRAVERSION = -$_rc|g" "${srcdir}/0001-BFQ-${_bfq}.patch"
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = 1|g" "${srcdir}/0001-BFQ-${_bfq}.patch"
+  sed -i -e "s|EXTRAVERSION = -rc8|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}.patch"
 
   # Fix Nvidia 304xx issue
@@ -146,7 +147,7 @@ echo "AUFS done!"
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -159,7 +160,7 @@ package_linux48() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -225,7 +226,7 @@ package_linux48-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
