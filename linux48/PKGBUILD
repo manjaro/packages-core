@@ -14,7 +14,7 @@ _basever=48
 _aufs=20161003
 _bfq=v8r3
 pkgver=${_basekernel}.1
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -36,7 +36,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}.patch::https://github.com/linusw/linux-bfq/compare/08895a8...6d63618.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/c8d2bc9...0e3911e.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
@@ -58,7 +58,7 @@ sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
             '0f676a23b6132eab805d87f9e7bac5fd4f83cb939f161e919dc203278913576a'
             'e6cb25e63c38a2557dc1eff0ab81b58b7bf37851b550de0b7954704947ddc181'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
-            '4d055493222ce4e1e59dd8b34c2eeef8bdd4c90e9dfb68698712cbf5c86c7d07'
+            '92c55aa0f9529646a07808d661c4a8e02ea326ad374a8441c332a39a2739f876'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
@@ -98,8 +98,7 @@ echo "AUFS done!"
 
   # add BFQ scheduler
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = 1|g" "${srcdir}/0001-BFQ-${_bfq}.patch"
-  sed -i -e "s|EXTRAVERSION = -rc8|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}.patch"
-  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}.patch"
+  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   # Fix Nvidia 304xx issue
   # https://bugs.archlinux.org/task/47092
