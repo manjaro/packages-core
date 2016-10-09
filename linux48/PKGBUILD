@@ -97,7 +97,7 @@ prepare() {
 echo "AUFS done!"
 
   # add BFQ scheduler
-  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = 1|g" "${srcdir}/0001-BFQ-${_bfq}.patch"
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = 1|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   # Fix Nvidia 304xx issue
