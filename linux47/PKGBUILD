@@ -13,7 +13,7 @@ _basekernel=4.7
 _basever=47
 _aufs=20160912
 _bfq=v7r8
-pkgver=${_basekernel}.7
+pkgver=${_basekernel}.8
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -43,11 +43,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
-        'nvidia-304xx-mtrr-unknown-symbol.patch'
         'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('5190c3d1209aeda04168145bf50569dc0984f80467159b1dc50ad731e3285f10'
-            'b1019b88cbced3eced1fe0a908eaac061282f39c559eaa3ea0fd3ee1b089e17e'
+            'd2cf10bbf9ae8746f7e57f9a34beef6031944541e6cc8ac07f0948dbbcb09fa4'
             'af0e86b28a7d1c5dd666c517bb56b01213cd14beac2e5827aa538c22880a1ec7'
             'd576232a4419456063dee5dff9852669f0db7b7f576a0d569acaccc66829d524'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -65,7 +64,6 @@ sha256sums=('5190c3d1209aeda04168145bf50569dc0984f80467159b1dc50ad731e3285f10'
             '77430c7154670dd288b6d5bd45896222bf955f02029ee5d0cfe97cc5d9bc1a9d'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
-            '3c158ebe93e3710d9a669015f0868f89c5170efdc36cb7cf5f46cc85df61ad3e'
             'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
 
 prepare() {
@@ -105,10 +103,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
-
-  # Fix Nvidia 304xx issue
-  # https://bugs.archlinux.org/task/47092
-  patch -Np1 -i "${srcdir}/nvidia-304xx-mtrr-unknown-symbol.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config

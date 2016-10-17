@@ -1,4 +1,4 @@
-aufs4.x-rcN mmap patch
+aufs4.8 mmap patch
 
 diff --git a/fs/proc/base.c b/fs/proc/base.c
 index ac0df4d..42255e5 100644
@@ -150,7 +150,7 @@ index 2ca1faf..6b9da3f 100644
  obj-y += init-mm.o
  
 diff --git a/mm/filemap.c b/mm/filemap.c
-index 8a287df..7583d66 100644
+index 2d0986a..4a31bad 100644
 --- a/mm/filemap.c
 +++ b/mm/filemap.c
 @@ -2284,7 +2284,7 @@ int filemap_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
