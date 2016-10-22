@@ -47,7 +47,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
         'i8042-asus-x455lab-dmi.patch'
-        'dirty-cow.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=19be0eaffa3ac7d8eb6784ad9bdbc7d67ed8e619'
+        'dirty-cow.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '29a01ed05fec2bb5afb0b3ae53892b545fb0752723ce5a9db2b80558453bb51d'
@@ -73,7 +73,7 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
             '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
             '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d'
-            '4c22b033c62757f3a05ec7fccbebc179a26fd74322625aeb054add7dffd472ae')
+            '857322254e5b88486260c790bc54e9ce8bc9277069258bc25b1fc7e3abbc5eb4')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
