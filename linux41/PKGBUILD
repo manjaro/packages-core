@@ -14,7 +14,7 @@ _basever=41
 _aufs=20160912
 _bfq=v7r8
 pkgver=${_basekernel}.34
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -47,6 +47,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
         'i8042-asus-x455lab-dmi.patch'
+        'dirty-cow.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=19be0eaffa3ac7d8eb6784ad9bdbc7d67ed8e619'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '29a01ed05fec2bb5afb0b3ae53892b545fb0752723ce5a9db2b80558453bb51d'
@@ -71,7 +72,8 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
             '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
-            '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d')
+            '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d'
+            '4c22b033c62757f3a05ec7fccbebc179a26fd74322625aeb054add7dffd472ae')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -94,6 +96,9 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # Fix Dirty Cow issue CVE-2016-5195 (https://dirtycow.ninja/)
+  patch -p1 -i "${srcdir}/dirty-cow.patch"
 
   # fix X455LB touchpad issue
   # https://github.com/manjaro/packages-core/pull/39
