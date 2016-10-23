@@ -12,18 +12,20 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _basever=49
 _aufs=20161010
-_bfq=v8r3
-_rc=rc1
+_bfq=v8r4
+_rc=rc2
+_git=0c2b6dc4fd4fa13796b319aae969a009f03222c6
 pkgver=${_basekernel}${_rc}
-pkgrel=1
+pkgrel=0
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
 options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
+        linux-${_basekernel}-${_rc}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -37,13 +39,13 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/c8d2bc9...c0e81be.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/c8d2bc9...69f18bb.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         'revert-intel-asoc.patch'
 )
-sha256sums=('0efb65be9189e45868062190a61467296b6eec305e8408fcffe17e20f41a22e8'
+sha256sums=('8161e44067823d967d6d413347d1a4b1d31334e5b49803094382c74749aab750'
             'a6d32252ad426855b869f8eb4c1c4af3f276f3fe554b05f78cf4e29066eb26e6'
             '00a75d9d17b9801058a0d394ba9f77ee2c2334c81dcca4a3d64ab0d9600a26bb'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -56,11 +58,12 @@ sha256sums=('0efb65be9189e45868062190a61467296b6eec305e8408fcffe17e20f41a22e8'
             '0f676a23b6132eab805d87f9e7bac5fd4f83cb939f161e919dc203278913576a'
             'e6cb25e63c38a2557dc1eff0ab81b58b7bf37851b550de0b7954704947ddc181'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
-            '335402b9d1c6df486932636a8d9282c33aa96a325068bbaef0f1c76e30dcc3ed'
+            '319d01968b718983d6db8af20bb820e8dc499ba47f9231f30e9f8489cab18e49'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43')
 
 prepare() {
+  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
   cd "${srcdir}/linux-${_basekernel}-${_rc}"
 
   # add upstream patch
@@ -94,7 +97,8 @@ prepare() {
 #  patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
-  sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  #sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -rc1|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   # Deal with the Intel ASoC issue
