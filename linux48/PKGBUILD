@@ -37,7 +37,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/c8d2bc9...5d646b8.patch"
+        "0001-BFQ-${_bfq}-v${_basekernel}.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
@@ -58,7 +58,7 @@ sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
             '6fd8d00ce5ac6acf326c4ad67db7613e08542270c78feea31ca971ddd79968f7'
             'e6cb25e63c38a2557dc1eff0ab81b58b7bf37851b550de0b7954704947ddc181'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
-            '357c83b5f4d2654d5327fee591db44e99cc8a3718a3ed812bcdedd4a8a60461e'
+            '319d01968b718983d6db8af20bb820e8dc499ba47f9231f30e9f8489cab18e49'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
             'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
@@ -97,7 +97,7 @@ echo "AUFS done!"
 
   # add BFQ scheduler
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sublevel}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${_basekernel}.patch"
 
   # Deal with the Intel ASoC issue
   # https://github.com/manjaro/packages-core/issues/35
