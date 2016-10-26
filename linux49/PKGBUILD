@@ -39,15 +39,14 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/c8d2bc9...69f18bb.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/07d9a38...fb0afb2.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        'revert-intel-asoc.patch'
 )
 sha256sums=('8161e44067823d967d6d413347d1a4b1d31334e5b49803094382c74749aab750'
-            'a6d32252ad426855b869f8eb4c1c4af3f276f3fe554b05f78cf4e29066eb26e6'
-            '00a75d9d17b9801058a0d394ba9f77ee2c2334c81dcca4a3d64ab0d9600a26bb'
+            '01a6f6b2b68b4b96b8c8f3d81f1631028c2361cb3d3d6dd11b74b71d84a4fb60'
+            'fbfebbfb30f36c923c60bdff0e60cf845836853216b5ca7b4e6c14afa4b90154'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '6c7f4e9f279a65caf40069fd16f08f72b40bf745ca0b152b7eff1f3bc4d0e103'
@@ -58,9 +57,8 @@ sha256sums=('8161e44067823d967d6d413347d1a4b1d31334e5b49803094382c74749aab750'
             '0f676a23b6132eab805d87f9e7bac5fd4f83cb939f161e919dc203278913576a'
             'e6cb25e63c38a2557dc1eff0ab81b58b7bf37851b550de0b7954704947ddc181'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
-            '319d01968b718983d6db8af20bb820e8dc499ba47f9231f30e9f8489cab18e49'
-            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43')
+            '0f6de81cb3dbf2bd14282de802908e240274a38fa72c3d5833a93d62647e6471'
+            '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0')
 
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -98,12 +96,8 @@ prepare() {
 
   # add BFQ scheduler
   #sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -rc1|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  #sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -rc1|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-
-  # Deal with the Intel ASoC issue
-  # https://github.com/manjaro/packages-core/issues/35
-  #patch -Rp1 -i "${srcdir}/revert-intel-asoc.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config

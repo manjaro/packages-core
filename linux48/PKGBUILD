@@ -41,13 +41,12 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        'revert-intel-asoc.patch'
         'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
             '86e246b19253ee3aa971403a5990376a5e33667122f7c8742cc0ee807f204403'
-            '47e6b2e209da0f89730e3b9c2625b5c46226b95c2bd39f2a322e6c6421631517'
-            'c0450710a037e6c32d762a855359d26d1202cf3ad19705f6b73f3e53ec4f9943'
+            'c22ddf3a9ec313c26f21c4eb7fbc437d782b6e1137901dd235473004a26cfd22'
+            '2d2cce9bfda9d4b83d0fd83ec7227fb8409c29dfcd17a514ecdf043587fa24db'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '9a862b477328e0764512a3ec7fd00113d9446114fa19eed8e876ad9f38bf48ce'
@@ -60,7 +59,6 @@ sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
             '319d01968b718983d6db8af20bb820e8dc499ba47f9231f30e9f8489cab18e49'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '030deb6b46cea9a3f037b03af4e53d27aa70537d42c535cf30db5c02e4a8ab43'
             'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
 
 prepare() {
@@ -98,10 +96,6 @@ echo "AUFS done!"
   # add BFQ scheduler
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sublevel}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${_basekernel}.patch"
-
-  # Deal with the Intel ASoC issue
-  # https://github.com/manjaro/packages-core/issues/35
-  #patch -Rp1 -i "${srcdir}/revert-intel-asoc.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
