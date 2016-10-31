@@ -13,9 +13,9 @@ _basekernel=4.8
 _basever=48
 _aufs=20161010
 _bfq=v8r4
-_sublevel=4
+_sublevel=5
 pkgver=${_basekernel}.${_sublevel}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -41,10 +41,11 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        'i8042-asus-x455lab-dmi.patch'
+        'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
+        "prepatch-${_basekernel}-20161030"
 )
 sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
-            '86e246b19253ee3aa971403a5990376a5e33667122f7c8742cc0ee807f204403'
+            '99f5e8f3836580440f12de9c00c9faab10f09529e2734fab584ef4baa84fd7ca'
             'c22ddf3a9ec313c26f21c4eb7fbc437d782b6e1137901dd235473004a26cfd22'
             '2d2cce9bfda9d4b83d0fd83ec7227fb8409c29dfcd17a514ecdf043587fa24db'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -59,7 +60,8 @@ sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
             '319d01968b718983d6db8af20bb820e8dc499ba47f9231f30e9f8489cab18e49'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'af8f29631892bd3bb2654ff7b701f80f438832fd68a5e18896ef3ffe98363b9d')
+            '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
+            'cc44fbf128e1647157911678c58fd2fca4c1a859a298664cb2ea56f8ab0ea29e')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -70,7 +72,7 @@ prepare() {
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
-  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+  patch -Np1 -i "${srcdir}/prepatch-${_basekernel}-20161030"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
@@ -79,7 +81,7 @@ prepare() {
 
   # fix X455LB touchpad issue
   # https://github.com/manjaro/packages-core/pull/39
-  patch -p1 -i "${srcdir}/i8042-asus-x455lab-dmi.patch"
+  patch -p1 -i "${srcdir}/i8042-asus-notebook.patch"
 
   # add aufs4 support
   patch -Np1 -i "${srcdir}/aufs4.8-${_aufs}.patch"
@@ -94,7 +96,7 @@ prepare() {
 echo "AUFS done!"
 
   # add BFQ scheduler
-  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sublevel}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sublevel}|g" "${srcdir}/0001-BFQ-${_bfq}-v${_basekernel}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${_basekernel}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then

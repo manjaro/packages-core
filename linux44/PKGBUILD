@@ -13,7 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20160912
 _bfq=v7r8
-pkgver=${_basekernel}.27
+pkgver=${_basekernel}.28
 pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -47,10 +47,10 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         '0001-sdhci-revert.patch'
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
-        "prepatch-${_basekernel}-20161026"
+        "prepatch-${_basekernel}-20161030"
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            '578caffa00f5056a921f672c585734cd572b1e3e33227b71a54ef27873f7ea20'
+            '6687b8005ae47a63de9331f96d6351f7a2d6234093a26849600a70e18480aaaf'
             '389490eab392a70e9882251df4eef4a55a64090c3f81ac554f620bcb16c5fbed'
             '4aba669ec026c2546a5c36432cb33a69994be141ead32b4e2aaa7c579970f3d4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -72,7 +72,7 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
             '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
-            'd8f8f430a1f1bdd0707b58c1fa7849860947e6224aa63ef75505385bc6262aaf')
+            'b66d8797c2cfb11018faa3ceb5c8a9f31195dee399888dbe7df49177d34b4f21')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -83,7 +83,7 @@ prepare() {
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
-  patch -Np1 -i "${srcdir}/prepatch-${_basekernel}-20161026"
+  patch -Np1 -i "${srcdir}/prepatch-${_basekernel}-20161030"
 
   # revert http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9faac7b95ea4f9e83b7a914084cc81ef1632fd91
   # fixes #47778 sdhci broken on some boards
