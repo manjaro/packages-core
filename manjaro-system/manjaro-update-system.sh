@@ -43,7 +43,17 @@ detectDE()
 
 post_upgrade() {
 
-        # fix issue with existing sddm.conf
+	# fix upgrading ttf-dejavu when version is 2.35-1 or less
+	pacman -Q ttf-dejavu &> /tmp/cmd1
+	if [ "$(grep 'ttf-dejavu' /tmp/cmd1 | cut -d' ' -f1)" == "ttf-dejavu" ]; then 
+		if [ "$(vercmp $(grep 'ttf-dejavu' /tmp/cmd1 | cut -d' ' -f2) 2.35-1)" -le 0 ]; then
+			msg "Fix ttf-dejavu upgrade ..."
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm --force -S ttf-dejavu
+		fi
+	fi
+
+	# fix issue with existing sddm.conf
 	if [ "$(vercmp $2 20160301)" -lt 0 ]; then
 		pacman -Qq sddm &> /tmp/cmd1
 		pacman -Q sddm &> /tmp/cmd2
