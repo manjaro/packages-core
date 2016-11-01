@@ -43,7 +43,17 @@ detectDE()
 
 post_upgrade() {
 
-        # fix issue with existing sddm.conf
+	# fix upgrading ttf-dejavu when version is 2.35-1 or less
+	pacman -Q ttf-dejavu &> /tmp/cmd1
+	if [ "$(grep 'ttf-dejavu' /tmp/cmd1 | cut -d' ' -f1)" == "ttf-dejavu" ]; then 
+		if [ "$(vercmp $(grep 'ttf-dejavu' /tmp/cmd1 | cut -d' ' -f2) 2.35-1)" -le 0 ]; then
+			msg "Fix ttf-dejavu upgrade ..."
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm --force -S ttf-dejavu
+		fi
+	fi
+
+	# fix issue with existing sddm.conf
 	if [ "$(vercmp $2 20160301)" -lt 0 ]; then
 		pacman -Qq sddm &> /tmp/cmd1
 		pacman -Q sddm &> /tmp/cmd2
@@ -358,6 +368,21 @@ post_upgrade() {
 			msg "Installing missing Xorg-Server ..."
 			pacman --noconfirm -S xorg-server
 		fi
+	fi
+
+	# workaround for catalyst-server removal
+	pacman -Qq catalyst-server &> /tmp/cmd1
+	pacman -Q catalyst-utils &> /tmp/cmd2
+	packages="catalyst-server catalyst-input catalyst-video"
+	conflicts="xf86-input-acecad xf86-input-aiptek xf86-input-evdev xf86-input-joystick xf86-input-keyboard xf86-input-mouse xf86-input-synaptics xf86-input-void xf86-input-wacom xorg-server-common xorg-server"
+	if [ "$(grep 'catalyst-server' /tmp/cmd1)" == "catalyst-server" ]; then
+	   if [ "$(cat /tmp/cmd2 | cut -d- -f2 | cut -d" " -f2 | sed -e 's/\.//g')" -lt "13351005" ]; then
+	      msg "Preparing Catalyst installation ..."
+	      rm /var/lib/pacman/db.lck &> /dev/null
+	      check_pkgs
+	      pacman --noconfirm -Rdd ${packages} &> /dev/null
+	      pacman --noconfirm -S ${conflicts} &> /dev/null
+	   fi
 	fi
 
 	# fix korrode's signature
