@@ -44,6 +44,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         "modversions-for-EXPORT_SYMBOL-for-asm.patch::https://patchwork.kernel.org/patch/9406823/raw/"
+        "provide-asm-prototypes.h-for-x86.patch::http://marc.info/?l=linux-kernel&m=147669851906489&q=raw"
 )
 sha256sums=('2a8a22552262db5d95b9fe98c113a72316e51990b5d2a06330b25e90f5d3225d'
             '01a6f6b2b68b4b96b8c8f3d81f1631028c2361cb3d3d6dd11b74b71d84a4fb60'
@@ -60,7 +61,8 @@ sha256sums=('2a8a22552262db5d95b9fe98c113a72316e51990b5d2a06330b25e90f5d3225d'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
             '0f6de81cb3dbf2bd14282de802908e240274a38fa72c3d5833a93d62647e6471'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'ff863a27c48ec32321a7a37e2b7aef675ce988a609f6eff238eddbc4b521d360')
+            'ff863a27c48ec32321a7a37e2b7aef675ce988a609f6eff238eddbc4b521d360'
+            '32060c31bd0572b4239d715e410b29da3edb29b566fbb940e4e2e1521e7f43a4')
 
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -71,6 +73,7 @@ prepare() {
 
   # Fix issue with not able to boot in x86_64
   patch -Np1 -i "${srcdir}/modversions-for-EXPORT_SYMBOL-for-asm.patch"
+  patch -Np1 -i "${srcdir}/provide-asm-prototypes.h-for-x86.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
