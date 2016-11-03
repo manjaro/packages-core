@@ -14,9 +14,9 @@ _basever=49
 _aufs=20161010
 _bfq=v8r4
 _rc=rc3
-_git=0c183d92b20b5c84ca655b45ef57b3318b83eb9e
+_git=577f12c07e4edd54730dc559a9c7bc44d22bf7dc
 pkgver=${_basekernel}${_rc}
-pkgrel=3
+pkgrel=4
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -44,11 +44,11 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         "modversions-for-EXPORT_SYMBOL-for-asm.patch::https://patchwork.kernel.org/patch/9406823/raw/"
-        "provide-asm-prototypes.h-for-x86.patch::http://marc.info/?l=linux-kernel&m=147669851906489&q=raw"
+        "provide-asm-prototypes.h-for-x86.patch::https://patchwork.kernel.org/patch/9408985/raw/"
 )
-sha256sums=('2a8a22552262db5d95b9fe98c113a72316e51990b5d2a06330b25e90f5d3225d'
+sha256sums=('bcaa49c473dabea105d05fbf176731ed3b473ad037cda741727200d910162753'
             '01a6f6b2b68b4b96b8c8f3d81f1631028c2361cb3d3d6dd11b74b71d84a4fb60'
-            'fce2a8cde524e97da3a60139ff47bed5722afa946ef83d802dcb1ade76451575'
+            '165a02765c3b9c6d3cbc13a25cd18f36a69d10d06bc0c6a649fe64670a9ddfce'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
             '6c7f4e9f279a65caf40069fd16f08f72b40bf745ca0b152b7eff1f3bc4d0e103'
@@ -62,7 +62,7 @@ sha256sums=('2a8a22552262db5d95b9fe98c113a72316e51990b5d2a06330b25e90f5d3225d'
             '0f6de81cb3dbf2bd14282de802908e240274a38fa72c3d5833a93d62647e6471'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             'ff863a27c48ec32321a7a37e2b7aef675ce988a609f6eff238eddbc4b521d360'
-            '32060c31bd0572b4239d715e410b29da3edb29b566fbb940e4e2e1521e7f43a4')
+            '8f8ffc84ae1c3bbeb322ed68d74a7bc66ec595a7ec64f7e9131ccbc4550d91fc')
 
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -74,6 +74,9 @@ prepare() {
   # Fix issue with not able to boot in x86_64
   patch -Np1 -i "${srcdir}/modversions-for-EXPORT_SYMBOL-for-asm.patch"
   patch -Np1 -i "${srcdir}/provide-asm-prototypes.h-for-x86.patch"
+
+  # Fix script
+  sed -i -e 's~grep ^___EXPORT_SYMBOL |~grep ___EXPORT_SYMBOL | ~g' "${srcdir}/linux-${_basekernel}-${_rc}/scripts/Makefile.build"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
