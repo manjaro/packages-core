@@ -13,9 +13,9 @@ _basekernel=4.8
 _basever=48
 _aufs=20161010
 _bfq=v8r4
-_sublevel=5
+_sublevel=7
 pkgver=${_basekernel}.${_sublevel}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -42,10 +42,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
-        "prepatch-${_basekernel}-20161030"
 )
 sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
-            '99f5e8f3836580440f12de9c00c9faab10f09529e2734fab584ef4baa84fd7ca'
+            '94213e7557d192d1054e352aec18e93275ed5a84abe190d43fd43847d1d86efe'
             'c22ddf3a9ec313c26f21c4eb7fbc437d782b6e1137901dd235473004a26cfd22'
             '2d2cce9bfda9d4b83d0fd83ec7227fb8409c29dfcd17a514ecdf043587fa24db'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -60,8 +59,7 @@ sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
             '319d01968b718983d6db8af20bb820e8dc499ba47f9231f30e9f8489cab18e49'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
-            'cc44fbf128e1647157911678c58fd2fca4c1a859a298664cb2ea56f8ab0ea29e')
+            '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -72,7 +70,7 @@ prepare() {
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
-  patch -Np1 -i "${srcdir}/prepatch-${_basekernel}-20161030"
+  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}-20161030"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
