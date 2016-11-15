@@ -13,8 +13,8 @@ _basekernel=4.4
 _basever=44
 _aufs=20160912
 _bfq=v7r8
-pkgver=${_basekernel}.31
-pkgrel=2
+pkgver=${_basekernel}.32
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -47,10 +47,9 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         '0001-sdhci-revert.patch'
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
-        'scsi-megaraid_sas-fix-macro-MEGASAS_IS_LOGICAL-to-avoid-regression.patch::http://git.kernel.org/cgit/linux/kernel/git/jejb/scsi.git/patch/?id=5e5ec1759dd663a1d5a2f10930224dd009e500e8'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            'cf3cfe911fdfd97a20c0a4e5039c31a53c2c811c26ef858070c0319061a7fa0d'
+            '329b6b24e9e02b2e01ab13a9f62f853b37272c4f1c210cdcdda93937e0d0cb18'
             '389490eab392a70e9882251df4eef4a55a64090c3f81ac554f620bcb16c5fbed'
             '4aba669ec026c2546a5c36432cb33a69994be141ead32b4e2aaa7c579970f3d4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -71,8 +70,7 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
-            '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
-            '822d34a6ed3f587ab745286dcae45614890c0d8652f699ccda26bdac11facb4c')
+            '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -90,10 +88,6 @@ prepare() {
   # https://bugzilla.kernel.org/show_bug.cgi?id=106541
   # https://github.com/manjaro/packages-core/issues/27
   patch -Rp1 -i "${srcdir}/0001-sdhci-revert.patch"
-
-  # fix megaraid_sas regression
-  # see also: http://www.spinics.net/lists/stable/msg150603.html, http://www.spinics.net/lists/stable/msg150608.html
-  patch -Np1 -i "${srcdir}/scsi-megaraid_sas-fix-macro-MEGASAS_IS_LOGICAL-to-avoid-regression.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
