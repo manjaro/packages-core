@@ -169,7 +169,7 @@ package_linux48() {
   fi
 
   # set correct depmod command for install
-  sed -e "s|%PKGBASE%|${pkgbase}|g;s|%KERNVER%|${_kernver}|g;s|%ARCH%|${CARCH}|g" \
+  sed -e "s|%BASEKERNEL%|${_basekernel}|g;s|%KERNVER%|${_kernver}|g;s|%ARCH%|${CARCH}|g" \
   "${startdir}/${install}" > "${startdir}/${install}.pkg"
 
   # install mkinitcpio preset file for kernel

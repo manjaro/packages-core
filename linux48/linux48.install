@@ -22,5 +22,5 @@ post_upgrade() {
 
 post_remove() {
   # also remove the compat symlinks
-  rm -f boot/initramfs-%PKGBASE%-%ARCH%*.img
+  rm -f boot/initramfs-%BASEKERNEL%-%ARCH%*.img
 }
