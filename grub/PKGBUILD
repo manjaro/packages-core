@@ -293,5 +293,5 @@ package() {
 	msg "Package grub bios stuff"
 	_package_grub-common_and_bios
 	
-	install -D -m644 "${srcdir}/${pkgname}.hook" "${pkgdir}/usr/share/libalpm/hooks/100-${pkgname}.hook"
+	install -D -m644 "${srcdir}/${pkgname}.hook" "${pkgdir}/usr/share/libalpm/hooks/99-${pkgname}.hook"
 }
