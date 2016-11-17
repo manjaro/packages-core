@@ -31,6 +31,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgbase}.preset"
+        "${pkgbase}.hook"
         "aufs4.x-rcN-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
@@ -48,10 +49,11 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "be-more-careful-about-matching-preprocessed-asm-___EXPORT_SYMBOL.patch::https://patchwork.kernel.org/patch/9418469/raw/"
 )
 sha256sums=('49a69ad592a96fa6c5215ad2de79bf64d094061a0828e0acf19ab711f467ee3a'
-            '01a6f6b2b68b4b96b8c8f3d81f1631028c2361cb3d3d6dd11b74b71d84a4fb60'
-            '165a02765c3b9c6d3cbc13a25cd18f36a69d10d06bc0c6a649fe64670a9ddfce'
+            '1a20b34f07df81db62c229a10648a35afbae46fda7367c059f28602eb4e82fd0'
+            '943e45194a654c844fb734a14f4fcde503a6a62a306097528eb405a4f05c8528'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
-            '6d058de24e029651eef6e7e0133616eddf710aa51dfbba1652026f57a35e42ad'
+            '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
+            '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
             '6c7f4e9f279a65caf40069fd16f08f72b40bf745ca0b152b7eff1f3bc4d0e103'
             '2032823bdf7edbcdc3b28d435ea4898c35eb1a7ee7a917472b14e92eb68fb37d'
             'bc14d5d8c6530672db0384f036ade6486da382bf1aa82e3ff1696d81a0695e98'
@@ -180,23 +182,17 @@ package_linux49() {
   fi
 
   # set correct depmod command for install
-  cp -f "${startdir}/${install}" "${startdir}/${install}.pkg"
+  sed -e "s|%BASEKERNEL%|${_basekernel}|g;s|%KERNVER%|${_kernver}|g;s|%ARCH%|${CARCH}|g" \
+  "${startdir}/${install}" > "${startdir}/${install}.pkg"
   true && install=${install}.pkg
-  sed \
-    -e  "s/RELEASE=.*/RELEASE=${pkgver}-${pkgrel}/g" \
-    -e  "s/KERNEL_VERSION=.*/KERNEL_VERSION=${_kernver}/g" \
-    -e  "s/KERNEL_BASE=.*/KERNEL_BASE=${_basekernel}/g" \
-    -e  "s/BASEVER=.*/BASEVER=${_basever}/g" \
-    -e  "s/ARCH=.*/ARCH=${CARCH}/g" \
-    -i "${startdir}/${install}"
 
   # install mkinitcpio preset file for kernel
-  install -D -m644 "${srcdir}/${pkgbase}.preset" "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
-  sed \
-    -e "s|ALL_kver=.*|ALL_kver=\"/boot/vmlinuz-${_basekernel}-${CARCH}\"|g" \
-    -e "s|default_image=.*|default_image=\"/boot/initramfs-${_basekernel}-${CARCH}.img\"|g" \
-    -e "s|fallback_image=.*|fallback_image=\"/boot/initramfs-${_basekernel}-${CARCH}-fallback.img\"|g" \
-    -i "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
+  sed "s|%PKGBASE%|${pkgbase}|g;s|%BASEKERNEL%|${_basekernel}|g;s|%ARCH%|${CARCH}|g" "${srcdir}/${pkgbase}.preset" |
+  install -D -m644 /dev/stdin "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
+
+  # install pacman hook for initramfs regeneration
+  sed "s|%PKGBASE%|${pkgbase}|g;s|%BASEKERNEL%|${_basekernel}|g;s|%ARCH%|${CARCH}|g" "${srcdir}/${pkgbase}.hook" |
+  install -D -m644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/98-${pkgbase}.hook"
 
   # remove build and source links
   rm -f "${pkgdir}"/lib/modules/${_kernver}/{source,build}
