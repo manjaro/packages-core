@@ -195,6 +195,7 @@ package_linux44() {
   # set correct depmod command for install
   sed -e "s|%BASEKERNEL%|${_basekernel}|g;s|%KERNVER%|${_kernver}|g;s|%ARCH%|${CARCH}|g" \
   "${startdir}/${install}" > "${startdir}/${install}.pkg"
+  true && install=${install}.pkg
 
   # install mkinitcpio preset file for kernel
   sed "s|%PKGBASE%|${pkgbase}|g;s|%BASEKERNEL%|${_basekernel}|g;s|%ARCH%|${CARCH}|g" "${srcdir}/${pkgbase}.preset" |
