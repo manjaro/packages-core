@@ -8,7 +8,7 @@
 
 _pkgver="2.02"
 _GRUB_GIT_TAG="grub-2.02-beta3"
-_SNAPSHOT="b524fa27f56381bb0efa4944e36f50265113aee5"
+_SNAPSHOT="0d663b50b9abf830fd10de384606a0632a605b77"
 _SNAPSHOT_EXTRAS="f2a079441939eee7251bf141986cdd78946e1d20"
 
 _UNIFONT_VER="6.3.20131217"
@@ -19,7 +19,7 @@ _UNIFONT_VER="6.3.20131217"
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.02.beta3
-pkgrel=2
+pkgrel=3
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -54,10 +54,11 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'background.png'
         'grub.default'
         'grub.cfg'
-        'update-grub')
+        'update-grub'
+        "${pkgname}.hook")
 
-sha256sums=('810dd7994d3e1fd133c232e85ace207e84d9177c9d7179f0e8d12be283de2645'
-            '196e9e3c1ae7c0e4ce1149bd46ef74ca03c0edb6542a5c235a65d2aeb6034438'
+sha256sums=('e453d3aec80f68f3643bf03e62fd3c4b73cf338e10ab6219b0008272e3b678d9'
+            '2844601914cea6b1231eca0104853a93c4d67a5209933a0766f1475953300646'
             '6dc2596a0cec08f36de7fb066f12015b572456c90d4e06ddc7b399a3e50b5f89'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
             '05852a81e75e779178da8f3d3402be7a9abde306e0b6e8236401226494e89ba0'
@@ -66,7 +67,8 @@ sha256sums=('810dd7994d3e1fd133c232e85ace207e84d9177c9d7179f0e8d12be283de2645'
             'b20172d7f753cf6a636595b37406b3070cd30d33072c15aea4a50a02ba4c85a5'
             '720db20a6a1c81864ad6405ef838db02206b53298fda48f383bebdb51eac56a8'
             '7fc95d49c0febe98a76e56b606a280565cb736580adecf163bc6b5aca8e7cbd8'
-            '467b0101154076fee99d9574a5fb6b772a3923cc200a1f4ca08fe17be8d68111')
+            '467b0101154076fee99d9574a5fb6b772a3923cc200a1f4ca08fe17be8d68111'
+            '7fe2188130d90cb0dedff663b45f05d78f8eae9ef367f44d5f7e35e87769007f')
 
 #pkgver() {
 #	cd "${srcdir}/grub-${_pkgver}/"
@@ -291,4 +293,5 @@ package() {
 	msg "Package grub bios stuff"
 	_package_grub-common_and_bios
 	
+	install -D -m644 "${srcdir}/${pkgname}.hook" "${pkgdir}/usr/share/libalpm/hooks/100-${pkgname}.hook"
 }
