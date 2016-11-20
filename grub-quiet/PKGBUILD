@@ -9,7 +9,7 @@
 
 _pkgver="2.02"
 _GRUB_GIT_TAG="grub-2.02-beta3"
-_SNAPSHOT="b524fa27f56381bb0efa4944e36f50265113aee5"
+_SNAPSHOT="0d663b50b9abf830fd10de384606a0632a605b77"
 _SNAPSHOT_EXTRAS="f2a079441939eee7251bf141986cdd78946e1d20"
 
 _UNIFONT_VER="6.3.20131217"
@@ -22,7 +22,7 @@ _pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (Silent grub menu version )"
 pkgver=2.02.beta3
 _pkgver=2.02
-pkgrel=2
+pkgrel=4
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -60,9 +60,10 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'update-grub'
 	'00_header.in.patch'
 	'30_os-prober.in.patch'
-	'https://anonscm.debian.org/cgit/pkg-grub/grub.git/plain/debian/patches/maybe_quiet.patch')
+	'https://anonscm.debian.org/cgit/pkg-grub/grub.git/plain/debian/patches/maybe_quiet.patch'
+	"${_pkgname}.hook")
 
-sha256sums=('9e9318e11f323ffe8bbf78e709e317f52cfc7b4dbd3760e23d335653b1150e12'
+sha256sums=('e453d3aec80f68f3643bf03e62fd3c4b73cf338e10ab6219b0008272e3b678d9'
             '2844601914cea6b1231eca0104853a93c4d67a5209933a0766f1475953300646'
             '6dc2596a0cec08f36de7fb066f12015b572456c90d4e06ddc7b399a3e50b5f89'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
@@ -75,7 +76,8 @@ sha256sums=('9e9318e11f323ffe8bbf78e709e317f52cfc7b4dbd3760e23d335653b1150e12'
             '467b0101154076fee99d9574a5fb6b772a3923cc200a1f4ca08fe17be8d68111'
             '8675f35b82cc745aff95ba1097b8ef6e33be28125c7f484a14e90b29e809517d'
             'eae59c76d4874478bab84bdf4807aaf5d634492a8994d947b68860abc1422e74'
-            '96f12d98e805c47b9236cc5a5dbf3c1677fe3f17ec5646da16088691d7f19d00')
+            '90a7ac172dcceefb0a7f4c9c311339e3b434a4a79b4fe8d7f75961cbf0213009'
+            '7fe2188130d90cb0dedff663b45f05d78f8eae9ef367f44d5f7e35e87769007f')
 
 #pkgver() {
 #	cd "${srcdir}/grub-${_pkgver}/"
@@ -315,5 +317,7 @@ package() {
 	
 	msg "Package grub bios stuff"
 	_package_grub-common_and_bios
+
+	install -D -m644 "${srcdir}/${_pkgname}.hook" "${pkgdir}/usr/share/libalpm/hooks/99-${_pkgname}.hook"
 	
 }
