@@ -13,7 +13,7 @@ _basekernel=4.9
 _basever=49
 _aufs=20161010
 _bfq=v8r5
-_rc=rc5
+_rc=rc6
 #_git=577f12c07e4edd54730dc559a9c7bc44d22bf7dc
 pkgver=${_basekernel}${_rc}
 pkgrel=1
@@ -44,13 +44,11 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        "modversions-for-EXPORT_SYMBOL-for-asm.patch::https://patchwork.kernel.org/patch/9406823/raw/"
         "provide-asm-prototypes.h-for-x86.patch::https://patchwork.kernel.org/patch/9408985/raw/"
-        "be-more-careful-about-matching-preprocessed-asm-___EXPORT_SYMBOL.patch::https://patchwork.kernel.org/patch/9418469/raw/"
 )
-sha256sums=('49a69ad592a96fa6c5215ad2de79bf64d094061a0828e0acf19ab711f467ee3a'
-            '1a20b34f07df81db62c229a10648a35afbae46fda7367c059f28602eb4e82fd0'
-            '943e45194a654c844fb734a14f4fcde503a6a62a306097528eb405a4f05c8528'
+sha256sums=('3c641aa15e104766135cc358339794402a211e72cbef812270b463f4fe23ae5f'
+            'feff75a30d4abf9b2ac06080878923a91e10efe6f282b38f5d55cfd85d16ca14'
+            '2aab8bdb5929eebf7fe1001636c8d50d292cc730fe28bb8f579886ea867c100a'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -64,9 +62,7 @@ sha256sums=('49a69ad592a96fa6c5215ad2de79bf64d094061a0828e0acf19ab711f467ee3a'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
             '3d77544765e5be3ee2db7fb9f835d1af68acc4ba41202c6589e46886d5f15c18'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'ff863a27c48ec32321a7a37e2b7aef675ce988a609f6eff238eddbc4b521d360'
-            '8f8ffc84ae1c3bbeb322ed68d74a7bc66ec595a7ec64f7e9131ccbc4550d91fc'
-            'af56fbd1c174421082fabd1c5034d848ec104b72f82809930bf7845feaeb7faa')
+            '8f8ffc84ae1c3bbeb322ed68d74a7bc66ec595a7ec64f7e9131ccbc4550d91fc')
 
 prepare() {
 #  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -76,9 +72,7 @@ prepare() {
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # Fix issue with not able to boot in x86_64
-  patch -Np1 -i "${srcdir}/modversions-for-EXPORT_SYMBOL-for-asm.patch"
   patch -Np1 -i "${srcdir}/provide-asm-prototypes.h-for-x86.patch"
-  patch -Np1 -i "${srcdir}/be-more-careful-about-matching-preprocessed-asm-___EXPORT_SYMBOL.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
