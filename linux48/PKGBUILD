@@ -13,7 +13,7 @@ _basekernel=4.8
 _basever=48
 _aufs=20161010
 _bfq=v8r4
-_sublevel=13
+_sublevel=14
 pkgver=${_basekernel}.${_sublevel}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -43,11 +43,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
-        'fix_race_condition_in_packet_set_ring.patch::https://marc.info/?l=linux-netdev&m=148054660230570&q=raw'
         'net_handle_no_dst_on_skb_in_icmp6_send.patch::https://patchwork.ozlabs.org/patch/699825/raw/'
 )
 sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
-            'f0e2f7f738e1a639956e01ba7ef8d3df40ecb5c7586eb366bcd4af70049a7a3c'
+            'efa9b7d87a6ca67426e3d7f206ac987eb7cb31602ad2011e81060626de790fcb'
             'dbcfb3c8a8c16b770482d249aa920d65def89dd44bbe6a755c3860ae520f4803'
             'd7da2d702eb1f27cc8f11e9676aff0609713b97091a71be9e7a4f8a216b57e42'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -64,7 +63,6 @@ sha256sums=('3e9150065f193d3d94bcf46a1fe9f033c7ef7122ab71d75a7fb5a2f0c9a7e11a'
             '319d01968b718983d6db8af20bb820e8dc499ba47f9231f30e9f8489cab18e49'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
-            '1a76658c6b22373f5289f15e8852960eadb5887bf67eed686eebf3de9f63b368'
             '9adfd80d61421bdeff168035d2fa39d73af1237d89b67ce37eff1f2cb3df032e')
 
 prepare() {
@@ -82,10 +80,6 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
-
-  # fix a race condition that allows to gain root
-  # https://marc.info/?l=linux-netdev&m=148054660230570&w=2
-  patch -p1 -i "${srcdir}/fix_race_condition_in_packet_set_ring.patch"
 
   # https://bugzilla.kernel.org/show_bug.cgi?id=189851
   patch -p1 -i "${srcdir}/net_handle_no_dst_on_skb_in_icmp6_send.patch"

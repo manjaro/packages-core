@@ -13,7 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20160912
 _bfq=v7r8
-pkgver=${_basekernel}.37
+pkgver=${_basekernel}.38
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -48,10 +48,9 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         '0001-sdhci-revert.patch'
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
-        'fix_race_condition_in_packet_set_ring.patch::https://marc.info/?l=linux-netdev&m=148054660230570&q=raw'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            '1dfa256765585bf85a17b7129d717761e12338c654a3a3a803f1d967ccfa54f3'
+            '48ec169c7adda820973b3cb9c4c91c72bb69c86f530d149065491a20ef0c4057'
             '389490eab392a70e9882251df4eef4a55a64090c3f81ac554f620bcb16c5fbed'
             '4aba669ec026c2546a5c36432cb33a69994be141ead32b4e2aaa7c579970f3d4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -73,8 +72,7 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
-            '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
-            '1a76658c6b22373f5289f15e8852960eadb5887bf67eed686eebf3de9f63b368')
+            '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -86,10 +84,6 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}-20161030"
-
-  # fix a race condition that allows to gain root
-  # https://marc.info/?l=linux-netdev&m=148054660230570&w=2
-  patch -p1 -i "${srcdir}/fix_race_condition_in_packet_set_ring.patch"
 
   # revert http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9faac7b95ea4f9e83b7a914084cc81ef1632fd91
   # fixes #47778 sdhci broken on some boards
