@@ -14,18 +14,18 @@ _basever=49
 _aufs=20161010
 _bfq=v8r5
 _rc=rc8
-#_git=577f12c07e4edd54730dc559a9c7bc44d22bf7dc
-pkgver=${_basekernel}${_rc}
-pkgrel=2
+#_git=69973b830859bc6529a7a0468ba0d80ee5117826
+pkgver=${_basekernel}.0
+pkgrel=0
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
 options=('!strip')
-source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
-        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-{_rc}.tar.xz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        #linux-${_basekernel}-${_rc}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
+        #linux-${_basekernel}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -45,9 +45,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         "provide-asm-prototypes.h-for-x86.patch::https://patchwork.kernel.org/patch/9408985/raw/"
-        'revert-8ab2ae6.patch::https://github.com/torvalds/linux/commit/8ab2ae655bfe384335c5b6b0d6041e0ddce26b00.patch'
 )
-sha256sums=('2717333631803036c1d11747199a70546056d436bef332b7aac624bf5055d0f7'
+sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'feff75a30d4abf9b2ac06080878923a91e10efe6f282b38f5d55cfd85d16ca14'
             '2aab8bdb5929eebf7fe1001636c8d50d292cc730fe28bb8f579886ea867c100a'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -63,12 +62,11 @@ sha256sums=('2717333631803036c1d11747199a70546056d436bef332b7aac624bf5055d0f7'
             '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
             '3d77544765e5be3ee2db7fb9f835d1af68acc4ba41202c6589e46886d5f15c18'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '8f8ffc84ae1c3bbeb322ed68d74a7bc66ec595a7ec64f7e9131ccbc4550d91fc'
-            '8fb03854ec52b4e2b8d7336da8abc9f96f579e346f0a3c21fa95143aa4c5b74f')
+            '8f8ffc84ae1c3bbeb322ed68d74a7bc66ec595a7ec64f7e9131ccbc4550d91fc')
 
 prepare() {
-#  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+#  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
@@ -77,9 +75,6 @@ prepare() {
   # Still needed. Linus had it marked as 'broken', however now re-enabled in a different manner
   # https://github.com/torvalds/linux/commit/faaae2a581435f32781a105dda3501df388fddcb
   patch -Np1 -i "${srcdir}/provide-asm-prototypes.h-for-x86.patch"
-
-  # Revert 8ab2ae6 as it creates issues with i686
-  patch -Rp1 -i "${srcdir}/revert-8ab2ae6.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -109,8 +104,9 @@ prepare() {
 #  patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
-  #sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|EXTRAVERSION = -rc2|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  #sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = |g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|EXTRAVERSION = -rc2|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|Psychotic Stoned Sheep|Roaring Lionus|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
@@ -151,7 +147,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -164,7 +160,7 @@ package_linux49() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -224,7 +220,7 @@ package_linux49-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
