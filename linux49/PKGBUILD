@@ -11,12 +11,12 @@ pkgname=('linux49' 'linux49-headers')
 _kernelname=-MANJARO
 _basekernel=4.9
 _basever=49
-_aufs=20161010
-_bfq=v8r5
+_aufs=20161219
+_bfq=v8r6-rc1
 _rc=rc8
 #_git=69973b830859bc6529a7a0468ba0d80ee5117826
 pkgver=${_basekernel}.0
-pkgrel=0
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -32,7 +32,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # standard config files for mkinitcpio ramdisk
         "${pkgbase}.preset"
         "${pkgbase}.hook"
-        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        "aufs4.9-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
         'aufs4-loopback.patch'
@@ -40,7 +40,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/07d9a38...2fd2302.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/69973b8...b573469.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
@@ -52,15 +52,15 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            '6c7f4e9f279a65caf40069fd16f08f72b40bf745ca0b152b7eff1f3bc4d0e103'
-            '2032823bdf7edbcdc3b28d435ea4898c35eb1a7ee7a917472b14e92eb68fb37d'
-            'bc14d5d8c6530672db0384f036ade6486da382bf1aa82e3ff1696d81a0695e98'
-            '312244bbfad0d6e884243fd0d2822c9af67c8687e984399f517a227a131c3c1d'
-            '7467098a46b00387aaaf2bb21ae2384ae62fa27e2fb4f2e65bdf473cd4d1c7ea'
-            '0f676a23b6132eab805d87f9e7bac5fd4f83cb939f161e919dc203278913576a'
-            'e6cb25e63c38a2557dc1eff0ab81b58b7bf37851b550de0b7954704947ddc181'
-            '1186b06cebc3f216a6bf28ce2c98592635b10ba51ff8baa123f38bf86e20d747'
-            '3d77544765e5be3ee2db7fb9f835d1af68acc4ba41202c6589e46886d5f15c18'
+            'fde2f9a54eb848c2f426af86f5ec7972dfe213517bc3e9739164887fb5da6681'
+            'b2d01dea4b4f4886b86908d150a95bb0dcfd13754dc82ad636323510639f6ec7'
+            'cc46a882be029cdcdf134915e34286db2af58b4f91a8b520dd11c15129a765c4'
+            'b3eb489076c5846d2e0a305a41ad1872a50b7eeb183ef13ba7189cbc5ba7b5a9'
+            'c09bd6bd30dbed6f8bd8586abb2419dab3d56ced77284c69bc8dfb29e1bc90a2'
+            '53231c97d22ef2972262d4dfe3541259c912b428c12efe6f0f5c3ad688fee421'
+            'db7a22592a3d192dd84c84c20f361972bccfd84de346d8d7684488d118eade83'
+            'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
+            'bd45e324709c8ed883ddc5bca3b0f011ebac88bad9d109c0da7e3ad22d665478'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '8f8ffc84ae1c3bbeb322ed68d74a7bc66ec595a7ec64f7e9131ccbc4550d91fc')
 
@@ -86,27 +86,17 @@ prepare() {
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
 
-# currently broken
-
-#fs/aufs/i_op.c:1410:14: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
-#   .rename  = aufs_rename,
-#              ^~~~~~~~~~~
-#fs/aufs/i_op.c:1410:14: note: (near initialization for ‘aufs_iop[1].rename’)
-
   # add aufs4 support
-#  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-#  patch -Np1 -i "${srcdir}/aufs4-base.patch"
-#  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-#  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
-#  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-#  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
-#  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
-#  patch -Np1 -i "${srcdir}/vfs-ino.patch"
+  patch -Np1 -i "${srcdir}/aufs4.9-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
-  #sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = |g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|EXTRAVERSION = -rc2|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|Psychotic Stoned Sheep|Roaring Lionus|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then

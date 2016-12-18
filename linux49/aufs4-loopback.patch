@@ -1,7 +1,7 @@
-aufs4.x-rcN loopback patch
+aufs4.9 loopback patch
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 005e292..e9e517d 100644
+index 6ee9235..f64161f 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -551,7 +551,7 @@ static int do_req_filebacked(struct loop_device *lo, struct request *rq)
@@ -141,7 +141,7 @@ index 005e292..e9e517d 100644
   out:
  	/* This is safe: open() is still holding a reference. */
  	module_put(THIS_MODULE);
-@@ -1021,6 +1054,7 @@ loop_init_xfer(struct loop_device *lo, struct loop_func_table *xfer,
+@@ -1021,6 +1054,7 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
  static int loop_clr_fd(struct loop_device *lo)
  {
  	struct file *filp = lo->lo_backing_file;
@@ -180,10 +180,10 @@ index fb2237c..c3888c5 100644
  	unsigned	lo_blocksize;
  	void		*key_data; 
 diff --git a/fs/aufs/f_op.c b/fs/aufs/f_op.c
-index 00475fb..01390e1 100644
+index d2a9a1d..d7519d0 100644
 --- a/fs/aufs/f_op.c
 +++ b/fs/aufs/f_op.c
-@@ -348,7 +348,7 @@ static ssize_t aufs_read_iter(struct kiocb *kio, struct iov_iter *iov_iter)
+@@ -351,7 +351,7 @@ static ssize_t aufs_read_iter(struct kiocb *kio, struct iov_iter *iov_iter)
  	if (IS_ERR(h_file))
  		goto out;
  
@@ -220,7 +220,7 @@ diff --git a/fs/aufs/loop.h b/fs/aufs/loop.h
 index 48bf070..66afec7 100644
 --- a/fs/aufs/loop.h
 +++ b/fs/aufs/loop.h
-@@ -25,7 +25,11 @@ void au_warn_loopback(struct super_block *h_sb);
+@@ -25,7 +25,11 @@
  
  int au_loopback_init(void);
  void au_loopback_fin(void);
@@ -232,7 +232,7 @@ index 48bf070..66afec7 100644
  AuStubInt0(au_test_loopback_overlap, struct super_block *sb,
  	   struct dentry *h_adding)
  AuStubInt0(au_test_loopback_kthread, void)
-@@ -33,6 +37,8 @@ AuStubVoid(au_warn_loopback, struct super_block *h_sb)
+@@ -33,6 +37,8 @@
  
  AuStubInt0(au_loopback_init, void)
  AuStubVoid(au_loopback_fin, void)
@@ -242,10 +242,10 @@ index 48bf070..66afec7 100644
  
  #endif /* __KERNEL__ */
 diff --git a/fs/aufs/super.c b/fs/aufs/super.c
-index 58a773c..75f212c 100644
+index 0082ce4..5085378 100644
 --- a/fs/aufs/super.c
 +++ b/fs/aufs/super.c
-@@ -831,7 +831,10 @@ static const struct super_operations aufs_sop = {
+@@ -839,7 +839,10 @@ static int aufs_remount_fs(struct super_block *sb, int *flags, char *data)
  	.statfs		= aufs_statfs,
  	.put_super	= aufs_put_super,
  	.sync_fs	= aufs_sync_fs,
@@ -258,10 +258,10 @@ index 58a773c..75f212c 100644
  
  /* ---------------------------------------------------------------------- */
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index fc80663..0c4c6fa 100644
+index a903bc3..db820e3 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1814,6 +1814,10 @@ struct super_operations {
+@@ -1823,6 +1823,10 @@ struct super_operations {
  				  struct shrink_control *);
  	long (*free_cached_objects)(struct super_block *,
  				    struct shrink_control *);
