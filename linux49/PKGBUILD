@@ -12,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _basever=49
 _aufs=20161219
-_bfq=v8r6-rc1
+_bfq=v8r6
 _rc=rc8
 #_git=69973b830859bc6529a7a0468ba0d80ee5117826
 pkgver=${_basekernel}.0
@@ -40,7 +40,11 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/69973b8...b573469.patch"
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-4.5.0.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.5.0.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
+        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0004-Turn-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
+
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
@@ -61,7 +65,10 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '53231c97d22ef2972262d4dfe3541259c912b428c12efe6f0f5c3ad688fee421'
             'db7a22592a3d192dd84c84c20f361972bccfd84de346d8d7684488d118eade83'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
-            'bd45e324709c8ed883ddc5bca3b0f011ebac88bad9d109c0da7e3ad22d665478'
+            'ee2fb11cdeab92bd93fd80044b698ff7b2abf4573a35fd891864419b3c650b23'
+            'edc0693cf16900c790a4bb25ab2f7482a4c5bb1f998e59b23dea486989abbe07'
+            '2dd17bdf945b973b569c8614a1de943833d7e3e4d60921308d580d944f922fa7'
+            '7a761aa7cf64f329473a0294e447dd047d78e90f3cd9c2075a2e92c0b054dbd8'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             'bee3f78a9df6c13f376521f7456189db3d267b1352e0adacf3affb7d0b919cd7'
             'b1318441013e2fd4f411d2291ebfb87b990a740417611faa5e317fc37bb7e9a6')
@@ -102,7 +109,10 @@ prepare() {
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
-  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
+  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
+  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
+  patch -Np1 -i "${srcdir}/0004-Turn-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
