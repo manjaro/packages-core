@@ -44,12 +44,12 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        #"provide-asm-prototypes.h-for-x86.patch::https://patchwork.kernel.org/patch/9408985/raw/"
         "enable-modversions-for-symbols-exported-from-asm.patch::https://github.com/torvalds/linux/commit/334bb773.patch"
+        "https://git.kernel.org/cgit/linux/kernel/git/stable/stable-queue.git/plain/queue-4.9/hotplug-make-register-and-unregister-notifier-api-symmetric.patch"
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            '6a1f9d726fee9ea1b65414d6cb777aa90169cef92875dccdd50c03fb9c329c59'
-            'd9d165ca702a5ef0d91d1a5ac9cd44c6b3443698b26b35c94df77a59ce4ca2d6'
+            '7af47f8ffc5f734aa4cea2303dd8c162c5821523015197c1b7b7261e89fab7cd'
+            'a4d4cda790847747136c55ea491dddd016316603387bfaa62700d08d9e445ae0'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -63,7 +63,8 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
             'bd45e324709c8ed883ddc5bca3b0f011ebac88bad9d109c0da7e3ad22d665478'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'bee3f78a9df6c13f376521f7456189db3d267b1352e0adacf3affb7d0b919cd7')
+            'bee3f78a9df6c13f376521f7456189db3d267b1352e0adacf3affb7d0b919cd7'
+            'b1318441013e2fd4f411d2291ebfb87b990a740417611faa5e317fc37bb7e9a6')
 
 prepare() {
 #  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -75,8 +76,10 @@ prepare() {
   # Fix issue with not able to boot, when modversions is enabled
   # Still needed. Linus had it marked as 'broken', however now re-enabled in a different manner
   # https://github.com/torvalds/linux/commit/faaae2a581435f32781a105dda3501df388fddcb
-  #patch -Np1 -i "${srcdir}/provide-asm-prototypes.h-for-x86.patch"
   patch -Np1 -i "${srcdir}/enable-modversions-for-symbols-exported-from-asm.patch"
+
+  # Fix issue with 'hotplug: Allow modules to use the cpu hotplug notifiers even if !CONFIG_HOTPLUG_CPU")'
+  patch -Np1 -i "${srcdir}/hotplug-make-register-and-unregister-notifier-api-symmetric.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -107,7 +110,7 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-#  cat "${srcdir}/config.aufs" >> ./.config
+  cat "${srcdir}/config.aufs" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
