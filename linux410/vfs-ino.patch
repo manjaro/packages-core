@@ -1,0 +1,22 @@
+diff --git a/fs/inode.c b/fs/inode.c
+index 88110fd..64a2f22 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -855,6 +855,8 @@ unsigned int get_next_ino(void)
+ 	unsigned int *p = &get_cpu_var(last_ino);
+ 	unsigned int res = *p;
+ 
++start:
++
+ #ifdef CONFIG_SMP
+ 	if (unlikely((res & (LAST_INO_BATCH-1)) == 0)) {
+ 		static atomic_t shared_last_ino;
+@@ -867,7 +869,7 @@ unsigned int get_next_ino(void)
+ 	res++;
+ 	/* get_next_ino should not provide a 0 inode number */
+ 	if (unlikely(!res))
+-		res++;
++		goto start;
+ 	*p = res;
+ 	put_cpu_var(last_ino);
+ 	return res;
