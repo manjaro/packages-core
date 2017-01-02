@@ -13,10 +13,10 @@ _basekernel=4.10
 _basever=410
 _aufs=20161219
 _bfq=v8r6
-_rc=rc1
+_rc=rc2
 #_git=69973b830859bc6529a7a0468ba0d80ee5117826
 pkgver=${_basekernel}${_rc}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -40,7 +40,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/ba6d973...bcf5d3e.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/238d1d0...b3308df.patch"
         #"0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-4.5.0.patch"
         #"0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.5.0.patch"
         #"0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
@@ -48,10 +48,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
 
         # ARCH Patches
         # MANJARO Patches
-        'smp-hotplug-Undo-tglxs-brainfart.patch::https://patchwork.kernel.org/patch/9488835/raw/'
-        'x86-mce-AMD-Make-the-init-code-more-robust.patch::https://patchwork.kernel.org/patch/9488833/raw/'
 )
-sha256sums=('9eaa1dd59f2b51c85c193b2c3daecbb7994f1ca546f8bae339f54b1323ebeae8'
+sha256sums=('f81fb25cb4898ba8b9e881f6c2e56741efb63cceba8f3333aedacaba71357ce4'
             '59ba41a830b61b3c36f0ea7bacfc7fd43b1569f6ee4494a8752795f4324a9738'
             'ee413230628c44034e9b58e6c84f7af8480370f6f411b488dc093b4bc4bbf9f5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -65,9 +63,7 @@ sha256sums=('9eaa1dd59f2b51c85c193b2c3daecbb7994f1ca546f8bae339f54b1323ebeae8'
             '03e3f94b000fadec0ffffac2204984aefed64c39dc7704316ade7c721443668d'
             'db7a22592a3d192dd84c84c20f361972bccfd84de346d8d7684488d118eade83'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
-            '4e99374e726347c2d03d7d66ccae9e8abda0319e14b4569b1fdb7fa5731bbb14'
-            '54d5d48c3ae8a198cfe50bce077ba897a6b7fe0c44c001c84d56763e37b7dd6e'
-            '3e5a79fe1682ef681e7d34607487582c98f17997a6c27ffd4ce395a0d5ad3e7e')
+            'e85333db9e658c619125223139f70da0e0a5cd4aeca706f4c75c5397839840e9')
 
 prepare() {
 #  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -75,9 +71,6 @@ prepare() {
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
-
-  patch -p1 -i "${srcdir}/smp-hotplug-Undo-tglxs-brainfart.patch"
-  patch -p1 -i "${srcdir}/x86-mce-AMD-Make-the-init-code-more-robust.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
