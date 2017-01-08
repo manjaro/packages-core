@@ -1,10 +1,24 @@
 post_install () {
+  # EOL
+  echo ">>> NOTE, 4.8.17 was the last maintained maintenance release"
+  echo "    by Greg Kroah-Hartman. "
+  echo "    "
+  echo "    It is recommend to move on to linux49-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux49'"
+  echo "    "
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod %KERNVER%
 }
 
 post_upgrade() {
+  # EOL
+  echo ">>> NOTE, 4.8.17 was the last maintained maintenance release"
+  echo "    by Greg Kroah-Hartman. "
+  echo "    "
+  echo "    It is recommend to move on to linux49-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux49'"
+  echo "    "
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
     echo "WARNING: /boot appears to be a separate partition but is not mounted."
   fi
