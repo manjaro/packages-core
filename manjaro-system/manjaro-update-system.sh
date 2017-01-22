@@ -42,8 +42,19 @@ detectDE()
 
 post_upgrade() {
 
-	# avoid upgrading problems when lib32-libcurl-{gnutls,compat} is installed and lib32-curl, because 
-	# ldconfig creates /usr/lib32/libcurl.so.4 that is provided by lib32-curl
+	# avoid upgrading problems when lib32-libnm-glib46 is installed and lib32-libnm-glib is not, and we want to install lib32-libnm-glib.
+	# ldconfig creates varous symlink in /usr/lib32/ from the lib32-libnm-glib46 packages but lib32-libnm-glib provides those files.
+	pacman -Q lib32-libnm-glib &> /tmp/cmd1
+	pacman -Q lib32-libnm-glib46 &> /tmp/cmd2
+	if [ "$(grep 'lib32-libnm-glib' /tmp/cmd1 | cut -d' ' -f1)" != "lib32-libnm-glib" ]; then
+		if [ "$(grep 'lib32-libnm-glib46' /tmp/cmd2 | cut -d' ' -f1)" == "lib32-libnm-glib46" ]; then
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm --force -S lib32-libnm-glib
+		fi
+	fi
+
+	# avoid upgrading problems when lib32-libcurl-{gnutls,compat} is installed and lib32-curl is not, and we want to install lib32-curl.
+	# ldconfig creates /usr/lib32/libcurl.so.4 from the lib32-libcurl-{gnutls,compat} packages but lib32-curl provides that file.
 	pacman -Q lib32-curl &> /tmp/cmd1
 	pacman -Q lib32-libcurl-gnutls &> /tmp/cmd2
 	pacman -Q lib32-libcurl-compat &> /tmp/cmd3
@@ -51,13 +62,13 @@ post_upgrade() {
 		if [ "$(grep 'lib32-libcurl-gnutls' /tmp/cmd2 | cut -d' ' -f1)" == "lib32-libcurl-gnutls" ]; then
 			if [ "$(vercmp $(grep 'lib32-libcurl-gnutls' /tmp/cmd2 | cut -d' ' -f2) 7.52.1-1)" -le 0 ]; then
 				rm /var/lib/pacman/db.lck &> /dev/null
-				pacman --noconfirm --force -S lib32-libcurl-gnutls lib32-curl
+				pacman --noconfirm --force -S lib32-curl
 			fi
 		fi
 		if [ "$(grep 'lib32-libcurl-compat' /tmp/cmd3 | cut -d' ' -f1)" == "lib32-libcurl-compat" ]; then 
 			if [ "$(vercmp $(grep 'lib32-libcurl-compat' /tmp/cmd3 | cut -d' ' -f2) 7.52.1-1)" -le 0 ]; then
 				rm /var/lib/pacman/db.lck &> /dev/null
-				pacman --noconfirm --force -S lib32-libcurl-compat lib32-curl
+				pacman --noconfirm --force -S lib32-curl
 			fi
 		fi
 	fi
