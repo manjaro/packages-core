@@ -1,4 +1,3 @@
-
 err() {
     ALL_OFF="\e[1;0m"
     BOLD="\e[1;1m"
@@ -42,6 +41,26 @@ detectDE()
 }
 
 post_upgrade() {
+
+	# avoid upgrading problems when lib32-libcurl-{gnutls,compat} is installed and lib32-curl, because 
+	# ldconfig creates /usr/lib32/libcurl.so.4 that is provided by lib32-curl
+	pacman -Q lib32-curl &> /tmp/cmd1
+	pacman -Q lib32-libcurl-gnutls &> /tmp/cmd2
+	pacman -Q lib32-libcurl-compat &> /tmp/cmd3
+	if [ "$(grep 'lib32-curl' /tmp/cmd1 | cut -d' ' -f1)" != "lib32-curl" ]; then
+		if [ "$(grep 'lib32-libcurl-gnutls' /tmp/cmd2 | cut -d' ' -f1)" == "lib32-libcurl-gnutls" ]; then
+			if [ "$(vercmp $(grep 'lib32-libcurl-gnutls' /tmp/cmd2 | cut -d' ' -f2) 7.52.1-1)" -le 0 ]; then
+				rm /var/lib/pacman/db.lck &> /dev/null
+				pacman --noconfirm --force -S lib32-libcurl-gnutls lib32-curl
+			fi
+		fi
+		if [ "$(grep 'lib32-libcurl-compat' /tmp/cmd3 | cut -d' ' -f1)" == "lib32-libcurl-compat" ]; then 
+			if [ "$(vercmp $(grep 'lib32-libcurl-compat' /tmp/cmd3 | cut -d' ' -f2) 7.52.1-1)" -le 0 ]; then
+				rm /var/lib/pacman/db.lck &> /dev/null
+				pacman --noconfirm --force -S lib32-libcurl-compat lib32-curl
+			fi
+		fi
+	fi
 
 	# fix upgrading ttf-dejavu when version is 2.35-1 or less
 	pacman -Q ttf-dejavu &> /tmp/cmd1
