@@ -12,9 +12,9 @@ _kernelname=-MANJARO
 _basekernel=4.10
 _basever=410
 _aufs=20161219
-_bfq=v8r6
-_rc=rc3
-_git=a121103c922847ba5010819a3f250f1f7fc84ab8
+_bfq=v8r7
+_rc=rc5
+_git=7a308bb3016f57e5be11a677d15b821536419d36
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -40,19 +40,16 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/238d1d0...b3308df.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/5cf7a0f...033aef5.patch"
         #"0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-4.5.0.patch"
         #"0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.5.0.patch"
         #"0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
         #"http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0004-Turn-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
 
         # ARCH Patches
-        
         # MANJARO Patches
-        #https://forum.manjaro.org/t/linux-4-10rc-patch-request-hwmon-device-register-is-deprecated/15590
-        https://patchwork.codeaurora.org/patch/136835/raw/
 )
-sha256sums=('18305d3156aeaad3a7738ddb811758f11c84f6b53b98a94371ff40b62c6faeb8'
+sha256sums=('2c0af38ce7b8774d93e1618dd17768561b50da566b49c4e05838975f4f16aa61'
             '59ba41a830b61b3c36f0ea7bacfc7fd43b1569f6ee4494a8752795f4324a9738'
             'ee413230628c44034e9b58e6c84f7af8480370f6f411b488dc093b4bc4bbf9f5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -66,8 +63,7 @@ sha256sums=('18305d3156aeaad3a7738ddb811758f11c84f6b53b98a94371ff40b62c6faeb8'
             '03e3f94b000fadec0ffffac2204984aefed64c39dc7704316ade7c721443668d'
             'db7a22592a3d192dd84c84c20f361972bccfd84de346d8d7684488d118eade83'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
-            'e85333db9e658c619125223139f70da0e0a5cd4aeca706f4c75c5397839840e9'
-            '')
+            'ee6413299081e223df74bb72e7dc2d6cfcfcd4e85afff8ef49812ab2e64722c3')
 
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
@@ -106,11 +102,10 @@ prepare() {
   #patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
   #patch -Np1 -i "${srcdir}/0004-Turn-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   #sed -i -e "s|PATCHLEVEL = 9|PATCHLEVEL = 10|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|EXTRAVERSION = -rc1|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|EXTRAVERSION = -rc4|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|Roaring Lionus|Anniversary Edition|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  
-  #hwmon-device-register-is-deprecated
-  patch -Np1 -i "${srcdir}/v2-thermal-thermal_hwmon-Convert-to-hwmon_device_register_with_info.patch
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
