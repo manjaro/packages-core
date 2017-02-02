@@ -13,8 +13,8 @@ _basekernel=4.10
 _basever=410
 _aufs=20161219
 _bfq=v8r7
-_rc=rc5
-_git=7a308bb3016f57e5be11a677d15b821536419d36
+_rc=rc6
+_git=566cf877a1fcb6d6dc0126b076aad062054c2637
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -49,7 +49,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         # MANJARO Patches
 )
-sha256sums=('2c0af38ce7b8774d93e1618dd17768561b50da566b49c4e05838975f4f16aa61'
+sha256sums=('649267f4396107061c57e3c5b3ba72991ad6b820061ef88dd83e6982a52eb07e'
             '59ba41a830b61b3c36f0ea7bacfc7fd43b1569f6ee4494a8752795f4324a9738'
             'ee413230628c44034e9b58e6c84f7af8480370f6f411b488dc093b4bc4bbf9f5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -103,7 +103,7 @@ prepare() {
   #patch -Np1 -i "${srcdir}/0004-Turn-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   #sed -i -e "s|PATCHLEVEL = 9|PATCHLEVEL = 10|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   sed -i -e "s|EXTRAVERSION = -rc4|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|Roaring Lionus|Anniversary Edition|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|Roaring Lionus|Fearless Coyote|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
