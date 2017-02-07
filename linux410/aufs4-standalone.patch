@@ -1,7 +1,7 @@
 aufs4.x-rcN standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index df0268c..755fea1 100644
+index 8ca5f09..b1ff5be 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
 @@ -1272,6 +1272,7 @@ void d_walk(struct dentry *parent, void *data,
@@ -10,9 +10,9 @@ index df0268c..755fea1 100644
  }
 +EXPORT_SYMBOL_GPL(d_walk);
  
- /*
-  * Search for at least 1 mount point in the dentry's subdirs.
-@@ -2855,6 +2856,7 @@ void d_exchange(struct dentry *dentry1, struct dentry *dentry2)
+ struct check_mount {
+ 	struct vfsmount *mnt;
+@@ -2864,6 +2865,7 @@ void d_exchange(struct dentry *dentry1, struct dentry *dentry2)
  
  	write_sequnlock(&rename_lock);
  }
@@ -21,7 +21,7 @@ index df0268c..755fea1 100644
  /**
   * d_ancestor - search for an ancestor
 diff --git a/fs/exec.c b/fs/exec.c
-index 4e497b9..e27d323 100644
+index e579466..2566b16 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
 @@ -104,6 +104,7 @@ bool path_noexec(const struct path *path)
@@ -33,7 +33,7 @@ index 4e497b9..e27d323 100644
  #ifdef CONFIG_USELIB
  /*
 diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 6f42279..04fd33c 100644
+index 9f07008..d60b682 100644
 --- a/fs/fcntl.c
 +++ b/fs/fcntl.c
 @@ -82,6 +82,7 @@ int setfl(int fd, struct file * filp, unsigned long arg)
@@ -45,7 +45,7 @@ index 6f42279..04fd33c 100644
  static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
                       int force)
 diff --git a/fs/file_table.c b/fs/file_table.c
-index ad17e05..ae9f267 100644
+index 6d982b5..9a3c6c8 100644
 --- a/fs/file_table.c
 +++ b/fs/file_table.c
 @@ -147,6 +147,7 @@ struct file *get_empty_filp(void)
@@ -93,10 +93,10 @@ index 9a9ba3a..a3a18d8 100644
  /**
   *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
-index e6c234b..8d13f7b 100644
+index 487ba30..642069d 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -466,6 +466,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
+@@ -462,6 +462,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
  	mnt_dec_writers(real_mount(mnt));
  	preempt_enable();
  }
@@ -104,7 +104,7 @@ index e6c234b..8d13f7b 100644
  
  /**
   * mnt_drop_write - give up write access to a mount
-@@ -1823,6 +1824,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+@@ -1872,6 +1873,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
  	}
  	return 0;
  }
@@ -149,7 +149,7 @@ index fbe3cbe..bdfc61e 100644
  int fsnotify_fasync(int fd, struct file *file, int on)
  {
 diff --git a/fs/notify/mark.c b/fs/notify/mark.c
-index d3fea0b..5fc06ad 100644
+index 6043306..fdb50e4 100644
 --- a/fs/notify/mark.c
 +++ b/fs/notify/mark.c
 @@ -113,6 +113,7 @@ void fsnotify_put_mark(struct fsnotify_mark *mark)
@@ -176,7 +176,7 @@ index d3fea0b..5fc06ad 100644
  
  int fsnotify_add_mark(struct fsnotify_mark *mark, struct fsnotify_group *group,
  		      struct inode *inode, struct vfsmount *mnt, int allow_dups)
-@@ -533,6 +536,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
+@@ -521,6 +524,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
  	atomic_set(&mark->refcnt, 1);
  	mark->free_mark = free_mark;
  }
@@ -185,7 +185,7 @@ index d3fea0b..5fc06ad 100644
  /*
   * Destroy all marks in destroy_list, waits for SRCU period to finish before
 diff --git a/fs/open.c b/fs/open.c
-index d3ed817..20d2494 100644
+index 9921f70..80d94c0 100644
 --- a/fs/open.c
 +++ b/fs/open.c
 @@ -64,6 +64,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
@@ -205,7 +205,7 @@ index d3ed817..20d2494 100644
  static int do_dentry_open(struct file *f,
  			  struct inode *inode,
 diff --git a/fs/read_write.c b/fs/read_write.c
-index 4052813..7dfd732 100644
+index 670b365..f9f8bb1 100644
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
 @@ -525,6 +525,7 @@ vfs_readf_t vfs_readf(struct file *file)
@@ -225,10 +225,10 @@ index 4052813..7dfd732 100644
  ssize_t __kernel_write(struct file *file, const char *buf, size_t count, loff_t *pos)
  {
 diff --git a/fs/splice.c b/fs/splice.c
-index 28160a7..98c1902 100644
+index 7899532..c0df111 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
-@@ -868,6 +868,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+@@ -869,6 +869,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
  
  	return splice_write(pipe, out, ppos, len, flags);
  }
@@ -236,7 +236,7 @@ index 28160a7..98c1902 100644
  
  /*
   * Attempt to initiate a splice from a file to a pipe.
-@@ -897,6 +898,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
+@@ -898,6 +899,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
  
  	return splice_read(in, ppos, pipe, len, flags);
  }
@@ -244,11 +244,23 @@ index 28160a7..98c1902 100644
  
  /**
   * splice_direct_to_actor - splices data directly between two non-pipes
+diff --git a/fs/sync.c b/fs/sync.c
+index 7a5fa3f..c9b9d46 100644
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -38,6 +38,7 @@ int __sync_filesystem(struct super_block *sb, int wait)
+ 		sb->s_op->sync_fs(sb, wait);
+ 	return __sync_blockdev(sb->s_bdev, wait);
+ }
++EXPORT_SYMBOL_GPL(__sync_filesystem);
+ 
+ /*
+  * Write out and wait upon all dirty data associated with this
 diff --git a/fs/xattr.c b/fs/xattr.c
-index 2d13b4e..41c2bcd 100644
+index 7e3317c..88910fe 100644
 --- a/fs/xattr.c
 +++ b/fs/xattr.c
-@@ -296,6 +296,7 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
+@@ -296,6 +296,7 @@ vfs_getxattr_alloc(struct dentry *dentry, const char *name, char **xattr_value,
  	*xattr_value = value;
  	return error;
  }
