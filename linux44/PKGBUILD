@@ -45,7 +45,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
+        # "0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         '0001-sdhci-revert.patch'
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
 )
@@ -70,7 +70,6 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             'b17c3fb18c5b8c20a45a38198f293679ca6aef08d16f12cd816a5cfafac4b2c4'
             '69a21bc286a628128cfc4723558829cb6ff6c2d7c4dfd4468457898674187b25'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '13dfa028214687b3f40b686d7a7fd370b3179a8df90dfb3b00a098cf454b2a7b'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
             '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758')
 
@@ -121,7 +120,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
-  patch -Np1 -i "${srcdir}/0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
+  # patch -Np1 -i "${srcdir}/0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
