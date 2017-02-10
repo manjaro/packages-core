@@ -1,10 +1,24 @@
 post_install () {
+  echo ">>> NOTE, 3.18.47 was the last maintained maintenance release"
+  echo "    by Sasha Levin. However Greg Kroah-Hartman released a bugfix"
+  echo "    release as 3.18.48. Future of this series is unsure!"
+  echo "    "
+  echo "    It is recommend to move on to linux44-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux44'"
+  echo "    "
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod %KERNVER%
 }
 
 post_upgrade() {
+  echo ">>> NOTE, 3.18.47 was the last maintained maintenance release"
+  echo "    by Sasha Levin. However Greg Kroah-Hartman released a bugfix"
+  echo "    release as 3.18.48. Future of this series is unsure!"
+  echo "    "
+  echo "    It is recommend to move on to linux44-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux44'"
+  echo "    "
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
     echo "WARNING: /boot appears to be a separate partition but is not mounted."
   fi

@@ -162,6 +162,19 @@ index 4cf700d..30a091d 100644
  {
  	ssize_t (*splice_read)(struct file *, loff_t *,
  			       struct pipe_inode_info *, size_t, unsigned int);
+diff --git a/fs/sync.c b/fs/sync.c
+index dd5d171..195f224 100644
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -27,7 +27,7 @@
+  * wait == 1 case since in that case write_inode() functions do
+  * sync_dirty_buffer() and thus effectively write one block at a time.
+  */
+-static int __sync_filesystem(struct super_block *sb, int wait)
++int __sync_filesystem(struct super_block *sb, int wait)
+ {
+ 	if (wait)
+ 		sync_inodes_sb(sb);
 diff --git a/include/linux/file.h b/include/linux/file.h
 index f87d308..9a290b3 100644
 --- a/include/linux/file.h
@@ -175,7 +188,7 @@ index f87d308..9a290b3 100644
  static inline void fput_light(struct file *file, int fput_needed)
  {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 3aa5142..36a997e 100644
+index 3aa5142..3caee5b 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
 @@ -1233,6 +1233,7 @@ extern void fasync_free(struct fasync_struct *);
@@ -215,6 +228,14 @@ index 3aa5142..36a997e 100644
  
  /* /sys/fs */
  extern struct kobject *fs_kobj;
+@@ -2296,6 +2305,7 @@ static inline int sb_is_blkdev_sb(struct super_block *sb)
+ 	return 0;
+ }
+ #endif
++extern int __sync_filesystem(struct super_block *, int);
+ extern int sync_filesystem(struct super_block *);
+ extern const struct file_operations def_blk_fops;
+ extern const struct file_operations def_chr_fops;
 diff --git a/include/linux/splice.h b/include/linux/splice.h
 index da2751d..2e0fca6 100644
 --- a/include/linux/splice.h

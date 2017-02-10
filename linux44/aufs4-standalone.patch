@@ -236,6 +236,18 @@ index 30a091d..b0ade1f 100644
  
  /**
   * splice_direct_to_actor - splices data directly between two non-pipes
+diff --git a/fs/sync.c b/fs/sync.c
+index 195f224..cd284a8 100644
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -38,6 +38,7 @@ int __sync_filesystem(struct super_block *sb, int wait)
+ 		sb->s_op->sync_fs(sb, wait);
+ 	return __sync_blockdev(sb->s_bdev, wait);
+ }
++EXPORT_SYMBOL_GPL(__sync_filesystem);
+ 
+ /*
+  * Write out and wait upon all dirty data associated with this
 diff --git a/fs/xattr.c b/fs/xattr.c
 index 9b932b9..0c317c4 100644
 --- a/fs/xattr.c
