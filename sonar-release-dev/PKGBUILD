@@ -1,0 +1,20 @@
+# Maintainer: Guinux <nuxgui@gmail.com>
+
+pkgname=sonar-release-dev
+pkgver=17.0
+pkgrel=1
+pkgdesc="Sonar's release definition"
+arch=("any")
+url="http://www.sonargnulinux.com"
+license=('GPL2')
+depends=('lsb-release')
+source=('lsb-release')
+conflicts=('sonar-release' 'manjaro-release')
+install="sonar-release.install"
+sha256sums=('8ac792abfcea2fdbb67f81af050f680e8710a5fb70b615ef4020fcb9e0666abd')
+
+package() {
+    # Copy files
+    mkdir -p ${pkgdir}/etc
+    install -m644 ${srcdir}/lsb-release ${pkgdir}/etc/
+}
