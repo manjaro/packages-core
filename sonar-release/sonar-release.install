@@ -1,23 +1,13 @@
-pre_install() {
-exit 0
-}
-
 post_install() {
-exit 0
-}
-
-pre_upgrade() {
-exit 0
-}
-
-post_upgrade() {
-exit 0
-}
-
-pre_remove() {
-exit 0
+    sed -e "s|ID=manjaro|ID=sonar|" \
+        -e "s|Manjaro Linux|Sonar Linux|g" \
+        -e "s|http://www.manjaro.org/|http://www.sonargnulinux.com/|g" \
+        -i etc/os-release
 }
 
 post_remove() {
-exit 0
+    sed -e "s|ID=sonar|ID=manjaro|" \
+        -e "s|Sonar Linux|Manjaro Linux|g" \
+        -e "s|http://www.sonargnulinux.com/|http://www.manjaro.org/|g" \
+        -i etc/os-release
 }
