@@ -42,6 +42,12 @@ detectDE()
 
 post_upgrade() {
 
+	# fix issue with xorg-server
+	if [ -e "/usr/lib/xorg/modules/extensions/libglx.xorg" ]; then
+		msg "Removing depreciated libglx.so symlink ..."
+		rm /usr/lib/xorg/modules/extensions/libglx.so &> /dev/null
+	fi
+
 	# avoid upgrading problems when lib32-libnm-glib46 is installed and lib32-libnm-glib is not, and we want to install lib32-libnm-glib.
 	# ldconfig creates varous symlink in /usr/lib32/ from the lib32-libnm-glib46 packages but lib32-libnm-glib provides those files.
 	pacman -Q lib32-libnm-glib &> /tmp/cmd1
