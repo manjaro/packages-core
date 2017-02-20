@@ -11,21 +11,21 @@ pkgname=('linux410' 'linux410-headers')
 _kernelname=-MANJARO
 _basekernel=4.10
 _basever=410
-_aufs=20170206
-_bfq=v8r7
-_rc=rc8
-_git=7089db84e356562f8ba737c29e472cc42d530dbc
-pkgver=${_basekernel}${_rc}
+_aufs=20170220
+_bfq=v8r8-rc2
+#_rc=rc8
+_git=c470abd4fde40ea6a0846a2beab642a578c0b8cd
+pkgver=${_basekernel}.0
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
 options=('!strip')
-source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        linux-${_basekernel}-${_rc}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
+        #linux-${_basekernel}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -40,7 +40,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/5cf7a0f...033aef5.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/a0a2864...14d8078.patch"
         #"0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-4.5.0.patch"
         #"0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.5.0.patch"
         #"0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
@@ -49,25 +49,25 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         # MANJARO Patches
 )
-sha256sums=('ed95e5abf61090180cf09855c1f95fe445e6621287469459ad2e35cb95713556'
+sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
             '543b48840f6f453080fa2a94ac88ce2e60181c0db80410c3e6b136af785d355d'
             '0147e7e17ee7d473550e09e4fd7d382a2d3c40c095a1074d9e27d2adf86c0a53'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            '6783d5ca3955e73582fe48c651ff45eb1aa7e2a3707d5ee99ceee01b42acd7ab'
-            '968696313547cc91f26627f4c988e1e659e44d9d7a9b9122b6f591c3bc320df2'
+            '1e57cfe768eb812977aba92e52a7ea42e04896453546836f8c38a722c33fed65'
+            '59d70dc16f6226e97f4dfa08bb2e72e141c67e2b7aeb6d33d7fa6768c80cfa87'
             '4b2ce04256ab6447b0a3a75b8a1a463092370fd6777e11bcb8b8668da46f0f06'
-            '5400da0138fe70b34ce5ba6ca7306ffaffc07821baeef63835d2e816814c24cf'
-            '7700a3aaf357b59b87915b736cc65213c50503f5dde111b582cfd759b2561024'
+            '9ad60f79bfb1a9e36e63ca0342d0cfdea3a4fc0f7440af10901925e1763c9487'
+            '0545274c1f412fcdd8ea259d07deb50e9bdadc3ce1aa0b9901b29e2cfe4c48a0'
             '270f667d7d5daec05df58717c115ecb4d1eb9f9fc36d4b87e44a61ed9c50bb62'
-            'adb5570e939f034e0f503a50c83ce450dfba5aa7f236e59eec27471ce0b60d37'
+            'd9c042efeba611c0fba58e3f1558557b4f832dc55415bb9405c170b2af027d1e'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
-            'ee6413299081e223df74bb72e7dc2d6cfcfcd4e85afff8ef49812ab2e64722c3')
+            'a1a4ac7f56f44710938a96c608792318054d1be4cb0f52199315bbca9e542bae')
 
 prepare() {
-  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}-${_rc}"
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   #patch -p1 -i "${srcdir}/patch-${pkgver}"
@@ -82,11 +82,11 @@ prepare() {
 
   # vfs: remove ".readlink = generic_readlink" assignments 
   # https://github.com/torvalds/linux/commit/dfeef68862edd7d4bafe68ef7aeb5f658ef24bb5
-  sed -e "/generic_readlink/ d" -i "${srcdir}/linux-${_basekernel}-${_rc}/fs/aufs/i_op.c"
+  sed -e "/generic_readlink/ d" -i "${srcdir}/linux-${_basekernel}/fs/aufs/i_op.c"
 
   # fsnotify(): constify 'data' 
   # https://github.com/torvalds/linux/commit/e637835eccc8b93f39ca869628f9a0437bba744e
-  sed -e 's/void \*data/const void \*data/' -i "${srcdir}/linux-${_basekernel}-${_rc}/fs/aufs/hfsnotify.c"
+  sed -e 's/void \*data/const void \*data/' -i "${srcdir}/linux-${_basekernel}/fs/aufs/hfsnotify.c"
 
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
   patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
@@ -102,8 +102,8 @@ prepare() {
   #patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
   #patch -Np1 -i "${srcdir}/0004-Turn-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   #sed -i -e "s|PATCHLEVEL = 9|PATCHLEVEL = 10|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|EXTRAVERSION = -rc4|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|Roaring Lionus|Fearless Coyote|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|EXTRAVERSION = -rc6|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  #sed -i -e "s|Roaring Lionus|Fearless Coyote|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
@@ -145,7 +145,7 @@ prepare() {
 }
 
 build() {
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   # build!
   make ${MAKEFLAGS} LOCALVERSION= bzImage modules
@@ -158,7 +158,7 @@ package_linux410() {
   provides=("linux=${pkgver}")
   install=${pkgname}.install
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
 
   KARCH=x86
 
@@ -218,7 +218,7 @@ package_linux410-headers() {
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
-  cd "${srcdir}/linux-${_basekernel}-${_rc}"
+  cd "${srcdir}/linux-${_basekernel}"
   install -D -m644 Makefile \
     "${pkgdir}/usr/lib/modules/${_kernver}/build/Makefile"
   install -D -m644 kernel/Makefile \
