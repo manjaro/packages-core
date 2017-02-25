@@ -14,7 +14,7 @@ _basever=49
 _aufs=20170206
 _bfq=v8r7
 #_git=69973b830859bc6529a7a0468ba0d80ee5117826
-pkgver=${_basekernel}.11
+pkgver=${_basekernel}.12
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -46,11 +46,16 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
 
         # ARCH Patches
         'change-default-console-loglevel.patch'
-        '0001-dccp-fix-freeing-skb-too-early-for-IPV6_RECVPKTINFO.patch'
+        '0001-dccp-fix-freeing-skb-too-early-for-IPV6_RECVPKTINFO.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=5edabca9d4cff7f1f2b68f0bac55ef99d9798ba4'
         # MANJARO Patches
+        '0001-HID-microsoft-Add-Surface-4-type-cover-pro-4-not-JP-versions.patch::https://github.com/torvalds/linux/commit/2ae3986b84e9d325bc92a1efbcf0c6b0f5016b35.patch'
+        '0002-HID-multitouch-enable-the-Surface-3-Type-Cover-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/8fe89ef076fa104f514da6ef61d90f5bf93488e3.patch'
+        '0003-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
+        '0004-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
+        '0005-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            '23e773a670f3cac11a92c4e442405dea6d2c28fea0f914ea2ba4bea313c26541'
+            'afd1995f7415cd85f55d7118c1a994973a77a83ae84ac1810fed774b3c126373'
             '19adb7cc873dc2855beb18563520c2bc0c82432892b5ab43d9b0139281fff1e7'
             '03b5d6f8de3006e3a1849dbc2228c1f6de42abf34fa0196ad50c1e0caf8e6627'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -69,7 +74,12 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '2dd17bdf945b973b569c8614a1de943833d7e3e4d60921308d580d944f922fa7'
             '3c7b48abd0c5a123252278edcb671e4127dd075617ab862b275b693d456d5e0e'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            '3e955e0f1aae96bb6c1507236adc952640c9bd0a134b9995ab92106a33dc02d9')
+            '5286f57325cc742afd957466efe705859001295f23786fbf8aafe3f01dd580f4'
+            '66ecb4e9462d760c147ff17ff714e69b2512013b63fd525fff617a52f5004b89'
+            'b1bb6893e685dcc0bcc432354937be47621db91369edb244c489955a8c9319ad'
+            'bb6afbf8fa4d895e46e24a280689a69a16d5d01a0294e0755a2098c81edf167c'
+            'ba842c84fe3445f10f80b173c59eba961267bdb94e317dd877ea263d90cb5190'
+            '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784')
 
 prepare() {
 #  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -90,6 +100,13 @@ prepare() {
 
   # https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-6074
   patch -p1 -i "${srcdir}/0001-dccp-fix-freeing-skb-too-early-for-IPV6_RECVPKTINFO.patch"
+
+  # extend Microsoft Surface support
+  patch -p1 -i "${srcdir}/0001-HID-microsoft-Add-Surface-4-type-cover-pro-4-not-JP-versions.patch"
+  patch -p1 -i "${srcdir}/0002-HID-multitouch-enable-the-Surface-3-Type-Cover-to-report-multitouch-data.patch"
+  patch -p1 -i "${srcdir}/0003-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch"
+  patch -p1 -i "${srcdir}/0004-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch"
+  patch -p1 -i "${srcdir}/0005-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch"
 
   # add aufs4 support
   patch -Np1 -i "${srcdir}/aufs4.9-${_aufs}.patch"

@@ -12,7 +12,7 @@ _basekernel=3.16
 _basever=316
 _aufs=20150928 #last release
 _bfq=v7r8
-pkgver=${_basekernel}.39
+pkgver=${_basekernel}.40
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -44,9 +44,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # Additional patches
         'fix-mod_devicetable.patch'
+        '0001-dccp-fix-freeing-skb-too-early-for-IPV6_RECVPKTINFO.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=5edabca9d4cff7f1f2b68f0bac55ef99d9798ba4'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
-            'fc3d19e5b3628aac93ca662082fb2e2461288fef57f27171ab80167d72787762'
+            'e729a2e5f276a7fd94e01ba8883fc063c81fbdc57d0ef0fe272d2ae2c8c49661'
             '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -67,7 +68,8 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'a040f22695c9368c01c0e74f5696035a731d4fab1015ce5f3c90d3ae1a74bccc'
             'f0fc3e6159f61671a5a734ccc28091b6d8124d92c211652e620e99305b2edcef'
             '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
-            '641f406a5e7fac1a7d1fe84b4ab1184603bf5d10546c60f7b1b1c66585da875e')
+            '641f406a5e7fac1a7d1fe84b4ab1184603bf5d10546c60f7b1b1c66585da875e'
+            '5286f57325cc742afd957466efe705859001295f23786fbf8aafe3f01dd580f4')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -84,6 +86,9 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-6074
+  patch -p1 -i "${srcdir}/0001-dccp-fix-freeing-skb-too-early-for-IPV6_RECVPKTINFO.patch"
 
   # fix gcc61
   patch -Np1 -i "${srcdir}/fix-mod_devicetable.patch"
