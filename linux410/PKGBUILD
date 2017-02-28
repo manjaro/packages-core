@@ -50,11 +50,12 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0001-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
         '0002-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
         '0003-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
+        '0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch::https://github.com/pfactum/pf-kernel/commit/154a26bdff29d02c3e31c80b5d1042b03fbcd2fa.patch'
 )
 sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
             'da560125aa350f76f0e4a5b9373a0d0a1c27ccefe3b7bd9231724f3a3c4ebb9e'
-            '543b48840f6f453080fa2a94ac88ce2e60181c0db80410c3e6b136af785d355d'
-            '0147e7e17ee7d473550e09e4fd7d382a2d3c40c095a1074d9e27d2adf86c0a53'
+            '5e978fb93e5bda10eca3bd1db4dffdb8dc8726366cd32615e58ad6da3263afce'
+            'b3873646765ae2c377037697cfefee103812276de1b75cc4a62d25296c0024a4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -72,7 +73,8 @@ sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
             'da1002407fa0399e2bd7b44289e13fb9dd664e97fd2ee0c5aa5f085242ee3f77'
             'bb6afbf8fa4d895e46e24a280689a69a16d5d01a0294e0755a2098c81edf167c'
             'ba842c84fe3445f10f80b173c59eba961267bdb94e317dd877ea263d90cb5190'
-            '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784')
+            '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784'
+            'ef5d899e7e7cf2f0bbf6cb149a83a16bce48be2b3412155ad7979240ae5ff314')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -116,6 +118,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   patch -Np1 -i "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
+  patch -Np1 -i "${srcdir}/0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
