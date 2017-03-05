@@ -43,7 +43,7 @@ detectDE()
 post_upgrade() {
 
 	# fix issue with xorg-server
-	if [ -e "/usr/lib/xorg/modules/extensions/libglx.xorg" ]; then
+	if [ -L "/usr/lib/xorg/modules/extensions/libglx.xorg" ]; then
 		msg "Removing depreciated libglx.so symlink ..."
 		rm /usr/lib/xorg/modules/extensions/libglx.so &> /dev/null
 	fi
