@@ -11,9 +11,9 @@ pkgname=('linux410' 'linux410-headers')
 _kernelname=-MANJARO
 _basekernel=4.10
 _basever=410
-_aufs=20170220
+_aufs=20170313
 _bfq=v8r8
-_sub=1
+_sub=2
 _git=c470abd4fde40ea6a0846a2beab642a578c0b8cd
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -32,7 +32,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # standard config files for mkinitcpio ramdisk
         "${pkgbase}.preset"
         "${pkgbase}.hook"
-        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        "aufs4.10-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
         'aufs4-loopback.patch'
@@ -53,18 +53,18 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch::https://github.com/pfactum/pf-kernel/commit/154a26bdff29d02c3e31c80b5d1042b03fbcd2fa.patch'
 )
 sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
-            'da560125aa350f76f0e4a5b9373a0d0a1c27ccefe3b7bd9231724f3a3c4ebb9e'
+            '3e2c2ba9dd2c421ea4f7e10150cc5f5fa5fdbaffef5377988fabb7d6f7d65bab'
             '5e978fb93e5bda10eca3bd1db4dffdb8dc8726366cd32615e58ad6da3263afce'
             'b3873646765ae2c377037697cfefee103812276de1b75cc4a62d25296c0024a4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            '1e57cfe768eb812977aba92e52a7ea42e04896453546836f8c38a722c33fed65'
-            '59d70dc16f6226e97f4dfa08bb2e72e141c67e2b7aeb6d33d7fa6768c80cfa87'
-            '4b2ce04256ab6447b0a3a75b8a1a463092370fd6777e11bcb8b8668da46f0f06'
-            '9ad60f79bfb1a9e36e63ca0342d0cfdea3a4fc0f7440af10901925e1763c9487'
-            '0545274c1f412fcdd8ea259d07deb50e9bdadc3ce1aa0b9901b29e2cfe4c48a0'
-            '270f667d7d5daec05df58717c115ecb4d1eb9f9fc36d4b87e44a61ed9c50bb62'
+            '617ebfb8af54dc134a0f26b4ffd3c63497d6a783d5ed3139380432164ffe9820'
+            '5ed128bff19b62c7f826eae008727ec5f7ac8b711bcc24699d2342955c958c9b'
+            'a92927f02df24dc0d9e9cec92944792b243c2412987963aaf7c5a4431ef1deca'
+            '3a8a6227f5de8903446af760291247a733990fb4ca2705175199e1ad2190a91b'
+            'c703f58734e3c36b1c4eddf41f3ecafa4164d9627cf700b8354abebd0474b5a8'
+            '3bc608250e4c438a21298c0f0ee2fb073c096cd7491a365e693312f62810fe7c'
             'd9c042efeba611c0fba58e3f1558557b4f832dc55415bb9405c170b2af027d1e'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
             'f75f39e9efd056875c2212ac52fdedac0d4a37e1878389e3557769435c28ca2d'
@@ -94,7 +94,7 @@ prepare() {
   patch -p1 -i "${srcdir}/0003-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch"
 
   # add aufs4 support
-  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4.10-${_aufs}.patch"
 
   # vfs: remove ".readlink = generic_readlink" assignments 
   # https://github.com/torvalds/linux/commit/dfeef68862edd7d4bafe68ef7aeb5f658ef24bb5

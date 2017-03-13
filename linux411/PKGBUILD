@@ -11,7 +11,7 @@ pkgname=('linux411' 'linux411-headers')
 _kernelname=-MANJARO
 _basekernel=4.11
 _basever=411
-_aufs=20170220
+_aufs=20170313
 _bfq=v8r8
 _rc=rc1
 _sub=1
@@ -29,18 +29,18 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         #linux-${_basekernel}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
-        'config' 'config.x86_64' #'config.aufs'
+        'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
         "${pkgbase}.preset"
         "${pkgbase}.hook"
-        #"aufs4.x-rcN-${_aufs}.patch.bz2"
-        #'aufs4-base.patch'
-        #'aufs4-kbuild.patch'
-        #'aufs4-loopback.patch'
-        #'aufs4-mmap.patch'
-        #'aufs4-standalone.patch'
-        #'tmpfs-idr.patch'
-        #'vfs-ino.patch'
+        "aufs4.x-rcN-${_aufs}.patch.bz2"
+        'aufs4-base.patch'
+        'aufs4-kbuild.patch'
+        'aufs4-loopback.patch'
+        'aufs4-mmap.patch'
+        'aufs4-standalone.patch'
+        'tmpfs-idr.patch'
+        'vfs-ino.patch'
         "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/bc49a78...e1f3b01.patch"
         #"0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-${_basekernel}..patch"
         #"0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.10.0.patch"
@@ -54,8 +54,17 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
 sha256sums=('14093d085a0ea603524cbc0d6b51d93caec7431c63d6301169a5081eb1f4eca7'
             'e0aa564d4173109e07e3360bfb69053e3b3612f5a3874de712922c224e546633'
             '827ec66d3dd1aa465a94fae56fc1d4d99c7df0644c240c2c719f491b4617b9de'
+            'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
+            'b0a5ad2befd96b7a8ca659250844a59d6b85402b5f508de7114ffd86fff92020'
+            'c4e6c13ede8888d7922f3c141de585f6d917651b159474947f6c151617cd4fab'
+            '6a1ace02eea06588432534e42b0df1285181f7f2769371383cf8ddc3a811b338'
+            'f8460032daef0d797b8ab858f71fabf19855c85358211a28683a9e22074254dd'
+            '2ca48070268ec84267d605666b8624f6201e7a96bebb3c93fde08b693a070417'
+            '359ba039aafaebe88deffc3a6118fd259ee1a49622337bd975c0dd265caf001c'
+            '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
+            'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
             '6416a778e4535cf9b8dccd2eee7a130c64def541baaebebd329031e0c9a451ec'
             'ef5d899e7e7cf2f0bbf6cb149a83a16bce48be2b3412155ad7979240ae5ff314')
 
@@ -73,23 +82,14 @@ prepare() {
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
 
   # add aufs4 support
-  #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-
-  # vfs: remove ".readlink = generic_readlink" assignments 
-  # https://github.com/torvalds/linux/commit/dfeef68862edd7d4bafe68ef7aeb5f658ef24bb5
-  #sed -e "/generic_readlink/ d" -i "${srcdir}/linux-${_basekernel}/fs/aufs/i_op.c"
-
-  # fsnotify(): constify 'data' 
-  # https://github.com/torvalds/linux/commit/e637835eccc8b93f39ca869628f9a0437bba744e
-  #sed -e 's/void \*data/const void \*data/' -i "${srcdir}/linux-${_basekernel}/fs/aufs/hfsnotify.c"
-
-  #patch -Np1 -i "${srcdir}/aufs4-base.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
-  #patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
-  #patch -Np1 -i "${srcdir}/vfs-ino.patch"
+  patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
   #patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
@@ -109,7 +109,7 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-  #cat "${srcdir}/config.aufs" >> ./.config
+  cat "${srcdir}/config.aufs" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
