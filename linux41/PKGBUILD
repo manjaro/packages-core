@@ -13,8 +13,8 @@ _basekernel=4.1
 _basever=41
 _aufs=20161219
 _bfq=v7r8
-pkgver=${_basekernel}.38
-pkgrel=2
+pkgver=${_basekernel}.39
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -27,7 +27,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # standard config files for mkinitcpio ramdisk
         "${pkgbase}.preset"
         "${pkgbase}.hook"
-        '0001-dccp-fix-freeing-skb-too-early-for-IPV6_RECVPKTINFO.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=5edabca9d4cff7f1f2b68f0bac55ef99d9798ba4'
         "aufs4.1.13+-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
@@ -44,6 +43,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Manjaro Patches
+        '0001-dccp-fix-freeing-skb-too-early-for-IPV6_RECVPKTINFO.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=5edabca9d4cff7f1f2b68f0bac55ef99d9798ba4'
         '0001-ovl-dont-traverse-automount-points.patch::https://github.com/torvalds/linux/commit/a6f15d9a756571babbb2b2cd4fdd1b64a5de232b.patch'
         # Not exactly the same as https://github.com/torvalds/linux/commit/7c03b5d45b8eebf0111125053d8fe887cc262ba6
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
@@ -51,13 +51,12 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'i8042-asus-x455lab-dmi.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            '97eaedf1a4f5b931271035f640690757c0a3239d89f69c6dd7774d3371b589b6'
+            '398c201891d4f7942458caab8c8af5d058c62e6a8f6058b06363fad462e83154'
             'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
             'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            '5286f57325cc742afd957466efe705859001295f23786fbf8aafe3f01dd580f4'
             '11a26b31d307c118eeec9a509068db9b73bf813edfec535325e6c5e4ae16b642'
             '0ec937c19c977432e1a037cf5d7a038cedd816ef71582fb0d5966b43e25ebbd8'
             '5851830aa6c621589b0241507976cfde15f64f7ee1b4711b2f9f3364283fbde1'
@@ -72,9 +71,10 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             'c5c2c48638c2a8180948bd118ffcc33c8b7ff5f9f1e4b04c8e2cafeca2bde87b'
             '4f30f76adbdf49aec8d41ac27ad212734500c272f3cba594f134a7bc263820d9'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            '7d185a2c134ccf927d7e04d56ea1712759d2d2186abc4c58db1c6798a3cd173d'
             '55431bdbb2b099a92f8a5848e63be1906b87763e24584b1c7f322f5fd1340a96'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
-            'b60c3c5606da11289f7bfb5aad252c098ac995694a25b7934798955dece3abd7'
+            '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
             '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d')
 
 prepare() {
