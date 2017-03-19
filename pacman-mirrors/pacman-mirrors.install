@@ -1,0 +1,17 @@
+#!/bin/sh
+
+post_install() {
+	/usr/bin/pacman-mirrors -g
+	message
+}
+
+
+post_upgrade() {
+	/usr/bin/pacman-mirrors -g --no-update
+	message
+}
+
+message() {
+	echo ""
+	echo "hint: use \`pacman-mirrors\` to generate and update your pacman mirrorlist."
+}
