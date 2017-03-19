@@ -14,7 +14,7 @@ _basever=318
 _aufs=20160822 #Last release
 _bfq=v7r8
 pkgver=${_basekernel}.48
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -44,7 +44,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         'fix-mod_devicetable.patch'
         # Manjaro Patches
-        'prepatch-3.18-20170302'
+        'prepatch-3.18-20170318'
 )
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             '0726728455304b075c03970359ee59bb8b1ad7f9f5f6aae5745b6919eceb8591'
@@ -68,7 +68,7 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             'e51cbeb8a42e719a2040762507ad0b27bffbde7559bf2a86e86980d4ec8979b6'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             'a3d21434443dc336879f2280e55307a30711e958945f59efb3fe1c16b65dce45'
-            '29704bc27365251b52fe048883f7de24ec53b1b841f79a20c623d8f1dd41d4ce')
+            'cd5c887bd350fee0a959ec5f219d50cd0a7beb899195cf44b68d45b221ac3ca8')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -91,7 +91,7 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
-  patch -Np1 -i "${srcdir}/prepatch-3.18-20170302"
+  patch -Np1 -i "${srcdir}/prepatch-3.18-20170318"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream
