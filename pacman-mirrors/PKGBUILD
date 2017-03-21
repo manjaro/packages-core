@@ -6,7 +6,7 @@ _branch=4.0.x-stable
 _date=20$(date +%y%m%d)
 pkgname=pacman-mirrors
 pkgver=4.0.0
-pkgrel=5
+pkgrel=6
 pkgdesc="Manjaro Linux mirror list for use by pacman"
 arch=('any')
 depends=('python' 'python-npyscreen')
@@ -26,6 +26,4 @@ sha256sums=('SKIP')
 package() {
   cd "${srcdir}"/pacman-mirrors
   make DESTDIR="${pkgdir}" install
-  # should be created in Makefile
-  install -dm755 ${pkgdir}/etc/pacman.d
 }
