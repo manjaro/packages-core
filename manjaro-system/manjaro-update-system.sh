@@ -47,47 +47,45 @@ post_upgrade() {
 		if [ "$(vercmp $(grep 'ca-certificates-utils' /tmp/cmd1 | cut -d' ' -f2) 20160507-1)" -le 0 ]; then
 			msg "Fix ca-certificates-utils upgrade ..."
 			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman --noconfirm -Sw ca-certificates-utils
+			pacman --noconfirm -Syw ca-certificates-utils
 			rm /etc/ssl/certs/ca-certificates.crt &> /dev/null
 			pacman --noconfirm -S ca-certificates-utils
 		fi
 	fi
 
+	# fix issues with mesa-stack
+	LIBGL_SYMLINK="/usr/lib/xorg/modules/extensions/libglx.xorg"
+
 	# fix upgrading libglvnd when version is 0.1.1.20161028-1 or less
 	pacman -Q libglvnd &> /tmp/cmd1
-	if [ "$(grep 'libglvnd' /tmp/cmd1 | cut -d' ' -f1)" == "libglvnd" ]; then 
-		if [ "$(vercmp $(grep 'libglvnd' /tmp/cmd1 | cut -d' ' -f2) 0.1.1.20161028-1)" -le 0 ]; then
-			LIBGL_SYMLINK="/usr/lib/xorg/modules/extensions/libglx.xorg	
-				/usr/lib/libEGL.so.1.0.0
-				/usr/lib/libEGL.so.1
-				/usr/lib/libEGL.so
-				/usr/lib/libGL.so.1.2.0
-				/usr/lib/libGL.so.1
-				/usr/lib/libGL.so
-				/usr/lib/libGLESv1_CM.so.1.1.0
-				/usr/lib/libGLESv1_CM.so.1
-				/usr/lib/libGLESv1_CM.so
-				/usr/lib/libGLESv2.so.2.0.0
-				/usr/lib/libGLESv2.so.2
-				/usr/lib/libGLESv2.so
-				/usr/lib32/libEGL.so.1.0.0
-				/usr/lib32/libEGL.so.1
-				/usr/lib32/libEGL.so
-				/usr/lib32/libGL.so.1.2.0
-				/usr/lib32/libGL.so.1
-				/usr/lib32/libGL.so
-				/usr/lib32/libGLESv1_CM.so.1.1.0
-				/usr/lib32/libGLESv1_CM.so.1
-				/usr/lib32/libGLESv1_CM.so
-				/usr/lib32/libGLESv2.so.2.0.0
-				/usr/lib32/libGLESv2.so.2
-				/usr/lib32/libGLESv2.so"
-		fi
-	else
-		LIBGL_SYMLINK="/usr/lib/xorg/modules/extensions/libglx.xorg"
+	if [ "$(vercmp $(grep 'libglvnd' /tmp/cmd1 | cut -d' ' -f2) 0.1.1.20161028-1)" -le 0 ] || ([ "$(vercmp $2 20170323-1)" -lt 0 ] && [ "$(grep 'libglvnd' /tmp/cmd1 | cut -d' ' -f1)" != "libglvnd" ]); then
+		LIBGL_SYMLINK="/usr/lib/xorg/modules/extensions/libglx.xorg	
+			/usr/lib/libEGL.so.1.0.0
+			/usr/lib/libEGL.so.1
+			/usr/lib/libEGL.so
+			/usr/lib/libGL.so.1.2.0
+			/usr/lib/libGL.so.1
+			/usr/lib/libGL.so
+			/usr/lib/libGLESv1_CM.so.1.1.0
+			/usr/lib/libGLESv1_CM.so.1
+			/usr/lib/libGLESv1_CM.so
+			/usr/lib/libGLESv2.so.2.0.0
+			/usr/lib/libGLESv2.so.2
+			/usr/lib/libGLESv2.so
+			/usr/lib32/libEGL.so.1.0.0
+			/usr/lib32/libEGL.so.1
+			/usr/lib32/libEGL.so
+			/usr/lib32/libGL.so.1.2.0
+			/usr/lib32/libGL.so.1
+			/usr/lib32/libGL.so
+			/usr/lib32/libGLESv1_CM.so.1.1.0
+			/usr/lib32/libGLESv1_CM.so.1
+			/usr/lib32/libGLESv1_CM.so
+			/usr/lib32/libGLESv2.so.2.0.0
+			/usr/lib32/libGLESv2.so.2
+			/usr/lib32/libGLESv2.so"
 	fi
 
-	# fix issues with mesa-stack
 	for i in $LIBGL_SYMLINK; do
 		if [ -L "$i" ]; then
 			msg "Removing depreciated $i symlink ..."
