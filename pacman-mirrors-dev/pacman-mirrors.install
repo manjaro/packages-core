@@ -14,7 +14,7 @@ post_install() {
 		mv /etc/pacman-mirrors.conf /etc/pacman-mirrors.conf.20$(date +%y%m%d).backup
 		mv /etc/pacman-mirrors.conf.pacsave /etc/pacman-mirrors.conf
 	fi
-	/usr/bin/pacman-mirrors -g -m random
+	/usr/bin/pacman-mirrors -m random
 	message
 }
 
