@@ -44,13 +44,16 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-${_basekernel}.0.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
-
         # ARCH Patches
         # MANJARO Patches
         '0001-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
         '0002-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
         '0003-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
         '0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch::https://github.com/pfactum/pf-kernel/commit/154a26bdff29d02c3e31c80b5d1042b03fbcd2fa.patch'
+        '0006-remove-useless-includes-from-bfq.h.patch::https://github.com/linusw/linux-bfq/commit/e886a7aeb5395d13b87c1962a19fc9980361e358.patch'
+        '0007-reverse-include-order-between-blk.h-and-bfq.h.patch::https://github.com/linusw/linux-bfq/commit/4f8ad98d1e6f1c96f7096228b7aea41e670a2688.patch'
+        '0008-remove-use-of-bfq-queues-after-free.patch::https://github.com/linusw/linux-bfq/commit/2da7edbb8f54b447c0b7dfa029ee4df580a6030e.patch'
+        '0009-BFQ-v8r9.patch::https://github.com/linusw/linux-bfq/commit/8d4b2ded945bdb75fc5c197d95089ebfe5fa24e7.patch'
 )
 sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
             'ceb385486e34084dd53425e5ba50b9fba4a8e380d8f2815bfde142852d797da0'
@@ -74,7 +77,11 @@ sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
             'bb6afbf8fa4d895e46e24a280689a69a16d5d01a0294e0755a2098c81edf167c'
             'ba842c84fe3445f10f80b173c59eba961267bdb94e317dd877ea263d90cb5190'
             '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784'
-            'ef5d899e7e7cf2f0bbf6cb149a83a16bce48be2b3412155ad7979240ae5ff314')
+            'ef5d899e7e7cf2f0bbf6cb149a83a16bce48be2b3412155ad7979240ae5ff314'
+            '5fa6826dd5aa009e736fe4a3fa61887190e2e41d1f05b8391b5646b79a762f78'
+            '9bb3dc66fb458a4d7e8c835ec1fe79c9f4730ec3fb611ba37915c4455f8bcb7c'
+            '7d2e17b14170acaed2219cdf4b78b6348ea80fd915e3a9a2f180f536db3e2aa3'
+            'a63279c31922de7a1f8a8cbe4815aa3177e9b5504907cdcedbfb9af2f29faef6')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -119,6 +126,11 @@ prepare() {
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   patch -Np1 -i "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   patch -Np1 -i "${srcdir}/0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch"
+  patch -Np1 -i "${srcdir}/0006-remove-useless-includes-from-bfq.h.patch"
+  patch -Np1 -i "${srcdir}/0007-reverse-include-order-between-blk.h-and-bfq.h.patch"
+  patch -Np1 -i "${srcdir}/0008-remove-use-of-bfq-queues-after-free.patch"
+  patch -Np1 -i "${srcdir}/0009-BFQ-v8r9.patch"
+
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
