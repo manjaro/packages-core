@@ -12,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _basever=50
 _aufs=20170327
-_bfq=v8r8
+_bfq=v8r9
 _sub=20
 #_git=69973b830859bc6529a7a0468ba0d80ee5117826
 pkgver=${_basekernel}.${_sub}
@@ -40,7 +40,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/69973b8...99b8292.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/69973b8...8d4b2de.patch"
 #        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-4.5.0.patch"
 #        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.5.0.patch"
 #        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
@@ -70,7 +70,7 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'dd62bacdfd3f16be81b0d6b5cfb2a45ae03fc0e3c126d321d198d3f19ebd84a8'
             'db7a22592a3d192dd84c84c20f361972bccfd84de346d8d7684488d118eade83'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
-            'f0def3d315670906d2d5d696c9ee08cc14454ea09db222c9e2e36e9c8e258a2a'
+            '4a4074e32bfba196020e57d57af31f9fa222a8502e10861e545964f82f352b57'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '66ecb4e9462d760c147ff17ff714e69b2512013b63fd525fff617a52f5004b89'
             'b1bb6893e685dcc0bcc432354937be47621db91369edb244c489955a8c9319ad'
