@@ -127,6 +127,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   patch -Np1 -i "${srcdir}/0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch"
   patch -Np1 -i "${srcdir}/0006-remove-useless-includes-from-bfq.h.patch"
+  sed -i -e "s|blk.h|blk-wbt.h|g" "${srcdir}/0007-reverse-include-order-between-blk.h-and-bfq.h.patch"
   patch -Np1 -i "${srcdir}/0007-reverse-include-order-between-blk.h-and-bfq.h.patch"
   patch -Np1 -i "${srcdir}/0008-remove-use-of-bfq-queues-after-free.patch"
   patch -Np1 -i "${srcdir}/0009-BFQ-v8r9.patch"
