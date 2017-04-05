@@ -12,7 +12,7 @@ _basekernel=3.16
 _basever=316
 _aufs=20150928 #last release
 _bfq=v7r8
-pkgver=${_basekernel}.42
+pkgver=${_basekernel}.43
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -46,7 +46,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'fix-mod_devicetable.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
-            '117910077c9d0738d11b85288955cf952453231fb0c71dc857c12bca2bf668a4'
+            '613fc4663e1d7979c1530291e39a3118a4fff59c7de3d3f41ccd20c9a7bcd8ae'
             '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -188,7 +188,7 @@ package_linux316() {
 
   # install pacman hook for initramfs regeneration
   sed "s|%PKGBASE%|${pkgbase}|g;s|%BASEKERNEL%|${_basekernel}|g;s|%ARCH%|${CARCH}|g" "${srcdir}/${pkgbase}.hook" |
-  install -D -m644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/98-${pkgbase}.hook"
+  install -D -m644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/90-${pkgbase}.hook"
 
   # remove build and source links
   rm -f "${pkgdir}"/lib/modules/${_kernver}/{source,build}

@@ -53,45 +53,26 @@ post_upgrade() {
 		fi
 	fi
 
-	# fix issues with mesa-stack
-	LIBGL_SYMLINK="/usr/lib/xorg/modules/extensions/libglx.xorg"
-
-	# fix upgrading libglvnd when version is 0.1.1.20161028-1 or less
-	pacman -Q libglvnd &> /tmp/cmd1
-	if [ "$(vercmp $(grep 'libglvnd' /tmp/cmd1 | cut -d' ' -f2) 0.1.1.20161028-1)" -le 0 ] || ([ "$(vercmp $2 20170323-1)" -lt 0 ] && [ "$(grep 'libglvnd' /tmp/cmd1 | cut -d' ' -f1)" != "libglvnd" ]); then
-		LIBGL_SYMLINK="/usr/lib/xorg/modules/extensions/libglx.xorg	
-			/usr/lib/libEGL.so.1.0.0
-			/usr/lib/libEGL.so.1
-			/usr/lib/libEGL.so
-			/usr/lib/libGL.so.1.2.0
-			/usr/lib/libGL.so.1
-			/usr/lib/libGL.so
-			/usr/lib/libGLESv1_CM.so.1.1.0
-			/usr/lib/libGLESv1_CM.so.1
-			/usr/lib/libGLESv1_CM.so
-			/usr/lib/libGLESv2.so.2.0.0
-			/usr/lib/libGLESv2.so.2
-			/usr/lib/libGLESv2.so
-			/usr/lib32/libEGL.so.1.0.0
-			/usr/lib32/libEGL.so.1
-			/usr/lib32/libEGL.so
-			/usr/lib32/libGL.so.1.2.0
-			/usr/lib32/libGL.so.1
-			/usr/lib32/libGL.so
-			/usr/lib32/libGLESv1_CM.so.1.1.0
-			/usr/lib32/libGLESv1_CM.so.1
-			/usr/lib32/libGLESv1_CM.so
-			/usr/lib32/libGLESv2.so.2.0.0
-			/usr/lib32/libGLESv2.so.2
-			/usr/lib32/libGLESv2.so"
+	# fix issue with xorg-server
+	if [ -L "/usr/lib/xorg/modules/extensions/libglx.xorg" ]; then
+		msg "Removing depreciated libglx.so symlink ..."
+		rm /usr/lib/xorg/modules/extensions/libglx.so &> /dev/null
 	fi
 
-	for i in $LIBGL_SYMLINK; do
-		if [ -L "$i" ]; then
-			msg "Removing depreciated $i symlink ..."
-			rm $i &> /dev/null
+	# fix upgrading mesa when version is 17.0.1-1 or less
+	pacman -Q mesa &> /tmp/cmd1
+	pacman -Q lib32-mesa &> /tmp/cmd2
+	if [ "$(vercmp $(grep 'mesa' /tmp/cmd1 | cut -d' ' -f2) 17.0.1-1)" -le 0 ]; then
+		PKG_LIST="mhwd mesa libglvnd"
+		if [ "$(grep 'lib32-mesa' /tmp/cmd2 | cut -d' ' -f1)" != "lib32-mesa" ]; then
+			if [ "$(vercmp $(grep 'lib32-mesa' /tmp/cmd3 | cut -d' ' -f2) 17.0.1-1)" -le 0 ]; then
+				PKG_LIST+=" lib32-mesa lib32-libglvnd"
+			fi
 		fi
-	done
+		msg "Fix mesa-stack ..."
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman --noconfirm -S $PKG_LIST --force
+	fi
 
 	# avoid upgrading problems when lib32-libnm-glib46 is installed and lib32-libnm-glib is not, and we want to install lib32-libnm-glib.
 	# ldconfig creates varous symlink in /usr/lib32/ from the lib32-libnm-glib46 packages but lib32-libnm-glib provides those files.
