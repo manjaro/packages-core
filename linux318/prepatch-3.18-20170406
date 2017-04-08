@@ -4774,3 +4774,270 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }	/* end of n_hdlc_buf_get() */
  
  static char hdlc_banner[] __initdata =
+From 5cb13dcd0fac071b45c4bebe1801a08ff0d89cad Mon Sep 17 00:00:00 2001
+From: Zhaohongjiang <zhaohongjiang@huawei.com>
+Date: Mon, 12 Oct 2015 15:28:39 +1100
+Subject: cancel the setfilesize transation when io error happen
+
+From: Zhaohongjiang <zhaohongjiang@huawei.com>
+
+commit 5cb13dcd0fac071b45c4bebe1801a08ff0d89cad upstream.
+
+When I ran xfstest/073 case, the remount process was blocked to wait
+transactions to be zero. I found there was a io error happened, and
+the setfilesize transaction was not released properly. We should add
+the changes to cancel the io error in this case.
+
+Reproduction steps:
+1. dd if=/dev/zero of=xfs1.img bs=1M count=2048
+2. mkfs.xfs xfs1.img
+3. losetup -f ./xfs1.img /dev/loop0
+4. mount -t xfs /dev/loop0 /home/test_dir/
+5. mkdir /home/test_dir/test
+6. mkfs.xfs -dfile,name=image,size=2g
+7. mount -t xfs -o loop image /home/test_dir/test
+8. cp a file bigger than 2g to /home/test_dir/test
+9. mount -t xfs -o remount,ro /home/test_dir/test
+
+[ dchinner: moved io error detection to xfs_setfilesize_ioend() after
+  transaction context restoration. ]
+
+Signed-off-by: Zhao Hongjiang <zhaohongjiang@huawei.com>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ fs/xfs/xfs_aops.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+--- a/fs/xfs/xfs_aops.c
++++ b/fs/xfs/xfs_aops.c
+@@ -153,6 +153,12 @@ xfs_setfilesize(
+ 	rwsem_acquire_read(&VFS_I(ip)->i_sb->s_writers.lock_map[SB_FREEZE_FS-1],
+ 			   0, 1, _THIS_IP_);
+ 
++	/* we abort the update if there was an IO error */
++	if (ioend->io_error) {
++		xfs_trans_cancel(tp, 0);
++		return ioend->io_error;
++	}
++
+ 	xfs_ilock(ip, XFS_ILOCK_EXCL);
+ 	isize = xfs_new_eof(ip, ioend->io_offset + ioend->io_size);
+ 	if (!isize) {
+@@ -208,14 +214,17 @@ xfs_end_io(
+ 		ioend->io_error = -EIO;
+ 		goto done;
+ 	}
+-	if (ioend->io_error)
+-		goto done;
+ 
+ 	/*
+ 	 * For unwritten extents we need to issue transactions to convert a
+ 	 * range to normal written extens after the data I/O has finished.
++	 * Detecting and handling completion IO errors is done individually
++	 * for each case as different cleanup operations need to be performed
++	 * on error.
+ 	 */
+ 	if (ioend->io_type == XFS_IO_UNWRITTEN) {
++		if (ioend->io_error)
++			goto done;
+ 		error = xfs_iomap_write_unwritten(ip, ioend->io_offset,
+ 						  ioend->io_size);
+ 	} else if (ioend->io_isdirect && xfs_ioend_is_append(ioend)) {
+From 9b622e2bbcf049c82e2550d35fb54ac205965f50 Mon Sep 17 00:00:00 2001
+From: Tomasz Majchrzak <tomasz.majchrzak@intel.com>
+Date: Thu, 28 Jul 2016 10:28:25 +0200
+Subject: raid10: increment write counter after bio is split
+
+From: Tomasz Majchrzak <tomasz.majchrzak@intel.com>
+
+commit 9b622e2bbcf049c82e2550d35fb54ac205965f50 upstream.
+
+md pending write counter must be incremented after bio is split,
+otherwise it gets decremented too many times in end bio callback and
+becomes negative.
+
+Signed-off-by: Tomasz Majchrzak <tomasz.majchrzak@intel.com>
+Reviewed-by: Artur Paszkiewicz <artur.paszkiewicz@intel.com>
+Signed-off-by: Shaohua Li <shli@fb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/md/raid10.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/md/raid10.c
++++ b/drivers/md/raid10.c
+@@ -1171,6 +1171,8 @@ static void __make_request(struct mddev
+ 	int max_sectors;
+ 	int sectors;
+ 
++	md_write_start(mddev, bio);
++
+ 	/*
+ 	 * Register the new request and wait if the reconstruction
+ 	 * thread has put up a bar for new requests.
+@@ -1556,8 +1558,6 @@ static void make_request(struct mddev *m
+ 		return;
+ 	}
+ 
+-	md_write_start(mddev, bio);
+-
+ 	do {
+ 
+ 		/*
+From c282222a45cb9503cbfbebfdb60491f06ae84b49 Mon Sep 17 00:00:00 2001
+From: Florian Westphal <fw@strlen.de>
+Date: Wed, 8 Feb 2017 11:52:29 +0100
+Subject: xfrm: policy: init locks early
+
+From: Florian Westphal <fw@strlen.de>
+
+commit c282222a45cb9503cbfbebfdb60491f06ae84b49 upstream.
+
+Dmitry reports following splat:
+ INFO: trying to register non-static key.
+ the code is fine but needs lockdep annotation.
+ turning off the locking correctness validator.
+ CPU: 0 PID: 13059 Comm: syz-executor1 Not tainted 4.10.0-rc7-next-20170207 #1
+[..]
+ spin_lock_bh include/linux/spinlock.h:304 [inline]
+ xfrm_policy_flush+0x32/0x470 net/xfrm/xfrm_policy.c:963
+ xfrm_policy_fini+0xbf/0x560 net/xfrm/xfrm_policy.c:3041
+ xfrm_net_init+0x79f/0x9e0 net/xfrm/xfrm_policy.c:3091
+ ops_init+0x10a/0x530 net/core/net_namespace.c:115
+ setup_net+0x2ed/0x690 net/core/net_namespace.c:291
+ copy_net_ns+0x26c/0x530 net/core/net_namespace.c:396
+ create_new_namespaces+0x409/0x860 kernel/nsproxy.c:106
+ unshare_nsproxy_namespaces+0xae/0x1e0 kernel/nsproxy.c:205
+ SYSC_unshare kernel/fork.c:2281 [inline]
+
+Problem is that when we get error during xfrm_net_init we will call
+xfrm_policy_fini which will acquire xfrm_policy_lock before it was
+initialized.  Just move it around so locks get set up first.
+
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Fixes: 283bc9f35bbbcb0e9 ("xfrm: Namespacify xfrm state/policy locks")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ net/xfrm/xfrm_policy.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -3004,6 +3004,11 @@ static int __net_init xfrm_net_init(stru
+ {
+ 	int rv;
+ 
++	/* Initialize the per-net locks here */
++	spin_lock_init(&net->xfrm.xfrm_state_lock);
++	rwlock_init(&net->xfrm.xfrm_policy_lock);
++	mutex_init(&net->xfrm.xfrm_cfg_mutex);
++
+ 	rv = xfrm_statistics_init(net);
+ 	if (rv < 0)
+ 		goto out_statistics;
+@@ -3020,11 +3025,6 @@ static int __net_init xfrm_net_init(stru
+ 	if (rv < 0)
+ 		goto out;
+ 
+-	/* Initialize the per-net locks here */
+-	spin_lock_init(&net->xfrm.xfrm_state_lock);
+-	rwlock_init(&net->xfrm.xfrm_policy_lock);
+-	mutex_init(&net->xfrm.xfrm_cfg_mutex);
+-
+ 	return 0;
+ 
+ out:
+From f843ee6dd019bcece3e74e76ad9df0155655d0df Mon Sep 17 00:00:00 2001
+From: Andy Whitcroft <apw@canonical.com>
+Date: Thu, 23 Mar 2017 07:45:44 +0000
+Subject: xfrm_user: validate XFRM_MSG_NEWAE incoming ESN size harder
+
+From: Andy Whitcroft <apw@canonical.com>
+
+commit f843ee6dd019bcece3e74e76ad9df0155655d0df upstream.
+
+Kees Cook has pointed out that xfrm_replay_state_esn_len() is subject to
+wrapping issues.  To ensure we are correctly ensuring that the two ESN
+structures are the same size compare both the overall size as reported
+by xfrm_replay_state_esn_len() and the internal length are the same.
+
+CVE-2017-7184
+Signed-off-by: Andy Whitcroft <apw@canonical.com>
+Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ net/xfrm/xfrm_user.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -386,7 +386,11 @@ static inline int xfrm_replay_verify_len
+ 	up = nla_data(rp);
+ 	ulen = xfrm_replay_state_esn_len(up);
+ 
+-	if (nla_len(rp) < ulen || xfrm_replay_state_esn_len(replay_esn) != ulen)
++	/* Check the overall length and the internal bitmap length to avoid
++	 * potential overflow. */
++	if (nla_len(rp) < ulen ||
++	    xfrm_replay_state_esn_len(replay_esn) != ulen ||
++	    replay_esn->bmp_len != up->bmp_len)
+ 		return -EINVAL;
+ 
+ 	return 0;
+From 677e806da4d916052585301785d847c3b3e6186a Mon Sep 17 00:00:00 2001
+From: Andy Whitcroft <apw@canonical.com>
+Date: Wed, 22 Mar 2017 07:29:31 +0000
+Subject: xfrm_user: validate XFRM_MSG_NEWAE XFRMA_REPLAY_ESN_VAL replay_window
+
+From: Andy Whitcroft <apw@canonical.com>
+
+commit 677e806da4d916052585301785d847c3b3e6186a upstream.
+
+When a new xfrm state is created during an XFRM_MSG_NEWSA call we
+validate the user supplied replay_esn to ensure that the size is valid
+and to ensure that the replay_window size is within the allocated
+buffer.  However later it is possible to update this replay_esn via a
+XFRM_MSG_NEWAE call.  There we again validate the size of the supplied
+buffer matches the existing state and if so inject the contents.  We do
+not at this point check that the replay_window is within the allocated
+memory.  This leads to out-of-bounds reads and writes triggered by
+netlink packets.  This leads to memory corruption and the potential for
+priviledge escalation.
+
+We already attempt to validate the incoming replay information in
+xfrm_new_ae() via xfrm_replay_verify_len().  This confirms that the user
+is not trying to change the size of the replay state buffer which
+includes the replay_esn.  It however does not check the replay_window
+remains within that buffer.  Add validation of the contained
+replay_window.
+
+CVE-2017-7184
+Signed-off-by: Andy Whitcroft <apw@canonical.com>
+Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ net/xfrm/xfrm_user.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -393,6 +393,9 @@ static inline int xfrm_replay_verify_len
+ 	    replay_esn->bmp_len != up->bmp_len)
+ 		return -EINVAL;
+ 
++	if (up->replay_window > up->bmp_len * sizeof(__u32) * 8)
++		return -EINVAL;
++
+ 	return 0;
+ }
+ 
