@@ -64,9 +64,9 @@ post_upgrade() {
 	pacman -Q lib32-mesa &> /tmp/cmd2
 	if [ "$(vercmp $(grep 'mesa' /tmp/cmd1 | cut -d' ' -f2) 17.0.1-1)" -le 0 ]; then
 		PKG_LIST="mhwd mesa libglvnd"
-		if [ "$(grep 'lib32-mesa' /tmp/cmd2 | cut -d' ' -f1)" != "lib32-mesa" ]; then
-			if [ "$(vercmp $(grep 'lib32-mesa' /tmp/cmd3 | cut -d' ' -f2) 17.0.1-1)" -le 0 ]; then
-				PKG_LIST+=" lib32-mesa lib32-libglvnd"
+		if [ "$(grep 'lib32-mesa' /tmp/cmd2 | cut -d' ' -f1)" == "lib32-mesa" ]; then
+			if [ "$(vercmp $(grep 'lib32-mesa' /tmp/cmd2 | cut -d' ' -f2) 17.0.1-1)" -le 0 ]; then
+				PKG_LIST="${PKG_LIST} lib32-mesa lib32-libglvnd"
 			fi
 		fi
 		msg "Fix mesa-stack ..."

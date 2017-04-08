@@ -13,7 +13,7 @@ _basekernel=4.10
 _basever=410
 _aufs=20170327
 _bfq=v8r8
-_sub=8
+_sub=9
 _git=c470abd4fde40ea6a0846a2beab642a578c0b8cd
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -46,6 +46,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
         # ARCH Patches
         # MANJARO Patches
+        '0001-enable-additional-cpu-optimizations-for-gcc.patch::https://gitweb.gentoo.org/proj/linux-patches.git/plain/5010_enable-additional-cpu-optimizations-for-gcc.patch?h=4.10'
         '0001-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
         '0002-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
         '0003-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
@@ -56,9 +57,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0009-BFQ-v8r9.patch::https://github.com/linusw/linux-bfq/commit/8d4b2ded945bdb75fc5c197d95089ebfe5fa24e7.patch'
 )
 sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
-            'ceb385486e34084dd53425e5ba50b9fba4a8e380d8f2815bfde142852d797da0'
-            '5e978fb93e5bda10eca3bd1db4dffdb8dc8726366cd32615e58ad6da3263afce'
-            'b3873646765ae2c377037697cfefee103812276de1b75cc4a62d25296c0024a4'
+            '9a00b962a5e30d61a0d488fc28f4a20b79c8c5c28fa21ee89c440c025c6c7c21'
+            '5103a0084bb9b1a97432a624418398bdcb95979503dd437047599500cce4685e'
+            '07d802fb7ad6cd5cafef692352471d8663e3327d98641973cfdb15b513434823'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -74,6 +75,7 @@ sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
             '59d8d3403189927dff446f417505956b94159658df04732ffa708184265ea7bf'
             '92f89c0feb9fd7463db173ea5621839e9e63aaf02021bf2d190105c97cdce0f5'
             'da1002407fa0399e2bd7b44289e13fb9dd664e97fd2ee0c5aa5f085242ee3f77'
+            'ed27e1f4df4e356f0a30d9198109fa1d344833973782956a11bfa2eec40f11f2'
             'bb6afbf8fa4d895e46e24a280689a69a16d5d01a0294e0755a2098c81edf167c'
             'ba842c84fe3445f10f80b173c59eba961267bdb94e317dd877ea263d90cb5190'
             '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784'
@@ -99,6 +101,9 @@ prepare() {
   patch -p1 -i "${srcdir}/0001-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch"
   patch -p1 -i "${srcdir}/0002-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch"
   patch -p1 -i "${srcdir}/0003-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch"
+
+  # enhance gcc
+  patch -p1 -i "${srcdir}/0001-enable-additional-cpu-optimizations-for-gcc.patch"
 
   # add aufs4 support
   patch -Np1 -i "${srcdir}/aufs4.10-${_aufs}.patch"
@@ -127,7 +132,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   patch -Np1 -i "${srcdir}/0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch"
   patch -Np1 -i "${srcdir}/0006-remove-useless-includes-from-bfq.h.patch"
-  sed -i -e "s|blk.h|blk-wbt.h|g" "${srcdir}/0007-reverse-include-order-between-blk.h-and-bfq.h.patch"
+  sed -i '/#include "blk.h"/ a \ #include "blk-wbt.h"' "${srcdir}/0007-reverse-include-order-between-blk.h-and-bfq.h.patch"
   patch -Np1 -i "${srcdir}/0007-reverse-include-order-between-blk.h-and-bfq.h.patch"
   patch -Np1 -i "${srcdir}/0008-remove-use-of-bfq-queues-after-free.patch"
   patch -Np1 -i "${srcdir}/0009-BFQ-v8r9.patch"

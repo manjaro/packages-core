@@ -11,11 +11,11 @@ pkgname=('linux411' 'linux411-headers')
 _kernelname=-MANJARO
 _basekernel=4.11
 _basever=411
-_aufs=20170313
-_bfq=v8r8
-_rc=rc2
+_aufs=20170327
+_bfq=v8r9
+_rc=rc5
 _sub=1
-_git=c470abd4fde40ea6a0846a2beab642a578c0b8cd
+_git=977674c06b189dd54729a91331c05761688ad064
 pkgver=${_basekernel}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -41,7 +41,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/bc49a78...e1f3b01.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/c02ed2e...0a41bef.patch"
         #"0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-${_basekernel}..patch"
         #"0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.10.0.patch"
         #"0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
@@ -51,21 +51,21 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         '0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch::https://github.com/pfactum/pf-kernel/commit/154a26bdff29d02c3e31c80b5d1042b03fbcd2fa.patch'
 )
-sha256sums=('7d0f0348b9b296e3b1dca32aa0703771cc65b8ceb5797146fa68653a4fb7cde5'
-            '9e4346f26967fb07fc3ec5cd9be3bb00be96d1bbedd798f4d319a802076e0f98'
-            'babc0ea2e40defda7c3ccab36553f0873d058fca9b5dfc57dd5edc5c36ba20cb'
+sha256sums=('07839bddb0cc04c98a5883e252f1008c3394c1984078ad36fcc411a8b546ab62'
+            '717239a28746eed2ef097578c30b5cafbb9e3b76cf6719ef2a543210a72fed3b'
+            'f756de0fb2d1113106bb0fc9f71576e84e11b4b27392d5394f55a6f3e9597527'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            'b0a5ad2befd96b7a8ca659250844a59d6b85402b5f508de7114ffd86fff92020'
-            'c4e6c13ede8888d7922f3c141de585f6d917651b159474947f6c151617cd4fab'
+            '62163a0ff111dae8e7310bf3c59b438e19af9fa90f851e8f244c8b526eefac14'
+            '8e26df8d99774359e7d3fd48c7448cc311e0e74ff81051d9aab027974e0f992e'
             '6a1ace02eea06588432534e42b0df1285181f7f2769371383cf8ddc3a811b338'
-            'f8460032daef0d797b8ab858f71fabf19855c85358211a28683a9e22074254dd'
-            '2ca48070268ec84267d605666b8624f6201e7a96bebb3c93fde08b693a070417'
+            'c0de8c0e96dc9cb30fc9f78d262a5444d578b98bc8a98e7c98751c968264866a'
+            '5d40144923dd0a52ef102a21bd36e7a0e04d150f74f5343aca1d212eac80ef68'
             '359ba039aafaebe88deffc3a6118fd259ee1a49622337bd975c0dd265caf001c'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
-            '6416a778e4535cf9b8dccd2eee7a130c64def541baaebebd329031e0c9a451ec'
+            'afe922d01f87e1f2731f45a896dbbfb6783c070a00fa139d22ca215116a2cd56'
             'ef5d899e7e7cf2f0bbf6cb149a83a16bce48be2b3412155ad7979240ae5ff314')
 
 prepare() {
@@ -100,7 +100,7 @@ prepare() {
   #patch -Np1 -i "${srcdir}/0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch"
   sed -i -e "s|PATCHLEVEL = 10|PATCHLEVEL = 11|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|EXTRAVERSION = -rc4|EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
