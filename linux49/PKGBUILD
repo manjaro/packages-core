@@ -11,9 +11,9 @@ pkgname=('linux49' 'linux49-headers')
 _kernelname=-MANJARO
 _basekernel=4.9
 _basever=50
-_aufs=20170327
+_aufs=20170410
 _bfq=v8r9
-_sub=21
+_sub=22
 #_git=69973b830859bc6529a7a0468ba0d80ee5117826
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -50,19 +50,18 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         '0001-HID-microsoft-Add-Surface-4-type-cover-pro-4-not-JP-versions.patch::https://github.com/torvalds/linux/commit/2ae3986b84e9d325bc92a1efbcf0c6b0f5016b35.patch'
-        '0002-HID-multitouch-enable-the-Surface-3-Type-Cover-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/8fe89ef076fa104f514da6ef61d90f5bf93488e3.patch'
-        '0003-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
-        '0004-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
-        '0005-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
+        '0002-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
+        '0003-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
+        '0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            '3c7834d46cb193cf2ab00595eca1592c86ccc536b1b606d3d31eb2bf2109c28d'
+            '9f8a8d00a22771602b0c9ddb6bf79d8f215973f1e118e2cf19d8822e0fd183cf'
             '19adb7cc873dc2855beb18563520c2bc0c82432892b5ab43d9b0139281fff1e7'
             '03b5d6f8de3006e3a1849dbc2228c1f6de42abf34fa0196ad50c1e0caf8e6627'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            'aea61d0df5ce5dc9dc00ef39e108b09f8f4f70db18e27ab342e26d54576da172'
+            '1ce36e5394ac79f286a5a89d4a5c56b1fd4427db1483dbe506bc4caeec41dccc'
             '535295f114dfe01c23e1251a1ef46a5aeab23b509c0c784be8330272736084db'
             'cc46a882be029cdcdf134915e34286db2af58b4f91a8b520dd11c15129a765c4'
             '7ee7a4271e5f6fee498c9ffcbb6eaa198fa0d07daf89d04538785f575cb64070'
@@ -73,7 +72,6 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '4a4074e32bfba196020e57d57af31f9fa222a8502e10861e545964f82f352b57'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '66ecb4e9462d760c147ff17ff714e69b2512013b63fd525fff617a52f5004b89'
-            'b1bb6893e685dcc0bcc432354937be47621db91369edb244c489955a8c9319ad'
             'bb6afbf8fa4d895e46e24a280689a69a16d5d01a0294e0755a2098c81edf167c'
             'ba842c84fe3445f10f80b173c59eba961267bdb94e317dd877ea263d90cb5190'
             '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784')
@@ -97,10 +95,9 @@ prepare() {
 
   # extend Microsoft Surface support
   patch -p1 -i "${srcdir}/0001-HID-microsoft-Add-Surface-4-type-cover-pro-4-not-JP-versions.patch"
-  patch -p1 -i "${srcdir}/0002-HID-multitouch-enable-the-Surface-3-Type-Cover-to-report-multitouch-data.patch"
-  patch -p1 -i "${srcdir}/0003-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch"
-  patch -p1 -i "${srcdir}/0004-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch"
-  patch -p1 -i "${srcdir}/0005-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch"
+  patch -p1 -i "${srcdir}/0002-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch"
+  patch -p1 -i "${srcdir}/0003-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch"
+  patch -p1 -i "${srcdir}/0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch"
 
   # add aufs4 support
   patch -Np1 -i "${srcdir}/aufs4.9-${_aufs}.patch"
