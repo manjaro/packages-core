@@ -6,7 +6,7 @@ _branch=master
 _date=20$(date +%y%m%d)
 pkgname=pacman-mirrors-dev
 pkgver=4.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Manjaro Linux mirror list for use by pacman"
 arch=('any')
 depends=('python' 'python-npyscreen')
@@ -21,6 +21,11 @@ install=pacman-mirrors.install
 backup=(etc/pacman-mirrors.conf)
 source=(git+$url#branch=$_branch)
 sha256sums=('SKIP')
+
+prepare() {
+  cd "${srcdir}"/pacman-mirrors
+  sed -i -e "s|4.1.0-dev|4.1.0-dev (20$(date +%y%m%d))|g" pacman_mirrors/__init__.py
+}
 
 package() {
   cd "${srcdir}"/pacman-mirrors
