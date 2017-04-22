@@ -12,8 +12,8 @@ _kernelname=-MANJARO
 _basekernel=4.4
 _basever=44
 _aufs=20170410
-_bfq=v8r9
-_sub=61
+_bfq=v8r10
+_sub=63
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -40,7 +40,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'vfs-ino.patch'
         'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/a8e0574...85e3b1a.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/a8e0574...4611251.patch"
 #        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.3.patch"
 #        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.3.patch"
 #        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.3.0.patch"
@@ -52,7 +52,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            '8d8e3152b38eceacf93073ce431e4ca7d82aa4322166c547127001473cdd7419'
+            'bc50366a602bbe842ed5d663e43b27d0ed9c58eb1c4cb8907f101092e5601e13'
             '389490eab392a70e9882251df4eef4a55a64090c3f81ac554f620bcb16c5fbed'
             '4aba669ec026c2546a5c36432cb33a69994be141ead32b4e2aaa7c579970f3d4'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -68,7 +68,7 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '6f7aa69101d690df2286dd2642a23bce835efab96273389b243dafbec15a1d0c'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '6741991b126b906b838e9327e4df2d1ac02ad2617645d08c786b2b3f52a48a98'
+            '70f61c87bf7deacc635b75dece17432d9ea98abd0d889d6e5d2d3293a9e3988a'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
             '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758')

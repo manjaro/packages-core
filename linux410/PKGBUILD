@@ -12,8 +12,8 @@ _kernelname=-MANJARO
 _basekernel=4.10
 _basever=410
 _aufs=20170410
-_bfq=v8r8
-_sub=10
+_bfq=v8r10
+_sub=12
 _git=c470abd4fde40ea6a0846a2beab642a578c0b8cd
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -51,13 +51,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
         '0003-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
         '0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch::https://github.com/pfactum/pf-kernel/commit/154a26bdff29d02c3e31c80b5d1042b03fbcd2fa.patch'
-        '0006-remove-useless-includes-from-bfq.h.patch::https://github.com/linusw/linux-bfq/commit/e886a7aeb5395d13b87c1962a19fc9980361e358.patch'
-        '0007-reverse-include-order-between-blk.h-and-bfq.h.patch::https://github.com/linusw/linux-bfq/commit/4f8ad98d1e6f1c96f7096228b7aea41e670a2688.patch'
-        '0008-remove-use-of-bfq-queues-after-free.patch::https://github.com/linusw/linux-bfq/commit/2da7edbb8f54b447c0b7dfa029ee4df580a6030e.patch'
-        '0009-BFQ-v8r9.patch::https://github.com/linusw/linux-bfq/commit/8d4b2ded945bdb75fc5c197d95089ebfe5fa24e7.patch'
 )
 sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
-            '200cb2b47d2b6316f4cc6ee90be581187d34f90390aef8fc07d4460be11cfeb2'
+            'ed919b49178bbda14b341058a92362322cbb09e9028229e860e6927553c8d037'
             '5103a0084bb9b1a97432a624418398bdcb95979503dd437047599500cce4685e'
             '07d802fb7ad6cd5cafef692352471d8663e3327d98641973cfdb15b513434823'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -74,16 +70,12 @@ sha256sums=('3c95d9f049bd085e5c346d2c77f063b8425f191460fcd3ae9fe7e94e0477dc4b'
             'f75f39e9efd056875c2212ac52fdedac0d4a37e1878389e3557769435c28ca2d'
             '59d8d3403189927dff446f417505956b94159658df04732ffa708184265ea7bf'
             '92f89c0feb9fd7463db173ea5621839e9e63aaf02021bf2d190105c97cdce0f5'
-            'da1002407fa0399e2bd7b44289e13fb9dd664e97fd2ee0c5aa5f085242ee3f77'
+            '4cfffaf2555120a3b5fcd32b4366eb8c879189f7777bd870b06960d159720981'
             'ed27e1f4df4e356f0a30d9198109fa1d344833973782956a11bfa2eec40f11f2'
             'bb6afbf8fa4d895e46e24a280689a69a16d5d01a0294e0755a2098c81edf167c'
             'ba842c84fe3445f10f80b173c59eba961267bdb94e317dd877ea263d90cb5190'
             '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784'
-            'ef5d899e7e7cf2f0bbf6cb149a83a16bce48be2b3412155ad7979240ae5ff314'
-            '5fa6826dd5aa009e736fe4a3fa61887190e2e41d1f05b8391b5646b79a762f78'
-            '9bb3dc66fb458a4d7e8c835ec1fe79c9f4730ec3fb611ba37915c4455f8bcb7c'
-            '7d2e17b14170acaed2219cdf4b78b6348ea80fd915e3a9a2f180f536db3e2aa3'
-            'a63279c31922de7a1f8a8cbe4815aa3177e9b5504907cdcedbfb9af2f29faef6')
+            'ef5d899e7e7cf2f0bbf6cb149a83a16bce48be2b3412155ad7979240ae5ff314')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -131,12 +123,6 @@ prepare() {
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   patch -Np1 -i "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   patch -Np1 -i "${srcdir}/0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch"
-  patch -Np1 -i "${srcdir}/0006-remove-useless-includes-from-bfq.h.patch"
-  sed -i '/#include "blk.h"/ a \ #include "blk-wbt.h"' "${srcdir}/0007-reverse-include-order-between-blk.h-and-bfq.h.patch"
-  patch -Np1 -i "${srcdir}/0007-reverse-include-order-between-blk.h-and-bfq.h.patch"
-  patch -Np1 -i "${srcdir}/0008-remove-use-of-bfq-queues-after-free.patch"
-  patch -Np1 -i "${srcdir}/0009-BFQ-v8r9.patch"
-
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config

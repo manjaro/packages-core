@@ -12,8 +12,8 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _basever=50
 _aufs=20170410
-_bfq=v8r9
-_sub=22
+_bfq=v8r10
+_sub=24
 #_git=69973b830859bc6529a7a0468ba0d80ee5117826
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -40,7 +40,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/69973b8...8d4b2de.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/69973b8...02f8cb3.patch"
 #        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-4.5.0.patch"
 #        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.5.0.patch"
 #        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${_basekernel}.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
@@ -55,7 +55,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            '9f8a8d00a22771602b0c9ddb6bf79d8f215973f1e118e2cf19d8822e0fd183cf'
+            '37897ce45426b8114c290dc52bc9de2034641b6dd9e33c7abba5224deb6e6e19'
             '19adb7cc873dc2855beb18563520c2bc0c82432892b5ab43d9b0139281fff1e7'
             '03b5d6f8de3006e3a1849dbc2228c1f6de42abf34fa0196ad50c1e0caf8e6627'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -69,7 +69,7 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'dd62bacdfd3f16be81b0d6b5cfb2a45ae03fc0e3c126d321d198d3f19ebd84a8'
             'db7a22592a3d192dd84c84c20f361972bccfd84de346d8d7684488d118eade83'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
-            '4a4074e32bfba196020e57d57af31f9fa222a8502e10861e545964f82f352b57'
+            'bcc699e6cd813ab2ddfd2ecd88ec256fe5e50e2cde20e8b5606ef155138a8815'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '66ecb4e9462d760c147ff17ff714e69b2512013b63fd525fff617a52f5004b89'
             'bb6afbf8fa4d895e46e24a280689a69a16d5d01a0294e0755a2098c81edf167c'
