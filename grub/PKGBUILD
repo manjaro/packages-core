@@ -6,9 +6,9 @@
 # Maintainer: Philip Mueller <philm|manjaro|org>
 # Maintainer: Guinux <nuxgui|gmail|com>
 
-_pkgver="2.02.0"
+_pkgver="2.02"
 _GRUB_GIT_TAG="2.02"
-_SNAPSHOT="ec4aca088a04fce6c7d97c733ec272c63b0a1231"
+_SNAPSHOT="e54c99aaff5e5f6f5d3b06028506c57e66d8ef77"
 _SNAPSHOT_EXTRAS="f2a079441939eee7251bf141986cdd78946e1d20"
 
 _UNIFONT_VER="9.0.06"
@@ -19,7 +19,7 @@ _UNIFONT_VER="9.0.06"
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.02.0
-pkgrel=1
+pkgrel=2
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -42,8 +42,8 @@ optdepends=('freetype2: For grub-mkfont usage'
             'os-prober: To detect other OSes when generating grub.cfg in BIOS systems'
             'mtools: For grub-mkrescue FAT FS support')
 
-source=(#"grub-${pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG}"
-        "grub-${pkgver}-${pkgrel}.tar.gz::http://git.savannah.gnu.org/cgit/grub.git/snapshot/grub-${_SNAPSHOT}.tar.gz"
+source=("grub-${pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG}"
+        #"grub-${pkgver}-${pkgrel}.tar.gz::http://git.savannah.gnu.org/cgit/grub.git/snapshot/grub-${_SNAPSHOT}.tar.gz"
         "grub-extras-${_pkgver}-${pkgrel}.tar.gz::http://git.savannah.gnu.org/cgit/grub-extras.git/snapshot/grub-extras-${_SNAPSHOT_EXTRAS}.tar.gz"
         "http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz"
         #"http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz.sig"
@@ -56,7 +56,7 @@ source=(#"grub-${pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG}
         'update-grub'
         "${pkgname}.hook")
 
-sha256sums=('ab7fd23907cee5629ff984332390b635a4e6bc6d9d21d2f6de5c824b70e8b6fc'
+sha256sums=('SKIP'
             '2844601914cea6b1231eca0104853a93c4d67a5209933a0766f1475953300646'
             '4246c4773ed70f78a7e27ff1118fd257a280d1102200265ad5d58bb2011195ef'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
@@ -74,7 +74,7 @@ sha256sums=('ab7fd23907cee5629ff984332390b635a4e6bc6d9d21d2f6de5c824b70e8b6fc'
 #}
 
 prepare() {
-	mv "${srcdir}/grub-${_SNAPSHOT}/" "${srcdir}/grub-${_pkgver}/"
+	#mv "${srcdir}/grub-${_SNAPSHOT}/" "${srcdir}/grub-${_pkgver}/"
 	mv "${srcdir}/grub-extras-${_SNAPSHOT_EXTRAS}/" "${srcdir}/grub-extras-${_pkgver}/"
 
 	cd "${srcdir}/grub-${_pkgver}/"
