@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -f /etc/pacman-mirrors.conf.pacsave ]; then
+    mv /etc/pacman-mirrors.conf /etc/pacman-mirrors.conf.20$(date +%y%m%d).backup
+    mv /etc/pacman-mirrors.conf.pacsave /etc/pacman-mirrors.conf
+fi
+pacman-mirrors -m random
+echo "hint: use \`pacman-mirrors\` to generate and update your pacman mirrorlist."
