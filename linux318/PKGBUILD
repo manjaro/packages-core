@@ -13,7 +13,7 @@ _basekernel=3.18
 _basever=318
 _aufs=20160822 #Last release
 _bfq=v7r8
-pkgver=${_basekernel}.53
+pkgver=${_basekernel}.54
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -21,9 +21,7 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        #"http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
-        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${_basekernel}.52.xz"
-        patch-${pkgver}::https://patchwork.kernel.org/patch/9728413/raw/
+        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -49,8 +47,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         #'prepatch-3.18-20170415'
 )
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
-            '8405371357be0d0d500c5c7688e3503f8abbf4131d544033f76fbf26ce1ab42b'
-            'df93b9a6d0dc0adae6c58e2306a585c10c086b45b30cdfe9ee77ccb6f72a3da7'
+            '4d27a368804af1882dc0352c9d8176adbaf7d55aeff6eac11c32422f66f44aef'
             'ef4cf563bdd12a37d8c9b8573d8aadb4bcc39c5f4c8d96eccafd9cd482b31911'
             '883a97c734ba791d5b4a615453391351cc66a57d7d7ad5c8c25d6ef1da93e7cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -76,7 +73,6 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${_basekernel}.52"
   patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # issue with hid-hyperv.c

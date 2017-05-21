@@ -1,10 +1,21 @@
+eol() {
+  echo ">>> NOTE, 4.10.17 was the last maintained maintenance release"
+  echo "    by Greg Kroah-Hartman."
+  echo "    "
+  echo "    It is recommend to move on to linux411-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux411'"
+  echo "    "
+}
+
 post_install () {
+  eol
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod %KERNVER%
 }
 
 post_upgrade() {
+  eol
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
     echo "WARNING: /boot appears to be a separate partition but is not mounted."
   fi
