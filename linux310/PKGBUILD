@@ -44,6 +44,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.10/4500_nouveau-video-output-control-Kconfig.patch'
         'criu-no-expert.patch'
         '3.10.13-Revert-zram-use-zram--lock-to-protect-zram_free_page-in-swap-free-notify-path.patch'
+        'r600-r700-allow-geom-rings.patch'
         "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.10.8.patch"
         "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.10.8.patch"
         "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/3.10.8+-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.10.8+.patch")
@@ -73,6 +74,7 @@ sha256sums=('df27fa92d27a9c410bfe6c4a89f141638500d7eadcca5cce578954efc2ad3544'
             '59ad742a02bc24d58bc06eee584175a164cb82550b905ba9f402a6dc399d3ed1'
             'daa75228a4c45a925cc5dbfeba884aa696a973a26af7695adc198c396474cbd5'
             '9d7e80e30a60137b9b88dc37d17c65c6834c4e455e9be8db80d98238dfabb1a1'
+            '93d956db561db3519870eb90426267f0de856004cafd58ec086864bdc9032370'
             '41fbe09c3d1b22818fbd5f1e24c4d64cf7b7e935eeed0abd721a9b3bf6e337a4'
             'ac0730dc24529970185ae527e98fb03ee427e1bce44ba9360c4c386ff63792ee'
             '3e818d3dec6a960033668e52b471cc8eaf277ad147d2006fbd73453981c18a91')
@@ -133,6 +135,9 @@ prepare() {
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
+
+  # add Geometry Shaders for r600/r700
+  patch -Np1 -i "${srcdir}/r600-r700-allow-geom-rings.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config

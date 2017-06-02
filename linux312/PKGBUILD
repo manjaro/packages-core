@@ -44,6 +44,7 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz
         'nfs-check-gssd-running-before-krb5i-auth.patch'
         'rpc_pipe-fix-cleanup-of-dummy-gssd-directory-when-notification-fails.patch'
         'rpc_pipe-remove-the-clntXX-dir-if-creating-the-pipe-fails.patch'
+        'r600-r700-allow-geom-rings.patch'
         'sunrpc-add-an-info-file-for-the-dummy-gssd-pipe.patch'
         'sunrpc-create-a-new-dummy-pipe-for-gssd-to-hold-open.patch'
         'sunrpc-replace-gssd_running-with-more-reliable-check.patch'
@@ -76,6 +77,7 @@ sha256sums=('2e120ec7fde19fa51dc6b6cc11c81860a0775defcad5a5bf910ed9a50e845a02'
             '139d576c540840fe18b0ce8468c243011e5f8b4aebfb1a288afe10b9f8d88137'
             'fecca9a761f3427c7f2f793e5d9a34d6f43799143e9a6b51edc372f88c76022e'
             'c045ce9c2571c4e6ff63345ea9abd9f778f56206f686b95491523ac740458420'
+            '93d956db561db3519870eb90426267f0de856004cafd58ec086864bdc9032370'
             'd8d6745a165e7f1608d8c298e49c8c2fee5a5d6c61c5b80d63a8dc7913ff8dc8'
             'b6f366ed2100ccab99029f61c39c0781ad4863f537381626196ed43b4b115a21'
             'cbfabd113a1954cd3d6cc1e70c19b95ce36a19e2c92ad93939d4982077178135'
@@ -142,6 +144,9 @@ prepare() {
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
+
+  # add Geometry Shaders for r600/r700
+  patch -Np1 -i "${srcdir}/r600-r700-allow-geom-rings.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
