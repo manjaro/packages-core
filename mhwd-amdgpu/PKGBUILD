@@ -1,10 +1,9 @@
 # Maintainer: Philip Müller <philm[at]manjaro[dog]org>
-# Maintainer: Roland Singer <roland[at]manjaro[dog]org>
 # Contributor: Fabian Bornschein <plusfabi[at]gmail[dog]com>
 
 pkgname=('mhwd-amdgpu')
 pkgver=1.2.0
-pkgrel=2
+pkgrel=1
 
 pkgdesc="MHWD module-ids for amdgpu"
 arch=('any')
@@ -30,7 +29,7 @@ prepare() {
                    "Polaris12"
                    "Baffin"
                    "Ellesmere"
-                   "Lexa"
+                   "Lexa")
 #                   "Vega")
 
     AMD_DEVNAMES_EXP=("Chelsea"
@@ -118,12 +117,12 @@ prepare() {
 }
 
 package() {
-    echo "1"
+    msg "Create IDS folder"
     install -d -m755 "${pkgdir}/var/lib/mhwd/ids/pci/"
-    echo "2"
+    msg "Install IDS files"
     install -D -m644 "${srcdir}/${_IDFILE}" \
     "${pkgdir}/var/lib/mhwd/ids/pci/${_IDFILE}"
-    echo "3"
+    msg "Install IDS files (experimental)"
     install -D -m644 "${srcdir}/${_IDFILE_EXP}" \
     "${pkgdir}/var/lib/mhwd/ids/pci/${_IDFILE_EXP}"
 }
