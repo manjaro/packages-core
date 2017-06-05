@@ -16,7 +16,9 @@ post_install() {
 		mv /etc/pacman-mirrors.conf /etc/pacman-mirrors.conf.$(date +%y%m%d)
 		mv /etc/pacman-mirrors.conf.pacsave /etc/pacman-mirrors.conf
 	fi
-	if ! [ -f /etc/pacman.d/mirrorlist ]; then
+	if [ -f /etc/pacman.d/mirrorlist ]; then
+		/usr/bin/pacman-mirrors --no-mirrorlist
+	else
 		/usr/bin/pacman-mirrors -yf5
         fi
 	message
