@@ -10,11 +10,15 @@ msg() {
 
 post_install() {
 	if [ -f /etc/pacman-mirrors.conf.pacsave ]; then
-		msg "use pacman-mirrorlist config"
-		mv /etc/pacman-mirrors.conf /etc/pacman-mirrors.conf.20$(date +%y%m%d).backup
+		msg "Your current config has been restored."
+		msg "A new configuration is saved as /etc/pacman-mirrors.conf.$(date +%Y%m%d).
+		msg "Please verify any changes made to the configuration."
+		mv /etc/pacman-mirrors.conf /etc/pacman-mirrors.conf.$(date +%y%m%d)
 		mv /etc/pacman-mirrors.conf.pacsave /etc/pacman-mirrors.conf
 	fi
-	/usr/bin/pacman-mirrors -m random
+	if ! [ -f /etc/pacman.d/mirrorlist ]; then
+		/usr/bin/pacman-mirrors -yf5
+        fi
 	message
 }
 
