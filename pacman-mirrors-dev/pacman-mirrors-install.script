@@ -1,17 +1,16 @@
 #!/bin/bash
 
-if [ -f /etc/pacman-mirrors.conf.pacsave ]; then
-    mv /etc/pacman-mirrors.conf /etc/pacman-mirrors.conf.20$(date +%y%m%d).backup
-    mv /etc/pacman-mirrors.conf.pacsave /etc/pacman-mirrors.conf
-    echo "Your existing configuration has been restored"
-    echo "A new pacman-mirrors.conf is created as /etc/pacman-mirrors.conf.$(date +%Y%m/d)"
-    echo "Please verify you're not missing any changes"
-fi
+# backup=$(date +%Y%m%d)
+#
+# if [ -f /etc/pacman-mirrors.conf.pacsave ]; then
+#     mv /etc/pacman-mirrors.conf /etc/pacman-mirrors.conf.$backup
+#     mv /etc/pacman-mirrors.conf.pacsave /etc/pacman-mirrors.conf
+#     echo "Your existing configuration has been restored"
+#     echo "A new pacman-mirrors.conf is created as /etc/pacman-mirrors.conf.$backup"
+#     echo "Please verify you're not missing any changes"
+# fi
 
-if [ -f /etc/pacman.d/mirrorlist ]; then
-    # fetch new data files
-    pacman-mirrors --no-mirrorlist
-else
+if [[ ! -f /etc/pacman.d/mirrorlist ]]; then
     # create mirrorlist
     pacman-mirrors -yf5
 fi
