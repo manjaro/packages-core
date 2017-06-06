@@ -20,10 +20,12 @@ post_upgrade() {
         _check_pubring
     fi
     if [ "$(vercmp $2 4.1.0-2)" -lt 0 ]; then
-        msg "You had an old pacman.conf. We updated it for you."
-        msg "You can find your old pacman.conf saved as \`/etc/pacman-old-${PACMAN_OLD}.conf\`"
-        mv /etc/pacman.conf /etc/pacman-old-${PACMAN_OLD}.conf
-        mv /etc/pacman.conf.pacnew /etc/pacman.conf
+        if [ -f "/etc/pacman.conf.pacnew" ]; then
+           msg "You had an old pacman.conf. We updated it for you."
+           msg "You can find your old pacman.conf saved as \`/etc/pacman-old-${PACMAN_OLD}.conf\`"
+           mv /etc/pacman.conf /etc/pacman-old-${PACMAN_OLD}.conf
+           mv /etc/pacman.conf.pacnew /etc/pacman.conf
+        fi
         if [ ! -f "usr/bin/pacman-mirrors" ]; then
            msg "Your current mirrorlist was saved as \`/etc/pacman.d/mirrorlist-old-${PACMAN_OLD}\`"
            msg "A generic mirrorlist, set to our default server, was generated!"
@@ -57,7 +59,7 @@ post_upgrade() {
             killall pamac-tray &> /dev/null
         fi
     fi
-    if [ "$(vercmp $2 5.0.2-0)" -lt 0 ]; then
+    if [ "$(vercmp $2 5.0.2-0.4)" -lt 0 ] && [ -f "/etc/pacman.conf.pacnew" ]; then
         msg "You had an old pacman.conf. We updated it for you."
         msg "You can find your old pacman.conf saved as \`/etc/pacman-old-${PACMAN_OLD}.conf\`"
         mv /etc/pacman.conf /etc/pacman-old-${PACMAN_OLD}.conf
