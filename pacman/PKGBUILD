@@ -7,15 +7,15 @@
 # Maintainer: Rob McCathie <rob@manjaro.org>
 
 pkgname=pacman
-pkgver=5.0.1
-pkgrel=9
+pkgver=5.0.2
+pkgrel=0.1
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
 license=('GPL')
 groups=('base' 'base-devel')
 depends=('bash' 'glibc' 'libarchive' 'curl' 'gpgme'
-        'archlinux-keyring' 'manjaro-keyring' 'pacman-mirrors>=4.0.0')
+        'archlinux-keyring' 'manjaro-keyring' 'pacman-mirrors>=4.1.0')
 checkdepends=('python2' 'fakechroot')
 makedepends=('asciidoc')
 provides=('pacman-contrib')
@@ -30,18 +30,14 @@ source=("https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz"
 #         'pacman-sync-first-option.patch'
 #         'etc-pacman.d-gnupg.mount'
 #         'pacman-init.service'
-        'pacman-5.0.1-roundup.patch')
-sha256sums=('8bd5f407ce8e05c4be8f1c4be4d8dcc8550ea5e494937da5220ea2c23cbb8e04'
+        )
+sha256sums=('dfd36086ad68564bcd977f4a1fafe51dd328acd4a95093ac4bf1249be9c41f0e'
             'b06c1f507a713867d76c2c257e97cce818ffda255a03a157b447563ccc3e29ed'
             'efc3de56605b3523d022cca1d34b4feaac0a5a43da3ffcc63ea4a361e0f5e73d'
-            '56a016d6a5404ab6dd7b8fd39027ef422dd14ad07c768853863a1e03dcc9a3e0'
-            'e9d65724f1784026dfe94b8038012bb2f4988abeed993b83307537fd93a7e695')
+            '56a016d6a5404ab6dd7b8fd39027ef422dd14ad07c768853863a1e03dcc9a3e0')
 
 prepare() {
     cd "$pkgname-$pkgver"
-
-    # v5.0.1..pacman-5.0.1..c2f97580
-    patch -p1 -i $srcdir/pacman-5.0.1-roundup.patch
 
 #     # Manjaro patches
 #     patch -p1 -i $srcdir/pacman-sync-first-option.patch

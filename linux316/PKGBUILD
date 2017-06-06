@@ -12,7 +12,7 @@ _basekernel=3.16
 _basever=316
 _aufs=20150928 #last release
 _bfq=v7r8
-pkgver=${_basekernel}.43
+pkgver=${_basekernel}.44
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -44,9 +44,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         # Additional patches
         'fix-mod_devicetable.patch'
+        'gcc-7.1-ilog2.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
-            '613fc4663e1d7979c1530291e39a3118a4fff59c7de3d3f41ccd20c9a7bcd8ae'
+            '6edf090d0080d9096a5872bd4cb01d3883f9ab79e65c03cb0a5fc9a2e263f744'
             '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -67,7 +68,8 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'a040f22695c9368c01c0e74f5696035a731d4fab1015ce5f3c90d3ae1a74bccc'
             'f0fc3e6159f61671a5a734ccc28091b6d8124d92c211652e620e99305b2edcef'
             '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
-            '641f406a5e7fac1a7d1fe84b4ab1184603bf5d10546c60f7b1b1c66585da875e')
+            '641f406a5e7fac1a7d1fe84b4ab1184603bf5d10546c60f7b1b1c66585da875e'
+            '188111a23d2700320989ae7026986079ece313a13a9abd9086c15ac35a84556f')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -87,6 +89,9 @@ prepare() {
 
   # fix gcc61
   patch -Np1 -i "${srcdir}/fix-mod_devicetable.patch"
+
+  # fix gcc71
+  patch -Np1 -i "${srcdir}/gcc-7.1-ilog2.patch"
 
   # add Gentoo patches
   patch -Np1 -i "${srcdir}/1700_enable-thinkpad-micled.patch"

@@ -32,15 +32,15 @@ post_upgrade() {
            echo '# file generated due pacman update' > /etc/pacman.d/mirrorlist
            echo 'Server = http://mirror.dacentec.com/manjaro/stable/$repo/$arch' >> /etc/pacman.d/mirrorlist
         fi
-    fi
-    if [ "x`cat /etc/pacman.conf | grep manjaro-system`" == "x" ]; then
-        sed -i -e 's|^.*HoldPkg.*|HoldPkg      = pacman glibc manjaro-system|g' /etc/pacman.conf
-        sed -i -e 's|^.*SyncFirst.*|SyncFirst    = manjaro-system|g' /etc/pacman.conf
-        msg "Added manjaro-system to SyncFirst line in \`/etc/pacman.conf\`"
-    fi
-    if [ "x`cat /etc/pacman.conf | grep SyncFirst | cut -d= -f2 | grep pacman`" != "x" ]; then
-        sed -i -e 's|^.*SyncFirst.*|SyncFirst    = manjaro-system|g' /etc/pacman.conf
-        msg "Removed pacman from SyncFirst line in \`/etc/pacman.conf\`"
+        if [ "x`cat /etc/pacman.conf | grep manjaro-system`" == "x" ]; then
+           sed -i -e 's|^.*HoldPkg.*|HoldPkg      = pacman glibc manjaro-system|g' /etc/pacman.conf
+           sed -i -e 's|^.*SyncFirst.*|SyncFirst    = manjaro-system|g' /etc/pacman.conf
+           msg "Added manjaro-system to SyncFirst line in \`/etc/pacman.conf\`"
+        fi
+        if [ "x`cat /etc/pacman.conf | grep SyncFirst | cut -d= -f2 | grep pacman`" != "x" ]; then
+           sed -i -e 's|^.*SyncFirst.*|SyncFirst    = manjaro-system|g' /etc/pacman.conf
+           msg "Removed pacman from SyncFirst line in \`/etc/pacman.conf\`"
+        fi
     fi
     if [ "$(vercmp $2 4.2.0-6)" -lt 0 ]; then
         rm /var/lib/pacman/db.lck &> /dev/null
@@ -56,6 +56,12 @@ post_upgrade() {
             killall pamac-manager &> /dev/null
             killall pamac-tray &> /dev/null
         fi
+    fi
+    if [ "$(vercmp $2 5.0.2-0)" -lt 0 ]; then
+        msg "You had an old pacman.conf. We updated it for you."
+        msg "You can find your old pacman.conf saved as \`/etc/pacman-old-${PACMAN_OLD}.conf\`"
+        mv /etc/pacman.conf /etc/pacman-old-${PACMAN_OLD}.conf
+        mv /etc/pacman.conf.pacnew /etc/pacman.conf
     fi
 }
 
