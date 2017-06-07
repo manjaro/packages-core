@@ -11,7 +11,7 @@ msg() {
 post_install() {
 	if [ -f /etc/pacman-mirrors.conf.pacsave ]; then
 		msg "Your current config has been restored."
-		msg "A new configuration is saved as /etc/pacman-mirrors.conf.$(date +%Y%m%d).
+		msg "A new configuration is saved as /etc/pacman-mirrors.conf.$(date +%Y%m%d)."
 		msg "Please verify any changes made to the configuration."
 		mv /etc/pacman-mirrors.conf /etc/pacman-mirrors.conf.$(date +%y%m%d)
 		mv /etc/pacman-mirrors.conf.pacsave /etc/pacman-mirrors.conf
