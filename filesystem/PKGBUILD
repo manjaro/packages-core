@@ -7,7 +7,7 @@
 
 pkgname=filesystem
 pkgver=2017.06
-pkgrel=2
+pkgrel=3
 pkgdesc='Base filesystem'
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -102,7 +102,9 @@ package() {
 
 	# setup /etc and /usr/share/factory/etc
 	install -d etc/{ld.so.conf.d,skel,profile.d} usr/share/factory/etc
-	for f in fstab group host.conf hostname hosts issue ld.so.conf motd nsswitch.conf passwd resolv.conf securetty shells profile locale.conf vconsole.conf; do
+	for f in fstab group host.conf hostname hosts issue ld.so.conf locale.conf \
+             motd nsswitch.conf passwd profile rc.local rc.local.shutdown resolv.conf \
+             securetty shells vconsole.conf; do
 		install -m644 "$srcdir"/$f etc/
 		install -m644 "$srcdir"/$f usr/share/factory/etc/
 	done
@@ -114,10 +116,6 @@ package() {
 
 	# add modules-load.d/modules
 	install -D -m644 $srcdir/modules.conf etc/modules-load.d/modules.conf
-
-	# add rc.local and rc.local.shutdown
-	install -m755 $srcdir/rc.local etc/
-	install -m755 $srcdir/rc.local.shutdown etc/
 
 	# Create the manjaro-release file
 	echo "Manjaro Linux" > $pkgdir/etc/manjaro-release
