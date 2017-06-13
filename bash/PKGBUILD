@@ -7,7 +7,7 @@ pkgname=bash
 _basever=4.4
 _patchlevel=012
 pkgver=${_basever}.${_patchlevel}
-pkgrel=4
+pkgrel=3
 pkgdesc='The GNU Bourne Again shell'
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -84,8 +84,6 @@ package() {
   install -dm755 "$pkgdir"/etc/bash/bashrc.d/
   install -m644 system.bashrc $pkgdir/etc/bash/bashrc
   install -m644 system.bash_logout "$pkgdir"/etc/bash/bash_logout
-
-#   install -m644 manjaro.bashrc "$pkgdir"/etc/bash/bashrc.d/manjaro.bashrc
 
   # user configuration file skeletons
   install -m644 dot.bashrc "$pkgdir"/etc/skel/.bashrc
