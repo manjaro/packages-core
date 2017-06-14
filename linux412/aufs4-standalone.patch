@@ -1,0 +1,402 @@
+aufs4.x-rcN standalone patch
+
+diff --git a/fs/dcache.c b/fs/dcache.c
+index c98964d..8c7d606 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -1272,6 +1272,7 @@ void d_walk(struct dentry *parent, void *data,
+ 	seq = 1;
+ 	goto again;
+ }
++EXPORT_SYMBOL_GPL(d_walk);
+ 
+ struct check_mount {
+ 	struct vfsmount *mnt;
+@@ -2864,6 +2865,7 @@ void d_exchange(struct dentry *dentry1, struct dentry *dentry2)
+ 
+ 	write_sequnlock(&rename_lock);
+ }
++EXPORT_SYMBOL_GPL(d_exchange);
+ 
+ /**
+  * d_ancestor - search for an ancestor
+diff --git a/fs/exec.c b/fs/exec.c
+index 72934df..e5de28f 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -109,6 +109,7 @@ bool path_noexec(const struct path *path)
+ 	return (path->mnt->mnt_flags & MNT_NOEXEC) ||
+ 	       (path->mnt->mnt_sb->s_iflags & SB_I_NOEXEC);
+ }
++EXPORT_SYMBOL_GPL(path_noexec);
+ 
+ #ifdef CONFIG_USELIB
+ /*
+diff --git a/fs/fcntl.c b/fs/fcntl.c
+index d39404c..ac1dc66 100644
+--- a/fs/fcntl.c
++++ b/fs/fcntl.c
+@@ -84,6 +84,7 @@ int setfl(int fd, struct file * filp, unsigned long arg)
+  out:
+ 	return error;
+ }
++EXPORT_SYMBOL_GPL(setfl);
+ 
+ static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
+                      int force)
+diff --git a/fs/file_table.c b/fs/file_table.c
+index 954d510..4fb5b10 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -148,6 +148,7 @@ struct file *get_empty_filp(void)
+ 	}
+ 	return ERR_PTR(-ENFILE);
+ }
++EXPORT_SYMBOL_GPL(get_empty_filp);
+ 
+ /**
+  * alloc_file - allocate and initialize a 'struct file'
+@@ -259,6 +260,7 @@ void flush_delayed_fput(void)
+ {
+ 	delayed_fput(NULL);
+ }
++EXPORT_SYMBOL_GPL(flush_delayed_fput);
+ 
+ static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput);
+ 
+@@ -301,6 +303,7 @@ void __fput_sync(struct file *file)
+ }
+ 
+ EXPORT_SYMBOL(fput);
++EXPORT_SYMBOL_GPL(__fput_sync);
+ 
+ void put_filp(struct file *file)
+ {
+@@ -309,6 +312,7 @@ void put_filp(struct file *file)
+ 		file_free(file);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(put_filp);
+ 
+ void __init files_init(void)
+ { 
+diff --git a/fs/inode.c b/fs/inode.c
+index 69cbe9c..764566d 100644
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -1649,6 +1649,7 @@ int update_time(struct inode *inode, struct timespec *time, int flags)
+ 
+ 	return update_time(inode, time, flags);
+ }
++EXPORT_SYMBOL_GPL(update_time);
+ 
+ /**
+  *	touch_atime	-	update the access time
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 8bd3e4d..d728531 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -462,6 +462,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
+ 	mnt_dec_writers(real_mount(mnt));
+ 	preempt_enable();
+ }
++EXPORT_SYMBOL_GPL(__mnt_drop_write);
+ 
+ /**
+  * mnt_drop_write - give up write access to a mount
+@@ -1881,6 +1882,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(iterate_mounts);
+ 
+ static void cleanup_group_ids(struct mount *mnt, struct mount *end)
+ {
+diff --git a/fs/notify/group.c b/fs/notify/group.c
+index 3235753..14a2d48 100644
+--- a/fs/notify/group.c
++++ b/fs/notify/group.c
+@@ -22,6 +22,7 @@
+ #include <linux/srcu.h>
+ #include <linux/rculist.h>
+ #include <linux/wait.h>
++#include <linux/module.h>
+ 
+ #include <linux/fsnotify_backend.h>
+ #include "fsnotify.h"
+@@ -109,6 +110,7 @@ void fsnotify_get_group(struct fsnotify_group *group)
+ {
+ 	atomic_inc(&group->refcnt);
+ }
++EXPORT_SYMBOL_GPL(fsnotify_get_group);
+ 
+ /*
+  * Drop a reference to a group.  Free it if it's through.
+@@ -118,6 +120,7 @@ void fsnotify_put_group(struct fsnotify_group *group)
+ 	if (atomic_dec_and_test(&group->refcnt))
+ 		fsnotify_final_destroy_group(group);
+ }
++EXPORT_SYMBOL_GPL(fsnotify_put_group);
+ 
+ /*
+  * Create a new fsnotify_group and hold a reference for the group returned.
+@@ -147,6 +150,7 @@ struct fsnotify_group *fsnotify_alloc_group(const struct fsnotify_ops *ops)
+ 
+ 	return group;
+ }
++EXPORT_SYMBOL_GPL(fsnotify_alloc_group);
+ 
+ int fsnotify_fasync(int fd, struct file *file, int on)
+ {
+diff --git a/fs/notify/mark.c b/fs/notify/mark.c
+index 9991f88..117042c 100644
+--- a/fs/notify/mark.c
++++ b/fs/notify/mark.c
+@@ -118,6 +118,7 @@ static bool fsnotify_get_mark_safe(struct fsnotify_mark *mark)
+ {
+ 	return atomic_inc_not_zero(&mark->refcnt);
+ }
++EXPORT_SYMBOL_GPL(fsnotify_put_mark);
+ 
+ static void __fsnotify_recalc_mask(struct fsnotify_mark_connector *conn)
+ {
+@@ -395,6 +396,7 @@ void fsnotify_destroy_mark(struct fsnotify_mark *mark,
+ 	mutex_unlock(&group->mark_mutex);
+ 	fsnotify_free_mark(mark);
+ }
++EXPORT_SYMBOL_GPL(fsnotify_destroy_mark);
+ 
+ /*
+  * Sorting function for lists of fsnotify marks.
+@@ -607,6 +609,7 @@ int fsnotify_add_mark_locked(struct fsnotify_mark *mark, struct inode *inode,
+ 	fsnotify_put_mark(mark);
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(fsnotify_add_mark);
+ 
+ int fsnotify_add_mark(struct fsnotify_mark *mark, struct inode *inode,
+ 		      struct vfsmount *mnt, int allow_dups)
+@@ -742,6 +745,7 @@ void fsnotify_init_mark(struct fsnotify_mark *mark,
+ 	fsnotify_get_group(group);
+ 	mark->group = group;
+ }
++EXPORT_SYMBOL_GPL(fsnotify_init_mark);
+ 
+ /*
+  * Destroy all marks in destroy_list, waits for SRCU period to finish before
+diff --git a/fs/open.c b/fs/open.c
+index cd0c5be..491442a 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -64,6 +64,7 @@ int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
+ 	inode_unlock(dentry->d_inode);
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(do_truncate);
+ 
+ long vfs_truncate(const struct path *path, loff_t length)
+ {
+@@ -691,6 +692,7 @@ int open_check_o_direct(struct file *f)
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(open_check_o_direct);
+ 
+ static int do_dentry_open(struct file *f,
+ 			  struct inode *inode,
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 355c2a2..589a5d54 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -523,6 +523,7 @@ vfs_readf_t vfs_readf(struct file *file)
+ 		return new_sync_read;
+ 	return ERR_PTR(-ENOSYS);
+ }
++EXPORT_SYMBOL_GPL(vfs_readf);
+ 
+ vfs_writef_t vfs_writef(struct file *file)
+ {
+@@ -534,6 +535,7 @@ vfs_writef_t vfs_writef(struct file *file)
+ 		return new_sync_write;
+ 	return ERR_PTR(-ENOSYS);
+ }
++EXPORT_SYMBOL_GPL(vfs_writef);
+ 
+ ssize_t __kernel_write(struct file *file, const char *buf, size_t count, loff_t *pos)
+ {
+diff --git a/fs/splice.c b/fs/splice.c
+index 4a0bc62..21d7893 100644
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -866,6 +866,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+ 
+ 	return splice_write(pipe, out, ppos, len, flags);
+ }
++EXPORT_SYMBOL_GPL(do_splice_from);
+ 
+ /*
+  * Attempt to initiate a splice from a file to a pipe.
+@@ -895,6 +896,7 @@ long do_splice_to(struct file *in, loff_t *ppos,
+ 
+ 	return splice_read(in, ppos, pipe, len, flags);
+ }
++EXPORT_SYMBOL_GPL(do_splice_to);
+ 
+ /**
+  * splice_direct_to_actor - splices data directly between two non-pipes
+diff --git a/fs/sync.c b/fs/sync.c
+index abf6a5d..c86fe9c 100644
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -38,6 +38,7 @@ int __sync_filesystem(struct super_block *sb, int wait)
+ 		sb->s_op->sync_fs(sb, wait);
+ 	return __sync_blockdev(sb->s_bdev, wait);
+ }
++EXPORT_SYMBOL_GPL(__sync_filesystem);
+ 
+ /*
+  * Write out and wait upon all dirty data associated with this
+diff --git a/fs/xattr.c b/fs/xattr.c
+index 464c94b..0234d49 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -296,6 +296,7 @@ vfs_getxattr_alloc(struct dentry *dentry, const char *name, char **xattr_value,
+ 	*xattr_value = value;
+ 	return error;
+ }
++EXPORT_SYMBOL_GPL(vfs_getxattr_alloc);
+ 
+ ssize_t
+ __vfs_getxattr(struct dentry *dentry, struct inode *inode, const char *name,
+diff --git a/kernel/task_work.c b/kernel/task_work.c
+index d513051..e056d54 100644
+--- a/kernel/task_work.c
++++ b/kernel/task_work.c
+@@ -119,3 +119,4 @@ void task_work_run(void)
+ 		} while (work);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(task_work_run);
+diff --git a/security/commoncap.c b/security/commoncap.c
+index 7abebd7..c079ce4 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -1062,12 +1062,14 @@ int cap_mmap_addr(unsigned long addr)
+ 	}
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(cap_mmap_addr);
+ 
+ int cap_mmap_file(struct file *file, unsigned long reqprot,
+ 		  unsigned long prot, unsigned long flags)
+ {
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(cap_mmap_file);
+ 
+ #ifdef CONFIG_SECURITY
+ 
+diff --git a/security/device_cgroup.c b/security/device_cgroup.c
+index 03c1652..f88c84b 100644
+--- a/security/device_cgroup.c
++++ b/security/device_cgroup.c
+@@ -7,6 +7,7 @@
+ #include <linux/device_cgroup.h>
+ #include <linux/cgroup.h>
+ #include <linux/ctype.h>
++#include <linux/export.h>
+ #include <linux/list.h>
+ #include <linux/uaccess.h>
+ #include <linux/seq_file.h>
+@@ -849,6 +850,7 @@ int __devcgroup_inode_permission(struct inode *inode, int mask)
+ 	return __devcgroup_check_permission(type, imajor(inode), iminor(inode),
+ 			access);
+ }
++EXPORT_SYMBOL_GPL(__devcgroup_inode_permission);
+ 
+ int devcgroup_inode_mknod(int mode, dev_t dev)
+ {
+diff --git a/security/security.c b/security/security.c
+index b9fea39..afa97dd 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -492,6 +492,7 @@ int security_path_rmdir(const struct path *dir, struct dentry *dentry)
+ 		return 0;
+ 	return call_int_hook(path_rmdir, 0, dir, dentry);
+ }
++EXPORT_SYMBOL_GPL(security_path_rmdir);
+ 
+ int security_path_unlink(const struct path *dir, struct dentry *dentry)
+ {
+@@ -508,6 +509,7 @@ int security_path_symlink(const struct path *dir, struct dentry *dentry,
+ 		return 0;
+ 	return call_int_hook(path_symlink, 0, dir, dentry, old_name);
+ }
++EXPORT_SYMBOL_GPL(security_path_symlink);
+ 
+ int security_path_link(struct dentry *old_dentry, const struct path *new_dir,
+ 		       struct dentry *new_dentry)
+@@ -516,6 +518,7 @@ int security_path_link(struct dentry *old_dentry, const struct path *new_dir,
+ 		return 0;
+ 	return call_int_hook(path_link, 0, old_dentry, new_dir, new_dentry);
+ }
++EXPORT_SYMBOL_GPL(security_path_link);
+ 
+ int security_path_rename(const struct path *old_dir, struct dentry *old_dentry,
+ 			 const struct path *new_dir, struct dentry *new_dentry,
+@@ -543,6 +546,7 @@ int security_path_truncate(const struct path *path)
+ 		return 0;
+ 	return call_int_hook(path_truncate, 0, path);
+ }
++EXPORT_SYMBOL_GPL(security_path_truncate);
+ 
+ int security_path_chmod(const struct path *path, umode_t mode)
+ {
+@@ -550,6 +554,7 @@ int security_path_chmod(const struct path *path, umode_t mode)
+ 		return 0;
+ 	return call_int_hook(path_chmod, 0, path, mode);
+ }
++EXPORT_SYMBOL_GPL(security_path_chmod);
+ 
+ int security_path_chown(const struct path *path, kuid_t uid, kgid_t gid)
+ {
+@@ -557,6 +562,7 @@ int security_path_chown(const struct path *path, kuid_t uid, kgid_t gid)
+ 		return 0;
+ 	return call_int_hook(path_chown, 0, path, uid, gid);
+ }
++EXPORT_SYMBOL_GPL(security_path_chown);
+ 
+ int security_path_chroot(const struct path *path)
+ {
+@@ -642,6 +648,7 @@ int security_inode_readlink(struct dentry *dentry)
+ 		return 0;
+ 	return call_int_hook(inode_readlink, 0, dentry);
+ }
++EXPORT_SYMBOL_GPL(security_inode_readlink);
+ 
+ int security_inode_follow_link(struct dentry *dentry, struct inode *inode,
+ 			       bool rcu)
+@@ -657,6 +664,7 @@ int security_inode_permission(struct inode *inode, int mask)
+ 		return 0;
+ 	return call_int_hook(inode_permission, 0, inode, mask);
+ }
++EXPORT_SYMBOL_GPL(security_inode_permission);
+ 
+ int security_inode_setattr(struct dentry *dentry, struct iattr *attr)
+ {
+@@ -828,6 +836,7 @@ int security_file_permission(struct file *file, int mask)
+ 
+ 	return fsnotify_perm(file, mask);
+ }
++EXPORT_SYMBOL_GPL(security_file_permission);
+ 
+ int security_file_alloc(struct file *file)
+ {
+@@ -887,6 +896,7 @@ int security_mmap_file(struct file *file, unsigned long prot,
+ 		return ret;
+ 	return ima_file_mmap(file, prot);
+ }
++EXPORT_SYMBOL_GPL(security_mmap_file);
+ 
+ int security_mmap_addr(unsigned long addr)
+ {
