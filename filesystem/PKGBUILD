@@ -7,7 +7,7 @@
 
 pkgname=filesystem
 pkgver=2017.06
-pkgrel=5
+pkgrel=4
 pkgdesc='Base filesystem'
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -18,11 +18,12 @@ makedepends=('asciidoc')
 depends=('iana-etc')
 backup=('etc/fstab' 'etc/crypttab' 'etc/group' 'etc/hosts' 'etc/ld.so.conf' 'etc/passwd'
         'etc/shadow' 'etc/gshadow' 'etc/resolv.conf' 'etc/motd' 'etc/nsswitch.conf'
-        'etc/shells' 'etc/host.conf' 'etc/securetty' 'etc/profile' 'etc/issue' 'etc/hostname' 'etc/locale.conf' 'etc/modules-load.d/modules.conf'
+        'etc/shells' 'etc/host.conf' 'etc/securetty' 'etc/profile' 'etc/issue' 'etc/rc.local'
+        'etc/rc.local.shutdown' 'etc/hostname' 'etc/locale.conf' 'etc/modules-load.d/modules.conf'
         'etc/vconsole.conf')
 source=('crypttab' 'fstab' 'group' 'gshadow' 'host.conf' 'hostname' 'hosts' 'issue' 'ld.so.conf'
-        'locale.conf' 'locale.sh' 'manjaro.7.txt' 'motd' 'modules.conf' 'nsswitch.conf' 'os-release'
-        'passwd' 'profile' 'resolv.conf' 'securetty' 'shadow' 'shells'
+        'locale.conf' 'locale.sh' 'manjaro.7.txt' 'motd' 'modules.conf' 'nsswitch.conf' 'os-release' 
+        'passwd' 'profile' 'rc.local' 'rc.local.shutdown' 'resolv.conf' 'securetty' 'shadow' 'shells'
         'vconsole.conf')
 sha256sums=('4e298e0ec247c3bb09157f5598127f6ecb779f5ec018ab69ba4678f361bdaae3'
             '86dff00854a7f2280bb799484ccc39ad449a171448926880742ae64f41666a43'
@@ -41,7 +42,9 @@ sha256sums=('4e298e0ec247c3bb09157f5598127f6ecb779f5ec018ab69ba4678f361bdaae3'
             'cf76aa59fdf76e5f6ba0a7d5ba090efd99445405785f4f9bc7480dd923521be6'
             'efd40220834038831fd7837e1249428cbe24d361ccf9a38d510e137235faa9bc'
             '5688b04a9472d7143f4f8b3b9edfc67ed5e2bdf3b4631a00e18491179be77d50'
-            '839587d27eb5caa7f0431fa3ba542f0e63f3aa80b10baa26f34285ed702dc43b'
+            '93d7d21f7e5a644ba533847beff35167efc4624571c9b68bea6cf2b6a13ab5ff'
+            '156b75b3470c2f73efca084b7ee681eca01508df3d8e9ba0c9325162b5d80f11'
+            '4367e4f2b40237448cad791410a1acaedcd46f5504827840aa85214fad1b546c'
             '74d2be3dd69600bcf0da751a1804a386bf4ad143b76d79c336acaa5c600e7991'
             'f7b38167196943d8fb9d2e75358c7262d5fe1082b257c4c8caffe3b6de429cb5'
             '185fb558fcfbfa7ad541bb775e7d790b6279581178a20d94456c10654f7e6ea5'
@@ -100,7 +103,7 @@ package() {
 	# setup /etc and /usr/share/factory/etc
 	install -d etc/{ld.so.conf.d,skel,profile.d} usr/share/factory/etc
 	for f in fstab group host.conf hostname hosts issue ld.so.conf locale.conf \
-             motd nsswitch.conf passwd profile resolv.conf \
+             motd nsswitch.conf passwd profile rc.local rc.local.shutdown resolv.conf \
              securetty shells vconsole.conf; do
 		install -m644 "$srcdir"/$f etc/
 		install -m644 "$srcdir"/$f usr/share/factory/etc/
