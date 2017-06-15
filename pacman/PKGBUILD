@@ -7,15 +7,15 @@
 # Maintainer: Rob McCathie <rob@manjaro.org>
 
 pkgname=pacman
-pkgver=5.0.1
-pkgrel=8
+pkgver=5.0.2
+pkgrel=0.5
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
 license=('GPL')
 groups=('base' 'base-devel')
 depends=('bash>=4.2.042-2' 'glibc>=2.17-2' 'libarchive>=3.1.2' 'curl>=7.39.0'
-         'gpgme' 'archlinux-keyring' 'manjaro-keyring' 'pacman-mirrors>=4.0.0')
+         'gpgme' 'archlinux-keyring' 'manjaro-keyring' 'pacman-mirrors>=4.1.0')
 checkdepends=('python2' 'fakechroot')
 makedepends=('asciidoc')
 optdepends=('haveged: for pacman-init.service')
@@ -31,35 +31,18 @@ source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
         makepkg.conf
         pacman-sync-first-option.patch
         etc-pacman.d-gnupg.mount
-        pacman-init.service
-        pacman-5.0.1-roundup.patch)
+        pacman-init.service)
 
 prepare() {
   cd $srcdir/$pkgname-$pkgver
 
-  # v5.0.1..pacman-5.0.1..c2f97580
-  patch -p1 -i $srcdir/pacman-5.0.1-roundup.patch
-
   # Manjaro patches
   patch -p1 -i $srcdir/pacman-sync-first-option.patch
-  #patch -p1 -i $srcdir/pacman-updated-locales.patch
-
-  # fix bad translation mistake - corrected in transifex
-  #sed -i 's#pacman-db-update#pacman-db-upgrade#' src/pacman/po/nl.po
 
   ./configure --prefix=/usr --sysconfdir=/etc \
     --localstatedir=/var --enable-doc \
     --with-scriptlet-shell=/usr/bin/bash \
     --with-ldconfig=/usr/bin/ldconfig
-  #rm $srcdir/$pkgname-$pkgver/lib/libalpm/po/*gmo
-  #cd $srcdir/$pkgname-$pkgver/lib/libalpm/po/
-  #make update-gmo
-  #rm $srcdir/$pkgname-$pkgver/scripts/po/*gmo
-  #cd $srcdir/$pkgname-$pkgver/scripts/po/
-  #make update-gmo
-  #rm $srcdir/$pkgname-$pkgver/src/pacman/po/*gmo
-  #cd $srcdir/$pkgname-$pkgver/src/pacman/po/
-  #make update-gmo
 }
 
 build() {
@@ -122,11 +105,10 @@ package() {
   install -m644 $srcdir/pacman-init.service $pkgdir/usr/lib/systemd/system/pacman-init.service
 }
 
-sha256sums=('8bd5f407ce8e05c4be8f1c4be4d8dcc8550ea5e494937da5220ea2c23cbb8e04'
-            '811307fac47ab1b8405da798feb122dfdd61be099dad236199503e8e6969bf5f'
-            '92e68dabb8724ebaa5fd0fd50e2c8a5f2bba65797295c74571f720ee7e2c513d'
+sha256sums=('dfd36086ad68564bcd977f4a1fafe51dd328acd4a95093ac4bf1249be9c41f0e'
+            'b2ebeb47dd78e9df277f5d363daa079c82850a0ee65d2017689497b340b92e80'
+            '01aa62ecd3e3d37bf800cd3ab0bf55121d3dd1d51a5070175c67216167a846de'
             'bdd06f1e52ff4bb8e8d5d6be785e172b74809b1266cbcd33e2c42c9927493eee'
             'feb18bf548343ce6bd60b1e9252ad4b0643c21ac1a53149d93afbd6028a7a37d'
             'b6d14727ec465bb66d0a0358163b1bbfafcb4eaed55a0f57c30aabafae7eed68'
-            'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae'
-            'e9d65724f1784026dfe94b8038012bb2f4988abeed993b83307537fd93a7e695')
+            'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae')
