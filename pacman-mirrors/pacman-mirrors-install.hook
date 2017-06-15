@@ -1,0 +1,11 @@
+# NOTE: will not run if the transaction is interrupted for any reason
+
+[Trigger]
+Operation = Install
+Type = Package
+Target = pacman-mirrors
+
+[Action]
+Description = Configuring pacman-mirrors ...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/pacman-mirrors-install
