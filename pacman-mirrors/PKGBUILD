@@ -38,12 +38,8 @@ prepare() {
 package() {
   cd "${srcdir}"/pacman-mirrors
   make DESTDIR="${pkgdir}" install
-  install -D ${srcdir}/pacman-mirrors-install.script
-  ${pkgdir}/usr/share/libalpm/scripts/pacman-mirrors-install
-  install -D ${srcdir}/pacman-mirrors-upgrade.script
-  ${pkgdir}/usr/share/libalpm/scripts/pacman-mirrors-upgrade
-  install -Dm644 ${srcdir}/pacman-mirrors-install.hook
-  ${pkgdir}/usr/share/libalpm/hooks/pacman-mirrors-install.hook
-  install -Dm644 ${srcdir}/pacman-mirrors-upgrade.hook
-  ${pkgdir}/usr/share/libalpm/hooks/pacman-mirrors-upgrade.hook
+  install -D ${srcdir}/pacman-mirrors-install.script ${pkgdir}/usr/share/libalpm/scripts/pacman-mirrors-install
+  install -D ${srcdir}/pacman-mirrors-upgrade.script ${pkgdir}/usr/share/libalpm/scripts/pacman-mirrors-upgrade
+  install -Dm644 ${srcdir}/pacman-mirrors-install.hook ${pkgdir}/usr/share/libalpm/hooks/pacman-mirrors-install.hook
+  install -Dm644 ${srcdir}/pacman-mirrors-upgrade.hook ${pkgdir}/usr/share/libalpm/hooks/pacman-mirrors-upgrade.hook
 }
