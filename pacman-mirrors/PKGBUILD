@@ -33,7 +33,6 @@ sha256sums=('SKIP'
 
 prepare() {
   cd "${srcdir}"/pacman-mirrors
-  sed -i -e "s|${_stable}|4.2.0-dev ($(date +%Y%m%d))|g" pacman_mirrors/__init__.py
 }
 
 package() {
