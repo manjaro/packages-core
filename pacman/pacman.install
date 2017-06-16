@@ -59,7 +59,7 @@ post_upgrade() {
             killall pamac-tray &> /dev/null
         fi
     fi
-    if [ "$(vercmp $2 5.0.2-0.4)" -lt 0 ] && [ -f "/etc/pacman.conf.pacnew" ]; then
+    if [ "$(vercmp $2 5.0.2-0.6)" -lt 0 ] && [ -f "/etc/pacman.conf.pacnew" ]; then
         msg "You had an old pacman.conf. We updated it for you."
         msg "You can find your old pacman.conf saved as \`/etc/pacman-old-${PACMAN_OLD}.conf\`"
         mv /etc/pacman.conf /etc/pacman-old-${PACMAN_OLD}.conf
