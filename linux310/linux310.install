@@ -1,10 +1,21 @@
+eol() {
+  echo ">>> REMINDER: The 3.10.y extended LTS series is scheduled for end of"
+  echo "    life on end of October 2017 so it may only get a few more versions."
+  echo "    Extended LTS kernels are generally not suitable for new deployments"
+  echo "    but only to maintain existing systems under operational condition"
+  echo "    for the time it takes to migrate to a newer version."
+  echo "    "
+}
+
 post_install () {
+  eol
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod %KERNVER%
 }
 
 post_upgrade() {
+  eol
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
     echo "WARNING: /boot appears to be a separate partition but is not mounted."
   fi
