@@ -1,4 +1,4 @@
-aufs4.x-rcN standalone patch
+aufs4.11.7+ standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
 index 8ca5f09..b1ff5be 100644
@@ -205,7 +205,7 @@ index 949cef2..9a892fb8 100644
  static int do_dentry_open(struct file *f,
  			  struct inode *inode,
 diff --git a/fs/read_write.c b/fs/read_write.c
-index ac71b96..b69e687 100644
+index eba4e7e..ec9e88a 100644
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
 @@ -523,6 +523,7 @@ vfs_readf_t vfs_readf(struct file *file)
@@ -257,7 +257,7 @@ index abf6a5d..c86fe9c 100644
  /*
   * Write out and wait upon all dirty data associated with this
 diff --git a/fs/xattr.c b/fs/xattr.c
-index 7e3317c..88910fe 100644
+index 94f49a0..243f57e 100644
 --- a/fs/xattr.c
 +++ b/fs/xattr.c
 @@ -296,6 +296,7 @@ vfs_getxattr_alloc(struct dentry *dentry, const char *name, char **xattr_value,
