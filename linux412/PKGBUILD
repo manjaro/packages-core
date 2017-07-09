@@ -12,10 +12,10 @@ _kernelname=-MANJARO
 _basekernel=4.12
 _basever=412
 _aufs=20170612
-_bfq=v8r11
+_bfq=v8r12
 _sub=0
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -39,19 +39,13 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/a351e9b...1c3f56d.patch"
-        #"0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-v7r11-${_basekernel}..patch"
-        #"0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0002-block-introduce-the-BFQ-v7r11-I-O-sched-for-4.10.0.patch"
-        #"0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-v7r11-for.patch"
-        #"http://algo.ing.unimo.it/people/paolo/disk_sched/patches/4.10.0-${_bfq}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-4.10.0.patch"
-
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/650fc87...48a61d0.patch"
         # ARCH Patches
         # MANJARO Patches
-        #'0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch::https://github.com/pfactum/pf-kernel/commit/154a26bdff29d02c3e31c80b5d1042b03fbcd2fa.patch'
 )
 sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
-            '3e913066216ee73f83c83489620e5dfc53654ae0df992e9ec18824a9d4911364'
-            'b295f87373a1e1c80e7868a3d1df83bcfb7fe7bd9da0e5faa629d9973064d8e6'
+            'f39dd5ea8cde8876ff70b93071fcdf2c94c9e2e5a2d6e9c37d159d00ca3f2417'
+            '51281bf202853365b78cba0dcf69b5682a88a1660c594f4e196ceb192cf0c425'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -62,7 +56,8 @@ sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             '8b40ea50fc2b8f98f20304d93e9350297a48029bcd14cec390143e6bab5bfd86'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
-            'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7')
+            'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
+            'b7e7811768cb8c5f02dd18ae9f311c79623f6b89fb2467db1954c5f7e328bd5c')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -88,17 +83,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
-  # already added upstream for mq
-  #sed -i -e "s|PATCHLEVEL = 10|PATCHLEVEL = 11|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #sed -i -e "s|EXTRAVERSION = -rc1|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
-  #patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
-  #patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
-  #sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-4.10.0.patch"
-  #patch -Np1 -i "${srcdir}/0004-Turn-BFQ-v7r11-for-4.10.0-into-BFQ-${_bfq}-for-4.10.0.patch"
-  #patch -Np1 -i "${srcdir}/0005-bfq-wb-4.10-disable-WBT-for-non-root-cgroup.patch"
+  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
