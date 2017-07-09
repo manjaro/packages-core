@@ -12,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=4.4
 _basever=44
 _aufs=20170410
-_bfq=v8r10
+_bfq=v8r12
 _sub=76
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -40,7 +40,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'vfs-ino.patch'
         'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.15/1700_enable-thinkpad-micled.patch'
         'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/a8e0574...4611251.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/a8e0574...7579313.patch"
 #        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-4.3.patch"
 #        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-4.3.patch"
 #        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/4.3.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-4.3.0.patch"
@@ -68,7 +68,7 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '6f7aa69101d690df2286dd2642a23bce835efab96273389b243dafbec15a1d0c'
             '461aa0da7de8bda9474797339532304894b55825be34f8c009244da8c00c5b41'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
-            '97eecfe1ff21bfcb3029cee3bf95a60a4a4008382423e3c51decf51c76f70c17'
+            'e7e70615bf8dad568a26264b8d1ee3b8f293ba38113e112be5c2f39c19538aa2'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
             '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758')
