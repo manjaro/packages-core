@@ -1,0 +1,93 @@
+From a120abb64129162e81373a8ba404e8e87edcf1c4 Mon Sep 17 00:00:00 2001
+From: Oleksandr Natalenko <oleksandr@natalenko.name>
+Date: Mon, 20 Feb 2017 16:12:10 +0100
+Subject: [PATCH] bfq-wb-4.10: disable WBT for non-root cgroup
+
+Signed-off-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+---
+ block/bfq-cgroup.c  | 11 +++++++++--
+ block/bfq-iosched.c |  7 ++++++-
+ 2 files changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index 39daaf405dc6a..81931474cf2ca 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -631,14 +631,16 @@ static struct bfq_group *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
+ 	return bfqg;
+ }
+ 
+-static void bfq_bic_update_cgroup(struct bfq_io_cq *bic, struct bio *bio)
++static bool bfq_bic_update_cgroup(struct bfq_io_cq *bic, struct bio *bio)
+ {
+ 	struct bfq_data *bfqd = bic_to_bfqd(bic);
+ 	struct bfq_group *bfqg = NULL;
+ 	uint64_t serial_nr;
++	bool nonroot_cg;
+ 
+ 	rcu_read_lock();
+ 	serial_nr = bio_blkcg(bio)->css.serial_nr;
++	nonroot_cg = bio_blkcg(bio) != &blkcg_root;
+ 
+ 	/*
+ 	 * Check whether blkcg has changed.  The condition may trigger
+@@ -651,6 +653,8 @@ static void bfq_bic_update_cgroup(struct bfq_io_cq *bic, struct bio *bio)
+ 	bic->blkcg_serial_nr = serial_nr;
+ out:
+ 	rcu_read_unlock();
++
++	return nonroot_cg;
+ }
+ 
+ /**
+@@ -1154,7 +1158,10 @@ static void bfq_init_entity(struct bfq_entity *entity,
+ 	entity->sched_data = &bfqg->sched_data;
+ }
+ 
+-static void bfq_bic_update_cgroup(struct bfq_io_cq *bic, struct bio *bio) {}
++static bool bfq_bic_update_cgroup(struct bfq_io_cq *bic, struct bio *bio)
++{
++	return false;
++}
+ 
+ static void bfq_end_wr_async(struct bfq_data *bfqd)
+ {
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index a56888ea9d948..41b214f7bbd4e 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -78,6 +78,7 @@
+ #include <linux/ioprio.h>
+ #include "blk.h"
+ #include "bfq.h"
++#include "blk-wbt.h"
+ 
+ /* Expiration time of sync (0) and async (1) requests, in ns. */
+ static const u64 bfq_fifo_expire[2] = { NSEC_PER_SEC / 4, NSEC_PER_SEC / 8 };
+@@ -4554,6 +4555,7 @@ static int bfq_set_request(struct request_queue *q, struct request *rq,
+ 	struct bfq_queue *bfqq;
+ 	unsigned long flags;
+	bool bfqq_already_existing = false, split = false;
++	bool disable_wbt;
+ 
+ 	spin_lock_irqsave(q->queue_lock, flags);
+ 	
+@@ -4563,7 +4565,7 @@ static int bfq_set_request(struct request_queue *q, struct request *rq,
+ 
+ 	bfq_check_ioprio_change(bic, bio);
+ 
+-	bfq_bic_update_cgroup(bic, bio);
++	disable_wbt = bfq_bic_update_cgroup(bic, bio);
+ 
+ new_queue:
+ 	bfqq = bic_to_bfqq(bic, is_sync);
+@@ -4647,6 +4649,9 @@ static int bfq_set_request(struct request_queue *q, struct request *rq,
+ 
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
+ 
++	if (disable_wbt)
++		wbt_disable_default(q);
++
+ 	return 0;
+ 
+ queue_fail:
