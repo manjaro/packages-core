@@ -13,7 +13,7 @@ _basekernel=4.11
 _basever=411
 _aufs=20170703
 _bfq=v8r12
-_sub=9
+_sub=10
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -47,10 +47,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
 
         # ARCH Patches
         # MANJARO Patches
-        '0005-bfq-wb-4.11-disable-WBT-for-non-root-cgroup.patch::https://github.com/pfactum/pf-kernel/commit/a120abb64129162e81373a8ba404e8e87edcf1c4.patch'
+        '0005-bfq-wb-4.11-disable-WBT-for-non-root-cgroup.patch'
 )
 sha256sums=('b67ecafd0a42b3383bf4d82f0850cbff92a7e72a215a6d02f42ddbafcf42a7d6'
-            'a112d1330817bac401dbbd1e2c8aacb1b725bc28239e2ca58281ea3754deceb5'
+            '7bb9c7e0265c4692671154d8acb9a008428a74a57721c0654022bfd4fd025300'
             'f9499b07340c040e221e8238f07c0f3df8c7eb286ce9cc05a93734154c7d0964'
             'bbe56f4ca445f138ea3f10bd139e249227d6fcc874e100e5965e9d1333122789'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -65,7 +65,7 @@ sha256sums=('b67ecafd0a42b3383bf4d82f0850cbff92a7e72a215a6d02f42ddbafcf42a7d6'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
             '01de23d85818d0dba0c97a2c34c60fd9885805e2d40c3a632cf66f20dd837cb5'
-            '71df940117169cefc66466aa55bcae58980c726a3e86060596fc9a4868e58af7')
+            '19dd9295976841e8edf6c5a7535f121bcdb83d54affcb8a52db41548857fa55c')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"

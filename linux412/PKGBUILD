@@ -13,9 +13,9 @@ _basekernel=4.12
 _basever=412
 _aufs=20170612
 _bfq=v8r12
-_sub=0
+_sub=1
 pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -25,7 +25,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-${_rc}.tar.xz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         #linux-${_basekernel}${_rc}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
-        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -45,6 +45,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # MANJARO Patches
 )
 sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
+            '466ad7caf26aac66fdf299dbe6b23d0cf1729e363a4ee37738938e3be563946b'
             'f39dd5ea8cde8876ff70b93071fcdf2c94c9e2e5a2d6e9c37d159d00ca3f2417'
             '51281bf202853365b78cba0dcf69b5682a88a1660c594f4e196ceb192cf0c425'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -67,7 +68,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -85,6 +86,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0002-BFQ-${_bfq}-v${pkgver}-uuid-block-merge.patch"
 
