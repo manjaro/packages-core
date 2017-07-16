@@ -11,7 +11,7 @@ pkgname=('linux413' 'linux413-headers')
 _kernelname=-MANJARO
 _basekernel=4.13
 _basever=413
-_aufs=20170612
+_aufs=20170703
 _bfq=v8r12
 _sub=0
 _rc=rc1
@@ -44,14 +44,13 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         # MANJARO Patches
 )
-sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
-            '8447d28c88834bac75653a0370a6f30615688db4756b953720e9b024537e34ac'
+sha256sums=('d5346f9a52adde7f98e408e445e734fa29cc734914fc6cfd99db8c21eef4abdd'
             'f39dd5ea8cde8876ff70b93071fcdf2c94c9e2e5a2d6e9c37d159d00ca3f2417'
-            '51281bf202853365b78cba0dcf69b5682a88a1660c594f4e196ceb192cf0c425'
+            'b550f6a2cd49681dfb6f611cd8f16bf6872023a87cf0708b05dc5d83e4efa2c3'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            'f08bc46644fea3e3f41dd9b04ca761a6488d016a3d555c12c0e56927ea42e153'
+            'a37369ae885006ba288bc5f1750dcf78a8f2e1d58d053be48280953be15f5460'
             'e29af81066c33f13faeb56d44294054c1f2087c206c35b1e9f9f61096b10e989'
             'ac787671bd45d40da124da17a052e38a7351fc56ab0a328a77a382dfbe330d6b'
             'af39fc0f8c8c8bbc083a30c1c0cdacdc9427ae762e3011c15363d8526e194320'
@@ -59,8 +58,7 @@ sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
-            'b7e7811768cb8c5f02dd18ae9f311c79623f6b89fb2467db1954c5f7e328bd5c'
-            '37c9f788ab7bfe91171bd678138befc2691f8ab68e17bd921215d17b38f2836a')
+            'b7e7811768cb8c5f02dd18ae9f311c79623f6b89fb2467db1954c5f7e328bd5c')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -241,8 +239,8 @@ package_linux413-headers() {
   cp arch/${KARCH}/kernel/asm-offsets.s "${pkgdir}/usr/lib/modules/${_kernver}/build/arch/${KARCH}/kernel/"
 
   # add docbook makefile
-  install -D -m644 Documentation/DocBook/Makefile \
-    "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/DocBook/Makefile"
+  #install -D -m644 Documentation/DocBook/Makefile \
+  #  "${pkgdir}/usr/lib/modules/${_kernver}/build/Documentation/DocBook/Makefile"
 
   # add dm headers
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/md"
