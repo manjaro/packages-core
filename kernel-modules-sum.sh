@@ -16,7 +16,7 @@ if [ -e kernel-modules-$arch.sum ]; then
 	timestamp=$(stat -c %y kernel-modules-$arch.sum | sed s'~ ~-~'g | cut -d. -f1)
 	mv kernel-modules-$arch.sum kernel-modules-$timestamp-$arch.sum
 fi
-md5sum /usr/lib/modules/*/build/Module.symvers | sed s'~/usr/lib/modules/~Kernel: ~'g | sed s'~/build/Module.symvers~~'g > kernel-modules-$arch.sum
+md5sum /usr/lib/modules/*-MANJARO/build/Module.symvers | sed s'~/usr/lib/modules/~Kernel: ~'g | sed s'~/build/Module.symvers~~'g > kernel-modules-$arch.sum
 if [ -e kernel-modules-$timestamp-$arch.sum ]; then
 	echo "Possible ABI-change detected. Please check:"
 	echo " "
