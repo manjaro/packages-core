@@ -14,7 +14,7 @@ _basever=413
 _aufs=20170703
 _bfq=v8r12
 _sub=0
-_rc=rc1
+_rc=rc2
 pkgver=${_basekernel}.${_sub}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -40,13 +40,13 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/650fc87...48a61d0.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/87b2c3f...b5a5208.patch"
         # ARCH Patches
         # MANJARO Patches
 )
-sha256sums=('d5346f9a52adde7f98e408e445e734fa29cc734914fc6cfd99db8c21eef4abdd'
+sha256sums=('2e56aafeb1b8058fef6f7da701fd82e6dea87c387c7d466caf14cf8ff6f820da'
             'f39dd5ea8cde8876ff70b93071fcdf2c94c9e2e5a2d6e9c37d159d00ca3f2417'
-            'b550f6a2cd49681dfb6f611cd8f16bf6872023a87cf0708b05dc5d83e4efa2c3'
+            '92bea2b517c1df3d3e07b4da18ad9e19b593042de59529af8398bc5abe7d4847'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -58,7 +58,7 @@ sha256sums=('d5346f9a52adde7f98e408e445e734fa29cc734914fc6cfd99db8c21eef4abdd'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
-            'b7e7811768cb8c5f02dd18ae9f311c79623f6b89fb2467db1954c5f7e328bd5c')
+            '2d10951350252824b5a44db3f50b1ff98a6ead42e5606023501399e4ed3eca92')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -85,8 +85,8 @@ prepare() {
 
   # add BFQ scheduler
   #sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|PATCHLEVEL = 12|PATCHLEVEL = 13|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|-EXTRAVERSION =|-EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  #sed -i -e "s|PATCHLEVEL = 12|PATCHLEVEL = 13|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|-EXTRAVERSION = -rc1|-EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   sed -i -e "s|-EXTRAVERSION = -${_rc} -bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
