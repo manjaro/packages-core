@@ -14,10 +14,10 @@ _basever=413
 _aufs=20170703
 _bfq=v8r12
 _sub=0
-_rc=rc4
-_git=623ce3456671ea842c0ebda79c38655c8c04af74
+_rc=rc5
+_git=fcd07350007bdcc0aab506fb9b5703fad48a6521
 pkgver=${_basekernel}.${_sub}${_rc}
-pkgrel=0
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -41,11 +41,11 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/869c058...6dff163.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/869c058...27af275.patch"
         # ARCH Patches
         # MANJARO Patches
 )
-sha256sums=('aa3783344d6d05767eb529158e6732296b1b57c5f6dbd494f56922554274ba45'
+sha256sums=('531128d8ee851357a011b43282e29f55d9dab0dd59ce6ec428aac2341715366d'
             'f39dd5ea8cde8876ff70b93071fcdf2c94c9e2e5a2d6e9c37d159d00ca3f2417'
             '92bea2b517c1df3d3e07b4da18ad9e19b593042de59529af8398bc5abe7d4847'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -59,7 +59,7 @@ sha256sums=('aa3783344d6d05767eb529158e6732296b1b57c5f6dbd494f56922554274ba45'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
-            '6b67ac0a62e1bd543f482738a22b1e4dc04a5bb8fa8f14a233793c70a9d23698')
+            'defbfa1a809a5dfef00ab9575636caa30861105b19daba55d02d76e8e0148c91')
 
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -89,8 +89,8 @@ prepare() {
   #sed -i -e "s|PATCHLEVEL = 12|PATCHLEVEL = 13|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -rc1|-EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -${_rc} -bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|-EXTRAVERSION = -rc3|-EXTRAVERSION = -rc4|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|-EXTRAVERSION = -rc4 -bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|-EXTRAVERSION = -rc3|-EXTRAVERSION = -rc5|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  #sed -i -e "s|-EXTRAVERSION = -rc3-bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then

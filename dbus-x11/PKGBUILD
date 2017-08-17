@@ -16,7 +16,7 @@ provides=('libdbus' "dbus=$pkgver")
 conflicts=('libdbus' 'dbus')
 #replaces=(libdbus)
 depends=(libsystemd expat)
-makedepends=(systemd xmlto docbook-xsl python yelp-tools doxygen git)
+makedepends=(systemd xmlto docbook-xsl python yelp-tools doxygen git libx11)
 _commit=2f8f4d619b16b134671521c2b4aea3a94fb47848 # tags/dbus-1.10.22^0
 source=("git+https://anongit.freedesktop.org/git/dbus/dbus#commit=$_commit"
         'dbus.sysusers')
@@ -43,7 +43,7 @@ build() {
       --with-systemdsystemunitdir=/usr/lib/systemd/system \
       --enable-systemd --enable-user-session \
       --enable-x11-autolaunch
-  make -j4
+  make
 }
 
 check() {

@@ -13,9 +13,10 @@ _basekernel=4.12
 _basever=412
 _aufs=20170612
 _bfq=v8r12
-_sub=6
+_sub=8
 _url=https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq
 pkgver=${_basekernel}.${_sub}
+_pkgver=${_basekernel}.6
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -42,21 +43,21 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'vfs-ino.patch'
         # ARCH Patches
         # MANJARO Patches
-        "$_url/merges/$pkgver/0001-Merge-tag-uuid-for-4.13-of-uuid.patch"
-        "$_url/merges/$pkgver/0002-Merge-branch-for-4.13-block-of-linux-block.patch"
-        "$_url/merges/$pkgver/0003-Merge-branch-irq-core-for-linus.patch"
-        "$_url/merges/$pkgver/0004-Merge-branch-for-linus-of-s390.patch"
-        "$_url/merges/$pkgver/0005-Merge-tag-for-linus-v4.13-2-of-linux-block.patch"
-        "$_url/merges/$pkgver/0006-Merge-branch-for-linus-of-linux-block_1.patch"
-        "$_url/merges/$pkgver/0007-Merge-branch-for-linus-of-linux-block_2.patch"
-        "$_url/merges/$pkgver/0008-Merge-tag-uuid-for-4.13-2-of-uuid.patch"
-        "$_url/merges/$pkgver/0009-Merge-branch-for-linus-of-linux-block_3.patch"
+        "$_url/merges/$_pkgver/0001-Merge-tag-uuid-for-4.13-of-uuid.patch"
+        "$_url/merges/$-pkgver/0002-Merge-branch-for-4.13-block-of-linux-block.patch"
+        "$_url/merges/$_pkgver/0003-Merge-branch-irq-core-for-linus.patch"
+        "$_url/merges/$_pkgver/0004-Merge-branch-for-linus-of-s390.patch"
+        "$_url/merges/$_pkgver/0005-Merge-tag-for-linus-v4.13-2-of-linux-block.patch"
+        "$_url/merges/$_pkgver/0006-Merge-branch-for-linus-of-linux-block_1.patch"
+        "$_url/merges/$_pkgver/0007-Merge-branch-for-linus-of-linux-block_2.patch"
+        "$_url/merges/$_pkgver/0008-Merge-tag-uuid-for-4.13-2-of-uuid.patch"
+        "$_url/merges/$_pkgver/0009-Merge-branch-for-linus-of-linux-block_3.patch"
         "$_url/4.12-bfq-mq-20170810.patch"
 )
 sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
-            '60938af0f95ae794f879294f2393c48077c01bdba851e80b085fdc0418eeca44'
-            'b0f9d2d285bf57e8ddc98702942f6b8133526a23312c9c89dcdeea837136b7f0'
-            '0d067e5e72927462192904023569f513adee8d965e0f54ba7eb056f8ba6e6a56'
+            '32b860911a3bafd5cd5bc813a427c90fad6eafdf607fa64e1b763b16ab605636'
+            '49accd512ab35dd9ca18051d61de922f6536af094d54baca878676777bfd2311'
+            '47493743193ed5885721530cbc996d4e832a523d4d1daf15629970df80e1c641'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
