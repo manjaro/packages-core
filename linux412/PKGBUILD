@@ -16,8 +16,8 @@ _bfq=v8r12
 _sub=8
 _url=https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq
 pkgver=${_basekernel}.${_sub}
-_pkgver=${_basekernel}.6
-pkgrel=1
+_pkgver=${_basekernel}.8
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -42,9 +42,12 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         # ARCH Patches
+        'bonding-require-speed-duplex-only-for-802.3ad-alb-an.patch'
+        'bonding-ratelimit-failed-speed-duplex-update-warning.patch'
+        'mm-Revert-x86_64-and-arm64-ELF_ET_DYN_BASE-base.patch'
         # MANJARO Patches
         "$_url/merges/$_pkgver/0001-Merge-tag-uuid-for-4.13-of-uuid.patch"
-        "$_url/merges/$-pkgver/0002-Merge-branch-for-4.13-block-of-linux-block.patch"
+        "$_url/merges/$_pkgver/0002-Merge-branch-for-4.13-block-of-linux-block.patch"
         "$_url/merges/$_pkgver/0003-Merge-branch-irq-core-for-linus.patch"
         "$_url/merges/$_pkgver/0004-Merge-branch-for-linus-of-s390.patch"
         "$_url/merges/$_pkgver/0005-Merge-tag-for-linus-v4.13-2-of-linux-block.patch"
@@ -53,6 +56,11 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "$_url/merges/$_pkgver/0008-Merge-tag-uuid-for-4.13-2-of-uuid.patch"
         "$_url/merges/$_pkgver/0009-Merge-branch-for-linus-of-linux-block_3.patch"
         "$_url/4.12-bfq-mq-20170810.patch"
+        # BFQ fixes
+        "0001-block_bfq_refactor_device-idling_logic.patch::https://lkml.org/lkml/diff/2017/8/4/41/1"
+        "0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch::https://lkml.org/lkml/diff/2017/8/4/40/1"
+        "0003-block_bfq_reset_in_service_entity_if_it_becomes_idle.patch::https://patchwork.kernel.org/patch/9869325/raw/"
+        "0004-block_bfq_consider_also_in_service_entity_to_state_whether_an_entity_is_active.patch::https://patchwork.kernel.org/patch/9869873/raw/"
 )
 sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             '32b860911a3bafd5cd5bc813a427c90fad6eafdf607fa64e1b763b16ab605636'
@@ -69,6 +77,9 @@ sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
+            '48e0505438bb4ccc7a0e050a896122b490e8f1b1446aa3833841a9d4d7853d68'
+            'fc606711a922638d5cc4358f47f69f554d9e6eab1cec91f0b49f00911f399722'
+            'b830ce777543c0edd20a77d70f204c095f2429bb37151cd4a8c9dfae2af8d51a'
             'b8745ca529c03c1d20473cb45cda3ea25da49a73e522cd834c32b9316b5f9f12'
             '497a268278e9ebf27ce104bfa9e483686d3285fb8e96e8cd09774042cd8a7c45'
             'b029d1cc6c26c7148ffbe753bc959f774a49d4195e3b9b5926e2631f50cf6ef6'
@@ -78,7 +89,11 @@ sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             '284c7f88b3a3b8ec5219bf0fefd21f5b8d8970e1db64e49c135e8764856f27d3'
             '64cfcd89fd567c68cdff0ef1b76d71427bef9f4b81f909453338cc02366282b2'
             'e3d2f946b9e097415afb31d57bb0ff4d900af83259ac0819243c7a8aa1aba1a1'
-            'ff9168cec9ff78f5c728fd183e456dcfc6c7077c847d74a67e5d8b5a2266d67b')
+            'ff9168cec9ff78f5c728fd183e456dcfc6c7077c847d74a67e5d8b5a2266d67b'
+            'f779b88033f6eed5304275c06b3fff8dfb271dfe0a1be0216c3c32b2827b8fcd'
+            'f96854500be47cf263d55eb34dca020211a4a92980eb065ab5b58e86fba347e4'
+            '5275e424c91d3bd051c856fbc79a79c0aae4c506d09597d66b7594ba8c224b39'
+            'e2e1f2af23075a28684864748cf03dc17e53fcab6e8d7ac66144f27ec139fbb8')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -87,6 +102,14 @@ prepare() {
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # https://bugzilla.kernel.org/show_bug.cgi?id=196547
+  patch -Np1 -i ../bonding-ratelimit-failed-speed-duplex-update-warning.patch
+  patch -Np1 -i ../bonding-require-speed-duplex-only-for-802.3ad-alb-an.patch
+
+  # https://github.com/google/sanitizers/issues/837
+  # https://patchwork.kernel.org/patch/9886105/
+  patch -Np1 -i ../mm-Revert-x86_64-and-arm64-ELF_ET_DYN_BASE-base.patch
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
@@ -117,6 +140,12 @@ prepare() {
   sed -i -e "s|-EXTRAVERSION = -rc3|-EXTRAVERSION =|g" "${srcdir}/4.12-bfq-mq-20170810.patch"
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/4.12-bfq-mq-20170810.patch"
   patch -Np1 -i "${srcdir}/4.12-bfq-mq-20170810.patch"
+
+  # add some more BFQ patches
+  patch -Np1 -i "${srcdir}/0001-block_bfq_refactor_device-idling_logic.patch"
+  patch -Np1 -i "${srcdir}/0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch"
+  patch -Np1 -i "${srcdir}/0003-block_bfq_reset_in_service_entity_if_it_becomes_idle.patch"
+  patch -Np1 -i "${srcdir}/0004-block_bfq_consider_also_in_service_entity_to_state_whether_an_entity_is_active.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config

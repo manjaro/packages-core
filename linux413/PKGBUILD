@@ -14,8 +14,8 @@ _basever=413
 _aufs=20170703
 _bfq=v8r12
 _sub=0
-_rc=rc5
-_git=fcd07350007bdcc0aab506fb9b5703fad48a6521
+_rc=rc6
+_git=14ccee78fc82f5512908f4424f541549a5705b89
 pkgver=${_basekernel}.${_sub}${_rc}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -44,8 +44,11 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/869c058...27af275.patch"
         # ARCH Patches
         # MANJARO Patches
+        # BFQ fixes
+        "0001-block_bfq_refactor_device-idling_logic.patch::https://lkml.org/lkml/diff/2017/8/4/41/1"
+        "0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch::https://lkml.org/lkml/diff/2017/8/4/40/1"
 )
-sha256sums=('531128d8ee851357a011b43282e29f55d9dab0dd59ce6ec428aac2341715366d'
+sha256sums=('24c1c901ebc6faf39eab20485d2eabc67cfa61c911b25f197980d9a671feecce'
             'f39dd5ea8cde8876ff70b93071fcdf2c94c9e2e5a2d6e9c37d159d00ca3f2417'
             '92bea2b517c1df3d3e07b4da18ad9e19b593042de59529af8398bc5abe7d4847'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -59,7 +62,9 @@ sha256sums=('531128d8ee851357a011b43282e29f55d9dab0dd59ce6ec428aac2341715366d'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
-            'defbfa1a809a5dfef00ab9575636caa30861105b19daba55d02d76e8e0148c91')
+            'defbfa1a809a5dfef00ab9575636caa30861105b19daba55d02d76e8e0148c91'
+            'f779b88033f6eed5304275c06b3fff8dfb271dfe0a1be0216c3c32b2827b8fcd'
+            'f96854500be47cf263d55eb34dca020211a4a92980eb065ab5b58e86fba347e4')
 
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -89,9 +94,13 @@ prepare() {
   #sed -i -e "s|PATCHLEVEL = 12|PATCHLEVEL = 13|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -rc1|-EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -${_rc} -bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|-EXTRAVERSION = -rc3|-EXTRAVERSION = -rc5|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|-EXTRAVERSION = -rc3|-EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -rc3-bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+
+  # add some more BFQ patches
+  patch -Np1 -i "${srcdir}/0001-block_bfq_refactor_device-idling_logic.patch"
+  patch -Np1 -i "${srcdir}/0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
