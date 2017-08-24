@@ -54,7 +54,9 @@ source=("grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG}
         'grub.default'
         'grub.cfg'
         'update-grub'
-        "${pkgname}.hook")
+        "${pkgname}.hook"
+        "warning.hook"
+        "warning.script")
 
 sha256sums=('SKIP'
             '2844601914cea6b1231eca0104853a93c4d67a5209933a0766f1475953300646'
@@ -66,7 +68,9 @@ sha256sums=('SKIP'
             '720db20a6a1c81864ad6405ef838db02206b53298fda48f383bebdb51eac56a8'
             '7fc95d49c0febe98a76e56b606a280565cb736580adecf163bc6b5aca8e7cbd8'
             '467b0101154076fee99d9574a5fb6b772a3923cc200a1f4ca08fe17be8d68111'
-            '1488d7f3924bd7385a222e3e9685cdb1ecb39f3d6f882da6b5907b898f5b8f08')
+            '1488d7f3924bd7385a222e3e9685cdb1ecb39f3d6f882da6b5907b898f5b8f08'
+            'cc02a8904f4f94232b014bbc00ff8b944be34135cb0a2846f25227ecaea37b2a'
+            '536e74a7ac9292d5e370f94b520732706abb9cfe13f76a1925cc8d6a54db7ef7')
 
 #pkgver() {
 #	cd "${srcdir}/grub-${_pkgver}/"
@@ -287,4 +291,7 @@ package() {
 	_package_grub-common_and_bios
 	
 	install -D -m644 "${srcdir}/${pkgname}.hook" "${pkgdir}/usr/share/libalpm/hooks/99-${pkgname}.hook"
+	
+	install -Dm644 ${srcdir}/warning.hook ${pkgdir}/usr/share/libalpm/hooks/warning.hook
+	install -Dm755 ${srcdir}/warning.script ${pkgdir}/usr/share/libalpm/scripts/warning
 }

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#This script inform user to reboot the pc after an install/upgrade/reboot of kernel
+
+#template for tty message
+
+msg() {
+ALL_OFF="\e[1;0m"
+BOLD="\e[1;1m"
+GREEN="${BOLD}\e[1;32m"
+local mesg=$1; shift
+printf "
+${GREEN}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}" "$@" >&2
+}
+
+if [ -e /usr/bin/zenity ]; then
+   notify-send --urgency=critical --expire-time=0 --app-name="Reboot Required" --icon=dialog-warning "System Requires Restart" "Please save your work and reboot your machine"
+else msg "Warning:
+-> Reboot is required, please save your works before"
+fi
+
