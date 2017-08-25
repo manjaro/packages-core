@@ -27,6 +27,6 @@ vmlinuz_timestamp=$(stat -c'%Y' /boot/vmlinuz-"$kernel_ver"-"$kernel_arch")
 ten_minutes_ago=$(date -d'-10 minutes' +%s)
 declare -r kernel_ver kernel_arch vmlinuz_timestamp ten_minutes_ago
 
-if [[ $((ten_minutes_ago - vmlinuz_timestamp)) -gt 0 ]]; then
+if [[ $((ten_minutes_ago - vmlinuz_timestamp)) -lt 0 ]]; then
     notify
 fi
