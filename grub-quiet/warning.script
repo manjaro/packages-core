@@ -13,9 +13,20 @@ printf "
 ${GREEN}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}" "$@" >&2
 }
 
+notify() {
 if [ -e /usr/bin/zenity ]; then
-   notify-send --urgency=critical --expire-time=0 --app-name="Reboot Required" --icon=dialog-warning "System Requires Restart" "Please save your work and reboot your machine"
+    notify-send --urgency=critical --expire-time=0 --app-name="Reboot Required" --icon=dialog-warning "System requires restart" "Please save your work and reboot your machine to complete the update"
 else msg "Warning:
--> Reboot is required, please save your works before"
+-> A reboot is required to complete the update. Please save your work before rebooting."
 fi
+}
 
+kernel_ver=$(uname -r | grep -E -o "[0-9]+\.[0-9]+")
+kernel_arch=$(uname -m)
+vmlinuz_timestamp=$(stat -c'%Y' /boot/vmlinuz-"$kernel_ver"-"$kernel_arch")
+ten_minutes_ago=$(date -d'-10 minutes' +%s)
+declare -r kernel_ver kernel_arch vmlinuz_timestamp ten_minutes_ago
+
+if [[ $((ten_minutes_ago - vmlinuz_timestamp)) -lt 0 ]]; then
+    notify
+fi
