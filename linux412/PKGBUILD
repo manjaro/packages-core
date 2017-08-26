@@ -13,11 +13,11 @@ _basekernel=4.12
 _basever=412
 _aufs=20170612
 _bfq=v8r12
-_sub=8
+_sub=9
 _url=https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq
 pkgver=${_basekernel}.${_sub}
 _pkgver=${_basekernel}.8
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -42,9 +42,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         # ARCH Patches
-        'bonding-require-speed-duplex-only-for-802.3ad-alb-an.patch'
-        'bonding-ratelimit-failed-speed-duplex-update-warning.patch'
-        'mm-Revert-x86_64-and-arm64-ELF_ET_DYN_BASE-base.patch'
         # MANJARO Patches
         "$_url/merges/$_pkgver/0001-Merge-tag-uuid-for-4.13-of-uuid.patch"
         "$_url/merges/$_pkgver/0002-Merge-branch-for-4.13-block-of-linux-block.patch"
@@ -63,7 +60,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "0004-block_bfq_consider_also_in_service_entity_to_state_whether_an_entity_is_active.patch::https://patchwork.kernel.org/patch/9869873/raw/"
 )
 sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
-            '32b860911a3bafd5cd5bc813a427c90fad6eafdf607fa64e1b763b16ab605636'
+            '32c5df9c032d039d17cee0397b74583000053089e1c2fdfdc77acc2edc2d2e76'
             '49accd512ab35dd9ca18051d61de922f6536af094d54baca878676777bfd2311'
             '47493743193ed5885721530cbc996d4e832a523d4d1daf15629970df80e1c641'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -77,9 +74,6 @@ sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
-            '48e0505438bb4ccc7a0e050a896122b490e8f1b1446aa3833841a9d4d7853d68'
-            'fc606711a922638d5cc4358f47f69f554d9e6eab1cec91f0b49f00911f399722'
-            'b830ce777543c0edd20a77d70f204c095f2429bb37151cd4a8c9dfae2af8d51a'
             'b8745ca529c03c1d20473cb45cda3ea25da49a73e522cd834c32b9316b5f9f12'
             '497a268278e9ebf27ce104bfa9e483686d3285fb8e96e8cd09774042cd8a7c45'
             'b029d1cc6c26c7148ffbe753bc959f774a49d4195e3b9b5926e2631f50cf6ef6'
@@ -102,14 +96,6 @@ prepare() {
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
-
-  # https://bugzilla.kernel.org/show_bug.cgi?id=196547
-  patch -Np1 -i ../bonding-ratelimit-failed-speed-duplex-update-warning.patch
-  patch -Np1 -i ../bonding-require-speed-duplex-only-for-802.3ad-alb-an.patch
-
-  # https://github.com/google/sanitizers/issues/837
-  # https://patchwork.kernel.org/patch/9886105/
-  patch -Np1 -i ../mm-Revert-x86_64-and-arm64-ELF_ET_DYN_BASE-base.patch
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
