@@ -1,0 +1,30 @@
+# Maintainer: Stefano Capitani <stefanoatmanjarodotorg>
+
+pkgname=kernel-alive
+_clean=linux-module-cleanup
+pkgver=0.1
+pkgrel=1
+pkgdesc="After updgrade kernel, you can continue to use the PC without rebooting"
+url="https://github.com/Ste74/$pkgname"
+_commit=7f765fa6deebfcd7c0734d2c26598b3d98656d0f
+arch=(any)
+license=(GPL3)
+source=("$url/archive/$_commit.tar.gz")
+depends=('rsync')
+md5sums=('73ddc32302c618358f6f446c5113696e')
+
+package() {
+	cd $pkgname-$_commit
+	
+#install systemd service
+	install -Dm755 $_clean.script $pkgdir/usr/bin/$_clean
+	install -Dm644 $_clean.service $pkgdir/etc/systemd/system/$_clean.service
+
+#install hook and script	
+	install -Dm644 $pkgname-pre.hook ${pkgdir}/usr/share/libalpm/hooks/$pkgname-pre.hook
+	install -Dm644 $pkgname-post.hook ${pkgdir}/usr/share/libalpm/hooks/$pkgname-post.hook
+	
+	install -Dm755 $pkgname-pre.script ${pkgdir}/usr/share/libalpm/scripts/$pkgname-pre
+	install -Dm755 $pkgname-post.script ${pkgdir}/usr/share/libalpm/scripts/$pkgname-post
+}
+
