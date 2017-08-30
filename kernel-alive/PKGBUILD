@@ -2,16 +2,16 @@
 
 pkgname=kernel-alive
 _clean=linux-module-cleanup
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 pkgdesc="After updgrade kernel, you can continue to use the PC without rebooting"
 url="https://github.com/Ste74/$pkgname"
-_commit=ae9bffe686c7ee46d02e98981d2e2be24cf0a16a
+_commit=056d28d9b8c7e5fd9b2878c223c664ee5d965f6b
 arch=(any)
 license=(GPL3)
 source=("$url/archive/$_commit.tar.gz")
 depends=('rsync')
-md5sums=('6cdc42ea80c78595000d057fa3cdf2e2')
+md5sums=('5657e13c7b9ab46607a8ea3133c13b64')
 
 package() {
 	cd $pkgname-$_commit
@@ -23,8 +23,11 @@ package() {
 #install hook and script	
 	install -Dm644 $pkgname-pre.hook ${pkgdir}/usr/share/libalpm/hooks/$pkgname-pre.hook
 	install -Dm644 $pkgname-post.hook ${pkgdir}/usr/share/libalpm/hooks/$pkgname-post.hook
+	install -Dm644 $pkgname-install.hook ${pkgdir}/usr/share/libalpm/hooks/$pkgname-install.hook
+	install -Dm644 $pkgname-remove.hook ${pkgdir}/usr/share/libalpm/hooks/$pkgname-remove.hook
 	
 	install -Dm755 $pkgname-pre.script ${pkgdir}/usr/share/libalpm/scripts/$pkgname-pre
 	install -Dm755 $pkgname-post.script ${pkgdir}/usr/share/libalpm/scripts/$pkgname-post
+	install -Dm755 $pkgname-remove.script ${pkgdir}/usr/share/libalpm/scripts/$pkgname-remove
 }
 
