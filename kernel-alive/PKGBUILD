@@ -3,15 +3,15 @@
 pkgname=kernel-alive
 _clean=linux-module-cleanup
 pkgver=0.2
-pkgrel=1
+pkgrel=2
 pkgdesc="After updgrade kernel, you can continue to use the PC without rebooting"
 url="https://github.com/Ste74/$pkgname"
-_commit=056d28d9b8c7e5fd9b2878c223c664ee5d965f6b
+_commit=121116d6954b586371bc7e65d4fc0e433ccd3ba0
 arch=(any)
 license=(GPL3)
 source=("$url/archive/$_commit.tar.gz")
 depends=('rsync')
-md5sums=('5657e13c7b9ab46607a8ea3133c13b64')
+md5sums=('3bf13e90e696b323a182171767269614')
 
 package() {
 	cd $pkgname-$_commit
