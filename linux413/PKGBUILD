@@ -14,19 +14,17 @@ _basever=413
 _aufs=20170703
 _bfq=v8r12
 _sub=0
-_rc=rc7
-_git=cc4a41fe5541a73019a864883297bd5043aa6d98
-pkgver=${_basekernel}.${_sub}${_rc}
+pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
 options=('!strip')
-source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://git.kernel.org/torvalds/t/linux-${_basekernel}-${_rc}.tar.gz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        linux-${_basekernel}${_rc}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
+        #linux-${_basekernel}${_rc}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -48,7 +46,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         "0001-block_bfq_refactor_device-idling_logic.patch::https://lkml.org/lkml/diff/2017/8/4/41/1"
         "0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch::https://lkml.org/lkml/diff/2017/8/4/40/1"
 )
-sha256sums=('b596de35f03c99ad046553603b2f2413152139e704de4e0d12effa18012b36d9'
+sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             '1adb8b75e5096807da577bb198e17cfb2bd06ef6cd76aead5859f43b3a0e793d'
             '93bcbae6b76b130a261047fff8ac481d2cc5b7fbc26d090097bc9d0a6f78da1a'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -67,7 +65,7 @@ sha256sums=('b596de35f03c99ad046553603b2f2413152139e704de4e0d12effa18012b36d9'
             'f96854500be47cf263d55eb34dca020211a4a92980eb065ab5b58e86fba347e4')
 
 prepare() {
-  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
+  #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
   #mv "${srcdir}/linux-${_basekernel}-${_rc}" "${srcdir}/linux-${_basekernel}"
   cd "${srcdir}/linux-${_basekernel}"
 
@@ -94,7 +92,7 @@ prepare() {
   #sed -i -e "s|PATCHLEVEL = 12|PATCHLEVEL = 13|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -rc1|-EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -${_rc} -bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|-EXTRAVERSION = -rc3|-EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|-EXTRAVERSION = -rc3|-EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -rc3-bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
