@@ -12,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _aufs=20170410
 _bfq=v8r12
-_sub=47
+_sub=49
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -46,9 +46,14 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
         '0003-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
         '0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
+        # Zen temperature
+        '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
+        '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
+        '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
+        '0004-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            'bdbc18434c6891c126adb2982b0ff9f954783f2e381ab06cfbdeeaef74a0d3c6'
+            '606f33ad50c0b3c73196cd9ce195e1bd72695151756922d545e892375063b975'
             '2d886f44a8adc5be62ef86eb44f56dcd9f830f68b96fe1ea6a82449f2577541f'
             '1495d4ec493905e4f13605ec9b05fea2f7f5aa5fd24b02bc2e9b977333c86537'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -67,7 +72,11 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '66ecb4e9462d760c147ff17ff714e69b2512013b63fd525fff617a52f5004b89'
             'bb6afbf8fa4d895e46e24a280689a69a16d5d01a0294e0755a2098c81edf167c'
             'ba842c84fe3445f10f80b173c59eba961267bdb94e317dd877ea263d90cb5190'
-            '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784')
+            '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784'
+            '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
+            'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
+            'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
+            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
 
 prepare() {
 #  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -85,6 +94,12 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # Add support for temperature sensors on Family 17h (Ryzen) processors.
+  patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0002-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0003-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0004-zen-temp.patch"
 
   # extend Microsoft Surface support
   patch -p1 -i "${srcdir}/0001-HID-microsoft-Add-Surface-4-type-cover-pro-4-not-JP-versions.patch"

@@ -13,7 +13,7 @@ _basekernel=4.13
 _basever=413
 _aufs=20170703
 _bfq=v8r12
-_sub=0
+_sub=1
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -25,7 +25,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         #"https://git.kernel.org/torvalds/t/linux-${_basekernel}-${_rc}.tar.gz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         #linux-${_basekernel}${_rc}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
-        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -45,10 +45,15 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # BFQ fixes
         "0001-block_bfq_refactor_device-idling_logic.patch::https://lkml.org/lkml/diff/2017/8/4/41/1"
         "0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch::https://lkml.org/lkml/diff/2017/8/4/40/1"
+        # Zen temperature
+        '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
+        '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
+        '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
 )
 sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
-            '1adb8b75e5096807da577bb198e17cfb2bd06ef6cd76aead5859f43b3a0e793d'
-            '93bcbae6b76b130a261047fff8ac481d2cc5b7fbc26d090097bc9d0a6f78da1a'
+            '6664b089bdb6513b006bfe65c6fee45d38ddfe17f6ccc87a720e831d4c215b4d'
+            'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
+            'f1259d22299f6176eb50a417e588bf2bfc79d832aaa89e1504efed7a37f2f4ad'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -62,7 +67,10 @@ sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
             'defbfa1a809a5dfef00ab9575636caa30861105b19daba55d02d76e8e0148c91'
             'f779b88033f6eed5304275c06b3fff8dfb271dfe0a1be0216c3c32b2827b8fcd'
-            'f96854500be47cf263d55eb34dca020211a4a92980eb065ab5b58e86fba347e4')
+            'f96854500be47cf263d55eb34dca020211a4a92980eb065ab5b58e86fba347e4'
+            'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
+            'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
+            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -70,12 +78,17 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  #patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # Add support for temperature sensors on Family 17h (Ryzen) processors.
+  patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0002-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0003-zen-temp.patch"
 
   # add aufs4 support
   patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
@@ -88,7 +101,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
-  #sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|PATCHLEVEL = 12|PATCHLEVEL = 13|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -rc1|-EXTRAVERSION = -${_rc}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #sed -i -e "s|-EXTRAVERSION = -${_rc} -bfq|-EXTRAVERSION = -bfq|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"

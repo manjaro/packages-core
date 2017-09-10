@@ -13,10 +13,10 @@ _basekernel=4.12
 _basever=412
 _aufs=20170612
 _bfq=v8r12
-_sub=10
+_sub=12
 _url=https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq
 pkgver=${_basekernel}.${_sub}
-_pkgver=${_basekernel}.8
+_pkgver=${_basekernel}.10
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -58,9 +58,13 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch::https://lkml.org/lkml/diff/2017/8/4/40/1"
         "0003-block_bfq_reset_in_service_entity_if_it_becomes_idle.patch::https://patchwork.kernel.org/patch/9869325/raw/"
         "0004-block_bfq_consider_also_in_service_entity_to_state_whether_an_entity_is_active.patch::https://patchwork.kernel.org/patch/9869873/raw/"
+        # Zen temperature
+        '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
+        '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
+        '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
 )
 sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
-            '32dfc4d44b559bb7007a54217aee04f6fe93e1f7bc9d9809064b5a4e689ba6e1'
+            '7a2aa6720219b1b84e63d75206049f4dab1840717cb8379a3f92a6ec05fd07c9'
             '49accd512ab35dd9ca18051d61de922f6536af094d54baca878676777bfd2311'
             '47493743193ed5885721530cbc996d4e832a523d4d1daf15629970df80e1c641'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -75,7 +79,7 @@ sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
             'b8745ca529c03c1d20473cb45cda3ea25da49a73e522cd834c32b9316b5f9f12'
-            '497a268278e9ebf27ce104bfa9e483686d3285fb8e96e8cd09774042cd8a7c45'
+            '71f090d2527b8f245cca1593a531798687e0ab365daf0a6e36146b12e3157d04'
             'b029d1cc6c26c7148ffbe753bc959f774a49d4195e3b9b5926e2631f50cf6ef6'
             'e7cba5ea08ca33644548a856c8014ec633021c5ad7a0ada3fe3567da94dd5cdf'
             'b863c975168c38576fe7900a521a4d2795e5cd8b39626814191e00d4258cdd1b'
@@ -87,7 +91,10 @@ sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             'f779b88033f6eed5304275c06b3fff8dfb271dfe0a1be0216c3c32b2827b8fcd'
             'f96854500be47cf263d55eb34dca020211a4a92980eb065ab5b58e86fba347e4'
             '5275e424c91d3bd051c856fbc79a79c0aae4c506d09597d66b7594ba8c224b39'
-            'e2e1f2af23075a28684864748cf03dc17e53fcab6e8d7ac66144f27ec139fbb8')
+            'e2e1f2af23075a28684864748cf03dc17e53fcab6e8d7ac66144f27ec139fbb8'
+            'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
+            'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
+            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -101,6 +108,11 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # Add support for temperature sensors on Family 17h (Ryzen) processors.
+  patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0002-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0003-zen-temp.patch"
 
   # add aufs4 support
   patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
