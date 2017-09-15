@@ -15,6 +15,10 @@ license=('GPL')
 depends=('mkinitcpio>=0.12.0-2' 'pcmciautils>=018-5' 'linux>=3.4' 'pacman>=4.2' 'coreutils' 'sed' 'awk')
 provides=('pacman=4.1.2' 'dbus-openrc=20150611') # to fix pacman 4.2 and openrc 1.10.0 update
 install=manjaro-update-system.sh
+source=('fsck.overlay')
+sha256sums=('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855')
 
-
+package() {
+   install -Dm755 "$srcdir/fsck.overlay" "$pkgdir/usr/bin/fsck.overlay"
+}
 
