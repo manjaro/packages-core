@@ -1,10 +1,21 @@
+eol() {
+  echo ">>> NOTE, 4.1.44 was most likely the last maintained maintenance"
+  echo "    release by Sasha Levin."
+  echo "    "
+  echo "    It is recommend to move on to linux44-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux44'"
+  echo "    "
+}
+
 post_install () {
+  eol
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod %KERNVER%
 }
 
 post_upgrade() {
+  eol
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
     echo "WARNING: /boot appears to be a separate partition but is not mounted."
   fi
