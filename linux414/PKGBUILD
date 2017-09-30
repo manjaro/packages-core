@@ -14,9 +14,9 @@ _basever=414
 _aufs=20170703
 _bfq=v8r12
 _sub=0
-_rc=rc1
-_shortgit=.20170923.gcd4175b
-_git=cd4175b11685b11c40e31a03e05084cc212b0649
+_rc=rc2
+_shortgit=.20170927.g9cd6681
+_git=9cd6681cb1169e815c41af0265165dd1b872f228
 pkgver=${_basekernel}${_rc}${_shortgit}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -50,7 +50,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
 )
-sha256sums=('f63e8986d5eff2731047ce4c004dc836cd54e68e0bc4fbec18332e930127b8fa'
+sha256sums=('06afd24533e74c8b070c2cbc96020e47d41e9b1c1ccec80b389aa33cb15e0092'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '0a2a94be1bdd64aba7336c1daf69c8389e708be301e6aa95688d820ed294a8b2'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -89,6 +89,9 @@ prepare() {
   #patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
+  msg "Fix naming schema in BFQ-MQ patch"
+  sed -i -e "s|EXTRAVERSION = -rc1|EXTRAVERSION = -rc2|g" \
+      -i -e "s|EXTRAVERSION = -rc1-bfq-mq|EXTRAVERSION = -rc2|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then

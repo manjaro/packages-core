@@ -13,10 +13,14 @@ _basekernel=4.13
 _basever=413
 _aufs=20170703
 _bfq=v8r12
-_sub=3
-_url=https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq
+_sub=4
+_bfqpath="https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq"
+_mergepath="${_bfqpath}/merges/${pkgver}"
+_mlpath_1="${_bfqpath}/mailing-list/blk-mq-sched-improve-SCSI-MQ-performance-V4"
+_mlpath_2="${_bfqpath}/mailing-list/block-bfq-disable-wbt"
+_bfq_mq_patch='4.13-bfq-mq-20170921.patch'
 pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -40,19 +44,36 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/869c058...27af275.patch"
         # ARCH Patches
         # MANJARO Patches
-        # BFQ fixes
-        "0001-block_bfq_refactor_device-idling_logic.patch::https://lkml.org/lkml/diff/2017/8/4/41/1"
-        "0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch::https://lkml.org/lkml/diff/2017/8/4/40/1"
+        # bfq-mq patch
+        "${_bfqpath}/${_bfq_mq_patch}"
+        # tentative patches
+        "${_bfqpath}/tentative/T0001-Check-presence-on-tree-of-every-entity-after-every-a.patch"
+        # mailing-list (ML1) patches
+        "${_mlpath_1}/ML1-0001-blk-mq-sched-fix-scheduler-bad-performance.patch"
+        "${_mlpath_1}/ML1-0002-sbitmap-introduce-__sbitmap_for_each_set.patch"
+        "${_mlpath_1}/ML1-0003-blk-mq-introduce-blk_mq_dispatch_rq_from_ctx.patch"
+        "${_mlpath_1}/ML1-0004-blk-mq-sched-move-actual-dispatching-into-one-helper.patch"
+        "${_mlpath_1}/ML1-0005-blk-mq-sched-improve-dispatching-from-sw-queue.patch"
+        "${_mlpath_1}/ML1-0006-blk-mq-sched-don-t-dequeue-request-until-all-in-disp.patch"
+        "${_mlpath_1}/ML1-0007-blk-mq-sched-introduce-blk_mq_sched_queue_depth.patch"
+        "${_mlpath_1}/ML1-0008-blk-mq-sched-use-q-queue_depth-as-hint-for-q-nr_requ.patch"
+        "${_mlpath_1}/ML1-0009-block-introduce-rqhash-helpers.patch"
+        "${_mlpath_1}/ML1-0010-block-move-actual-bio-merge-code-into-__elv_merge.patch"
+        "${_mlpath_1}/ML1-0011-block-add-check-on-elevator-for-supporting-bio-merge.patch"
+        "${_mlpath_1}/ML1-0012-block-introduce-.last_merge-and-.hash-to-blk_mq_ctx.patch"
+        "${_mlpath_1}/ML1-0013-blk-mq-sched-refactor-blk_mq_sched_try_merge.patch"
+        "${_mlpath_1}/ML1-0014-blk-mq-improve-bio-merge-from-blk-mq-sw-queue.patch"
+        # mailing-list (ML2) patches
+        "${_mlpath_2}/ML2-0001-block-bfq-Disable-writeback-throttling.patch"
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
 )
 sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
-            'bfebd5121512f76ed835223679fc11fc7826aabc31233cefb522e0e1b515d3fe'
+            '1e34c35dfbd3b7451a7b3eb93c5e342acc006b5d1906b5e542a8f203723bb8d6'
             '458f1b1a13a1b67a854827b052c38641acb5b969deb013608260127707648346'
             'f8274a119983ca0272b5ebd87457628b3d5bc8c9bfc0eb470153dd356e0ffc8f'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -66,9 +87,23 @@ sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
-            'defbfa1a809a5dfef00ab9575636caa30861105b19daba55d02d76e8e0148c91'
-            'f779b88033f6eed5304275c06b3fff8dfb271dfe0a1be0216c3c32b2827b8fcd'
-            'f96854500be47cf263d55eb34dca020211a4a92980eb065ab5b58e86fba347e4'
+            '9742e1c7d8b836c5c7e8052d71247bb2cbf11732d238233b3090ff1b883d418b'
+            'eb3cb1a9e487c54346b798b57f5b505f8a85fd1bc839d8f00b2925e6a7d74531'
+            'dbbcfc44c676f86e98e9a25ff0d2145f8b909f4a8bf7e25029bf24f315cbc4bb'
+            '50092d4e4e408937fa9a7a374b27144854ed676dac6ba48a9d6d14827703e15b'
+            '1f9a234069b487c6372517f4b29f75bb66e7c5a72e963dad8b8985d7bff7f38f'
+            '2ea4aedb93ad21d9832f96e0c13e42415060ebde1642c1a6de2164e8c9b61841'
+            '9e0c964332ba735c4c03b0b12b85ea120bf72236f06bf90e2840f6b4bcb62596'
+            '7862c2ea18f4fd61186c34f4a24df0d0b3639fe33c0be4fec0e1735a4f4f02ab'
+            '6926d21e260e058b99c7fae26aa63619b1eefa00fb108e0f0ee0ac8d0e2a31f4'
+            '0c4ab9933063ee8d4e1ed55fbff9e44f16a721c035d498a1cb778aa91799e01b'
+            '4d78f4e4c42a33fa3602bb3758d15bb3fe572ffd7794f6241449a2b0c96431e1'
+            '27bf68a36f635ed13c8ab613d40e72043284754a92a026eabb5ae589414faaa5'
+            'f37476acbe136e0ad5e2bf0be199678f4263d3e5e33bec1d1d8b8f19f5a0dfec'
+            '00346abf88880eaa8b200705b5a63e322df518eb2129e34ca45e1d90c4742037'
+            'bbb9dfdc98f5cdeaf1113d9c24cfafb95bc764af76d56dd57d964a16d81986b7'
+            '4f7bbc6d983ab947474f5ab44194328321def86ab3f8b095f4def198d5604d08'
+            '5e57c8d1d87a63e1c5947aba02346862992f39be2b2761ea142b3897995495aa'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
             '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
@@ -101,16 +136,38 @@ prepare() {
   patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
-  # add BFQ scheduler
-  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #sed -i -e "s|PATCHLEVEL = 12|PATCHLEVEL = 13|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  sed -i -e "s|EXTRAVERSION = -rc3|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #sed -i -e "s|EXTRAVERSION = -rc3-bfq|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  ### Patch source with BFQ-MQ
+  msg "Fix naming schema in BFQ-MQ patch"
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
+      -i -e "s|PATCHLEVEL = 14|PATCHLEVEL = 13|g" \
+      -i -e "s|EXTRAVERSION = -rc1|EXTRAVERSION =|g" \
+      -i -e "s|EXTRAVERSION = -rc1-bfq-mq|EXTRAVERSION =|g" ../${_bfq_mq_patch}
 
-  # add some more BFQ patches
-  patch -Np1 -i "${srcdir}/0001-block_bfq_refactor_device-idling_logic.patch"
-  patch -Np1 -i "${srcdir}/0002-block_bfq_boost_throughput_with_flash-based_non-queueing_devices.patch"
+  msg "-> Apply BFQ-MQ patch"
+  patch -Np1 -i ../${_bfq_mq_patch}
+
+  ### Patches related to BUG_ON(entity->tree && entity->tree != &st->active) in __bfq_requeue_entity();
+  if [ -n "$_use_tentative_patches" ]; then
+    msg "Apply tentative patches"
+    for p in ../T000*.patch; do patch -Np1 -i "$p"; done
+  fi
+
+  ### Patches from mailing-list
+  # ML1 - [PATCH V4 00/14] blk-mq-sched: improve SCSI-MQ performance: https://marc.info/?l=linux-block&m=150436546704854&w=2
+  if [ -n "$_use_ml1_patches" ]; then
+    msg "Apply mailing-list patches 1"
+    for p in ../ML1*.patch; do
+      msg " $p"
+    patch -Np1 -i "$p"; done
+  fi
+
+  # ML2 - [PATCH] block,bfq: Disable writeback throttling: https://marc.info/?l=linux-block&m=150486424501778&w=2
+  if [ -n "$_use_ml2_patches" ]; then
+    msg "Apply mailing-list patches 2"
+    for p in ../ML2*.patch; do
+      msg " $p"
+    patch -Np1 -i "$p"; done
+  fi
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
