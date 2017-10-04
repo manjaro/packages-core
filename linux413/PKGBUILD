@@ -22,7 +22,7 @@ _mlpath_2="${_bfqpath}/mailing-list/block-bfq-disable-wbt"
 _lucjanpath="https://gitlab.com/sirlucjan/kernel-patches/raw/master/4.13"
 _bfq_mq_patch='4.13-bfq-mq-20170921.patch'
 pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -84,6 +84,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "${_lucjanpath}/blk-mq-v5/0064-blk-mq-improve-bio-merge-from-blk-mq-sw-queue.patch"
         # mailing-list (ML2) patches
         "${_mlpath_2}/ML2-0001-block-bfq-Disable-writeback-throttling.patch"
+        # Reverts
+        "revert-bfq-sq-ab99156.patch::https://github.com/Algodev-github/bfq-mq/commit/ab99156a17a8da6145635b8eab8b73815d6ab9c1.patch"
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
@@ -122,6 +124,7 @@ sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             '8114b75c12cb816c68c69a7b37c87560daf8c4d1afd8eea7947e0c74c77fc342'
             'd235d19767373cd1ddc70e1002b975f7f4df87409af560ef86d802ee61215e66'
             '5e57c8d1d87a63e1c5947aba02346862992f39be2b2761ea142b3897995495aa'
+            '3d30c45b49c3eddc628a4a343fedf342510cde98b093380ae64dd87cdf3494f7'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
             '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
@@ -187,6 +190,9 @@ prepare() {
       msg " $p"
     patch -Np1 -i "$p"; done
   fi
+
+  # Revert some patch. See also:
+  patch -Rp1 -i "${srcdir}/revert-bfq-sq-ab99156.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
