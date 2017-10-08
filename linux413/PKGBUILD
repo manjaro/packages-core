@@ -191,7 +191,7 @@ prepare() {
     patch -Np1 -i "$p"; done
   fi
 
-  # Revert some patch. See also:
+  # Revert some patch. See also: https://groups.google.com/forum/#!topic/bfq-iosched/IBD86loXv3k
   patch -Rp1 -i "${srcdir}/revert-bfq-sq-ab99156.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
