@@ -14,9 +14,9 @@ _basever=414
 _aufs=20170703
 _bfq=v8r12
 _sub=0
-_rc=rc4
-_shortgit=.r1010.g529a86e
-_git=529a86e063e9ff625c4ff247d8aa17d8072444fb
+_rc=rc5
+_shortgit=.r1016.g33d930e
+_git=33d930e59a98fa10a0db9f56c7fa2f21a4aef9b9
 pkgver=${_basekernel}${_shortgit}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -42,7 +42,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         #'aufs4-standalone.patch'
         #'tmpfs-idr.patch'
         #'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/1c86f2e...a731bfa.patch"
+        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/1c86f2e...bb41626.patch"
         # ARCH Patches
         # MANJARO Patches
         # Zen temperature
@@ -50,12 +50,12 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
 )
-sha256sums=('adb63429e16edd3445836667e829feb455dc476275356fde06c3063a0a48e49d'
+sha256sums=('699b1a9dd851c6ca19e395c2593784b01863f990242fb6d23565715b905302ef'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '481d713ce8fb6fdbd1a72740a491d4fe723b6e27fd14ebbc22769054369bd76a'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            '917ec35fe22be73750fc01a7bb9c1fe0d8911db3833ae4174e921f6c5749560d'
+            '8c6c321dd03c805b74a3151a8992d4326d72e3a2e82d67ceb66ec0d7b679183e'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
             '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')

@@ -13,14 +13,15 @@ _basekernel=4.13
 _basever=413
 _aufs=20170703
 _bfq=v8r12
-_sub=5
+_sub=7
 _bfqpath="https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq"
 _mergepath="${_bfqpath}/merges/${pkgver}"
 #_mlpath_1="${_bfqpath}/mailing-list/blk-mq-sched-improve-SCSI-MQ-performance-V4"
 _mlpath_2="${_bfqpath}/mailing-list/block-bfq-disable-wbt"
 #_lucjanpath="https://raw.githubusercontent.com/sirlucjan/lucjan-kernels/master/patches/4.13"
 _lucjanpath="https://gitlab.com/sirlucjan/kernel-patches/raw/master/4.13"
-_bfq_mq_patch='4.13-bfq-mq-20170921.patch'
+_bfq_mq_ver='20171009'
+_bfq_mq_patch="4.13-bfq-sq-mq-git-${_bfq_mq_ver}.patch"
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -49,7 +50,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         # MANJARO Patches
         # bfq-mq patch
-        "${_bfqpath}/${_bfq_mq_patch}"
+        #"${_bfqpath}/${_bfq_mq_patch}"
+        "${_lucjanpath}/${_bfq_mq_patch}"
         # tentative patches
         "${_bfqpath}/tentative/T0001-Check-presence-on-tree-of-every-entity-after-every-a.patch"
         # mailing-list (ML1) patches
@@ -84,15 +86,13 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "${_lucjanpath}/blk-mq-v5/0064-blk-mq-improve-bio-merge-from-blk-mq-sw-queue.patch"
         # mailing-list (ML2) patches
         "${_mlpath_2}/ML2-0001-block-bfq-Disable-writeback-throttling.patch"
-        # Reverts
-        "revert-bfq-sq-ab99156.patch::https://github.com/Algodev-github/bfq-mq/commit/ab99156a17a8da6145635b8eab8b73815d6ab9c1.patch"
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
 )
 sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
-            'ba0cf285525e24850917c2f5cc7c2283b6509e2185bb70108f140f7ec695d57d'
+            '0fe89c96e956efbded576214eef0c8e43cabe41dfca245e3ebb79fff9bc8715d'
             '9fd0cc863a350c473de227585c27318acca712e731c7bc8157751a05f6bc3fd7'
             'd2d9522bb148d99d0ff7ee55f5086f329f18ed45fd8bbce169cabb0c72fe6eac'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -106,7 +106,7 @@ sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
-            '9742e1c7d8b836c5c7e8052d71247bb2cbf11732d238233b3090ff1b883d418b'
+            '29c0a79f88bde17d8e8af6a433dd1fedff1e7430dda8090ab29324cbd0b0bb33'
             'eb3cb1a9e487c54346b798b57f5b505f8a85fd1bc839d8f00b2925e6a7d74531'
             '91d3a2d15ccc84de43f19a9538b4378fe7702e9e90e63207a1a519bdcc7614e4'
             '0f5e66a42e4985495937e6407f00b4747a35e73c31d59d0c3be61c14fb629e0e'
@@ -124,7 +124,6 @@ sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             '8114b75c12cb816c68c69a7b37c87560daf8c4d1afd8eea7947e0c74c77fc342'
             'd235d19767373cd1ddc70e1002b975f7f4df87409af560ef86d802ee61215e66'
             '5e57c8d1d87a63e1c5947aba02346862992f39be2b2761ea142b3897995495aa'
-            '3d30c45b49c3eddc628a4a343fedf342510cde98b093380ae64dd87cdf3494f7'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
             '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
@@ -161,8 +160,8 @@ prepare() {
   msg "Fix naming schema in BFQ-MQ patch"
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
       -i -e "s|PATCHLEVEL = 14|PATCHLEVEL = 13|g" \
-      -i -e "s|EXTRAVERSION = -rc1|EXTRAVERSION =|g" \
-      -i -e "s|EXTRAVERSION = -rc1-bfq-mq|EXTRAVERSION =|g" ../${_bfq_mq_patch}
+      -i -e "s|EXTRAVERSION = -rc3|EXTRAVERSION =|g" \
+      -i -e "s|EXTRAVERSION = -rc3-bfq-mq|EXTRAVERSION =|g" ../${_bfq_mq_patch}
 
   msg "-> Apply BFQ-MQ patch"
   patch -Np1 -i ../${_bfq_mq_patch}
@@ -190,9 +189,6 @@ prepare() {
       msg " $p"
     patch -Np1 -i "$p"; done
   fi
-
-  # Revert some patch. See also: https://groups.google.com/forum/#!topic/bfq-iosched/IBD86loXv3k
-  patch -Rp1 -i "${srcdir}/revert-bfq-sq-ab99156.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
