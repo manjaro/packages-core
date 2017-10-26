@@ -13,7 +13,7 @@ _basekernel=4.13
 _basever=413
 _aufs=20170703
 _bfq=v8r12
-_sub=7
+_sub=9
 _bfqpath="https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq"
 _mergepath="${_bfqpath}/merges/${pkgver}"
 #_mlpath_1="${_bfqpath}/mailing-list/blk-mq-sched-improve-SCSI-MQ-performance-V4"
@@ -49,6 +49,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'vfs-ino.patch'
         # ARCH Patches
         # MANJARO Patches
+        'amd-fix-erratum-1076.patch::https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/patch/arch/x86/kernel/cpu/amd.c?id=f7f3dc00f61261cdc9ccd8b886f21bc4dffd6fd9'
         # bfq-mq patch
         #"${_bfqpath}/${_bfq_mq_patch}"
         "${_lucjanpath}/${_bfq_mq_patch}"
@@ -92,7 +93,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
 )
 sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
-            '0fe89c96e956efbded576214eef0c8e43cabe41dfca245e3ebb79fff9bc8715d'
+            '22156e82467c7911d226a0a887eba19103434efc104439a3b426a3fa551fb8f2'
             '9fd0cc863a350c473de227585c27318acca712e731c7bc8157751a05f6bc3fd7'
             'd2d9522bb148d99d0ff7ee55f5086f329f18ed45fd8bbce169cabb0c72fe6eac'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -106,6 +107,7 @@ sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             'd8576e31a92a112009c38339c8b6fc7a1d59b7a74e9dc6fc07666e2eeb26d593'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
+            'dbec073f92683400d0878c69daff6514da737c78161e63ef5ada74a3f7ea34b1'
             '29c0a79f88bde17d8e8af6a433dd1fedff1e7430dda8090ab29324cbd0b0bb33'
             'eb3cb1a9e487c54346b798b57f5b505f8a85fd1bc839d8f00b2925e6a7d74531'
             '91d3a2d15ccc84de43f19a9538b4378fe7702e9e90e63207a1a519bdcc7614e4'
@@ -135,6 +137,10 @@ prepare() {
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # CPUID Fn8000_0007_EDX[CPB] is wrongly 0 on models up to B1. 
+  # But they do support CPB (AMD's Core Performance Boosting cpufreq CPU feature).
+  patch -p1 -i "${srcdir}/amd-fix-erratum-1076.patch"
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git

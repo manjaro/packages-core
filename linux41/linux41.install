@@ -8,14 +8,14 @@ eol() {
 }
 
 post_install () {
-  eol
+  #eol
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod %KERNVER%
 }
 
 post_upgrade() {
-  eol
+  #eol
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
     echo "WARNING: /boot appears to be a separate partition but is not mounted."
   fi

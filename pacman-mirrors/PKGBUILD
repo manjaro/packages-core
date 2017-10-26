@@ -4,16 +4,16 @@
 _branch=master
 _date=$(date +%Y%m%d)
 pkgname=pacman-mirrors
-pkgver=4.3rc3
-pkgrel=1
+pkgver=4.3rc9
+pkgrel=4
 pkgdesc="Manjaro Linux mirror list for use by pacman"
 arch=('any')
 depends=('python' 'python-npyscreen')
 makedepends=('git' 'python-babel' 'python-setuptools')
 optdepends=('gtk3: for interactive mode (GUI)'
             'python-gobject: for interactive mode (GUI)')
-#url="https://github.com/manjaro/pacman-mirrors.git"
-url="https://github.com/fhdk/pacman-mirrors.git"
+url="https://github.com/manjaro/pacman-mirrors.git"
+#url="https://github.com/fhdk/pacman-mirrors.git"
 conflicts=('pacman-mirrorlist' 'pacman-mirrorlist-dev')
 replaces=('pacman-mirrorlist' 'pacman-mirrorlist-dev')
 provides=("pacman-mirrorlist=$_date")
