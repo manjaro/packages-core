@@ -13,17 +13,17 @@ _basekernel=4.13
 _basever=413
 _aufs=20170703
 _bfq=v8r12
-_sub=10
+_sub=11
 _bfqpath="https://gitlab.com/tom81094/custom-patches/raw/master/bfq-mq"
 _mergepath="${_bfqpath}/merges/${pkgver}"
 #_mlpath_1="${_bfqpath}/mailing-list/blk-mq-sched-improve-SCSI-MQ-performance-V4"
 _mlpath_2="${_bfqpath}/mailing-list/block-bfq-disable-wbt"
 #_lucjanpath="https://raw.githubusercontent.com/sirlucjan/lucjan-kernels/master/patches/4.13"
 _lucjanpath="https://gitlab.com/sirlucjan/kernel-patches/raw/master/4.13"
-_bfq_mq_ver='20171009'
+_bfq_mq_ver='20171030'
 _bfq_mq_patch="4.13-bfq-sq-mq-git-${_bfq_mq_ver}.patch"
 pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -84,11 +84,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
-        # Fixes
-        'amdgpu-rx4xx-resume.patch::https://bugzilla.kernel.org/attachment.cgi?id=260307&action=diff&collapsed=&headers=1&format=raw'
 )
 sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
-            'b9efa9c6375f79f6a041a5f0666d4ced1a49bfe8c4662d26517a6b4cfd9bf2f6'
+            'f5fb017ee531dc35e3462ccb2d244d4fdc8ac6df9cd3337aa6df2ffc280b1bd6'
             '9fd0cc863a350c473de227585c27318acca712e731c7bc8157751a05f6bc3fd7'
             'd2d9522bb148d99d0ff7ee55f5086f329f18ed45fd8bbce169cabb0c72fe6eac'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -103,7 +101,7 @@ sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             '1ab62bf24ccb89c027b1656b08755e6c31f119ceac9aeb1b17b1cc9be318eeeb'
             'b26661ac7782770ee5235aab87040981edd204a19240933493ce8b958fce93e7'
             'dbec073f92683400d0878c69daff6514da737c78161e63ef5ada74a3f7ea34b1'
-            '29c0a79f88bde17d8e8af6a433dd1fedff1e7430dda8090ab29324cbd0b0bb33'
+            '3673a3571bcd14bae3137783d2c0b1b3a903fbfb2cf5bc0a1123ab3f9f46e8dd'
             'eb3cb1a9e487c54346b798b57f5b505f8a85fd1bc839d8f00b2925e6a7d74531'
             '388b210b15913d6e46d85d3c997d21f796957d2e3eb082ba8ffda1371eaa1f3b'
             'ed4dec610bb99928c761dee5891b9f79770f0265678c232b0d4c1879beb73e94'
@@ -116,8 +114,7 @@ sha256sums=('2db3d6066c3ad93eb25b973a3d2951e022a7e975ee2fa7cbe5bddf84d9a49a2c'
             '5e57c8d1d87a63e1c5947aba02346862992f39be2b2761ea142b3897995495aa'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
-            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006'
-            '363bdc112336eaa6bb060a4b06e7bd43eb9d4f02c676d9126d444cfbbcd9ae48')
+            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -135,9 +132,6 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
-
-  # Fix an issue with resume on RX-4xx AMD cards - https://bugzilla.kernel.org/show_bug.cgi?id=196615
-  patch -Np1 -i "${srcdir}/amdgpu-rx4xx-resume.patch"
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
@@ -158,8 +152,8 @@ prepare() {
   msg "Fix naming schema in BFQ-MQ patch"
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
       -i -e "s|PATCHLEVEL = 14|PATCHLEVEL = 13|g" \
-      -i -e "s|EXTRAVERSION = -rc3|EXTRAVERSION =|g" \
-      -i -e "s|EXTRAVERSION = -rc3-bfq-mq|EXTRAVERSION =|g" ../${_bfq_mq_patch}
+      -i -e "s|EXTRAVERSION = -rc7|EXTRAVERSION =|g" \
+      -i -e "s|EXTRAVERSION = -rc7-bfq-mq|EXTRAVERSION =|g" ../${_bfq_mq_patch}
 
   msg "-> Apply BFQ-MQ patch"
   patch -Np1 -i ../${_bfq_mq_patch}
