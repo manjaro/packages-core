@@ -3,8 +3,8 @@
 # Thomas Baechler <thomas@archlinux.org>
 
 # Maintainer: Philip Müller <philm@manjaro.org>
-# Maintainer: Guinux <guillaume@manjaro.org>
-# Maintainer: Rob McCathie <rob@manjaro.org>
+# Contributor: Guinux <guillaume@manjaro.org>
+# Contributor: Rob McCathie <rob@manjaro.org>
 
 pkgbase=linux49
 pkgname=('linux49' 'linux49-headers')
@@ -14,7 +14,7 @@ _aufs=20170410
 _bfq=v8r12
 _sub=61
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -51,6 +51,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
         '0004-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
+        # Fix HP-WMI for libinput v1.9.1+
+        'hp-wmi-fix-detection-for-dock-and-tablet-mode.patch::https://github.com/torvalds/linux/commit/298747b7579f5bbbced793d997b333fd10a24921.patch'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '73abd713dfbc954cc3d2eebfd35370629b3e6e09e2a539dba2bd608f03b5947b'
@@ -76,7 +78,8 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
-            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
+            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006'
+            '34bdded8ecfc637f7557070208dcbd88a85b098d914f41130c50d1a760cf1b3c')
 
 prepare() {
 #  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -94,6 +97,10 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # libinput v1.9.1 issue
+  # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
+  patch -Np1 -i "${srcdir}/hp-wmi-fix-detection-for-dock-and-tablet-mode.patch"
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
