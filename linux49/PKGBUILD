@@ -14,7 +14,7 @@ _aufs=20170410
 _bfq=v8r12
 _sub=61
 pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -52,7 +52,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
         '0004-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
         # Fix HP-WMI for libinput v1.9.1+
+        'hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch::https://github.com/torvalds/linux/commit/c7dfc2facbd69dad89b75e13c608da709668dcd0.patch'
         'hp-wmi-fix-detection-for-dock-and-tablet-mode.patch::https://github.com/torvalds/linux/commit/298747b7579f5bbbced793d997b333fd10a24921.patch'
+        'hp-wmi-Do-not-shadow-error-values.patch::https://github.com/torvalds/linux/commit/d313876925f3e7a480a02773fd333bcab9202d5e.patch'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '73abd713dfbc954cc3d2eebfd35370629b3e6e09e2a539dba2bd608f03b5947b'
@@ -79,7 +81,9 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
             '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006'
-            '34bdded8ecfc637f7557070208dcbd88a85b098d914f41130c50d1a760cf1b3c')
+            'b4eb3d4f51262523468a3f6551bda3bb66023726a5e312e7cebdd60ae2706137'
+            '34bdded8ecfc637f7557070208dcbd88a85b098d914f41130c50d1a760cf1b3c'
+            '6030818ca203f54429ec2856804b5d4bf1186741cf185b959ea8f3106238638f')
 
 prepare() {
 #  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -100,7 +104,9 @@ prepare() {
 
   # libinput v1.9.1 issue
   # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
+  patch -Np1 -i "${srcdir}/hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch"
   patch -Np1 -i "${srcdir}/hp-wmi-fix-detection-for-dock-and-tablet-mode.patch"
+  patch -Np1 -i "${srcdir}/hp-wmi-Do-not-shadow-error-values.patch"
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"

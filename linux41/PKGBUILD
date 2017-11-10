@@ -13,7 +13,7 @@ _basekernel=4.1
 _basever=41
 _aufs=20170220 # Last Version
 _bfq=v7r8
-pkgver=${_basekernel}.45
+pkgver=${_basekernel}.46
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -49,9 +49,18 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
         'i8042-asus-x455lab-dmi.patch'
         'gcc-7.1-ilog2.patch'
+        # Zen temperature
+        '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
+        '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
+        '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
+        '0004-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
+        # Fix HP-WMI for libinput v1.9.1+
+        'hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch::https://github.com/torvalds/linux/commit/c7dfc2facbd69dad89b75e13c608da709668dcd0.patch'
+        'hp-wmi-fix-detection-for-dock-and-tablet-mode.patch::https://github.com/torvalds/linux/commit/298747b7579f5bbbced793d997b333fd10a24921.patch'
+        'hp-wmi-Do-not-shadow-error-values.patch::https://github.com/torvalds/linux/commit/d313876925f3e7a480a02773fd333bcab9202d5e.patch'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            'e5b3836fe1cc4669c4b1bf4f18e761929b46c5ac237c83286705950a44b14d86'
+            'b066ec1a0aabec07afe8e71766b5bf5b397a681070698e7a6e00b52ae00de982'
             'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
             'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -75,7 +84,14 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
             '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
             '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d'
-            '188111a23d2700320989ae7026986079ece313a13a9abd9086c15ac35a84556f')
+            '188111a23d2700320989ae7026986079ece313a13a9abd9086c15ac35a84556f'
+            '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
+            'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
+            'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
+            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006'
+            'b4eb3d4f51262523468a3f6551bda3bb66023726a5e312e7cebdd60ae2706137'
+            '34bdded8ecfc637f7557070208dcbd88a85b098d914f41130c50d1a760cf1b3c'
+            '6030818ca203f54429ec2856804b5d4bf1186741cf185b959ea8f3106238638f')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -87,6 +103,18 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`-date +%Y%m%d`"
+
+  # libinput v1.9.1 issue
+  # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
+  patch -Np1 -i "${srcdir}/hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch"
+  patch -Np1 -i "${srcdir}/hp-wmi-fix-detection-for-dock-and-tablet-mode.patch"
+  patch -Np1 -i "${srcdir}/hp-wmi-Do-not-shadow-error-values.patch"
+
+  # Add support for temperature sensors on Family 17h (Ryzen) processors.
+  patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0002-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0003-zen-temp.patch"
+  patch -Np1 -i "${srcdir}/0004-zen-temp.patch"
 
   # fix gcc71
   patch -Np1 -i "${srcdir}/gcc-7.1-ilog2.patch"
