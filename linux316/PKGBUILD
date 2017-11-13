@@ -12,7 +12,7 @@ _basekernel=3.16
 _basever=316
 _aufs=20150928 #last release
 _bfq=v7r8
-pkgver=${_basekernel}.49
+pkgver=${_basekernel}.50
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -45,9 +45,13 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         # Additional patches
         'fix-mod_devicetable.patch'
         'gcc-7.1-ilog2.patch'
+        # Fix HP-WMI for libinput v1.9.1+
+        'hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch::https://github.com/torvalds/linux/commit/c7dfc2facbd69dad89b75e13c608da709668dcd0.patch'
+        'hp-wmi-fix-detection-for-dock-and-tablet-mode.patch::https://github.com/torvalds/linux/commit/298747b7579f5bbbced793d997b333fd10a24921.patch'
+        'hp-wmi-Do-not-shadow-error-values.patch::https://github.com/torvalds/linux/commit/d313876925f3e7a480a02773fd333bcab9202d5e.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
-            '6cac095f27e2dc714d1fd17b904c600179b042f904f0586b3c07584788e54c88'
+            'e57f3e038b219da4bd906d34cb7c5cd8b4a9e1156b153e4fd5c85b9248e62313'
             '2f6f829ce4386fcf648d6234f83c8954692a299e616146af77d2252dfb34da57'
             'a877c58e15477b809c28b466a8d903abf62c4c1a49e204c3a3a6a8e32697ea56'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -69,7 +73,10 @@ sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             'f0fc3e6159f61671a5a734ccc28091b6d8124d92c211652e620e99305b2edcef'
             '1256b241cd477b265a3c2d64bdc19ffe3c9bbcee82ea3994c590c2c76e767d99'
             '641f406a5e7fac1a7d1fe84b4ab1184603bf5d10546c60f7b1b1c66585da875e'
-            '188111a23d2700320989ae7026986079ece313a13a9abd9086c15ac35a84556f')
+            '188111a23d2700320989ae7026986079ece313a13a9abd9086c15ac35a84556f'
+            'b4eb3d4f51262523468a3f6551bda3bb66023726a5e312e7cebdd60ae2706137'
+            '34bdded8ecfc637f7557070208dcbd88a85b098d914f41130c50d1a760cf1b3c'
+            '6030818ca203f54429ec2856804b5d4bf1186741cf185b959ea8f3106238638f')
 
 prepare() {
    cd "${srcdir}/linux-${_basekernel}"
@@ -86,6 +93,12 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -p1 -i "${srcdir}/change-default-console-loglevel.patch"
+
+  # libinput v1.9.1 issue
+  # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
+  patch -Np1 -i "${srcdir}/hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch"
+  patch -Np1 -i "${srcdir}/hp-wmi-fix-detection-for-dock-and-tablet-mode.patch"
+  patch -Np1 -i "${srcdir}/hp-wmi-Do-not-shadow-error-values.patch"
 
   # fix gcc61
   patch -Np1 -i "${srcdir}/fix-mod_devicetable.patch"
