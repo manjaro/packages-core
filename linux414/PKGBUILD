@@ -14,20 +14,21 @@ _basever=414
 _aufs=20170703
 _bfq=v8r12
 _sub=0
-_rc=rc8
-_shortgit=.r1110.gca91659
-_git=ca91659962303d4fd5211a5e4e13df5cbb11e744
-pkgver=${_basekernel}${_shortgit}
-pkgrel=1
+_rc=
+_shortgit=
+_git=
+#pkgver=${_basekernel}${_shortgit}
+pkgver=${_basekernel}.0
+pkgrel=0
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
 options=('!strip')
-source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://git.kernel.org/torvalds/t/linux-${_basekernel}-${_rc}.tar.gz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        linux-${_basekernel}${_rc}${_shortgit}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
+        #linux-${_basekernel}${_rc}${_shortgit}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' # 'config.aufs'
@@ -65,7 +66,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10026619/raw/'
         '0014-bootsplash.patch::https://patchwork.kernel.org/patch/10026623/raw/'
 )
-sha256sums=('12bd91e69ef7e073cce242b380c44c4b492efc9876a5257f54dc1008798545ee'
+sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '9453e22268dd6b027e65974f9d8bed6af251f64fe21b1f789b8e40ecf2330424'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -90,7 +91,7 @@ sha256sums=('12bd91e69ef7e073cce242b380c44c4b492efc9876a5257f54dc1008798545ee'
             'c3071533fe16a4a5a9cb799eedd69767cc1046c2e6cfc7b7a645847bbc2bab10')
 
 prepare() {
-  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
+  #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
   #mv "${srcdir}/linux-${_basekernel}-${_rc}" "${srcdir}/linux-${_basekernel}"
   cd "${srcdir}/linux-${_basekernel}"
 
@@ -135,8 +136,8 @@ prepare() {
 
   # add BFQ scheduler
   msg "Fix naming schema in BFQ-MQ patch"
-  sed -i -e "s|EXTRAVERSION = -rc8|EXTRAVERSION = -$_rc|g" \
-      -i -e "s|EXTRAVERSION = -rc8-bfq-mq|EXTRAVERSION = -$_rc|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|EXTRAVERSION = -rc8|EXTRAVERSION =|g" \
+      -i -e "s|EXTRAVERSION = -rc8-bfq-mq|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
