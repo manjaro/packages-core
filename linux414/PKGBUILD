@@ -13,6 +13,7 @@ _basekernel=4.14
 _basever=414
 _aufs=20170703
 _bfq=v8r12
+_bfqdate=20171108
 _sub=0
 _rc=
 _shortgit=
@@ -43,7 +44,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         #'aufs4-standalone.patch'
         #'tmpfs-idr.patch'
         #'vfs-ino.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d93d4ce...abdfb33.patch"
+        #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d93d4ce...abdfb33.patch"
+        0001-BFQ-${_bfq}-${_bfqdate}.patch
+        0002-BFQ-${_bfq}-WARN-ON.patch
         # ARCH Patches
         # MANJARO Patches
         # Zen temperature
@@ -76,6 +79,7 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
             '5ac0d9fb774ed038c5537c59836b389bb64bdb50a01f32d0ee8ae03159ca9198'
+            '8f7069fd2c530ef60f4c700e0dc2d486424485cabff8b1324d3921c86cc7e1cf'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
             '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006'
@@ -150,8 +154,11 @@ prepare() {
   # add BFQ scheduler
   msg "Fix naming schema in BFQ-MQ patch"
   sed -i -e "s|EXTRAVERSION = -rc8|EXTRAVERSION =|g" \
-      -i -e "s|EXTRAVERSION = -rc8-bfq-mq|EXTRAVERSION =|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+      -i -e "s|EXTRAVERSION = -rc8-bfq-mq|EXTRAVERSION =|g" \ #"${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+      "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  patch -Np1 -i "${srcdir}/0002-BFQ-${_bfq}-WARN-ON.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config

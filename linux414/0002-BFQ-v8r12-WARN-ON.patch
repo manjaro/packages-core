@@ -1,0 +1,47 @@
+From 344b0aa219f88341ef60edffa0048eb4efa1d08c Mon Sep 17 00:00:00 2001
+From: Paolo Valente <paolo.valente@linaro.org>
+Date: Tue, 14 Nov 2017 08:28:45 +0100
+Subject: [PATCH] block, bfq-mq: turn BUG_ON on request-size into WARN_ON
+
+BFQ has many checks of internal and external consistency. One of them
+checks that an I/O request has still sectors to serve, if it happens
+to be retired without being served. If the request has no sector to
+serve, a BUG_ON signals the failure and causes the kernel to
+terminate. Yet, from a crash report by a user [1], this condition may
+happen to hold, in apparently correct functioning, for I/O with a
+CD/DVD.
+
+To address this issue, this commit turns the above BUG_ON into a
+WARN_ON. This commit also adds a companion WARN_ON on request
+insertion into the scheduler.
+
+[1] https://groups.google.com/d/msg/bfq-iosched/DDOTJBroBa4/VyU1zUFtCgAJ
+
+Reported-by: Alexandre Frade <admfrade@gmail.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+---
+ block/bfq-mq-iosched.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/block/bfq-mq-iosched.c b/block/bfq-mq-iosched.c
+index 0c09609a6099..0fc757ae7a42 100644
+--- a/block/bfq-mq-iosched.c
++++ b/block/bfq-mq-iosched.c
+@@ -1540,6 +1540,8 @@ static void bfq_add_request(struct request *rq)
+ 
+ 	BUG_ON(!RQ_BFQQ(rq));
+ 	BUG_ON(RQ_BFQQ(rq) != bfqq);
++	WARN_ON(blk_rq_sectors(rq) == 0);
++
+ 	elv_rb_add(&bfqq->sort_list, rq);
+ 
+ 	/*
+@@ -4962,7 +4964,7 @@ static void bfq_finish_request(struct request *rq)
+ 					     rq_io_start_time_ns(rq),
+ 					     rq->cmd_flags);
+ 
+-	BUG_ON(blk_rq_sectors(rq) == 0 && !(rq->rq_flags & RQF_STARTED));
++	WARN_ON(blk_rq_sectors(rq) == 0 && !(rq->rq_flags & RQF_STARTED));
+ 
+ 	if (likely(rq->rq_flags & RQF_STARTED)) {
+ 		unsigned long flags;
