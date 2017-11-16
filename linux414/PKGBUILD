@@ -19,7 +19,7 @@ _shortgit=
 _git=
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.0
-pkgrel=0
+pkgrel=0.1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -65,6 +65,10 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0012-bootsplash.patch::https://patchwork.kernel.org/patch/10026637/raw/'
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10026619/raw/'
         '0014-bootsplash.patch::https://patchwork.kernel.org/patch/10026623/raw/'
+        # Fix HP-WMI for libinput v1.9.1+
+        'hp-wmi-fix-tablet-mode-detection-for-convertibles.patch::https://github.com/torvalds/linux/commit/9968e12a291e639dd51d1218b694d440b22a917f.patch'
+        # Fix Arch #55803
+        '55803.patch::https://patchwork.kernel.org/patch/9987315/raw/'
 )
 sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
@@ -88,7 +92,9 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             'c3b6bed630d136e4db05a682e0df7ef5e84e794813d2527f03b9b2bd16b7bfae'
             '7c274dd4871e43ee9b2aae0cd418723f642a1998e5d67713339a834b7ca74fbb'
             '4bcd5ebae144f452644d70ff3df7cc1072244419c86dcfa1e274fea1be4a5597'
-            'c3071533fe16a4a5a9cb799eedd69767cc1046c2e6cfc7b7a645847bbc2bab10')
+            'c3071533fe16a4a5a9cb799eedd69767cc1046c2e6cfc7b7a645847bbc2bab10'
+            '66120f53d43a3ebef4ed6bd3cae6d75b8f13c2abdfd159df0e77c775cf01cca6'
+            'afff52c9e93b7a6b3fe9b83395782ad21b46cd24d9491ea0e542fc7af3a23c0f')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -102,6 +108,13 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # libinput v1.9.1 issue
+  # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
+  patch -Np1 -i "${srcdir}/hp-wmi-fix-tablet-mode-detection-for-convertibles.patch"
+
+  # https://bugs.archlinux.org/task/55803
+  patch -Np1 -i "${srcdir}/55803.patch"
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"

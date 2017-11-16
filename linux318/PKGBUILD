@@ -13,7 +13,7 @@ _basekernel=3.18
 _basever=318
 _aufs=20160822 #Last release
 _bfq=v7r8
-_sub=80
+_sub=81
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -46,9 +46,13 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'fix-mod_devicetable.patch'
         # Manjaro Patches
         #'prepatch-3.18-20170415'
+        # Fix HP-WMI for libinput v1.9.1+
+        'hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch::https://github.com/torvalds/linux/commit/c7dfc2facbd69dad89b75e13c608da709668dcd0.patch'
+        'hp-wmi-fix-detection-for-dock-and-tablet-mode.patch::https://github.com/torvalds/linux/commit/298747b7579f5bbbced793d997b333fd10a24921.patch'
+        'hp-wmi-Do-not-shadow-error-values.patch::https://github.com/torvalds/linux/commit/d313876925f3e7a480a02773fd333bcab9202d5e.patch'
 )
 sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
-            'eab513d07277f853317a92953825d50721e2d03b07216346d7f1fc5fd02e0779'
+            'c014fe492404fb7821235276a8162a08d1b55713492781113832bebc33d15b85'
             'ef4cf563bdd12a37d8c9b8573d8aadb4bcc39c5f4c8d96eccafd9cd482b31911'
             '883a97c734ba791d5b4a615453391351cc66a57d7d7ad5c8c25d6ef1da93e7cc'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -68,13 +72,22 @@ sha256sums=('becc413cc9e6d7f5cc52a3ce66d65c3725bc1d1cc1001f4ce6c32b69eb188cbd'
             'e2c926a3f08fdcf4a3f1e200b7046346a7c85cf8093e1378469ad663148350a2'
             'e51cbeb8a42e719a2040762507ad0b27bffbde7559bf2a86e86980d4ec8979b6'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'a3d21434443dc336879f2280e55307a30711e958945f59efb3fe1c16b65dce45')
+            'a3d21434443dc336879f2280e55307a30711e958945f59efb3fe1c16b65dce45'
+            'b4eb3d4f51262523468a3f6551bda3bb66023726a5e312e7cebdd60ae2706137'
+            '34bdded8ecfc637f7557070208dcbd88a85b098d914f41130c50d1a760cf1b3c'
+            '6030818ca203f54429ec2856804b5d4bf1186741cf185b959ea8f3106238638f')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
+
+  # libinput v1.9.1 issue
+  # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
+  patch -Np1 -i "${srcdir}/hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch"
+  patch -Np1 -i "${srcdir}/hp-wmi-fix-detection-for-dock-and-tablet-mode.patch"
+  patch -Np1 -i "${srcdir}/hp-wmi-Do-not-shadow-error-values.patch"
 
   # issue with hid-hyperv.c
   # 
