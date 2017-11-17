@@ -49,9 +49,9 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
         # Zen temperature
         '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
-        '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
-        '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
-        '0004-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
+        '0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
+        '0003-zen-temp.patch::https://patchwork.kernel.org/patch/9941421/raw/'
+        '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             'cda543f0e6981324ad402bd0341a8aff4f5c11b25338d4e0b175342e512f8c8b'
@@ -75,9 +75,9 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
             '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
             '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
-            'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
-            'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
-            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
+            'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
+            'cd463af7193bcf864c42e95d804976a627ac11132886f25e04dfc2471c28bf6c'
+            '70cee696fb4204ac7f787cef0742c50637e8bb7f68e2c7bca01aeefff32affc8')
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"

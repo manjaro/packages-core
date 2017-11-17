@@ -48,9 +48,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
         # Zen temperature
         '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
-        '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
-        '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
-        '0004-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
+        '0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
+        '0003-zen-temp.patch::https://patchwork.kernel.org/patch/9941421/raw/'
+        '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'c6c8dee0cf759f5a6f04617179dc20940019dc5bad7c6f7aa5b0463d1711fe5b'
@@ -74,9 +74,9 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'ba842c84fe3445f10f80b173c59eba961267bdb94e317dd877ea263d90cb5190'
             '2999828cc41b503b04b2533aa5eb005b71d3ded475ff9cc7433c9f28af254784'
             '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
-            'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
-            'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
-            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
+            'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
+            'cd463af7193bcf864c42e95d804976a627ac11132886f25e04dfc2471c28bf6c'
+            '70cee696fb4204ac7f787cef0742c50637e8bb7f68e2c7bca01aeefff32affc8')
 
 prepare() {
 #  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"

@@ -59,9 +59,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         "0003-block_bfq_reset_in_service_entity_if_it_becomes_idle.patch::https://patchwork.kernel.org/patch/9869325/raw/"
         "0004-block_bfq_consider_also_in_service_entity_to_state_whether_an_entity_is_active.patch::https://patchwork.kernel.org/patch/9869873/raw/"
         # Zen temperature
-        '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
-        '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
-        '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
+        '0001-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
+        '0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941421/raw/'
+        '0003-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             '999f3e0d97e1b9e7a09c8c0889f020ac9e342ec2391d0458521d4b8bff1cf945'
@@ -92,9 +92,9 @@ sha256sums=('a45c3becd4d08ce411c14628a949d08e2433d8cdeca92036c7013980e93858ab'
             'f96854500be47cf263d55eb34dca020211a4a92980eb065ab5b58e86fba347e4'
             '5275e424c91d3bd051c856fbc79a79c0aae4c506d09597d66b7594ba8c224b39'
             'e2e1f2af23075a28684864748cf03dc17e53fcab6e8d7ac66144f27ec139fbb8'
-            'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
-            'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
-            '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006')
+            'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
+            'cd463af7193bcf864c42e95d804976a627ac11132886f25e04dfc2471c28bf6c'
+            '70cee696fb4204ac7f787cef0742c50637e8bb7f68e2c7bca01aeefff32affc8')
 
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
