@@ -154,8 +154,9 @@ prepare() {
   # add BFQ scheduler
   msg "Fix naming schema in BFQ-MQ patch"
   sed -i -e "s|EXTRAVERSION = -rc8|EXTRAVERSION =|g" \
-      -i -e "s|EXTRAVERSION = -rc8-bfq-mq|EXTRAVERSION =|g" \ #"${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+      -i -e "s|EXTRAVERSION = -rc8-bfq-mq|EXTRAVERSION =|g" \
       "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  #"${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
   patch -Np1 -i "${srcdir}/0002-BFQ-${_bfq}-WARN-ON.patch"
