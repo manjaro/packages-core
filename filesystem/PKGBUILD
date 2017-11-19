@@ -7,7 +7,7 @@
 
 pkgname=filesystem
 pkgver=2017.06
-pkgrel=4.3
+pkgrel=4.4
 pkgdesc='Base filesystem'
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -119,6 +119,7 @@ package() {
 
 	# Create the manjaro-release file
 	echo "Manjaro Linux" > $pkgdir/etc/manjaro-release
+	ln -s manjaro-release $pkgdir/etc/arch-release
 
 	install -m755 "$srcdir"/locale.sh etc/profile.d/locale.sh
 	install -Dm644 "$srcdir"/os-release "$pkgdir"/usr/lib/os-release
