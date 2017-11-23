@@ -13,7 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20170410
 _bfq=v8r12
-_sub=99
+_sub=100
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -23,7 +23,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}.tar.xz"
-        https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
+        "https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz"
         "https://cdn.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
@@ -54,7 +54,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            'b87f6562043171cd1bf09564f34f782803af3ce461fc6ef2d4c7590cb51c20ab'
+            '0521ca9dd8f8f8eee0f405d01242cdd6a52eacbefd417169624484ab692adbef'
             'ff671cae9fb111a7e6b0cb15db0cd06d79c07c963deb33151ee49439cce0462e'
             'b6cc950ab53358c7d0f272df89ed452cafabcc879e862206390a7868fd514d76'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
