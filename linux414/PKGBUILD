@@ -14,7 +14,7 @@ _basever=414
 _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
-_sub=1
+_sub=2
 _rc=
 _shortgit=
 _git=
@@ -54,25 +54,25 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
         '0003-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/684/1'
         # Bootsplash
-        '0001-bootsplash.patch::https://patchwork.kernel.org/patch/10026659/raw/'
-        '0002-bootsplash.patch::https://patchwork.kernel.org/patch/10026661/raw/'
-        '0003-bootsplash.patch::https://patchwork.kernel.org/patch/10026617/raw/'
-        '0004-bootsplash.patch::https://patchwork.kernel.org/patch/10026615/raw/'
-        '0005-bootsplash.patch::https://patchwork.kernel.org/patch/10026635/raw/'
-        '0006-bootsplash.patch::https://patchwork.kernel.org/patch/10026643/raw/'
-        '0007-bootsplash.patch::https://patchwork.kernel.org/patch/10026641/raw/'
-        '0008-bootsplash.patch::https://patchwork.kernel.org/patch/10026647/raw/'
-        '0009-bootsplash.patch::https://patchwork.kernel.org/patch/10026627/raw/'
-        '0010-bootsplash.patch::https://patchwork.kernel.org/patch/10026639/raw/'
-        '0011-bootsplash.patch::https://patchwork.kernel.org/patch/10026629/raw/'
-        '0012-bootsplash.patch::https://patchwork.kernel.org/patch/10026637/raw/'
-        '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10026619/raw/'
-        '0014-bootsplash.patch::https://patchwork.kernel.org/patch/10026623/raw/'
+        #'0001-bootsplash.patch::https://patchwork.kernel.org/patch/10026659/raw/'
+        #'0002-bootsplash.patch::https://patchwork.kernel.org/patch/10026661/raw/'
+        #'0003-bootsplash.patch::https://patchwork.kernel.org/patch/10026617/raw/'
+        #'0004-bootsplash.patch::https://patchwork.kernel.org/patch/10026615/raw/'
+        #'0005-bootsplash.patch::https://patchwork.kernel.org/patch/10026635/raw/'
+        #'0006-bootsplash.patch::https://patchwork.kernel.org/patch/10026643/raw/'
+        #'0007-bootsplash.patch::https://patchwork.kernel.org/patch/10026641/raw/'
+        #'0008-bootsplash.patch::https://patchwork.kernel.org/patch/10026647/raw/'
+        #'0009-bootsplash.patch::https://patchwork.kernel.org/patch/10026627/raw/'
+        #'0010-bootsplash.patch::https://patchwork.kernel.org/patch/10026639/raw/'
+        #'0011-bootsplash.patch::https://patchwork.kernel.org/patch/10026629/raw/'
+        #'0012-bootsplash.patch::https://patchwork.kernel.org/patch/10026637/raw/'
+        #'0013-bootsplash.patch::https://patchwork.kernel.org/patch/10026619/raw/'
+        #'0014-bootsplash.patch::https://patchwork.kernel.org/patch/10026623/raw/'
         # Fix HP-WMI for libinput v1.9.1+
         'hp-wmi-fix-tablet-mode-detection-for-convertibles.patch::https://github.com/torvalds/linux/commit/9968e12a291e639dd51d1218b694d440b22a917f.patch'
 )
 sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
-            '5af72b487fbcc8e7fd3f5392271490c8498ffb2048e77abaf406971a7382f8d7'
+            '2dc86272e55d31c55bdeaa47b3d44fbd6235a396e37d82c2b47aa27f6ba82ee3'
             '310385c9970a7d4a846f9d45fde84a6f3c79fdb7d851fa57a2429671d9725ebb'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -83,20 +83,6 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
             '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006'
-            '97168b7c5fd584f5836809ff2dec1b3824b2d11f41eb954560adf4e2a31a138d'
-            '291d28f8e0ec93f967a2a51797413da13d2d4c49824b79bdf3b14454b3f43e3b'
-            'bbfe704b6c35f6c751433441e061191f3357f5150b49137d647d3421a590d70d'
-            '8c491bd4095b0b9fbbb87daaedcec88307ae0e146761d525950ccf5bd026ace2'
-            'bf0ab81a093285e3b0f7c2e7fbc30f884089bc84e3a8aed45274aefa75f507e9'
-            '8dbb5ab3cb99e48d97d4e2f2e3df5d0de66f3721b4f7fd94a708089f53245c77'
-            'cdbb96ffc0cfc731be97b9048a49b69627f1a93c5c735b1238115573e72326c9'
-            '03db55ebac967ed68e70ca2ef139d63ce4d282f9d842b24c12545d4b559aa473'
-            'f0578a14e34aecb9d35b3b8d38b42b9b4905d07875e6388b3038b3d60af9cc2d'
-            '4e761d422da798c68024909318b039d84a246457e95a7f25fd90ef3ae198abf6'
-            'c3b6bed630d136e4db05a682e0df7ef5e84e794813d2527f03b9b2bd16b7bfae'
-            '7c274dd4871e43ee9b2aae0cd418723f642a1998e5d67713339a834b7ca74fbb'
-            '4bcd5ebae144f452644d70ff3df7cc1072244419c86dcfa1e274fea1be4a5597'
-            'c3071533fe16a4a5a9cb799eedd69767cc1046c2e6cfc7b7a645847bbc2bab10'
             '66120f53d43a3ebef4ed6bd3cae6d75b8f13c2abdfd159df0e77c775cf01cca6')
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -121,20 +107,20 @@ prepare() {
   patch -Np1 -i "${srcdir}/0003-zen-temp.patch"
 
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
-  patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0002-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0003-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0004-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0005-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0006-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0007-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0008-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0009-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0010-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0011-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0012-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0013-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0014-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0002-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0003-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0004-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0005-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0006-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0007-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0008-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0009-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0010-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0011-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0012-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0013-bootsplash.patch"
+  #patch -Np1 -i "${srcdir}/0014-bootsplash.patch"
 
   # add aufs4 support
   #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
@@ -148,7 +134,7 @@ prepare() {
 
   # add BFQ scheduler
   msg "Fix naming schema in BFQ-MQ patch"
-  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = 1|g" \
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
       -i -e "s|EXTRAVERSION = -rc8|EXTRAVERSION =|g" \
       -i -e "s|EXTRAVERSION = -rc8-bfq-mq|EXTRAVERSION =|g" \
       -i -e "s|NAME = Fearless Coyote|NAME = Petit Gorille|g" \
