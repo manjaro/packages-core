@@ -270,7 +270,7 @@ package_linux414-headers() {
   install -Dt "${_builddir}/arch/${KARCH}/kernel" -m644 "arch/${KARCH}/kernel/asm-offsets.s"
 
   if [ "${CARCH}" = "i686" ]; then
-    install -Dt "${_builddir}/arch/${KARCH}"-m644 "arch/${KARCH}/Makefile_32.cpu"
+    install -Dt "${_builddir}/arch/${KARCH}" -m644 "arch/${KARCH}/Makefile_32.cpu"
   fi
 
   cp -t "${_builddir}/arch/${KARCH}" -a "arch/${KARCH}/include"
