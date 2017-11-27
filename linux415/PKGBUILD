@@ -15,9 +15,9 @@ _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
 _sub=0
-_rc=rc0
-_shortgit=.r171125.g7753ea0
-_git=7753ea09640807104c8e353f6d5dc47ee55307cf
+_rc=rc1
+_shortgit=.r171126.g4fbd8d1
+_git=4fbd8d194f06c8a3fd2af1ce560ddb31f7ec8323
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -71,7 +71,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # Fix HP-WMI for libinput v1.9.1+
         #'hp-wmi-fix-tablet-mode-detection-for-convertibles.patch::https://github.com/torvalds/linux/commit/9968e12a291e639dd51d1218b694d440b22a917f.patch'
 )
-sha256sums=('a23849755119576847446f5e07893c981d15aed4a05893cb5616a04834766aa4'
+sha256sums=('842f707737cc2ec0eed0d304bb83ab93bde2f3e1ce2e441ffb569435753e5991'
             'f84493bbf5df91f938c6b8bcc4f2b257ffc2fa4fd7d3dc674dbd8440fcc2df93'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -149,8 +149,6 @@ prepare() {
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
     sed -i "s|CONFIG_LOCALVERSION_AUTO=.*|CONFIG_LOCALVERSION_AUTO=n|" ./.config
   fi
-
-  sed -ri "s|^(PATCHLEVEL =).*|\1 15|" Makefile
 
   # set extraversion to pkgrel
   sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
@@ -264,6 +262,10 @@ package_linux415-headers() {
   install -Dt "${_builddir}/arch/${KARCH}" -m644 "arch/${KARCH}/Makefile"
   install -Dt "${_builddir}/arch/${KARCH}/kernel" -m644 "arch/${KARCH}/kernel/asm-offsets.s"
 
+  if [ "${CARCH}" = "i686" ]; then
+    install -Dt "${_builddir}/arch/${KARCH}" -m644 "arch/${KARCH}/Makefile_32.cpu"
+  fi
+
   cp -t "${_builddir}/arch/${KARCH}" -a "arch/${KARCH}/include"
 
   install -Dt "${_builddir}/drivers/md" -m644 drivers/md/*.h
@@ -286,8 +288,10 @@ package_linux415-headers() {
   # copy in Kconfig files
   find . -name Kconfig\* -exec install -Dm644 {} "${_builddir}/{}" \;
 
-  # add objtool for external module building and enabled VALIDATION_STACK option
-  install -Dt "${_builddir}/tools/objtool" tools/objtool/objtool
+  if [ -f "${_builddir}/tools/objtool" ]; then
+    # add objtool for external module building and enabled VALIDATION_STACK option
+    install -Dt "${_builddir}/tools/objtool" tools/objtool/objtool
+  fi
 
   # remove unneeded architectures
   local _arch
