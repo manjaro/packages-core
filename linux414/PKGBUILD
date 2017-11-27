@@ -295,7 +295,7 @@ package_linux414-headers() {
   # copy in Kconfig files
   find . -name Kconfig\* -exec install -Dm644 {} "${_builddir}/{}" \;
 
-  if [ -f "${_builddir}/tools/objtool" ]; then
+  if [ "${CARCH}" = "x86_64" ]; then
     # add objtool for external module building and enabled VALIDATION_STACK option
     install -Dt "${_builddir}/tools/objtool" tools/objtool/objtool
   fi
