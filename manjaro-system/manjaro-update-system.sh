@@ -41,6 +41,21 @@ detectDE()
 }
 
 post_upgrade() {
+	# Fix upgrading sddm version is 0.16.0-1 or less
+	pacman -Q sddm &> /tmp/cmd1
+	if [ "$(grep 'sddm' /tmp/cmd1 | cut -d' ' -f1)" == "sddm" ]; then 
+		if [ "$(vercmp $(grep 'sddm' /tmp/cmd1 | cut -d' ' -f2) 0.16.0-1)" -le 0 ]; then
+			msg "Fix sddm upgrade ..."
+			rm /var/lib/pacman/db.lck &> /dev/null
+			mv /etc/sddm.conf /etc/sddm.backup
+			pacman --noconfirm -S sddm
+			if [ -e "/etc/sddm.conf" ]; then
+				mv /etc/sddm.conf /etc/sddm.conf.pacnew
+			fi
+			mv /etc/sddm.backup /etc/sddm.conf
+		fi
+	fi
+
 	# fix upgrading ca-certificates-utils when version is 20160507-1 or less
 	pacman -Q ca-certificates-utils &> /tmp/cmd1
 	if [ "$(grep 'ca-certificates-utils' /tmp/cmd1 | cut -d' ' -f1)" == "ca-certificates-utils" ]; then 
@@ -112,21 +127,6 @@ post_upgrade() {
 			msg "Fix ttf-dejavu upgrade ..."
 			rm /var/lib/pacman/db.lck &> /dev/null
 			pacman --noconfirm --force -S ttf-dejavu
-		fi
-	fi
-
-	# fix issue with existing sddm.conf
-	if [ "$(vercmp $2 20160301)" -lt 0 ]; then
-		pacman -Qq sddm &> /tmp/cmd1
-		pacman -Q sddm &> /tmp/cmd2
-		if [ "$(grep 'sddm' /tmp/cmd1)" == "sddm" ] && \
-			[ "$(cat /tmp/cmd2 | cut -d" " -f2 | sed -e 's/\.//g' | sed -e 's/\-//g')" -lt "013023" ]; then
-			msg "Fix sddm ..."
-			rm /var/lib/pacman/db.lck &> /dev/null
-			mv /etc/sddm.conf /etc/sddm.backup
-			pacman --noconfirm -S sddm
-			mv /etc/sddm.conf /etc/sddm.conf.pacnew
-			mv /etc/sddm.backup /etc/sddm.conf
 		fi
 	fi
 	
