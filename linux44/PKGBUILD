@@ -13,7 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20170410
 _bfq=v8r12
-_sub=106
+_sub=107
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -44,6 +44,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
+        'e1001e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         #"0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
         '0001-sdhci-revert.patch'
         'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
@@ -54,7 +55,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            '75642b533d65b34e641bc458effa21beb011ce833a108c1d570812a9fe9cdf13'
+            '9c0f306690c75f5dc1f40c812344d872863d4c4fd54af1a62e2708d06c5532e6'
             'ff671cae9fb111a7e6b0cb15db0cd06d79c07c963deb33151ee49439cce0462e'
             'b6cc950ab53358c7d0f272df89ed452cafabcc879e862206390a7868fd514d76'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -72,6 +73,7 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             'a3f85c3c35ee478fd174f8aaa6ca15e5fad8612b42ca4d90cc3ef79b49a99989'
             'c8cc7075dd99a02b7deed820ea7e2591be91860cc8cf08718fc7d53fe3634b35'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
+            'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
             '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
             '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
@@ -89,6 +91,9 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}-20161030"
+
+  # e1001e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
+  patch -Np1 -i "${srcdir}/e1001e-fix-Separate-signaling-for-link-check-link-up.patch"
 
   # revert http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9faac7b95ea4f9e83b7a914084cc81ef1632fd91
   # fixes #47778 sdhci broken on some boards
