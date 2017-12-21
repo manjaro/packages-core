@@ -51,7 +51,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         0002-dccp-CVE-2017-8824-use-after-free-in-DCCP-code.patch
         # MANJARO Patches
-        'e1001e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
+        'e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
@@ -118,8 +118,8 @@ prepare() {
   # https://nvd.nist.gov/vuln/detail/CVE-2017-8824
   patch -Np1 -i ../0002-dccp-CVE-2017-8824-use-after-free-in-DCCP-code.patch
 
-  # e1001e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
-  patch -Np1 -i "${srcdir}/e1001e-fix-Separate-signaling-for-link-check-link-up.patch"
+  # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
+  patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"

@@ -45,7 +45,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'change-default-console-loglevel.patch'
         'fix-mod_devicetable.patch'
         # Manjaro Patches
-        'e1001e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
+        'e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         #'prepatch-3.18-20170415'
         # Fix HP-WMI for libinput v1.9.1+
         'hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch::https://github.com/torvalds/linux/commit/c7dfc2facbd69dad89b75e13c608da709668dcd0.patch'
@@ -85,8 +85,8 @@ prepare() {
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
 
-  # e1001e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
-  patch -Np1 -i "${srcdir}/e1001e-fix-Separate-signaling-for-link-check-link-up.patch"
+  # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
+  patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
 
   # libinput v1.9.1 issue
   # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
