@@ -46,7 +46,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         #'vfs-ino.patch'
         #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d93d4ce...abdfb33.patch"
         0001-BFQ-${_bfq}-${_bfqdate}.patch
-        0002-BFQ-${_bfq}-WARN-ON.patch
+        0002-BFQ-${_bfq}-20171222.patch
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         0002-dccp-CVE-2017-8824-use-after-free-in-DCCP-code.patch
@@ -79,7 +79,7 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
             '5ac0d9fb774ed038c5537c59836b389bb64bdb50a01f32d0ee8ae03159ca9198'
-            '8f7069fd2c530ef60f4c700e0dc2d486424485cabff8b1324d3921c86cc7e1cf'
+            '3e17463acedb9ee54960587e4a230a8cd48701d3d34b7acb9696518b0dff7411'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             '1d69940c6bf1731fa1d1da29b32ec4f594fa360118fe7b128c9810285ebf13e2'
             'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
@@ -162,7 +162,7 @@ prepare() {
   #"${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
-  patch -Np1 -i "${srcdir}/0002-BFQ-${_bfq}-WARN-ON.patch"
+  patch -Np1 -i "${srcdir}/0002-BFQ-${_bfq}-20171222.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
