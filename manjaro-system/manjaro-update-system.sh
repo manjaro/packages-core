@@ -41,10 +41,10 @@ detectDE()
 }
 
 post_upgrade() {
-	# Fix upgrading sddm version is 0.16.0-1 or less
+	# Fix upgrading sddm version is 0.17.0-2 or less
 	pacman -Q sddm &> /tmp/cmd1
 	if [ "$(grep 'sddm' /tmp/cmd1 | cut -d' ' -f1)" == "sddm" ]; then 
-		if [ "$(vercmp $(grep 'sddm' /tmp/cmd1 | cut -d' ' -f2) 0.16.0-1)" -le 0 ]; then
+		if [ "$(vercmp $(grep 'sddm' /tmp/cmd1 | cut -d' ' -f2) 0.17.0-2)" -le 0 ]; then
 			msg "Fix sddm upgrade ..."
 			rm /var/lib/pacman/db.lck &> /dev/null
 			mv /etc/sddm.conf /etc/sddm.backup
