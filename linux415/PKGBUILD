@@ -15,9 +15,9 @@ _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
 _sub=0
-_rc=rc3
-_shortgit=.r171216.gf3b5ad8
-_git=f3b5ad89de16f5d42e8ad36fbdf85f705c1ae051
+_rc=rc5
+_shortgit=.r171224.g464e1d5
+_git=464e1d5f23cca236b930ef068c328a64cab78fb1
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -48,7 +48,9 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         #0001-BFQ-${_bfq}-${_bfqdate}.patch
         #0002-BFQ-${_bfq}-WARN-ON.patch
         # ARCH Patches
+        0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         # MANJARO Patches
+        'e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         # Zen temperature
         #'0001-zen-temp.patch::https://patchwork.kernel.org/patch/9941509/raw/'
         #'0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941521/raw/'
@@ -71,12 +73,14 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # Fix HP-WMI for libinput v1.9.1+
         #'hp-wmi-fix-tablet-mode-detection-for-convertibles.patch::https://github.com/torvalds/linux/commit/9968e12a291e639dd51d1218b694d440b22a917f.patch'
 )
-sha256sums=('aa04953a330bbd07592cab8505f2a39249dcb88980170036f6aa40db9944eccc'
+sha256sums=('835424e5cb7869631b82f1dd0d2d21a6908b03705a6dc92bc8dcd7bd2e999715'
             '438d3c02512383462e636b1e6bc679272afad91ef6a03bd90ebe916e132b2764'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
-            '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1')
+            '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
+            '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
+            'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5')
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
   #mv "${srcdir}/linux-${_basekernel}-${_rc}" "${srcdir}/linux-${_basekernel}"
@@ -89,6 +93,12 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # disable USER_NS for non-root users by default
+  patch -Np1 -i ../0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
+
+  # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
+  patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
 
   # libinput v1.9.1 issue
   # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
