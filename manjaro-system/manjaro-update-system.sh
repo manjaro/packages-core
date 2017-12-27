@@ -46,7 +46,7 @@ post_upgrade() {
 		msg "Switching mirrors and keyrings to manjaro32..."
 
 		# Switch branch
-		sed -i '/x32/! s|#?Branch = \(.*\)|Branch = x32-\1|' /etc/pacman-mirrors.conf
+		sed -i '/x32/! s|Branch = \(.*\)|Branch = x32-\1|' /etc/pacman-mirrors.conf
 
 		# Install transition keyring; if archlinux32-keyring already exists
 		# this will "fail", but that's OK
