@@ -50,6 +50,9 @@ post_upgrade() {
 		
 		# Update the mirror list
 		pacman-mirrors -f 0
+		
+		# Hacky hack is hacky, but there's no other way?
+		rm /var/lib/pacman/db.lck &> /dev/null
 		pacman -Syy
 
 		# Install transition keyring; if archlinux32-keyring already exists
