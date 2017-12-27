@@ -16,7 +16,7 @@ then
 
   for i in $(cat ./series); 
   do 
-     cat $i >> ../../prepatch-$_basekernel-`date +%Y%m%d`; 
+     cat $i >> ../../prepatch-$_basekernel.patch; 
   done
 else
   echo "There is no patch-set this time"

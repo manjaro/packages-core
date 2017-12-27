@@ -20,7 +20,7 @@ _shortgit=
 _git=
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -51,6 +51,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         0002-dccp-CVE-2017-8824-use-after-free-in-DCCP-code.patch
         # MANJARO Patches
+        "prepatch-${_basekernel}.patch"
         'e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
@@ -82,6 +83,7 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             '3e17463acedb9ee54960587e4a230a8cd48701d3d34b7acb9696518b0dff7411'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             '1d69940c6bf1731fa1d1da29b32ec4f594fa360118fe7b128c9810285ebf13e2'
+            '880142528ee9bdbc25d1261899351b58abaa94f9932319dfb4bc94d57585cdc5'
             'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
@@ -110,7 +112,9 @@ prepare() {
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
-  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+  patch -Np1 -i "${srcdir}/prepatch-${_basekernel}.patch"
+  # fix sync-check permissions
+  chmod a+x tools/objtool/sync-check.sh
 
   # disable USER_NS for non-root users by default
   patch -Np1 -i ../0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
