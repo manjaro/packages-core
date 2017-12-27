@@ -47,6 +47,10 @@ post_upgrade() {
 
 		# Switch branch
 		sed -i '/x32/! s|Branch = \(.*\)|Branch = x32-\1|' /etc/pacman-mirrors.conf
+		
+		# Update the mirror list
+		pacman-mirrors -f 0
+		pacman -Syy
 
 		# Install transition keyring; if archlinux32-keyring already exists
 		# this will "fail", but that's OK
