@@ -60,7 +60,7 @@ post_upgrade() {
 		pacman --noconfirm -S archlinux32-keyring-transition || true
 
 		# Install that new keyring, say yes to replace the transition keyring
-		yes | pacman --noconfirm -S archlinux32-keyring
+		yes | pacman -S archlinux32-keyring
 
 		# Make sure the keyrings are populated and refreshed
 		pacman-key --populate archlinux32 manjaro
