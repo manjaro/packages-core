@@ -41,6 +41,32 @@ detectDE()
 }
 
 post_upgrade() {
+	# Switch i686 to x32-* branch and install keys
+	if [[ "$(vercmp $2 20171227)" -lt 0 ]] && [[ "$(uname -m)" == "i686" ]]; then
+		msg "Switching mirrors and keyrings to manjaro32..."
+
+		# Switch branch
+		sed -i '/x32/! s|Branch = \(.*\)|Branch = x32-\1|' /etc/pacman-mirrors.conf
+		
+		# Update the mirror list
+		pacman-mirrors -f 0
+		
+		# Hacky hack is hacky, but there's no other way?
+		rm /var/lib/pacman/db.lck &> /dev/null
+		pacman -Syy
+
+		# Install transition keyring; if archlinux32-keyring already exists
+		# this will "fail", but that's OK
+		pacman --noconfirm -S archlinux32-keyring-transition || true
+
+		# Install that new keyring, say yes to replace the transition keyring
+		yes | pacman -S archlinux32-keyring
+
+		# Make sure the keyrings are populated and refreshed
+		pacman-key --populate archlinux32 manjaro
+		pacman-key --refresh-keys
+	fi
+
 	# Fix upgrading sddm version is 0.17.0-3 or less
 	pacman -Q sddm &> /tmp/cmd1
 	if [ "$(grep 'sddm' /tmp/cmd1 | cut -d' ' -f1)" == "sddm" ]; then 
