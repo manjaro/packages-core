@@ -56,7 +56,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
         # MANJARO Patches
         #"prepatch-${_basekernel}.patch"
-        'e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
+        '0001-kvm-svm-obey-guest-pat.patch::https://patchwork.kernel.org/patch/10027525/raw/'
+        '0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
@@ -90,6 +91,7 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             'ed3266ab03f836f57de0faf8a10ffd7566c909515c2649de99adaab2fac4aa32'
             '64a014f7e1b4588728b3ea9538beee67ec63fb792d890c7be9cc13ddc2121b00'
             '3d4c41086c077fbd515d04f5e59c0c258f700433c5da3365d960b696c2e56efb'
+            '25af84b5a0bc88b019fe8d9911f505b1c1dca86a98ba9db4dcbeb1ddcad88a4d'
             'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
@@ -136,8 +138,11 @@ prepare() {
   # https://bugs.archlinux.org/task/56846
   patch -Np1 -i ../0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
 
+  # https://level1techs.com/article/patch-npt-ryzen-better-performance
+  patch -Np1 -i "${srcdir}/0001-kvm-svm-obey-guest-pat.patch"
+
   # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
-  patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
+  patch -Np1 -i "${srcdir}/0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
