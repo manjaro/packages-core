@@ -14,13 +14,14 @@ _basever=414
 _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
-_sub=9
+_bfqdate2=20171228
+_sub=10
 _rc=
 _shortgit=
 _git=
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -46,12 +47,15 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         #'vfs-ino.patch'
         #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d93d4ce...abdfb33.patch"
         0001-BFQ-${_bfq}-${_bfqdate}.patch
-        0002-BFQ-${_bfq}-20171222.patch
+        0002-BFQ-${_bfq}-${_bfqdate2}.patch
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         0002-dccp-CVE-2017-8824-use-after-free-in-DCCP-code.patch
+        0001-Revert-xfrm-Fix-stack-out-of-bounds-read-in-xfrm_sta.patch
+        0002-xfrm-Fix-stack-out-of-bounds-read-on-socket-policy-l.patch
+        0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
         # MANJARO Patches
-        "prepatch-${_basekernel}.patch"
+        #"prepatch-${_basekernel}.patch"
         'e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
@@ -73,17 +77,19 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10110759/raw/'
 )
 sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
-            '5edc955bb67b04c7ed426b1df17a3e322e32ad9fdda9c6abb53ab6eca7faf704'
+            '16f560aa713b46c707f04a226f67dc31fdd280aae57dd19e0413d61df5336c74'
             'a5b0ebec68537fd048bf4fc7bc320e48d66af816ce272a715157f3c267beb36d'
             '90116ffa4aa143448a9b4ad59ba5ca549a6d30c5aa0ffa3dfe4222abf7b0098d'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
             '5ac0d9fb774ed038c5537c59836b389bb64bdb50a01f32d0ee8ae03159ca9198'
-            '3e17463acedb9ee54960587e4a230a8cd48701d3d34b7acb9696518b0dff7411'
+            'db5b73136b361c7073d5c16615a4befa1a571127397ae160ef435f8330015c1d'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             '1d69940c6bf1731fa1d1da29b32ec4f594fa360118fe7b128c9810285ebf13e2'
-            '880142528ee9bdbc25d1261899351b58abaa94f9932319dfb4bc94d57585cdc5'
+            'ed3266ab03f836f57de0faf8a10ffd7566c909515c2649de99adaab2fac4aa32'
+            '64a014f7e1b4588728b3ea9538beee67ec63fb792d890c7be9cc13ddc2121b00'
+            '3d4c41086c077fbd515d04f5e59c0c258f700433c5da3365d960b696c2e56efb'
             'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
@@ -112,7 +118,8 @@ prepare() {
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
-  patch -Np1 -i "${srcdir}/prepatch-${_basekernel}.patch"
+  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}.patch"
+
   # fix sync-check permissions
   chmod a+x tools/objtool/sync-check.sh
 
@@ -121,6 +128,13 @@ prepare() {
 
   # https://nvd.nist.gov/vuln/detail/CVE-2017-8824
   patch -Np1 -i ../0002-dccp-CVE-2017-8824-use-after-free-in-DCCP-code.patch
+
+  # https://bugs.archlinux.org/task/56605
+  patch -Np1 -i ../0001-Revert-xfrm-Fix-stack-out-of-bounds-read-in-xfrm_sta.patch
+  patch -Np1 -i ../0002-xfrm-Fix-stack-out-of-bounds-read-on-socket-policy-l.patch
+
+  # https://bugs.archlinux.org/task/56846
+  patch -Np1 -i ../0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
 
   # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
   patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
@@ -166,7 +180,7 @@ prepare() {
   #"${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
-  patch -Np1 -i "${srcdir}/0002-BFQ-${_bfq}-20171222.patch"
+  patch -Np1 -i "${srcdir}/0002-BFQ-${_bfq}-${_bfqdate2}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
