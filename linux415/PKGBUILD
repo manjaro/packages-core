@@ -15,9 +15,9 @@ _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
 _sub=0
-_rc=rc5
-_shortgit=.r171224.g464e1d5
-_git=464e1d5f23cca236b930ef068c328a64cab78fb1
+_rc=rc6
+_shortgit=.r171231.g30a7acd
+_git=30a7acd573899fd8b8ac39236eff6468b195ac7d
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -49,8 +49,9 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         #0002-BFQ-${_bfq}-WARN-ON.patch
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
+        0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
         # MANJARO Patches
-        'e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
+        '0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         # Zen temperature
         #'0001-zen-temp.patch::https://patchwork.kernel.org/patch/9941509/raw/'
         #'0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941521/raw/'
@@ -73,13 +74,14 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # Fix HP-WMI for libinput v1.9.1+
         #'hp-wmi-fix-tablet-mode-detection-for-convertibles.patch::https://github.com/torvalds/linux/commit/9968e12a291e639dd51d1218b694d440b22a917f.patch'
 )
-sha256sums=('835424e5cb7869631b82f1dd0d2d21a6908b03705a6dc92bc8dcd7bd2e999715'
-            '438d3c02512383462e636b1e6bc679272afad91ef6a03bd90ebe916e132b2764'
+sha256sums=('0c56fb98b4bd4793efec167c3c5e130e0d9bda23b4180351b4708cfbd90bc71e'
+            'd547c5dca4f97ff3508a129ef73ccb732a7de9cd9e5ac971a84f73da25708818'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
+            '3d4c41086c077fbd515d04f5e59c0c258f700433c5da3365d960b696c2e56efb'
             'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5')
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -97,8 +99,11 @@ prepare() {
   # disable USER_NS for non-root users by default
   patch -Np1 -i ../0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
 
+  # https://bugs.archlinux.org/task/56846
+  patch -Np1 -i ../0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
+
   # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
-  patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
+  patch -Np1 -i "${srcdir}/0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
 
   # libinput v1.9.1 issue
   # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561

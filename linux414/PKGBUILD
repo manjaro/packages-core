@@ -15,7 +15,7 @@ _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
 _bfqdate2=20171228
-_sub=10
+_sub=11
 _rc=
 _shortgit=
 _git=
@@ -55,6 +55,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         0002-xfrm-Fix-stack-out-of-bounds-read-on-socket-policy-l.patch
         0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
         # MANJARO Patches
+        '0001-x86-cpu-x86-pti-Do-not-enable-PTI-on-AMD-processors.patch::https://patchwork.kernel.org/patch/10133447/raw/'
         #"prepatch-${_basekernel}.patch"
         '0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         # Zen temperature
@@ -77,9 +78,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10110759/raw/'
 )
 sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
-            '16f560aa713b46c707f04a226f67dc31fdd280aae57dd19e0413d61df5336c74'
-            'a5b0ebec68537fd048bf4fc7bc320e48d66af816ce272a715157f3c267beb36d'
-            '90116ffa4aa143448a9b4ad59ba5ca549a6d30c5aa0ffa3dfe4222abf7b0098d'
+            'f588b62d7ee1d2ebdc24afa0e256ff2f8812d5cab3bf572bf02e7c4525922bf9'
+            'fca8c8c18aad7a3aa942fc3e2371d18ee78e7207832834aa83cb1c1a399c06d7'
+            '03bcfef52aea8159563d31b1012d6bcfff6b79d216d02b989c0b913612a9be68'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
@@ -90,6 +91,7 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             'ed3266ab03f836f57de0faf8a10ffd7566c909515c2649de99adaab2fac4aa32'
             '64a014f7e1b4588728b3ea9538beee67ec63fb792d890c7be9cc13ddc2121b00'
             '3d4c41086c077fbd515d04f5e59c0c258f700433c5da3365d960b696c2e56efb'
+            '086f6ab16a6894db5444007d195f779322f3a5792e7ca0e91a61d4e633ad8f26'
             'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
@@ -135,7 +137,10 @@ prepare() {
   patch -Np1 -i ../0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
 
   # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
-  patch -Np1 -i "${srcdir}/0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
+  patch -Np1 -i ../0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch
+
+  # For AMD processors, keep PTI off by default
+  patch -Np1 -i ../0001-x86-cpu-x86-pti-Do-not-enable-PTI-on-AMD-processors.patch
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
