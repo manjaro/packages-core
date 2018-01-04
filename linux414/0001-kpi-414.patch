@@ -1,0 +1,595 @@
+From e816c201aed5232171f8eb80b5d46ae6516683b9 Mon Sep 17 00:00:00 2001
+From: Kees Cook <keescook@chromium.org>
+Date: Tue, 2 Jan 2018 15:21:33 -0800
+Subject: exec: Weaken dumpability for secureexec
+
+From: Kees Cook <keescook@chromium.org>
+
+commit e816c201aed5232171f8eb80b5d46ae6516683b9 upstream.
+
+This is a logical revert of commit e37fdb785a5f ("exec: Use secureexec
+for setting dumpability")
+
+This weakens dumpability back to checking only for uid/gid changes in
+current (which is useless), but userspace depends on dumpability not
+being tied to secureexec.
+
+  https://bugzilla.redhat.com/show_bug.cgi?id=1528633
+
+Reported-by: Tom Horsley <horsley1953@gmail.com>
+Fixes: e37fdb785a5f ("exec: Use secureexec for setting dumpability")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ fs/exec.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1350,9 +1350,14 @@ void setup_new_exec(struct linux_binprm
+ 
+ 	current->sas_ss_sp = current->sas_ss_size = 0;
+ 
+-	/* Figure out dumpability. */
++	/*
++	 * Figure out dumpability. Note that this checking only of current
++	 * is wrong, but userspace depends on it. This should be testing
++	 * bprm->secureexec instead.
++	 */
+ 	if (bprm->interp_flags & BINPRM_FLAGS_ENFORCE_NONDUMP ||
+-	    bprm->secureexec)
++	    !(uid_eq(current_euid(), current_uid()) &&
++	      gid_eq(current_egid(), current_gid())))
+ 		set_dumpable(current->mm, suid_dumpable);
+ 	else
+ 		set_dumpable(current->mm, SUID_DUMP_USER);
+From dc32b5c3e6e2ef29cef76d9ce1b92d394446150e Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Mon, 1 Jan 2018 09:28:31 -0600
+Subject: capabilities: fix buffer overread on very short xattr
+
+From: Eric Biggers <ebiggers@google.com>
+
+commit dc32b5c3e6e2ef29cef76d9ce1b92d394446150e upstream.
+
+If userspace attempted to set a "security.capability" xattr shorter than
+4 bytes (e.g. 'setfattr -n security.capability -v x file'), then
+cap_convert_nscap() read past the end of the buffer containing the xattr
+value because it accessed the ->magic_etc field without verifying that
+the xattr value is long enough to contain that field.
+
+Fix it by validating the xattr value size first.
+
+This bug was found using syzkaller with KASAN.  The KASAN report was as
+follows (cleaned up slightly):
+
+    BUG: KASAN: slab-out-of-bounds in cap_convert_nscap+0x514/0x630 security/commoncap.c:498
+    Read of size 4 at addr ffff88002d8741c0 by task syz-executor1/2852
+
+    CPU: 0 PID: 2852 Comm: syz-executor1 Not tainted 4.15.0-rc6-00200-gcc0aac99d977 #253
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-20171110_100015-anatol 04/01/2014
+    Call Trace:
+     __dump_stack lib/dump_stack.c:17 [inline]
+     dump_stack+0xe3/0x195 lib/dump_stack.c:53
+     print_address_description+0x73/0x260 mm/kasan/report.c:252
+     kasan_report_error mm/kasan/report.c:351 [inline]
+     kasan_report+0x235/0x350 mm/kasan/report.c:409
+     cap_convert_nscap+0x514/0x630 security/commoncap.c:498
+     setxattr+0x2bd/0x350 fs/xattr.c:446
+     path_setxattr+0x168/0x1b0 fs/xattr.c:472
+     SYSC_setxattr fs/xattr.c:487 [inline]
+     SyS_setxattr+0x36/0x50 fs/xattr.c:483
+     entry_SYSCALL_64_fastpath+0x18/0x85
+
+Fixes: 8db6c34f1dbc ("Introduce v3 namespaced file capabilities")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Serge Hallyn <serge@hallyn.com>
+Signed-off-by: James Morris <james.l.morris@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ security/commoncap.c |   21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
+
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -348,21 +348,18 @@ static __u32 sansflags(__u32 m)
+ 	return m & ~VFS_CAP_FLAGS_EFFECTIVE;
+ }
+ 
+-static bool is_v2header(size_t size, __le32 magic)
++static bool is_v2header(size_t size, const struct vfs_cap_data *cap)
+ {
+-	__u32 m = le32_to_cpu(magic);
+ 	if (size != XATTR_CAPS_SZ_2)
+ 		return false;
+-	return sansflags(m) == VFS_CAP_REVISION_2;
++	return sansflags(le32_to_cpu(cap->magic_etc)) == VFS_CAP_REVISION_2;
+ }
+ 
+-static bool is_v3header(size_t size, __le32 magic)
++static bool is_v3header(size_t size, const struct vfs_cap_data *cap)
+ {
+-	__u32 m = le32_to_cpu(magic);
+-
+ 	if (size != XATTR_CAPS_SZ_3)
+ 		return false;
+-	return sansflags(m) == VFS_CAP_REVISION_3;
++	return sansflags(le32_to_cpu(cap->magic_etc)) == VFS_CAP_REVISION_3;
+ }
+ 
+ /*
+@@ -405,7 +402,7 @@ int cap_inode_getsecurity(struct inode *
+ 
+ 	fs_ns = inode->i_sb->s_user_ns;
+ 	cap = (struct vfs_cap_data *) tmpbuf;
+-	if (is_v2header((size_t) ret, cap->magic_etc)) {
++	if (is_v2header((size_t) ret, cap)) {
+ 		/* If this is sizeof(vfs_cap_data) then we're ok with the
+ 		 * on-disk value, so return that.  */
+ 		if (alloc)
+@@ -413,7 +410,7 @@ int cap_inode_getsecurity(struct inode *
+ 		else
+ 			kfree(tmpbuf);
+ 		return ret;
+-	} else if (!is_v3header((size_t) ret, cap->magic_etc)) {
++	} else if (!is_v3header((size_t) ret, cap)) {
+ 		kfree(tmpbuf);
+ 		return -EINVAL;
+ 	}
+@@ -470,9 +467,9 @@ static kuid_t rootid_from_xattr(const vo
+ 	return make_kuid(task_ns, rootid);
+ }
+ 
+-static bool validheader(size_t size, __le32 magic)
++static bool validheader(size_t size, const struct vfs_cap_data *cap)
+ {
+-	return is_v2header(size, magic) || is_v3header(size, magic);
++	return is_v2header(size, cap) || is_v3header(size, cap);
+ }
+ 
+ /*
+@@ -495,7 +492,7 @@ int cap_convert_nscap(struct dentry *den
+ 
+ 	if (!*ivalue)
+ 		return -EINVAL;
+-	if (!validheader(size, cap->magic_etc))
++	if (!validheader(size, cap))
+ 		return -EINVAL;
+ 	if (!capable_wrt_inode_uidgid(inode, CAP_SETFCAP))
+ 		return -EPERM;
+From 694d99d40972f12e59a3696effee8a376b79d7c8 Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Tue, 26 Dec 2017 23:43:54 -0600
+Subject: x86/cpu, x86/pti: Do not enable PTI on AMD processors
+
+From: Tom Lendacky <thomas.lendacky@amd.com>
+
+commit 694d99d40972f12e59a3696effee8a376b79d7c8 upstream.
+
+AMD processors are not subject to the types of attacks that the kernel
+page table isolation feature protects against.  The AMD microarchitecture
+does not allow memory references, including speculative references, that
+access higher privileged data when running in a lesser privileged mode
+when that access would result in a page fault.
+
+Disable page table isolation by default on AMD processors by not setting
+the X86_BUG_CPU_INSECURE feature, which controls whether X86_FEATURE_PTI
+is set.
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Link: https://lkml.kernel.org/r/20171227054354.20369.94587.stgit@tlendack-t1.amdoffice.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/kernel/cpu/common.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -899,8 +899,8 @@ static void __init early_identify_cpu(st
+ 
+ 	setup_force_cpu_cap(X86_FEATURE_ALWAYS);
+ 
+-	/* Assume for now that ALL x86 CPUs are insecure */
+-	setup_force_cpu_bug(X86_BUG_CPU_INSECURE);
++	if (c->x86_vendor != X86_VENDOR_AMD)
++		setup_force_cpu_bug(X86_BUG_CPU_INSECURE);
+ 
+ 	fpu__init_system(c);
+ 
+From 52994c256df36fda9a715697431cba9daecb6b11 Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Wed, 3 Jan 2018 15:57:59 +0100
+Subject: x86/pti: Make sure the user/kernel PTEs match
+
+From: Thomas Gleixner <tglx@linutronix.de>
+
+commit 52994c256df36fda9a715697431cba9daecb6b11 upstream.
+
+Meelis reported that his K8 Athlon64 emits MCE warnings when PTI is
+enabled:
+
+[Hardware Error]: Error Addr: 0x0000ffff81e000e0
+[Hardware Error]: MC1 Error: L1 TLB multimatch.
+[Hardware Error]: cache level: L1, tx: INSN
+
+The address is in the entry area, which is mapped into kernel _AND_ user
+space. That's special because we switch CR3 while we are executing
+there.
+
+User mapping:
+0xffffffff81e00000-0xffffffff82000000           2M     ro         PSE     GLB x  pmd
+
+Kernel mapping:
+0xffffffff81000000-0xffffffff82000000          16M     ro         PSE         x  pmd
+
+So the K8 is complaining that the TLB entries differ. They differ in the
+GLB bit.
+
+Drop the GLB bit when installing the user shared mapping.
+
+Fixes: 6dc72c3cbca0 ("x86/mm/pti: Share entry text PMD")
+Reported-by: Meelis Roos <mroos@linux.ee>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Meelis Roos <mroos@linux.ee>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.20.1801031407180.1957@nanos
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/mm/pti.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -367,7 +367,8 @@ static void __init pti_setup_espfix64(vo
+ static void __init pti_clone_entry_text(void)
+ {
+ 	pti_clone_pmds((unsigned long) __entry_text_start,
+-			(unsigned long) __irqentry_text_end, _PAGE_RW);
++			(unsigned long) __irqentry_text_end,
++		       _PAGE_RW | _PAGE_GLOBAL);
+ }
+ 
+ /*
+From a9cdbe72c4e8bf3b38781c317a79326e2e1a230d Mon Sep 17 00:00:00 2001
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Date: Sun, 31 Dec 2017 10:18:06 -0600
+Subject: x86/dumpstack: Fix partial register dumps
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+
+commit a9cdbe72c4e8bf3b38781c317a79326e2e1a230d upstream.
+
+The show_regs_safe() logic is wrong.  When there's an iret stack frame,
+it prints the entire pt_regs -- most of which is random stack data --
+instead of just the five registers at the end.
+
+show_regs_safe() is also poorly named: the on_stack() checks aren't for
+safety.  Rename the function to show_regs_if_on_stack() and add a
+comment to explain why the checks are needed.
+
+These issues were introduced with the "partial register dump" feature of
+the following commit:
+
+  b02fcf9ba121 ("x86/unwinder: Handle stack overflows more gracefully")
+
+That patch had gone through a few iterations of development, and the
+above issues were artifacts from a previous iteration of the patch where
+'regs' pointed directly to the iret frame rather than to the (partially
+empty) pt_regs.
+
+Tested-by: Alexander Tsoy <alexander@tsoy.me>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Toralf Förster <toralf.foerster@gmx.de>
+Fixes: b02fcf9ba121 ("x86/unwinder: Handle stack overflows more gracefully")
+Link: http://lkml.kernel.org/r/5b05b8b344f59db2d3d50dbdeba92d60f2304c54.1514736742.git.jpoimboe@redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/include/asm/unwind.h |   17 +++++++++++++----
+ arch/x86/kernel/dumpstack.c   |   28 ++++++++++++++++++++--------
+ arch/x86/kernel/stacktrace.c  |    2 +-
+ 3 files changed, 34 insertions(+), 13 deletions(-)
+
+--- a/arch/x86/include/asm/unwind.h
++++ b/arch/x86/include/asm/unwind.h
+@@ -56,18 +56,27 @@ void unwind_start(struct unwind_state *s
+ 
+ #if defined(CONFIG_UNWINDER_ORC) || defined(CONFIG_UNWINDER_FRAME_POINTER)
+ /*
+- * WARNING: The entire pt_regs may not be safe to dereference.  In some cases,
+- * only the iret frame registers are accessible.  Use with caution!
++ * If 'partial' returns true, only the iret frame registers are valid.
+  */
+-static inline struct pt_regs *unwind_get_entry_regs(struct unwind_state *state)
++static inline struct pt_regs *unwind_get_entry_regs(struct unwind_state *state,
++						    bool *partial)
+ {
+ 	if (unwind_done(state))
+ 		return NULL;
+ 
++	if (partial) {
++#ifdef CONFIG_UNWINDER_ORC
++		*partial = !state->full_regs;
++#else
++		*partial = false;
++#endif
++	}
++
+ 	return state->regs;
+ }
+ #else
+-static inline struct pt_regs *unwind_get_entry_regs(struct unwind_state *state)
++static inline struct pt_regs *unwind_get_entry_regs(struct unwind_state *state,
++						    bool *partial)
+ {
+ 	return NULL;
+ }
+--- a/arch/x86/kernel/dumpstack.c
++++ b/arch/x86/kernel/dumpstack.c
+@@ -76,12 +76,23 @@ void show_iret_regs(struct pt_regs *regs
+ 		regs->sp, regs->flags);
+ }
+ 
+-static void show_regs_safe(struct stack_info *info, struct pt_regs *regs)
++static void show_regs_if_on_stack(struct stack_info *info, struct pt_regs *regs,
++				  bool partial)
+ {
+-	if (on_stack(info, regs, sizeof(*regs)))
++	/*
++	 * These on_stack() checks aren't strictly necessary: the unwind code
++	 * has already validated the 'regs' pointer.  The checks are done for
++	 * ordering reasons: if the registers are on the next stack, we don't
++	 * want to print them out yet.  Otherwise they'll be shown as part of
++	 * the wrong stack.  Later, when show_trace_log_lvl() switches to the
++	 * next stack, this function will be called again with the same regs so
++	 * they can be printed in the right context.
++	 */
++	if (!partial && on_stack(info, regs, sizeof(*regs))) {
+ 		__show_regs(regs, 0);
+-	else if (on_stack(info, (void *)regs + IRET_FRAME_OFFSET,
+-			  IRET_FRAME_SIZE)) {
++
++	} else if (partial && on_stack(info, (void *)regs + IRET_FRAME_OFFSET,
++				       IRET_FRAME_SIZE)) {
+ 		/*
+ 		 * When an interrupt or exception occurs in entry code, the
+ 		 * full pt_regs might not have been saved yet.  In that case
+@@ -98,6 +109,7 @@ void show_trace_log_lvl(struct task_stru
+ 	struct stack_info stack_info = {0};
+ 	unsigned long visit_mask = 0;
+ 	int graph_idx = 0;
++	bool partial;
+ 
+ 	printk("%sCall Trace:\n", log_lvl);
+ 
+@@ -140,7 +152,7 @@ void show_trace_log_lvl(struct task_stru
+ 			printk("%s <%s>\n", log_lvl, stack_name);
+ 
+ 		if (regs)
+-			show_regs_safe(&stack_info, regs);
++			show_regs_if_on_stack(&stack_info, regs, partial);
+ 
+ 		/*
+ 		 * Scan the stack, printing any text addresses we find.  At the
+@@ -164,7 +176,7 @@ void show_trace_log_lvl(struct task_stru
+ 
+ 			/*
+ 			 * Don't print regs->ip again if it was already printed
+-			 * by show_regs_safe() below.
++			 * by show_regs_if_on_stack().
+ 			 */
+ 			if (regs && stack == &regs->ip)
+ 				goto next;
+@@ -199,9 +211,9 @@ next:
+ 			unwind_next_frame(&state);
+ 
+ 			/* if the frame has entry regs, print them */
+-			regs = unwind_get_entry_regs(&state);
++			regs = unwind_get_entry_regs(&state, &partial);
+ 			if (regs)
+-				show_regs_safe(&stack_info, regs);
++				show_regs_if_on_stack(&stack_info, regs, partial);
+ 		}
+ 
+ 		if (stack_name)
+--- a/arch/x86/kernel/stacktrace.c
++++ b/arch/x86/kernel/stacktrace.c
+@@ -98,7 +98,7 @@ static int __save_stack_trace_reliable(s
+ 	for (unwind_start(&state, task, NULL, NULL); !unwind_done(&state);
+ 	     unwind_next_frame(&state)) {
+ 
+-		regs = unwind_get_entry_regs(&state);
++		regs = unwind_get_entry_regs(&state, NULL);
+ 		if (regs) {
+ 			/*
+ 			 * Kernel mode registers on the stack indicate an
+From 3ffdeb1a02be3086f1411a15c5b9c481fa28e21f Mon Sep 17 00:00:00 2001
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Date: Sun, 31 Dec 2017 10:18:07 -0600
+Subject: x86/dumpstack: Print registers for first stack frame
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+
+commit 3ffdeb1a02be3086f1411a15c5b9c481fa28e21f upstream.
+
+In the stack dump code, if the frame after the starting pt_regs is also
+a regs frame, the registers don't get printed.  Fix that.
+
+Reported-by: Andy Lutomirski <luto@amacapital.net>
+Tested-by: Alexander Tsoy <alexander@tsoy.me>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Toralf Förster <toralf.foerster@gmx.de>
+Fixes: 3b3fa11bc700 ("x86/dumpstack: Print any pt_regs found on the stack")
+Link: http://lkml.kernel.org/r/396f84491d2f0ef64eda4217a2165f5712f6a115.1514736742.git.jpoimboe@redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/kernel/dumpstack.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/kernel/dumpstack.c
++++ b/arch/x86/kernel/dumpstack.c
+@@ -115,6 +115,7 @@ void show_trace_log_lvl(struct task_stru
+ 
+ 	unwind_start(&state, task, regs, stack);
+ 	stack = stack ? : get_stack_pointer(task, regs);
++	regs = unwind_get_entry_regs(&state, &partial);
+ 
+ 	/*
+ 	 * Iterate through the stacks, starting with the current stack pointer.
+@@ -132,7 +133,7 @@ void show_trace_log_lvl(struct task_stru
+ 	 * - hardirq stack
+ 	 * - entry stack
+ 	 */
+-	for (regs = NULL; stack; stack = PTR_ALIGN(stack_info.next_sp, sizeof(long))) {
++	for ( ; stack; stack = PTR_ALIGN(stack_info.next_sp, sizeof(long))) {
+ 		const char *stack_name;
+ 
+ 		if (get_stack_info(stack, task, &stack_info, &visit_mask)) {
+From d7732ba55c4b6a2da339bb12589c515830cfac2c Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Wed, 3 Jan 2018 19:52:04 +0100
+Subject: x86/pti: Switch to kernel CR3 at early in entry_SYSCALL_compat()
+
+From: Thomas Gleixner <tglx@linutronix.de>
+
+commit d7732ba55c4b6a2da339bb12589c515830cfac2c upstream.
+
+The preparation for PTI which added CR3 switching to the entry code
+misplaced the CR3 switch in entry_SYSCALL_compat().
+
+With PTI enabled the entry code tries to access a per cpu variable after
+switching to kernel GS. This fails because that variable is not mapped to
+user space. This results in a double fault and in the worst case a kernel
+crash.
+
+Move the switch ahead of the access and clobber RSP which has been saved
+already.
+
+Fixes: 8a09317b895f ("x86/mm/pti: Prepare the x86/entry assembly code for entry/exit CR3 switching")
+Reported-by: Lars Wendler <wendler.lars@web.de>
+Reported-by: Laura Abbott <labbott@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Betkov <bp@alien8.de>
+Cc: Andy Lutomirski <luto@kernel.org>,
+Cc: Dave Hansen <dave.hansen@linux.intel.com>,
+Cc: Peter Zijlstra <peterz@infradead.org>,
+Cc: Greg KH <gregkh@linuxfoundation.org>, ,
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+Cc: Juergen Gross <jgross@suse.com>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.20.1801031949200.1957@nanos
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/entry/entry_64_compat.S |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+--- a/arch/x86/entry/entry_64_compat.S
++++ b/arch/x86/entry/entry_64_compat.S
+@@ -190,8 +190,13 @@ ENTRY(entry_SYSCALL_compat)
+ 	/* Interrupts are off on entry. */
+ 	swapgs
+ 
+-	/* Stash user ESP and switch to the kernel stack. */
++	/* Stash user ESP */
+ 	movl	%esp, %r8d
++
++	/* Use %rsp as scratch reg. User ESP is stashed in r8 */
++	SWITCH_TO_KERNEL_CR3 scratch_reg=%rsp
++
++	/* Switch to the kernel stack */
+ 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+ 
+ 	/* Construct struct pt_regs on stack */
+@@ -220,12 +225,6 @@ GLOBAL(entry_SYSCALL_compat_after_hwfram
+ 	pushq   $0			/* pt_regs->r15 = 0 */
+ 
+ 	/*
+-	 * We just saved %rdi so it is safe to clobber.  It is not
+-	 * preserved during the C calls inside TRACE_IRQS_OFF anyway.
+-	 */
+-	SWITCH_TO_KERNEL_CR3 scratch_reg=%rdi
+-
+-	/*
+ 	 * User mode is traced as though IRQs are on, and SYSENTER
+ 	 * turned them off.
+ 	 */
+From 2fd9c41aea47f4ad071accf94b94f94f2c4d31eb Mon Sep 17 00:00:00 2001
+From: Nick Desaulniers <ndesaulniers@google.com>
+Date: Wed, 3 Jan 2018 12:39:52 -0800
+Subject: x86/process: Define cpu_tss_rw in same section as declaration
+
+From: Nick Desaulniers <ndesaulniers@google.com>
+
+commit 2fd9c41aea47f4ad071accf94b94f94f2c4d31eb upstream.
+
+cpu_tss_rw is declared with DECLARE_PER_CPU_PAGE_ALIGNED
+but then defined with DEFINE_PER_CPU_SHARED_ALIGNED
+leading to section mismatch warnings.
+
+Use DEFINE_PER_CPU_PAGE_ALIGNED consistently. This is necessary because
+it's mapped to the cpu entry area and must be page aligned.
+
+[ tglx: Massaged changelog a bit ]
+
+Fixes: 1a935bc3d4ea ("x86/entry: Move SYSENTER_stack to the beginning of struct tss_struct")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: thomas.lendacky@amd.com
+Cc: Borislav Petkov <bpetkov@suse.de>
+Cc: tklauser@distanz.ch
+Cc: minipli@googlemail.com
+Cc: me@kylehuey.com
+Cc: namit@vmware.com
+Cc: luto@kernel.org
+Cc: jpoimboe@redhat.com
+Cc: tj@kernel.org
+Cc: cl@linux.com
+Cc: bp@suse.de
+Cc: thgarnie@google.com
+Cc: kirill.shutemov@linux.intel.com
+Link: https://lkml.kernel.org/r/20180103203954.183360-1-ndesaulniers@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/kernel/process.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -47,7 +47,7 @@
+  * section. Since TSS's are completely CPU-local, we want them
+  * on exact cacheline boundaries, to eliminate cacheline ping-pong.
+  */
+-__visible DEFINE_PER_CPU_SHARED_ALIGNED(struct tss_struct, cpu_tss_rw) = {
++__visible DEFINE_PER_CPU_PAGE_ALIGNED(struct tss_struct, cpu_tss_rw) = {
+ 	.x86_tss = {
+ 		/*
+ 		 * .sp0 is only used when entering ring 0 from a lower
