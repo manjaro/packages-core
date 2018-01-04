@@ -593,3 +593,408 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	.x86_tss = {
  		/*
  		 * .sp0 is only used when entering ring 0 from a lower
+From 94802151894d482e82c324edf2c658f8e6b96508 Mon Sep 17 00:00:00 2001
+From: Steffen Klassert <steffen.klassert@secunet.com>
+Date: Wed, 15 Nov 2017 06:40:57 +0100
+Subject: Revert "xfrm: Fix stack-out-of-bounds read in xfrm_state_find."
+
+From: Steffen Klassert <steffen.klassert@secunet.com>
+
+commit 94802151894d482e82c324edf2c658f8e6b96508 upstream.
+
+This reverts commit c9f3f813d462c72dbe412cee6a5cbacf13c4ad5e.
+
+This commit breaks transport mode when the policy template
+has widlcard addresses configured, so revert it.
+
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: From: Derek Robson <robsonde@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ net/xfrm/xfrm_policy.c |   29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
+
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -1362,29 +1362,36 @@ xfrm_tmpl_resolve_one(struct xfrm_policy
+ 	struct net *net = xp_net(policy);
+ 	int nx;
+ 	int i, error;
++	xfrm_address_t *daddr = xfrm_flowi_daddr(fl, family);
++	xfrm_address_t *saddr = xfrm_flowi_saddr(fl, family);
+ 	xfrm_address_t tmp;
+ 
+ 	for (nx = 0, i = 0; i < policy->xfrm_nr; i++) {
+ 		struct xfrm_state *x;
+-		xfrm_address_t *local;
+-		xfrm_address_t *remote;
++		xfrm_address_t *remote = daddr;
++		xfrm_address_t *local  = saddr;
+ 		struct xfrm_tmpl *tmpl = &policy->xfrm_vec[i];
+ 
+-		remote = &tmpl->id.daddr;
+-		local = &tmpl->saddr;
+-		if (xfrm_addr_any(local, tmpl->encap_family)) {
+-			error = xfrm_get_saddr(net, fl->flowi_oif,
+-					       &tmp, remote,
+-					       tmpl->encap_family, 0);
+-			if (error)
+-				goto fail;
+-			local = &tmp;
++		if (tmpl->mode == XFRM_MODE_TUNNEL ||
++		    tmpl->mode == XFRM_MODE_BEET) {
++			remote = &tmpl->id.daddr;
++			local = &tmpl->saddr;
++			if (xfrm_addr_any(local, tmpl->encap_family)) {
++				error = xfrm_get_saddr(net, fl->flowi_oif,
++						       &tmp, remote,
++						       tmpl->encap_family, 0);
++				if (error)
++					goto fail;
++				local = &tmp;
++			}
+ 		}
+ 
+ 		x = xfrm_state_find(remote, local, fl, tmpl, policy, &error, family);
+ 
+ 		if (x && x->km.state == XFRM_STATE_VALID) {
+ 			xfrm[nx++] = x;
++			daddr = remote;
++			saddr = local;
+ 			continue;
+ 		}
+ 		if (x) {
+From de6042d2fa8afe22b76e3c68fd6e9584c9415a3b Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Thu, 2 Nov 2017 18:58:12 -0700
+Subject: rtc: m41t80: m41t80_sqw_set_rate should return 0 on success
+
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+
+commit de6042d2fa8afe22b76e3c68fd6e9584c9415a3b upstream.
+
+Previously it was returning -EINVAL upon success.
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/rtc/rtc-m41t80.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -510,10 +510,7 @@ static int m41t80_sqw_set_rate(struct cl
+ 	reg = (reg & 0x0f) | (val << 4);
+ 
+ 	ret = i2c_smbus_write_byte_data(client, reg_sqw, reg);
+-	if (ret < 0)
+-		return ret;
+-
+-	return -EINVAL;
++	return ret;
+ }
+ 
+ static int m41t80_sqw_control(struct clk_hw *hw, bool enable)
+From c8384bb04261b9d32fe7402a6068ddaf38913b23 Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Thu, 2 Nov 2017 18:58:13 -0700
+Subject: rtc: m41t80: fix m41t80_sqw_round_rate return value
+
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+
+commit c8384bb04261b9d32fe7402a6068ddaf38913b23 upstream.
+
+Previously it was returning the best of
+32768, 8192, 1024, 64, 2, 0
+
+Now, best of
+32768, 8192, 4096, 2048, 1024, 512, 256, 128,
+64, 32, 16, 8, 4, 2, 1, 0
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/rtc/rtc-m41t80.c |   19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
+
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -468,18 +468,13 @@ static unsigned long m41t80_sqw_recalc_r
+ static long m41t80_sqw_round_rate(struct clk_hw *hw, unsigned long rate,
+ 				  unsigned long *prate)
+ {
+-	int i, freq = M41T80_SQW_MAX_FREQ;
+-
+-	if (freq <= rate)
+-		return freq;
+-
+-	for (i = 2; i <= ilog2(M41T80_SQW_MAX_FREQ); i++) {
+-		freq /= 1 << i;
+-		if (freq <= rate)
+-			return freq;
+-	}
+-
+-	return 0;
++	if (rate >= M41T80_SQW_MAX_FREQ)
++		return M41T80_SQW_MAX_FREQ;
++	if (rate >= M41T80_SQW_MAX_FREQ / 4)
++		return M41T80_SQW_MAX_FREQ / 4;
++	if (!rate)
++		return 0;
++	return 1 << ilog2(rate);
+ }
+ 
+ static int m41t80_sqw_set_rate(struct clk_hw *hw, unsigned long rate,
+From 2cb90ed3de1e279dbaf23df141f54eb9fb1861e6 Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Thu, 2 Nov 2017 18:58:14 -0700
+Subject: rtc: m41t80: avoid i2c read in m41t80_sqw_recalc_rate
+
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+
+commit 2cb90ed3de1e279dbaf23df141f54eb9fb1861e6 upstream.
+
+This is a little more efficient, and avoids the warning
+
+ WARNING: possible circular locking dependency detected
+ 4.14.0-rc7-00007 #14 Not tainted
+ ------------------------------------------------------
+ alsactl/330 is trying to acquire lock:
+ (prepare_lock){+.+.}, at: [<c049300c>] clk_prepare_lock+0x80/0xf4
+
+ but task is already holding lock:
+ (i2c_register_adapter){+.+.}, at: [<c0690ae0>]
+		i2c_adapter_lock_bus+0x14/0x18
+
+ which lock already depends on the new lock.
+
+ the existing dependency chain (in reverse order) is:
+
+ -> #1 (i2c_register_adapter){+.+.}:
+        rt_mutex_lock+0x44/0x5c
+        i2c_adapter_lock_bus+0x14/0x18
+        i2c_transfer+0xa8/0xbc
+        i2c_smbus_xfer+0x20c/0x5d8
+        i2c_smbus_read_byte_data+0x38/0x48
+        m41t80_sqw_recalc_rate+0x24/0x58
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/rtc/rtc-m41t80.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
+
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -154,6 +154,7 @@ struct m41t80_data {
+ 	struct rtc_device *rtc;
+ #ifdef CONFIG_COMMON_CLK
+ 	struct clk_hw sqw;
++	unsigned long freq;
+ #endif
+ };
+ 
+@@ -443,26 +444,28 @@ static SIMPLE_DEV_PM_OPS(m41t80_pm, m41t
+ #ifdef CONFIG_COMMON_CLK
+ #define sqw_to_m41t80_data(_hw) container_of(_hw, struct m41t80_data, sqw)
+ 
+-static unsigned long m41t80_sqw_recalc_rate(struct clk_hw *hw,
+-					    unsigned long parent_rate)
++static unsigned long m41t80_decode_freq(int setting)
++{
++	return (setting == 0) ? 0 : (setting == 1) ? M41T80_SQW_MAX_FREQ :
++		M41T80_SQW_MAX_FREQ >> setting;
++}
++
++static unsigned long m41t80_get_freq(struct m41t80_data *m41t80)
+ {
+-	struct m41t80_data *m41t80 = sqw_to_m41t80_data(hw);
+ 	struct i2c_client *client = m41t80->client;
+ 	int reg_sqw = (m41t80->features & M41T80_FEATURE_SQ_ALT) ?
+ 		M41T80_REG_WDAY : M41T80_REG_SQW;
+ 	int ret = i2c_smbus_read_byte_data(client, reg_sqw);
+-	unsigned long val = M41T80_SQW_MAX_FREQ;
+ 
+ 	if (ret < 0)
+ 		return 0;
++	return m41t80_decode_freq(ret >> 4);
++}
+ 
+-	ret >>= 4;
+-	if (ret == 0)
+-		val = 0;
+-	else if (ret > 1)
+-		val = val / (1 << ret);
+-
+-	return val;
++static unsigned long m41t80_sqw_recalc_rate(struct clk_hw *hw,
++					    unsigned long parent_rate)
++{
++	return sqw_to_m41t80_data(hw)->freq;
+ }
+ 
+ static long m41t80_sqw_round_rate(struct clk_hw *hw, unsigned long rate,
+@@ -505,6 +508,8 @@ static int m41t80_sqw_set_rate(struct cl
+ 	reg = (reg & 0x0f) | (val << 4);
+ 
+ 	ret = i2c_smbus_write_byte_data(client, reg_sqw, reg);
++	if (!ret)
++		m41t80->freq = m41t80_decode_freq(val);
+ 	return ret;
+ }
+ 
+@@ -579,6 +584,7 @@ static struct clk *m41t80_sqw_register_c
+ 	init.parent_names = NULL;
+ 	init.num_parents = 0;
+ 	m41t80->sqw.init = &init;
++	m41t80->freq = m41t80_get_freq(m41t80);
+ 
+ 	/* optional override of the clockname */
+ 	of_property_read_string(node, "clock-output-names", &init.name);
+From 13bb1d78f2e372ec0d9b30489ac63768240140fc Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Thu, 2 Nov 2017 18:58:15 -0700
+Subject: rtc: m41t80: avoid i2c read in m41t80_sqw_is_prepared
+
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+
+commit 13bb1d78f2e372ec0d9b30489ac63768240140fc upstream.
+
+This is a little more efficient and avoids the warning
+
+ WARNING: possible circular locking dependency detected
+ 4.14.0-rc7-00010 #16 Not tainted
+ ------------------------------------------------------
+ kworker/2:1/70 is trying to acquire lock:
+  (prepare_lock){+.+.}, at: [<c049300c>] clk_prepare_lock+0x80/0xf4
+
+ but task is already holding lock:
+  (i2c_register_adapter){+.+.}, at: [<c0690b04>]
+		i2c_adapter_lock_bus+0x14/0x18
+
+ which lock already depends on the new lock.
+
+ the existing dependency chain (in reverse order) is:
+
+ -> #1 (i2c_register_adapter){+.+.}:
+        rt_mutex_lock+0x44/0x5c
+        i2c_adapter_lock_bus+0x14/0x18
+        i2c_transfer+0xa8/0xbc
+        i2c_smbus_xfer+0x20c/0x5d8
+        i2c_smbus_read_byte_data+0x38/0x48
+        m41t80_sqw_is_prepared+0x18/0x28
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/rtc/rtc-m41t80.c |   15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
+
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -155,6 +155,7 @@ struct m41t80_data {
+ #ifdef CONFIG_COMMON_CLK
+ 	struct clk_hw sqw;
+ 	unsigned long freq;
++	unsigned int sqwe;
+ #endif
+ };
+ 
+@@ -527,7 +528,10 @@ static int m41t80_sqw_control(struct clk
+ 	else
+ 		ret &= ~M41T80_ALMON_SQWE;
+ 
+-	return i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_MON, ret);
++	ret = i2c_smbus_write_byte_data(client, M41T80_REG_ALARM_MON, ret);
++	if (!ret)
++		m41t80->sqwe = enable;
++	return ret;
+ }
+ 
+ static int m41t80_sqw_prepare(struct clk_hw *hw)
+@@ -542,14 +546,7 @@ static void m41t80_sqw_unprepare(struct
+ 
+ static int m41t80_sqw_is_prepared(struct clk_hw *hw)
+ {
+-	struct m41t80_data *m41t80 = sqw_to_m41t80_data(hw);
+-	struct i2c_client *client = m41t80->client;
+-	int ret = i2c_smbus_read_byte_data(client, M41T80_REG_ALARM_MON);
+-
+-	if (ret < 0)
+-		return ret;
+-
+-	return !!(ret & M41T80_ALMON_SQWE);
++	return sqw_to_m41t80_data(hw)->sqwe;
+ }
+ 
+ static const struct clk_ops m41t80_sqw_ops = {
+From 05a03bf260e0480bfc0db91b1fdbc2115e3f193b Mon Sep 17 00:00:00 2001
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+Date: Thu, 2 Nov 2017 18:58:16 -0700
+Subject: rtc: m41t80: remove unneeded checks from m41t80_sqw_set_rate
+
+From: Troy Kisky <troy.kisky@boundarydevices.com>
+
+commit 05a03bf260e0480bfc0db91b1fdbc2115e3f193b upstream.
+
+m41t80_sqw_set_rate will be called with the result from
+m41t80_sqw_round_rate, so might as well make
+m41t80_sqw_set_rate(n) same as
+m41t80_sqw_set_rate(m41t80_sqw_round_rate(n))
+
+As Russell King wrote[1],
+"clk_round_rate() is supposed to tell you what you end up with if you
+ask clk_set_rate() to set the exact same value you passed in - but
+clk_round_rate() won't modify the hardware."
+
+[1]
+http://lists.infradead.org/pipermail/linux-arm-kernel/2012-January/080175.html
+
+Signed-off-by: Troy Kisky <troy.kisky@boundarydevices.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/rtc/rtc-m41t80.c |   17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
+
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -490,17 +490,12 @@ static int m41t80_sqw_set_rate(struct cl
+ 		M41T80_REG_WDAY : M41T80_REG_SQW;
+ 	int reg, ret, val = 0;
+ 
+-	if (rate) {
+-		if (!is_power_of_2(rate))
+-			return -EINVAL;
+-		val = ilog2(rate);
+-		if (val == ilog2(M41T80_SQW_MAX_FREQ))
+-			val = 1;
+-		else if (val < (ilog2(M41T80_SQW_MAX_FREQ) - 1))
+-			val = ilog2(M41T80_SQW_MAX_FREQ) - val;
+-		else
+-			return -EINVAL;
+-	}
++	if (rate >= M41T80_SQW_MAX_FREQ)
++		val = 1;
++	else if (rate >= M41T80_SQW_MAX_FREQ / 4)
++		val = 2;
++	else if (rate)
++		val = 15 - ilog2(rate);
+ 
+ 	reg = i2c_smbus_read_byte_data(client, reg_sqw);
+ 	if (reg < 0)
