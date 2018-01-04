@@ -14,7 +14,7 @@ _aufs=20170410
 _bfq=v8r12
 _sub=74
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -47,6 +47,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
         '0003-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
         '0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
+        '0001-pti-49.patch'
         # Zen temperature
         '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
         '0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
@@ -55,8 +56,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'e89c686fc665f6424466b71c7c4ed0a83c47ec4298f9d5d9571bb11553760a48'
-            '232bbd26d9aeafb14a3077f5764b4ecba160c6d2e6824e5bfc312a8cfef48fac'
-            '93af554283f5239e375821404b996ada4cfb471a6258698da13e0425cb3c2be5'
+            '724f55b0695e8f27760f555068134d14067ba40998af041a153adabedd65f7ea'
+            'b7cdb38f2928d39a49ce0617ebb536491259beafeab0eec7dda06363ae1eec91'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -75,6 +76,7 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '3aaca014f7e4768965dfe5e9740f2007d49f2319db6b6cf566ac7b8b869a6506'
             'dc464866c4b773644b729803ec3e99c0cdd9781727db35337ac6b06ccd3f458b'
             '555b6a27b3a34a81e422f0ac935ee72ae8bfd798799aea443f8036518bdaea00'
+            '814633acfd714d6f1bc47063e4b4eec0922e9821711b39b9fed4a263e442f89a'
             '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
             'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
             'cd463af7193bcf864c42e95d804976a627ac11132886f25e04dfc2471c28bf6c'
@@ -91,6 +93,9 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # https://spectreattack.com/#faq-fix
+  patch -Np1 -i "${srcdir}/0001-pti-49.patch"
 
   # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
   patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
