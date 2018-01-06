@@ -15,7 +15,7 @@ _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
 _bfqdate2=20171228
-_sub=11
+_sub=12
 _rc=
 _shortgit=
 _git=
@@ -55,7 +55,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
         # MANJARO Patches
         '0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
-        '0001-kpi-414.patch'
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
@@ -77,7 +76,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10110759/raw/'
 )
 sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
-            'f588b62d7ee1d2ebdc24afa0e256ff2f8812d5cab3bf572bf02e7c4525922bf9'
+            'da5d8db44b0988e4c45346899d3f5a51f8bd6c25f14e729615ca9ff9f17bdefd'
             'fca8c8c18aad7a3aa942fc3e2371d18ee78e7207832834aa83cb1c1a399c06d7'
             '03bcfef52aea8159563d31b1012d6bcfff6b79d216d02b989c0b913612a9be68'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -90,7 +89,6 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             '64a014f7e1b4588728b3ea9538beee67ec63fb792d890c7be9cc13ddc2121b00'
             '3d4c41086c077fbd515d04f5e59c0c258f700433c5da3365d960b696c2e56efb'
             'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
-            '5324dfc0721a7f96e08712ba324070e113edab14e8fa9e7b3ad1db5a2ccd2eaa'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
@@ -116,9 +114,6 @@ prepare() {
   # add upstream patch
   patch -p1 -i "${srcdir}/patch-${pkgver}"
   chmod +x tools/objtool/sync-check.sh # GNU patch doesn't support git-style file mode
-
-  # https://spectreattack.com/#faq-fix
-  patch -Np1 -i ../0001-kpi-414.patch
 
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
