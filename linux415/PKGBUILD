@@ -16,8 +16,8 @@ _bfq=v8r12
 _bfqdate=20171108
 _sub=0
 _rc=rc6
-_shortgit=.r180104.g00a5ae2
-_git=00a5ae218d57741088068799b810416ac249a9ce
+_shortgit=.r180105.g89876f2
+_git=89876f275e8d562912d9c238cd888b52065cf25c
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -52,6 +52,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
         # MANJARO Patches
         '0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
+        '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
         # Zen temperature
         #'0001-zen-temp.patch::https://patchwork.kernel.org/patch/9941509/raw/'
         #'0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941521/raw/'
@@ -74,7 +75,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # Fix HP-WMI for libinput v1.9.1+
         #'hp-wmi-fix-tablet-mode-detection-for-convertibles.patch::https://github.com/torvalds/linux/commit/9968e12a291e639dd51d1218b694d440b22a917f.patch'
 )
-sha256sums=('4fa549547cdb4fda6724bc1ae66542d944a1d6c330b4a3b862b94af42815b1ee'
+sha256sums=('344cedd941f2dc262c7c5c08d359a12479cabc2eb4a35e78473c4f959f014b8f'
             '6e585c2efabc7d190345af7d2e5f0a2dc260bf73b5f33063c614216747315e55'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -82,7 +83,8 @@ sha256sums=('4fa549547cdb4fda6724bc1ae66542d944a1d6c330b4a3b862b94af42815b1ee'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             '3d4c41086c077fbd515d04f5e59c0c258f700433c5da3365d960b696c2e56efb'
-            'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5')
+            'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
+            'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148')
 prepare() {
   mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
   #mv "${srcdir}/linux-${_basekernel}-${_rc}" "${srcdir}/linux-${_basekernel}"
@@ -104,6 +106,9 @@ prepare() {
 
   # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
   patch -Np1 -i "${srcdir}/0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
+
+  # https://bugs.freedesktop.org/show_bug.cgi?id=103497
+  patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch
 
   # libinput v1.9.1 issue
   # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
