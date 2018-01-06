@@ -2,9 +2,8 @@
 # Maintainer: Thomas Bächler <thomas@archlinux.org>
 
 pkgname=linux-firmware
-# Commit date + git rev-parse --short origin/master
-_rev=6d3bc88
-pkgver=20170113.${_rev}
+_commit=65b1c68c63f974d72610db38dfae49861117cae2 # master
+pkgver=20180104.65b1c68
 pkgrel=1
 pkgdesc="Firmware files for Linux"
 makedepends=('git')
@@ -45,10 +44,9 @@ source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firm
         "iwlwifi-add-18-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=c8bc8058fc9089b73a85f301ec26eaa1daec38ac"
         "iwlwifi-add-19-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=219d52e7ad7e9ea6f806d7abfc2918cd999f3acb"
         "iwlwifi-add-20-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=7129ac81a733762e2cddd6e294c4d77c0a3e6c71"
-        "iwlwifi-update-21-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=03f057ac2b36dbab9398ddb464f6fa18419bae7c"
         "iwlwifi-update-22-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=685548cc4795ede5c924cfea9c0274b98ab8b0d8"
-        "iwlwifi-add-27-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=76b7d5b1fa10c3d6085e3d413321f865557dfdc6"
-        "iwlwifi-update-17-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=be8a6fcba2e48e00674d1f35e6def56e2268039c")
+        "iwlwifi-update-17-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=be8a6fcba2e48e00674d1f35e6def56e2268039c"
+        'microcode_amd_fam17h.bin')
 md5sums=('SKIP'
          '81ef67b100c72c133a5fde379b980ded'
          '63fdcdce7ccdcbcf8beda0b2443f0ce8'
@@ -57,10 +55,9 @@ md5sums=('SKIP'
          '401f012748792b0648a9cfc0fb43a7b9'
          'ddd3eb8f6267a415e16f7698cc261e02'
          'e97092be36e0dc5232758bc3090d0a80'
-         'bfe0c9f318a8677f7182b5c223387c06'
          'b5bc0dbee285dcd659435a61c015052c'
-         '16e97b39e117fc011c1bd888cf8c0b6a'
-         '5fa1a287aef54e70457418eda8e025c4')
+         '5fa1a287aef54e70457418eda8e025c4'
+         '4610fdded46938a4b094c5897e5c92b2')
 
 prepare() {
   cd "${srcdir}/${pkgname}"
@@ -71,10 +68,15 @@ prepare() {
   patch -p1 -i "${srcdir}/iwlwifi-add-18-ucode.patch"
   patch -p1 -i "${srcdir}/iwlwifi-add-19-ucode.patch"
   patch -p1 -i "${srcdir}/iwlwifi-add-20-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-update-21-ucode.patch"
   patch -p1 -i "${srcdir}/iwlwifi-update-22-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-add-27-ucode.patch"
   patch -p1 -i "${srcdir}/iwlwifi-update-17-ucode.patch"
+}
+
+pkgver() {
+  cd "${srcdir}/${pkgname}"
+
+  # Commit date + short rev
+  echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).$(git rev-parse --short HEAD)
 }
 
 package() {
@@ -82,6 +84,8 @@ package() {
 
   make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
   rm "${pkgdir}/usr/lib/firmware/"{Makefile,README,configure,GPL-3}
+
+  cp "${srcdir}/microcode_amd_fam17h.bin" "${pkgdir}/usr/lib/firmware/amd-ucode/"
 
   install -d "${pkgdir}/usr/share/licenses/${pkgname}"
   install -Dm644 LICEN* WHENCE "${pkgdir}/usr/share/licenses/linux-firmware/"
