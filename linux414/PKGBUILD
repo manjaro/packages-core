@@ -21,7 +21,7 @@ _shortgit=
 _git=
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -56,7 +56,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # MANJARO Patches
         '0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
-        '0001-add-support-for-fam17h-microcode-loading.patch::https://github.com/torvalds/linux/commit/f4e9b7af0cd58dd039a0fb2cd67d57cea4889abf.patch'
+        "prepatch-${_basekernel}.patch"
         # Zen temperature
         '0001-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/682/1'
         '0002-zen-temp.patch::https://lkml.org/lkml/diff/2017/9/6/683/1'
@@ -91,7 +91,7 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             '3d4c41086c077fbd515d04f5e59c0c258f700433c5da3365d960b696c2e56efb'
             'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
-            'a4b603d85c74d30ae5e653ce59f3597735fc368809f4fc290d9e15efaa80fff3'
+            'ec8f0c9638268dc16d69e2483fae05bfbd24b9d019816c6986ddc26e29059453'
             'a1b1c30d53d0a7ffe2b84331f634388807489b807b20cc24041e2591f7da2ec1'
             'df9ff4580281ce431b42490a69f51d0a839471983930044bebe268aaee70c5ad'
             '009da98553e3c9b5d452b7850aac25b9e81fa39de9f2aa33744c012c1a912006'
@@ -120,10 +120,7 @@ prepare() {
   # add latest fixes from stable queue, if needed
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
-  #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}.patch"
-
-  # https://spectreattack.com/ https://bugs.archlinux.org/task/56951
-  patch -Np1 -i ../0001-add-support-for-fam17h-microcode-loading.patch
+  patch -Np1 -i "${srcdir}/prepatch-${_basekernel}.patch"
 
   # https://bugs.freedesktop.org/show_bug.cgi?id=103497
   patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch

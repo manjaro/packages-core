@@ -47,6 +47,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
         '0003-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
         '0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
+        '0001-add-support-for-fam17h-microcode-loading.patch::https://github.com/torvalds/linux/commit/f4e9b7af0cd58dd039a0fb2cd67d57cea4889abf.patch'
         # Zen temperature
         '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
         '0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
@@ -91,6 +92,9 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
+
+  # https://spectreattack.com/ https://bugs.archlinux.org/task/56951
+  patch -Np1 -i ../0001-add-support-for-fam17h-microcode-loading.patch
 
   # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
   patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"

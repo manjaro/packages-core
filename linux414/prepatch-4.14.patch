@@ -1,0 +1,2544 @@
+From f5a40711fa58f1c109165a4fec6078bf2dfd2bdc Mon Sep 17 00:00:00 2001
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Date: Thu, 28 Dec 2017 19:06:20 +0300
+Subject: x86/mm: Set MODULES_END to 0xffffffffff000000
+
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
+
+commit f5a40711fa58f1c109165a4fec6078bf2dfd2bdc upstream.
+
+Since f06bdd4001c2 ("x86/mm: Adapt MODULES_END based on fixmap section size")
+kasan_mem_to_shadow(MODULES_END) could be not aligned to a page boundary.
+
+So passing page unaligned address to kasan_populate_zero_shadow() have two
+possible effects:
+
+1) It may leave one page hole in supposed to be populated area. After commit
+  21506525fb8d ("x86/kasan/64: Teach KASAN about the cpu_entry_area") that
+  hole happens to be in the shadow covering fixmap area and leads to crash:
+
+ BUG: unable to handle kernel paging request at fffffbffffe8ee04
+ RIP: 0010:check_memory_region+0x5c/0x190
+
+ Call Trace:
+  <NMI>
+  memcpy+0x1f/0x50
+  ghes_copy_tofrom_phys+0xab/0x180
+  ghes_read_estatus+0xfb/0x280
+  ghes_notify_nmi+0x2b2/0x410
+  nmi_handle+0x115/0x2c0
+  default_do_nmi+0x57/0x110
+  do_nmi+0xf8/0x150
+  end_repeat_nmi+0x1a/0x1e
+
+Note, the crash likely disappeared after commit 92a0f81d8957, which
+changed kasan_populate_zero_shadow() call the way it was before
+commit 21506525fb8d.
+
+2) Attempt to load module near MODULES_END will fail, because
+   __vmalloc_node_range() called from kasan_module_alloc() will hit the
+   WARN_ON(!pte_none(*pte)) in the vmap_pte_range() and bail out with error.
+
+To fix this we need to make kasan_mem_to_shadow(MODULES_END) page aligned
+which means that MODULES_END should be 8*PAGE_SIZE aligned.
+
+The whole point of commit f06bdd4001c2 was to move MODULES_END down if
+NR_CPUS is big, so the cpu_entry_area takes a lot of space.
+But since 92a0f81d8957 ("x86/cpu_entry_area: Move it out of the fixmap")
+the cpu_entry_area is no longer in fixmap, so we could just set
+MODULES_END to a fixed 8*PAGE_SIZE aligned address.
+
+Fixes: f06bdd4001c2 ("x86/mm: Adapt MODULES_END based on fixmap section size")
+Reported-by: Jakub Kicinski <kubakici@wp.pl>
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Thomas Garnier <thgarnie@google.com>
+Link: https://lkml.kernel.org/r/20171228160620.23818-1-aryabinin@virtuozzo.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ Documentation/x86/x86_64/mm.txt         |    5 +----
+ arch/x86/include/asm/pgtable_64_types.h |    2 +-
+ 2 files changed, 2 insertions(+), 5 deletions(-)
+
+--- a/Documentation/x86/x86_64/mm.txt
++++ b/Documentation/x86/x86_64/mm.txt
+@@ -43,7 +43,7 @@ ffffff0000000000 - ffffff7fffffffff (=39
+ ffffffef00000000 - fffffffeffffffff (=64 GB) EFI region mapping space
+ ... unused hole ...
+ ffffffff80000000 - ffffffff9fffffff (=512 MB)  kernel text mapping, from phys 0
+-ffffffffa0000000 - [fixmap start]   (~1526 MB) module mapping space
++ffffffffa0000000 - fffffffffeffffff (1520 MB) module mapping space
+ [fixmap start]   - ffffffffff5fffff kernel-internal fixmap range
+ ffffffffff600000 - ffffffffff600fff (=4 kB) legacy vsyscall ABI
+ ffffffffffe00000 - ffffffffffffffff (=2 MB) unused hole
+@@ -67,9 +67,6 @@ memory window (this size is arbitrary, i
+ The mappings are not part of any other kernel PGD and are only available
+ during EFI runtime calls.
+ 
+-The module mapping space size changes based on the CONFIG requirements for the
+-following fixmap section.
+-
+ Note that if CONFIG_RANDOMIZE_MEMORY is enabled, the direct mapping of all
+ physical memory, vmalloc/ioremap space and virtual memory map are randomized.
+ Their order is preserved but their base will be offset early at boot time.
+--- a/arch/x86/include/asm/pgtable_64_types.h
++++ b/arch/x86/include/asm/pgtable_64_types.h
+@@ -104,7 +104,7 @@ typedef struct { pteval_t pte; } pte_t;
+ 
+ #define MODULES_VADDR		(__START_KERNEL_map + KERNEL_IMAGE_SIZE)
+ /* The module sections ends with the start of the fixmap */
+-#define MODULES_END		__fix_to_virt(__end_of_fixed_addresses + 1)
++#define MODULES_END		_AC(0xffffffffff000000, UL)
+ #define MODULES_LEN		(MODULES_END - MODULES_VADDR)
+ 
+ #define ESPFIX_PGD_ENTRY	_AC(-2, UL)
+From f2078904810373211fb15f91888fba14c01a4acc Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Thu, 4 Jan 2018 13:01:40 +0100
+Subject: x86/mm: Map cpu_entry_area at the same place on 4/5 level
+
+From: Thomas Gleixner <tglx@linutronix.de>
+
+commit f2078904810373211fb15f91888fba14c01a4acc upstream.
+
+There is no reason for 4 and 5 level pagetables to have a different
+layout. It just makes determining vaddr_end for KASLR harder than
+necessary.
+
+Fixes: 92a0f81d8957 ("x86/cpu_entry_area: Move it out of the fixmap")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Benjamin Gilbert <benjamin.gilbert@coreos.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Garnier <thgarnie@google.com>,
+Cc: Alexander Kuleshov <kuleshovmail@gmail.com>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.20.1801041320360.1771@nanos
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ Documentation/x86/x86_64/mm.txt         |    7 ++++---
+ arch/x86/include/asm/pgtable_64_types.h |    4 ++--
+ arch/x86/mm/dump_pagetables.c           |    2 +-
+ 3 files changed, 7 insertions(+), 6 deletions(-)
+
+--- a/Documentation/x86/x86_64/mm.txt
++++ b/Documentation/x86/x86_64/mm.txt
+@@ -12,8 +12,8 @@ ffffea0000000000 - ffffeaffffffffff (=40
+ ... unused hole ...
+ ffffec0000000000 - fffffbffffffffff (=44 bits) kasan shadow memory (16TB)
+ ... unused hole ...
+-fffffe0000000000 - fffffe7fffffffff (=39 bits) LDT remap for PTI
+-fffffe8000000000 - fffffeffffffffff (=39 bits) cpu_entry_area mapping
++fffffe0000000000 - fffffe7fffffffff (=39 bits) cpu_entry_area mapping
++fffffe8000000000 - fffffeffffffffff (=39 bits) LDT remap for PTI
+ ffffff0000000000 - ffffff7fffffffff (=39 bits) %esp fixup stacks
+ ... unused hole ...
+ ffffffef00000000 - fffffffeffffffff (=64 GB) EFI region mapping space
+@@ -37,7 +37,8 @@ ffd4000000000000 - ffd5ffffffffffff (=49
+ ... unused hole ...
+ ffdf000000000000 - fffffc0000000000 (=53 bits) kasan shadow memory (8PB)
+ ... unused hole ...
+-fffffe8000000000 - fffffeffffffffff (=39 bits) cpu_entry_area mapping
++fffffe0000000000 - fffffe7fffffffff (=39 bits) cpu_entry_area mapping
++... unused hole ...
+ ffffff0000000000 - ffffff7fffffffff (=39 bits) %esp fixup stacks
+ ... unused hole ...
+ ffffffef00000000 - fffffffeffffffff (=64 GB) EFI region mapping space
+--- a/arch/x86/include/asm/pgtable_64_types.h
++++ b/arch/x86/include/asm/pgtable_64_types.h
+@@ -88,7 +88,7 @@ typedef struct { pteval_t pte; } pte_t;
+ # define VMALLOC_SIZE_TB	_AC(32, UL)
+ # define __VMALLOC_BASE		_AC(0xffffc90000000000, UL)
+ # define __VMEMMAP_BASE		_AC(0xffffea0000000000, UL)
+-# define LDT_PGD_ENTRY		_AC(-4, UL)
++# define LDT_PGD_ENTRY		_AC(-3, UL)
+ # define LDT_BASE_ADDR		(LDT_PGD_ENTRY << PGDIR_SHIFT)
+ #endif
+ 
+@@ -110,7 +110,7 @@ typedef struct { pteval_t pte; } pte_t;
+ #define ESPFIX_PGD_ENTRY	_AC(-2, UL)
+ #define ESPFIX_BASE_ADDR	(ESPFIX_PGD_ENTRY << P4D_SHIFT)
+ 
+-#define CPU_ENTRY_AREA_PGD	_AC(-3, UL)
++#define CPU_ENTRY_AREA_PGD	_AC(-4, UL)
+ #define CPU_ENTRY_AREA_BASE	(CPU_ENTRY_AREA_PGD << P4D_SHIFT)
+ 
+ #define EFI_VA_START		( -4 * (_AC(1, UL) << 30))
+--- a/arch/x86/mm/dump_pagetables.c
++++ b/arch/x86/mm/dump_pagetables.c
+@@ -61,10 +61,10 @@ enum address_markers_idx {
+ 	KASAN_SHADOW_START_NR,
+ 	KASAN_SHADOW_END_NR,
+ #endif
++	CPU_ENTRY_AREA_NR,
+ #if defined(CONFIG_MODIFY_LDT_SYSCALL) && !defined(CONFIG_X86_5LEVEL)
+ 	LDT_NR,
+ #endif
+-	CPU_ENTRY_AREA_NR,
+ #ifdef CONFIG_X86_ESPFIX64
+ 	ESPFIX_START_NR,
+ #endif
+From 1dddd25125112ba49706518ac9077a1026a18f37 Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Thu, 4 Jan 2018 12:32:03 +0100
+Subject: x86/kaslr: Fix the vaddr_end mess
+
+From: Thomas Gleixner <tglx@linutronix.de>
+
+commit 1dddd25125112ba49706518ac9077a1026a18f37 upstream.
+
+vaddr_end for KASLR is only documented in the KASLR code itself and is
+adjusted depending on config options. So it's not surprising that a change
+of the memory layout causes KASLR to have the wrong vaddr_end. This can map
+arbitrary stuff into other areas causing hard to understand problems.
+
+Remove the whole ifdef magic and define the start of the cpu_entry_area to
+be the end of the KASLR vaddr range.
+
+Add documentation to that effect.
+
+Fixes: 92a0f81d8957 ("x86/cpu_entry_area: Move it out of the fixmap")
+Reported-by: Benjamin Gilbert <benjamin.gilbert@coreos.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Benjamin Gilbert <benjamin.gilbert@coreos.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Garnier <thgarnie@google.com>,
+Cc: Alexander Kuleshov <kuleshovmail@gmail.com>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.20.1801041320360.1771@nanos
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ Documentation/x86/x86_64/mm.txt         |    6 ++++++
+ arch/x86/include/asm/pgtable_64_types.h |    8 +++++++-
+ arch/x86/mm/kaslr.c                     |   32 +++++++++-----------------------
+ 3 files changed, 22 insertions(+), 24 deletions(-)
+
+--- a/Documentation/x86/x86_64/mm.txt
++++ b/Documentation/x86/x86_64/mm.txt
+@@ -12,6 +12,7 @@ ffffea0000000000 - ffffeaffffffffff (=40
+ ... unused hole ...
+ ffffec0000000000 - fffffbffffffffff (=44 bits) kasan shadow memory (16TB)
+ ... unused hole ...
++				    vaddr_end for KASLR
+ fffffe0000000000 - fffffe7fffffffff (=39 bits) cpu_entry_area mapping
+ fffffe8000000000 - fffffeffffffffff (=39 bits) LDT remap for PTI
+ ffffff0000000000 - ffffff7fffffffff (=39 bits) %esp fixup stacks
+@@ -37,6 +38,7 @@ ffd4000000000000 - ffd5ffffffffffff (=49
+ ... unused hole ...
+ ffdf000000000000 - fffffc0000000000 (=53 bits) kasan shadow memory (8PB)
+ ... unused hole ...
++				    vaddr_end for KASLR
+ fffffe0000000000 - fffffe7fffffffff (=39 bits) cpu_entry_area mapping
+ ... unused hole ...
+ ffffff0000000000 - ffffff7fffffffff (=39 bits) %esp fixup stacks
+@@ -71,3 +73,7 @@ during EFI runtime calls.
+ Note that if CONFIG_RANDOMIZE_MEMORY is enabled, the direct mapping of all
+ physical memory, vmalloc/ioremap space and virtual memory map are randomized.
+ Their order is preserved but their base will be offset early at boot time.
++
++Be very careful vs. KASLR when changing anything here. The KASLR address
++range must not overlap with anything except the KASAN shadow area, which is
++correct as KASAN disables KASLR.
+--- a/arch/x86/include/asm/pgtable_64_types.h
++++ b/arch/x86/include/asm/pgtable_64_types.h
+@@ -75,7 +75,13 @@ typedef struct { pteval_t pte; } pte_t;
+ #define PGDIR_SIZE	(_AC(1, UL) << PGDIR_SHIFT)
+ #define PGDIR_MASK	(~(PGDIR_SIZE - 1))
+ 
+-/* See Documentation/x86/x86_64/mm.txt for a description of the memory map. */
++/*
++ * See Documentation/x86/x86_64/mm.txt for a description of the memory map.
++ *
++ * Be very careful vs. KASLR when changing anything here. The KASLR address
++ * range must not overlap with anything except the KASAN shadow area, which
++ * is correct as KASAN disables KASLR.
++ */
+ #define MAXMEM			_AC(__AC(1, UL) << MAX_PHYSMEM_BITS, UL)
+ 
+ #ifdef CONFIG_X86_5LEVEL
+--- a/arch/x86/mm/kaslr.c
++++ b/arch/x86/mm/kaslr.c
+@@ -34,25 +34,14 @@
+ #define TB_SHIFT 40
+ 
+ /*
+- * Virtual address start and end range for randomization. The end changes base
+- * on configuration to have the highest amount of space for randomization.
+- * It increases the possible random position for each randomized region.
++ * Virtual address start and end range for randomization.
+  *
+- * You need to add an if/def entry if you introduce a new memory region
+- * compatible with KASLR. Your entry must be in logical order with memory
+- * layout. For example, ESPFIX is before EFI because its virtual address is
+- * before. You also need to add a BUILD_BUG_ON() in kernel_randomize_memory() to
+- * ensure that this order is correct and won't be changed.
++ * The end address could depend on more configuration options to make the
++ * highest amount of space for randomization available, but that's too hard
++ * to keep straight and caused issues already.
+  */
+ static const unsigned long vaddr_start = __PAGE_OFFSET_BASE;
+-
+-#if defined(CONFIG_X86_ESPFIX64)
+-static const unsigned long vaddr_end = ESPFIX_BASE_ADDR;
+-#elif defined(CONFIG_EFI)
+-static const unsigned long vaddr_end = EFI_VA_END;
+-#else
+-static const unsigned long vaddr_end = __START_KERNEL_map;
+-#endif
++static const unsigned long vaddr_end = CPU_ENTRY_AREA_BASE;
+ 
+ /* Default values */
+ unsigned long page_offset_base = __PAGE_OFFSET_BASE;
+@@ -101,15 +90,12 @@ void __init kernel_randomize_memory(void
+ 	unsigned long remain_entropy;
+ 
+ 	/*
+-	 * All these BUILD_BUG_ON checks ensures the memory layout is
+-	 * consistent with the vaddr_start/vaddr_end variables.
++	 * These BUILD_BUG_ON checks ensure the memory layout is consistent
++	 * with the vaddr_start/vaddr_end variables. These checks are very
++	 * limited....
+ 	 */
+ 	BUILD_BUG_ON(vaddr_start >= vaddr_end);
+-	BUILD_BUG_ON(IS_ENABLED(CONFIG_X86_ESPFIX64) &&
+-		     vaddr_end >= EFI_VA_END);
+-	BUILD_BUG_ON((IS_ENABLED(CONFIG_X86_ESPFIX64) ||
+-		      IS_ENABLED(CONFIG_EFI)) &&
+-		     vaddr_end >= __START_KERNEL_map);
++	BUILD_BUG_ON(vaddr_end != CPU_ENTRY_AREA_BASE);
+ 	BUILD_BUG_ON(vaddr_end > __START_KERNEL_map);
+ 
+ 	if (!kaslr_memory_enabled())
+From 42f3bdc5dd962a5958bc024c1e1444248a6b8b4a Mon Sep 17 00:00:00 2001
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Thu, 4 Jan 2018 18:07:12 +0100
+Subject: x86/events/intel/ds: Use the proper cache flush method for mapping ds buffers
+
+From: Peter Zijlstra <peterz@infradead.org>
+
+commit 42f3bdc5dd962a5958bc024c1e1444248a6b8b4a upstream.
+
+Thomas reported the following warning:
+
+ BUG: using smp_processor_id() in preemptible [00000000] code: ovsdb-server/4498
+ caller is native_flush_tlb_single+0x57/0xc0
+ native_flush_tlb_single+0x57/0xc0
+ __set_pte_vaddr+0x2d/0x40
+ set_pte_vaddr+0x2f/0x40
+ cea_set_pte+0x30/0x40
+ ds_update_cea.constprop.4+0x4d/0x70
+ reserve_ds_buffers+0x159/0x410
+ x86_reserve_hardware+0x150/0x160
+ x86_pmu_event_init+0x3e/0x1f0
+ perf_try_init_event+0x69/0x80
+ perf_event_alloc+0x652/0x740
+ SyS_perf_event_open+0x3f6/0xd60
+ do_syscall_64+0x5c/0x190
+
+set_pte_vaddr is used to map the ds buffers into the cpu entry area, but
+there are two problems with that:
+
+ 1) The resulting flush is not supposed to be called in preemptible context
+
+ 2) The cpu entry area is supposed to be per CPU, but the debug store
+    buffers are mapped for all CPUs so these mappings need to be flushed
+    globally.
+
+Add the necessary preemption protection across the mapping code and flush
+TLBs globally.
+
+Fixes: c1961a4631da ("x86/events/intel/ds: Map debug buffers in cpu_entry_area")
+Reported-by: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Hugh Dickins <hughd@google.com>
+Link: https://lkml.kernel.org/r/20180104170712.GB3040@hirez.programming.kicks-ass.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/events/intel/ds.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -5,6 +5,7 @@
+ 
+ #include <asm/cpu_entry_area.h>
+ #include <asm/perf_event.h>
++#include <asm/tlbflush.h>
+ #include <asm/insn.h>
+ 
+ #include "../perf_event.h"
+@@ -283,20 +284,35 @@ static DEFINE_PER_CPU(void *, insn_buffe
+ 
+ static void ds_update_cea(void *cea, void *addr, size_t size, pgprot_t prot)
+ {
++	unsigned long start = (unsigned long)cea;
+ 	phys_addr_t pa;
+ 	size_t msz = 0;
+ 
+ 	pa = virt_to_phys(addr);
++
++	preempt_disable();
+ 	for (; msz < size; msz += PAGE_SIZE, pa += PAGE_SIZE, cea += PAGE_SIZE)
+ 		cea_set_pte(cea, pa, prot);
++
++	/*
++	 * This is a cross-CPU update of the cpu_entry_area, we must shoot down
++	 * all TLB entries for it.
++	 */
++	flush_tlb_kernel_range(start, start + size);
++	preempt_enable();
+ }
+ 
+ static void ds_clear_cea(void *cea, size_t size)
+ {
++	unsigned long start = (unsigned long)cea;
+ 	size_t msz = 0;
+ 
++	preempt_disable();
+ 	for (; msz < size; msz += PAGE_SIZE, cea += PAGE_SIZE)
+ 		cea_set_pte(cea, 0, PAGE_NONE);
++
++	flush_tlb_kernel_range(start, start + size);
++	preempt_enable();
+ }
+ 
+ static void *dsalloc_pages(size_t size, gfp_t flags, int cpu)
+From 1e5476815fd7f98b888e01a0f9522b63085f96c9 Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Thu, 4 Jan 2018 22:19:04 +0100
+Subject: x86/tlb: Drop the _GPL from the cpu_tlbstate export
+
+From: Thomas Gleixner <tglx@linutronix.de>
+
+commit 1e5476815fd7f98b888e01a0f9522b63085f96c9 upstream.
+
+The recent changes for PTI touch cpu_tlbstate from various tlb_flush
+inlines. cpu_tlbstate is exported as GPL symbol, so this causes a
+regression when building out of tree drivers for certain graphics cards.
+
+Aside of that the export was wrong since it was introduced as it should
+have been EXPORT_PER_CPU_SYMBOL_GPL().
+
+Use the correct PER_CPU export and drop the _GPL to restore the previous
+state which allows users to utilize the cards they payed for.
+
+As always I'm really thrilled to make this kind of change to support the
+#friends (or however the hot hashtag of today is spelled) from that closet
+sauce graphics corp.
+
+Fixes: 1e02ce4cccdc ("x86: Store a per-cpu shadow copy of CR4")
+Fixes: 6fd166aae78c ("x86/mm: Use/Fix PCID to optimize user/kernel switches")
+Reported-by: Kees Cook <keescook@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/mm/init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -870,7 +870,7 @@ __visible DEFINE_PER_CPU_SHARED_ALIGNED(
+ 	.next_asid = 1,
+ 	.cr4 = ~0UL,	/* fail hard if we screw up cr4 shadow initialization */
+ };
+-EXPORT_SYMBOL_GPL(cpu_tlbstate);
++EXPORT_PER_CPU_SYMBOL(cpu_tlbstate);
+ 
+ void update_cache_mode_entry(unsigned entry, enum page_cache_mode cache)
+ {
+From b9e705ef7cfaf22db0daab91ad3cd33b0fa32eb9 Mon Sep 17 00:00:00 2001
+From: David Woodhouse <dwmw@amazon.co.uk>
+Date: Thu, 4 Jan 2018 14:37:05 +0000
+Subject: x86/alternatives: Add missing '\n' at end of ALTERNATIVE inline asm
+
+From: David Woodhouse <dwmw@amazon.co.uk>
+
+commit b9e705ef7cfaf22db0daab91ad3cd33b0fa32eb9 upstream.
+
+Where an ALTERNATIVE is used in the middle of an inline asm block, this
+would otherwise lead to the following instruction being appended directly
+to the trailing ".popsection", and a failed compile.
+
+Fixes: 9cebed423c84 ("x86, alternative: Use .pushsection/.popsection")
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: gnomes@lxorguk.ukuu.org.uk
+Cc: Rik van Riel <riel@redhat.com>
+Cc: ak@linux.intel.com
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Paul Turner <pjt@google.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Kees Cook <keescook@google.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linux-foundation.org>
+Link: https://lkml.kernel.org/r/20180104143710.8961-8-dwmw@amazon.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/include/asm/alternative.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/arch/x86/include/asm/alternative.h
++++ b/arch/x86/include/asm/alternative.h
+@@ -140,7 +140,7 @@ static inline int alternatives_text_rese
+ 	".popsection\n"							\
+ 	".pushsection .altinstr_replacement, \"ax\"\n"			\
+ 	ALTINSTR_REPLACEMENT(newinstr, feature, 1)			\
+-	".popsection"
++	".popsection\n"
+ 
+ #define ALTERNATIVE_2(oldinstr, newinstr1, feature1, newinstr2, feature2)\
+ 	OLDINSTR_2(oldinstr, 1, 2)					\
+@@ -151,7 +151,7 @@ static inline int alternatives_text_rese
+ 	".pushsection .altinstr_replacement, \"ax\"\n"			\
+ 	ALTINSTR_REPLACEMENT(newinstr1, feature1, 1)			\
+ 	ALTINSTR_REPLACEMENT(newinstr2, feature2, 2)			\
+-	".popsection"
++	".popsection\n"
+ 
+ /*
+  * Alternative instructions for different CPU types or capabilities.
+From de791821c295cc61419a06fe5562288417d1bc58 Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Fri, 5 Jan 2018 15:27:34 +0100
+Subject: x86/pti: Rename BUG_CPU_INSECURE to BUG_CPU_MELTDOWN
+
+From: Thomas Gleixner <tglx@linutronix.de>
+
+commit de791821c295cc61419a06fe5562288417d1bc58 upstream.
+
+Use the name associated with the particular attack which needs page table
+isolation for mitigation.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+Cc: Jiri Koshina <jikos@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Andi Lutomirski  <luto@amacapital.net>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Paul Turner <pjt@google.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Greg KH <gregkh@linux-foundation.org>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Kees Cook <keescook@google.com>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.20.1801051525300.1724@nanos
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/include/asm/cpufeatures.h |    2 +-
+ arch/x86/kernel/cpu/common.c       |    2 +-
+ arch/x86/mm/pti.c                  |    6 +++---
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -341,6 +341,6 @@
+ #define X86_BUG_SWAPGS_FENCE		X86_BUG(11) /* SWAPGS without input dep on GS */
+ #define X86_BUG_MONITOR			X86_BUG(12) /* IPI required to wake up remote CPU */
+ #define X86_BUG_AMD_E400		X86_BUG(13) /* CPU is among the affected by Erratum 400 */
+-#define X86_BUG_CPU_INSECURE		X86_BUG(14) /* CPU is insecure and needs kernel page table isolation */
++#define X86_BUG_CPU_MELTDOWN		X86_BUG(14) /* CPU is affected by meltdown attack and needs kernel page table isolation */
+ 
+ #endif /* _ASM_X86_CPUFEATURES_H */
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -900,7 +900,7 @@ static void __init early_identify_cpu(st
+ 	setup_force_cpu_cap(X86_FEATURE_ALWAYS);
+ 
+ 	if (c->x86_vendor != X86_VENDOR_AMD)
+-		setup_force_cpu_bug(X86_BUG_CPU_INSECURE);
++		setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
+ 
+ 	fpu__init_system(c);
+ 
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -56,13 +56,13 @@
+ 
+ static void __init pti_print_if_insecure(const char *reason)
+ {
+-	if (boot_cpu_has_bug(X86_BUG_CPU_INSECURE))
++	if (boot_cpu_has_bug(X86_BUG_CPU_MELTDOWN))
+ 		pr_info("%s\n", reason);
+ }
+ 
+ static void __init pti_print_if_secure(const char *reason)
+ {
+-	if (!boot_cpu_has_bug(X86_BUG_CPU_INSECURE))
++	if (!boot_cpu_has_bug(X86_BUG_CPU_MELTDOWN))
+ 		pr_info("%s\n", reason);
+ }
+ 
+@@ -96,7 +96,7 @@ void __init pti_check_boottime_disable(v
+ 	}
+ 
+ autosel:
+-	if (!boot_cpu_has_bug(X86_BUG_CPU_INSECURE))
++	if (!boot_cpu_has_bug(X86_BUG_CPU_MELTDOWN))
+ 		return;
+ enable:
+ 	setup_force_cpu_cap(X86_FEATURE_PTI);
+From 4d9570158b6260f449e317a5f9ed030c2504a615 Mon Sep 17 00:00:00 2001
+From: Oleg Nesterov <oleg@redhat.com>
+Date: Thu, 4 Jan 2018 16:17:49 -0800
+Subject: kernel/acct.c: fix the acct->needcheck check in check_free_space()
+
+From: Oleg Nesterov <oleg@redhat.com>
+
+commit 4d9570158b6260f449e317a5f9ed030c2504a615 upstream.
+
+As Tsukada explains, the time_is_before_jiffies(acct->needcheck) check
+is very wrong, we need time_is_after_jiffies() to make sys_acct() work.
+
+Ignoring the overflows, the code should "goto out" if needcheck >
+jiffies, while currently it checks "needcheck < jiffies" and thus in the
+likely case check_free_space() does nothing until jiffies overflow.
+
+In particular this means that sys_acct() is simply broken, acct_on()
+sets acct->needcheck = jiffies and expects that check_free_space()
+should set acct->active = 1 after the free-space check, but this won't
+happen if jiffies increments in between.
+
+This was broken by commit 32dc73086015 ("get rid of timer in
+kern/acct.c") in 2011, then another (correct) commit 795a2f22a8ea
+("acct() should honour the limits from the very beginning") made the
+problem more visible.
+
+Link: http://lkml.kernel.org/r/20171213133940.GA6554@redhat.com
+Fixes: 32dc73086015 ("get rid of timer in kern/acct.c")
+Reported-by: TSUKADA Koutaro <tsukada@ascade.co.jp>
+Suggested-by: TSUKADA Koutaro <tsukada@ascade.co.jp>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ kernel/acct.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/kernel/acct.c
++++ b/kernel/acct.c
+@@ -102,7 +102,7 @@ static int check_free_space(struct bsd_a
+ {
+ 	struct kstatfs sbuf;
+ 
+-	if (time_is_before_jiffies(acct->needcheck))
++	if (time_is_after_jiffies(acct->needcheck))
+ 		goto out;
+ 
+ 	/* May block */
+From 4991c09c7c812dba13ea9be79a68b4565bb1fa4e Mon Sep 17 00:00:00 2001
+From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Date: Thu, 4 Jan 2018 16:17:52 -0800
+Subject: mm/mprotect: add a cond_resched() inside change_pmd_range()
+
+From: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+
+commit 4991c09c7c812dba13ea9be79a68b4565bb1fa4e upstream.
+
+While testing on a large CPU system, detected the following RCU stall
+many times over the span of the workload.  This problem is solved by
+adding a cond_resched() in the change_pmd_range() function.
+
+  INFO: rcu_sched detected stalls on CPUs/tasks:
+   154-....: (670 ticks this GP) idle=022/140000000000000/0 softirq=2825/2825 fqs=612
+   (detected by 955, t=6002 jiffies, g=4486, c=4485, q=90864)
+  Sending NMI from CPU 955 to CPUs 154:
+  NMI backtrace for cpu 154
+  CPU: 154 PID: 147071 Comm: workload Not tainted 4.15.0-rc3+ #3
+  NIP:  c0000000000b3f64 LR: c0000000000b33d4 CTR: 000000000000aa18
+  REGS: 00000000a4b0fb44 TRAP: 0501   Not tainted  (4.15.0-rc3+)
+  MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 22422082  XER: 00000000
+  CFAR: 00000000006cf8f0 SOFTE: 1
+  GPR00: 0010000000000000 c00003ef9b1cb8c0 c0000000010cc600 0000000000000000
+  GPR04: 8e0000018c32b200 40017b3858fd6e00 8e0000018c32b208 40017b3858fd6e00
+  GPR08: 8e0000018c32b210 40017b3858fd6e00 8e0000018c32b218 40017b3858fd6e00
+  GPR12: ffffffffffffffff c00000000fb25100
+  NIP [c0000000000b3f64] plpar_hcall9+0x44/0x7c
+  LR [c0000000000b33d4] pSeries_lpar_flush_hash_range+0x384/0x420
+  Call Trace:
+    flush_hash_range+0x48/0x100
+    __flush_tlb_pending+0x44/0xd0
+    hpte_need_flush+0x408/0x470
+    change_protection_range+0xaac/0xf10
+    change_prot_numa+0x30/0xb0
+    task_numa_work+0x2d0/0x3e0
+    task_work_run+0x130/0x190
+    do_notify_resume+0x118/0x120
+    ret_from_except_lite+0x70/0x74
+  Instruction dump:
+  60000000 f8810028 7ca42b78 7cc53378 7ce63b78 7d074378 7d284b78 7d495378
+  e9410060 e9610068 e9810070 44000022 <7d806378> e9810028 f88c0000 f8ac0008
+
+Link: http://lkml.kernel.org/r/20171214140551.5794-1-khandual@linux.vnet.ibm.com
+Signed-off-by: Anshuman Khandual <khandual@linux.vnet.ibm.com>
+Suggested-by: Nicholas Piggin <npiggin@gmail.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ mm/mprotect.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/mm/mprotect.c
++++ b/mm/mprotect.c
+@@ -166,7 +166,7 @@ static inline unsigned long change_pmd_r
+ 		next = pmd_addr_end(addr, end);
+ 		if (!is_swap_pmd(*pmd) && !pmd_trans_huge(*pmd) && !pmd_devmap(*pmd)
+ 				&& pmd_none_or_clear_bad(pmd))
+-			continue;
++			goto next;
+ 
+ 		/* invoke the mmu notifier if the pmd is populated */
+ 		if (!mni_start) {
+@@ -188,7 +188,7 @@ static inline unsigned long change_pmd_r
+ 					}
+ 
+ 					/* huge pmd was handled */
+-					continue;
++					goto next;
+ 				}
+ 			}
+ 			/* fall through, the trans huge pmd just split */
+@@ -196,6 +196,8 @@ static inline unsigned long change_pmd_r
+ 		this_pages = change_pte_range(vma, pmd, addr, next, newprot,
+ 				 dirty_accountable, prot_numa);
+ 		pages += this_pages;
++next:
++		cond_resched();
+ 	} while (pmd++, addr = next, addr != end);
+ 
+ 	if (mni_start)
+From d09cfbbfa0f761a97687828b5afb27b56cbf2e19 Mon Sep 17 00:00:00 2001
+From: Baoquan He <bhe@redhat.com>
+Date: Thu, 4 Jan 2018 16:18:06 -0800
+Subject: mm/sparse.c: wrong allocation for mem_section
+
+From: Baoquan He <bhe@redhat.com>
+
+commit d09cfbbfa0f761a97687828b5afb27b56cbf2e19 upstream.
+
+In commit 83e3c48729d9 ("mm/sparsemem: Allocate mem_section at runtime
+for CONFIG_SPARSEMEM_EXTREME=y") mem_section is allocated at runtime to
+save memory.
+
+It allocates the first dimension of array with sizeof(struct mem_section).
+
+It costs extra memory, should be sizeof(struct mem_section *).
+
+Fix it.
+
+Link: http://lkml.kernel.org/r/1513932498-20350-1-git-send-email-bhe@redhat.com
+Fixes: 83e3c48729 ("mm/sparsemem: Allocate mem_section at runtime for CONFIG_SPARSEMEM_EXTREME=y")
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Tested-by: Dave Young <dyoung@redhat.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Atsushi Kumagai <ats-kumagai@wm.jp.nec.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ mm/sparse.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -211,7 +211,7 @@ void __init memory_present(int nid, unsi
+ 	if (unlikely(!mem_section)) {
+ 		unsigned long size, align;
+ 
+-		size = sizeof(struct mem_section) * NR_SECTION_ROOTS;
++		size = sizeof(struct mem_section*) * NR_SECTION_ROOTS;
+ 		align = 1 << (INTERNODE_CACHE_SHIFT);
+ 		mem_section = memblock_virt_alloc(size, align);
+ 	}
+From 0cbb4b4f4c44f54af268969b18d8deda63aded59 Mon Sep 17 00:00:00 2001
+From: Andrea Arcangeli <aarcange@redhat.com>
+Date: Thu, 4 Jan 2018 16:18:09 -0800
+Subject: userfaultfd: clear the vma->vm_userfaultfd_ctx if UFFD_EVENT_FORK fails
+
+From: Andrea Arcangeli <aarcange@redhat.com>
+
+commit 0cbb4b4f4c44f54af268969b18d8deda63aded59 upstream.
+
+The previous fix in commit 384632e67e08 ("userfaultfd: non-cooperative:
+fix fork use after free") corrected the refcounting in case of
+UFFD_EVENT_FORK failure for the fork userfault paths.
+
+That still didn't clear the vma->vm_userfaultfd_ctx of the vmas that
+were set to point to the aborted new uffd ctx earlier in
+dup_userfaultfd.
+
+Link: http://lkml.kernel.org/r/20171223002505.593-2-aarcange@redhat.com
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Eric Biggers <ebiggers3@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ fs/userfaultfd.c |   20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
+
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -570,11 +570,14 @@ out:
+ static void userfaultfd_event_wait_completion(struct userfaultfd_ctx *ctx,
+ 					      struct userfaultfd_wait_queue *ewq)
+ {
++	struct userfaultfd_ctx *release_new_ctx;
++
+ 	if (WARN_ON_ONCE(current->flags & PF_EXITING))
+ 		goto out;
+ 
+ 	ewq->ctx = ctx;
+ 	init_waitqueue_entry(&ewq->wq, current);
++	release_new_ctx = NULL;
+ 
+ 	spin_lock(&ctx->event_wqh.lock);
+ 	/*
+@@ -601,8 +604,7 @@ static void userfaultfd_event_wait_compl
+ 				new = (struct userfaultfd_ctx *)
+ 					(unsigned long)
+ 					ewq->msg.arg.reserved.reserved1;
+-
+-				userfaultfd_ctx_put(new);
++				release_new_ctx = new;
+ 			}
+ 			break;
+ 		}
+@@ -617,6 +619,20 @@ static void userfaultfd_event_wait_compl
+ 	__set_current_state(TASK_RUNNING);
+ 	spin_unlock(&ctx->event_wqh.lock);
+ 
++	if (release_new_ctx) {
++		struct vm_area_struct *vma;
++		struct mm_struct *mm = release_new_ctx->mm;
++
++		/* the various vma->vm_userfaultfd_ctx still points to it */
++		down_write(&mm->mmap_sem);
++		for (vma = mm->mmap; vma; vma = vma->vm_next)
++			if (vma->vm_userfaultfd_ctx.ctx == release_new_ctx)
++				vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
++		up_write(&mm->mmap_sem);
++
++		userfaultfd_ctx_put(release_new_ctx);
++	}
++
+ 	/*
+ 	 * ctx may go away after this if the userfault pseudo fd is
+ 	 * already released.
+From ec35e48b286959991cdbb886f1bdeda4575c80b4 Mon Sep 17 00:00:00 2001
+From: Chris Mason <clm@fb.com>
+Date: Fri, 15 Dec 2017 11:58:27 -0800
+Subject: btrfs: fix refcount_t usage when deleting btrfs_delayed_nodes
+
+From: Chris Mason <clm@fb.com>
+
+commit ec35e48b286959991cdbb886f1bdeda4575c80b4 upstream.
+
+refcounts have a generic implementation and an asm optimized one.  The
+generic version has extra debugging to make sure that once a refcount
+goes to zero, refcount_inc won't increase it.
+
+The btrfs delayed inode code wasn't expecting this, and we're tripping
+over the warnings when the generic refcounts are used.  We ended up with
+this race:
+
+Process A                                         Process B
+                                                  btrfs_get_delayed_node()
+						  spin_lock(root->inode_lock)
+						  radix_tree_lookup()
+__btrfs_release_delayed_node()
+refcount_dec_and_test(&delayed_node->refs)
+our refcount is now zero
+						  refcount_add(2) <---
+						  warning here, refcount
+                                                  unchanged
+
+spin_lock(root->inode_lock)
+radix_tree_delete()
+
+With the generic refcounts, we actually warn again when process B above
+tries to release his refcount because refcount_add() turned into a
+no-op.
+
+We saw this in production on older kernels without the asm optimized
+refcounts.
+
+The fix used here is to use refcount_inc_not_zero() to detect when the
+object is in the middle of being freed and return NULL.  This is almost
+always the right answer anyway, since we usually end up pitching the
+delayed_node if it didn't have fresh data in it.
+
+This also changes __btrfs_release_delayed_node() to remove the extra
+check for zero refcounts before radix tree deletion.
+btrfs_get_delayed_node() was the only path that was allowing refcounts
+to go from zero to one.
+
+Fixes: 6de5f18e7b0da ("btrfs: fix refcount_t usage when deleting btrfs_delayed_node")
+Signed-off-by: Chris Mason <clm@fb.com>
+Reviewed-by: Liu Bo <bo.li.liu@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ fs/btrfs/delayed-inode.c |   45 ++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 11 deletions(-)
+
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -87,6 +87,7 @@ static struct btrfs_delayed_node *btrfs_
+ 
+ 	spin_lock(&root->inode_lock);
+ 	node = radix_tree_lookup(&root->delayed_nodes_tree, ino);
++
+ 	if (node) {
+ 		if (btrfs_inode->delayed_node) {
+ 			refcount_inc(&node->refs);	/* can be accessed */
+@@ -94,9 +95,30 @@ static struct btrfs_delayed_node *btrfs_
+ 			spin_unlock(&root->inode_lock);
+ 			return node;
+ 		}
+-		btrfs_inode->delayed_node = node;
+-		/* can be accessed and cached in the inode */
+-		refcount_add(2, &node->refs);
++
++		/*
++		 * It's possible that we're racing into the middle of removing
++		 * this node from the radix tree.  In this case, the refcount
++		 * was zero and it should never go back to one.  Just return
++		 * NULL like it was never in the radix at all; our release
++		 * function is in the process of removing it.
++		 *
++		 * Some implementations of refcount_inc refuse to bump the
++		 * refcount once it has hit zero.  If we don't do this dance
++		 * here, refcount_inc() may decide to just WARN_ONCE() instead
++		 * of actually bumping the refcount.
++		 *
++		 * If this node is properly in the radix, we want to bump the
++		 * refcount twice, once for the inode and once for this get
++		 * operation.
++		 */
++		if (refcount_inc_not_zero(&node->refs)) {
++			refcount_inc(&node->refs);
++			btrfs_inode->delayed_node = node;
++		} else {
++			node = NULL;
++		}
++
+ 		spin_unlock(&root->inode_lock);
+ 		return node;
+ 	}
+@@ -254,17 +276,18 @@ static void __btrfs_release_delayed_node
+ 	mutex_unlock(&delayed_node->mutex);
+ 
+ 	if (refcount_dec_and_test(&delayed_node->refs)) {
+-		bool free = false;
+ 		struct btrfs_root *root = delayed_node->root;
++
+ 		spin_lock(&root->inode_lock);
+-		if (refcount_read(&delayed_node->refs) == 0) {
+-			radix_tree_delete(&root->delayed_nodes_tree,
+-					  delayed_node->inode_id);
+-			free = true;
+-		}
++		/*
++		 * Once our refcount goes to zero, nobody is allowed to bump it
++		 * back up.  We can delete it now.
++		 */
++		ASSERT(refcount_read(&delayed_node->refs) == 0);
++		radix_tree_delete(&root->delayed_nodes_tree,
++				  delayed_node->inode_id);
+ 		spin_unlock(&root->inode_lock);
+-		if (free)
+-			kmem_cache_free(delayed_node_cache, delayed_node);
++		kmem_cache_free(delayed_node_cache, delayed_node);
+ 	}
+ }
+ 
+From f24c4d478013d82bd1b943df566fff3561d52864 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Tue, 2 Jan 2018 17:21:10 +0000
+Subject: efi/capsule-loader: Reinstate virtual capsule mapping
+
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+
+commit f24c4d478013d82bd1b943df566fff3561d52864 upstream.
+
+Commit:
+
+  82c3768b8d68 ("efi/capsule-loader: Use a cached copy of the capsule header")
+
+... refactored the capsule loading code that maps the capsule header,
+to avoid having to map it several times.
+
+However, as it turns out, the vmap() call we ended up removing did not
+just map the header, but the entire capsule image, and dropping this
+virtual mapping breaks capsules that are processed by the firmware
+immediately (i.e., without a reboot).
+
+Unfortunately, that change was part of a larger refactor that allowed
+a quirk to be implemented for Quark, which has a non-standard memory
+layout for capsules, and we have slightly painted ourselves into a
+corner by allowing quirk code to mangle the capsule header and memory
+layout.
+
+So we need to fix this without breaking Quark. Fortunately, Quark does
+not appear to care about the virtual mapping, and so we can simply
+do a partial revert of commit:
+
+  2a457fb31df6 ("efi/capsule-loader: Use page addresses rather than struct page pointers")
+
+... and create a vmap() mapping of the entire capsule (including header)
+based on the reinstated struct page array, unless running on Quark, in
+which case we pass the capsule header copy as before.
+
+Reported-by: Ge Song <ge.song@hxt-semitech.com>
+Tested-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Tested-by: Ge Song <ge.song@hxt-semitech.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Fixes: 82c3768b8d68 ("efi/capsule-loader: Use a cached copy of the capsule header")
+Link: http://lkml.kernel.org/r/20180102172110.17018-3-ard.biesheuvel@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/platform/efi/quirks.c        |   13 +++++++++
+ drivers/firmware/efi/capsule-loader.c |   45 +++++++++++++++++++++++++++-------
+ include/linux/efi.h                   |    4 ++-
+ 3 files changed, 52 insertions(+), 10 deletions(-)
+
+--- a/arch/x86/platform/efi/quirks.c
++++ b/arch/x86/platform/efi/quirks.c
+@@ -592,7 +592,18 @@ static int qrk_capsule_setup_info(struct
+ 	/*
+ 	 * Update the first page pointer to skip over the CSH header.
+ 	 */
+-	cap_info->pages[0] += csh->headersize;
++	cap_info->phys[0] += csh->headersize;
++
++	/*
++	 * cap_info->capsule should point at a virtual mapping of the entire
++	 * capsule, starting at the capsule header. Our image has the Quark
++	 * security header prepended, so we cannot rely on the default vmap()
++	 * mapping created by the generic capsule code.
++	 * Given that the Quark firmware does not appear to care about the
++	 * virtual mapping, let's just point cap_info->capsule at our copy
++	 * of the capsule header.
++	 */
++	cap_info->capsule = &cap_info->header;
+ 
+ 	return 1;
+ }
+--- a/drivers/firmware/efi/capsule-loader.c
++++ b/drivers/firmware/efi/capsule-loader.c
+@@ -20,10 +20,6 @@
+ 
+ #define NO_FURTHER_WRITE_ACTION -1
+ 
+-#ifndef phys_to_page
+-#define phys_to_page(x)		pfn_to_page((x) >> PAGE_SHIFT)
+-#endif
+-
+ /**
+  * efi_free_all_buff_pages - free all previous allocated buffer pages
+  * @cap_info: pointer to current instance of capsule_info structure
+@@ -35,7 +31,7 @@
+ static void efi_free_all_buff_pages(struct capsule_info *cap_info)
+ {
+ 	while (cap_info->index > 0)
+-		__free_page(phys_to_page(cap_info->pages[--cap_info->index]));
++		__free_page(cap_info->pages[--cap_info->index]);
+ 
+ 	cap_info->index = NO_FURTHER_WRITE_ACTION;
+ }
+@@ -71,6 +67,14 @@ int __efi_capsule_setup_info(struct caps
+ 
+ 	cap_info->pages = temp_page;
+ 
++	temp_page = krealloc(cap_info->phys,
++			     pages_needed * sizeof(phys_addr_t *),
++			     GFP_KERNEL | __GFP_ZERO);
++	if (!temp_page)
++		return -ENOMEM;
++
++	cap_info->phys = temp_page;
++
+ 	return 0;
+ }
+ 
+@@ -105,9 +109,24 @@ int __weak efi_capsule_setup_info(struct
+  **/
+ static ssize_t efi_capsule_submit_update(struct capsule_info *cap_info)
+ {
++	bool do_vunmap = false;
+ 	int ret;
+ 
+-	ret = efi_capsule_update(&cap_info->header, cap_info->pages);
++	/*
++	 * cap_info->capsule may have been assigned already by a quirk
++	 * handler, so only overwrite it if it is NULL
++	 */
++	if (!cap_info->capsule) {
++		cap_info->capsule = vmap(cap_info->pages, cap_info->index,
++					 VM_MAP, PAGE_KERNEL);
++		if (!cap_info->capsule)
++			return -ENOMEM;
++		do_vunmap = true;
++	}
++
++	ret = efi_capsule_update(cap_info->capsule, cap_info->phys);
++	if (do_vunmap)
++		vunmap(cap_info->capsule);
+ 	if (ret) {
+ 		pr_err("capsule update failed\n");
+ 		return ret;
+@@ -165,10 +184,12 @@ static ssize_t efi_capsule_write(struct
+ 			goto failed;
+ 		}
+ 
+-		cap_info->pages[cap_info->index++] = page_to_phys(page);
++		cap_info->pages[cap_info->index] = page;
++		cap_info->phys[cap_info->index] = page_to_phys(page);
+ 		cap_info->page_bytes_remain = PAGE_SIZE;
++		cap_info->index++;
+ 	} else {
+-		page = phys_to_page(cap_info->pages[cap_info->index - 1]);
++		page = cap_info->pages[cap_info->index - 1];
+ 	}
+ 
+ 	kbuff = kmap(page);
+@@ -252,6 +273,7 @@ static int efi_capsule_release(struct in
+ 	struct capsule_info *cap_info = file->private_data;
+ 
+ 	kfree(cap_info->pages);
++	kfree(cap_info->phys);
+ 	kfree(file->private_data);
+ 	file->private_data = NULL;
+ 	return 0;
+@@ -280,6 +302,13 @@ static int efi_capsule_open(struct inode
+ 		kfree(cap_info);
+ 		return -ENOMEM;
+ 	}
++
++	cap_info->phys = kzalloc(sizeof(void *), GFP_KERNEL);
++	if (!cap_info->phys) {
++		kfree(cap_info->pages);
++		kfree(cap_info);
++		return -ENOMEM;
++	}
+ 
+ 	file->private_data = cap_info;
+ 
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -140,11 +140,13 @@ struct efi_boot_memmap {
+ 
+ struct capsule_info {
+ 	efi_capsule_header_t	header;
++	efi_capsule_header_t	*capsule;
+ 	int			reset_type;
+ 	long			index;
+ 	size_t			count;
+ 	size_t			total_size;
+-	phys_addr_t		*pages;
++	struct page		**pages;
++	phys_addr_t		*phys;
+ 	size_t			page_bytes_remain;
+ };
+ 
+From 203f45003a3d03eea8fa28d74cfc74c354416fdb Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Tue, 19 Dec 2017 19:09:07 +0100
+Subject: crypto: n2 - cure use after free
+
+From: Jan Engelhardt <jengelh@inai.de>
+
+commit 203f45003a3d03eea8fa28d74cfc74c354416fdb upstream.
+
+queue_cache_init is first called for the Control Word Queue
+(n2_crypto_probe). At that time, queue_cache[0] is NULL and a new
+kmem_cache will be allocated. If the subsequent n2_register_algs call
+fails, the kmem_cache will be released in queue_cache_destroy, but
+queue_cache_init[0] is not set back to NULL.
+
+So when the Module Arithmetic Unit gets probed next (n2_mau_probe),
+queue_cache_init will not allocate a kmem_cache again, but leave it
+as its bogus value, causing a BUG() to trigger when queue_cache[0] is
+eventually passed to kmem_cache_zalloc:
+
+	n2_crypto: Found N2CP at /virtual-devices@100/n2cp@7
+	n2_crypto: Registered NCS HVAPI version 2.0
+	called queue_cache_init
+	n2_crypto: md5 alg registration failed
+	n2cp f028687c: /virtual-devices@100/n2cp@7: Unable to register algorithms.
+	called queue_cache_destroy
+	n2cp: probe of f028687c failed with error -22
+	n2_crypto: Found NCP at /virtual-devices@100/ncp@6
+	n2_crypto: Registered NCS HVAPI version 2.0
+	called queue_cache_init
+	kernel BUG at mm/slab.c:2993!
+	Call Trace:
+	 [0000000000604488] kmem_cache_alloc+0x1a8/0x1e0
+                  (inlined) kmem_cache_zalloc
+                  (inlined) new_queue
+                  (inlined) spu_queue_setup
+                  (inlined) handle_exec_unit
+	 [0000000010c61eb4] spu_mdesc_scan+0x1f4/0x460 [n2_crypto]
+	 [0000000010c62b80] n2_mau_probe+0x100/0x220 [n2_crypto]
+	 [000000000084b174] platform_drv_probe+0x34/0xc0
+
+Signed-off-by: Jan Engelhardt <jengelh@inai.de>
+Acked-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/crypto/n2_core.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/drivers/crypto/n2_core.c
++++ b/drivers/crypto/n2_core.c
+@@ -1625,6 +1625,7 @@ static int queue_cache_init(void)
+ 					  CWQ_ENTRY_SIZE, 0, NULL);
+ 	if (!queue_cache[HV_NCS_QTYPE_CWQ - 1]) {
+ 		kmem_cache_destroy(queue_cache[HV_NCS_QTYPE_MAU - 1]);
++		queue_cache[HV_NCS_QTYPE_MAU - 1] = NULL;
+ 		return -ENOMEM;
+ 	}
+ 	return 0;
+@@ -1634,6 +1635,8 @@ static void queue_cache_destroy(void)
+ {
+ 	kmem_cache_destroy(queue_cache[HV_NCS_QTYPE_MAU - 1]);
+ 	kmem_cache_destroy(queue_cache[HV_NCS_QTYPE_CWQ - 1]);
++	queue_cache[HV_NCS_QTYPE_MAU - 1] = NULL;
++	queue_cache[HV_NCS_QTYPE_CWQ - 1] = NULL;
+ }
+ 
+ static long spu_queue_register_workfn(void *arg)
+From e57121d08c38dabec15cf3e1e2ad46721af30cae Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Mon, 11 Dec 2017 12:15:17 -0800
+Subject: crypto: chacha20poly1305 - validate the digest size
+
+From: Eric Biggers <ebiggers@google.com>
+
+commit e57121d08c38dabec15cf3e1e2ad46721af30cae upstream.
+
+If the rfc7539 template was instantiated with a hash algorithm with
+digest size larger than 16 bytes (POLY1305_DIGEST_SIZE), then the digest
+overran the 'tag' buffer in 'struct chachapoly_req_ctx', corrupting the
+subsequent memory, including 'cryptlen'.  This caused a crash during
+crypto_skcipher_decrypt().
+
+Fix it by, when instantiating the template, requiring that the
+underlying hash algorithm has the digest size expected for Poly1305.
+
+Reproducer:
+
+    #include <linux/if_alg.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
+
+    int main()
+    {
+            int algfd, reqfd;
+            struct sockaddr_alg addr = {
+                    .salg_type = "aead",
+                    .salg_name = "rfc7539(chacha20,sha256)",
+            };
+            unsigned char buf[32] = { 0 };
+
+            algfd = socket(AF_ALG, SOCK_SEQPACKET, 0);
+            bind(algfd, (void *)&addr, sizeof(addr));
+            setsockopt(algfd, SOL_ALG, ALG_SET_KEY, buf, sizeof(buf));
+            reqfd = accept(algfd, 0, 0);
+            write(reqfd, buf, 16);
+            read(reqfd, buf, 16);
+    }
+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 71ebc4d1b27d ("crypto: chacha20poly1305 - Add a ChaCha20-Poly1305 AEAD construction, RFC7539")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ crypto/chacha20poly1305.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/crypto/chacha20poly1305.c
++++ b/crypto/chacha20poly1305.c
+@@ -610,6 +610,11 @@ static int chachapoly_create(struct cryp
+ 						    algt->mask));
+ 	if (IS_ERR(poly))
+ 		return PTR_ERR(poly);
++	poly_hash = __crypto_hash_alg_common(poly);
++
++	err = -EINVAL;
++	if (poly_hash->digestsize != POLY1305_DIGEST_SIZE)
++		goto out_put_poly;
+ 
+ 	err = -ENOMEM;
+ 	inst = kzalloc(sizeof(*inst) + sizeof(*ctx), GFP_KERNEL);
+@@ -618,7 +623,6 @@ static int chachapoly_create(struct cryp
+ 
+ 	ctx = aead_instance_ctx(inst);
+ 	ctx->saltlen = CHACHAPOLY_IV_SIZE - ivsize;
+-	poly_hash = __crypto_hash_alg_common(poly);
+ 	err = crypto_init_ahash_spawn(&ctx->poly, poly_hash,
+ 				      aead_crypto_instance(inst));
+ 	if (err)
+From d76c68109f37cb85b243a1cf0f40313afd2bae68 Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Wed, 20 Dec 2017 14:28:25 -0800
+Subject: crypto: pcrypt - fix freeing pcrypt instances
+
+From: Eric Biggers <ebiggers@google.com>
+
+commit d76c68109f37cb85b243a1cf0f40313afd2bae68 upstream.
+
+pcrypt is using the old way of freeing instances, where the ->free()
+method specified in the 'struct crypto_template' is passed a pointer to
+the 'struct crypto_instance'.  But the crypto_instance is being
+kfree()'d directly, which is incorrect because the memory was actually
+allocated as an aead_instance, which contains the crypto_instance at a
+nonzero offset.  Thus, the wrong pointer was being kfree()'d.
+
+Fix it by switching to the new way to free aead_instance's where the
+->free() method is specified in the aead_instance itself.
+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 0496f56065e0 ("crypto: pcrypt - Add support for new AEAD interface")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ crypto/pcrypt.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -254,6 +254,14 @@ static void pcrypt_aead_exit_tfm(struct
+ 	crypto_free_aead(ctx->child);
+ }
+ 
++static void pcrypt_free(struct aead_instance *inst)
++{
++	struct pcrypt_instance_ctx *ctx = aead_instance_ctx(inst);
++
++	crypto_drop_aead(&ctx->spawn);
++	kfree(inst);
++}
++
+ static int pcrypt_init_instance(struct crypto_instance *inst,
+ 				struct crypto_alg *alg)
+ {
+@@ -319,6 +327,8 @@ static int pcrypt_create_aead(struct cry
+ 	inst->alg.encrypt = pcrypt_aead_encrypt;
+ 	inst->alg.decrypt = pcrypt_aead_decrypt;
+ 
++	inst->free = pcrypt_free;
++
+ 	err = aead_register_instance(tmpl, inst);
+ 	if (err)
+ 		goto out_drop_aead;
+@@ -349,14 +359,6 @@ static int pcrypt_create(struct crypto_t
+ 	return -EINVAL;
+ }
+ 
+-static void pcrypt_free(struct crypto_instance *inst)
+-{
+-	struct pcrypt_instance_ctx *ctx = crypto_instance_ctx(inst);
+-
+-	crypto_drop_aead(&ctx->spawn);
+-	kfree(inst);
+-}
+-
+ static int pcrypt_cpumask_change_notify(struct notifier_block *self,
+ 					unsigned long val, void *data)
+ {
+@@ -469,7 +471,6 @@ static void pcrypt_fini_padata(struct pa
+ static struct crypto_template pcrypt_tmpl = {
+ 	.name = "pcrypt",
+ 	.create = pcrypt_create,
+-	.free = pcrypt_free,
+ 	.module = THIS_MODULE,
+ };
+ 
+From d042566d8c704e1ecec370300545d4a409222e39 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Tue, 5 Dec 2017 11:10:26 +0100
+Subject: crypto: chelsio - select CRYPTO_GF128MUL
+
+From: Arnd Bergmann <arnd@arndb.de>
+
+commit d042566d8c704e1ecec370300545d4a409222e39 upstream.
+
+Without the gf128mul library support, we can run into a link
+error:
+
+drivers/crypto/chelsio/chcr_algo.o: In function `chcr_update_tweak':
+chcr_algo.c:(.text+0x7e0): undefined reference to `gf128mul_x8_ble'
+
+This adds a Kconfig select statement for it, next to the ones we
+already have.
+
+Fixes: b8fd1f4170e7 ("crypto: chcr - Add ctr mode and process large sg entries for cipher")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/crypto/chelsio/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/crypto/chelsio/Kconfig
++++ b/drivers/crypto/chelsio/Kconfig
+@@ -5,6 +5,7 @@ config CRYPTO_DEV_CHELSIO
+ 	select CRYPTO_SHA256
+ 	select CRYPTO_SHA512
+ 	select CRYPTO_AUTHENC
++	select CRYPTO_GF128MUL
+ 	---help---
+ 	  The Chelsio Crypto Co-processor driver for T6 adapters.
+ 
+From 3488d0237f6364614f0c59d6d784bb79b11eeb92 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Fri, 8 Dec 2017 23:37:36 +0200
+Subject: drm/i915: Disable DC states around GMBUS on GLK
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+commit 3488d0237f6364614f0c59d6d784bb79b11eeb92 upstream.
+
+Prevent the DMC from destroying GMBUS transfers on GLK. GMBUS
+lives in PG1 so DC off is all we need.
+
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20171208213739.16388-1-ville.syrjala@linux.intel.com
+Reviewed-by: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+(cherry picked from commit 156961ae7bdf6feb72778e8da83d321b273343fd)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/gpu/drm/i915/intel_runtime_pm.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.c
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.c
+@@ -1786,6 +1786,7 @@ void intel_display_power_put(struct drm_
+ 	GLK_DISPLAY_POWERWELL_2_POWER_DOMAINS |		\
+ 	BIT_ULL(POWER_DOMAIN_MODESET) |			\
+ 	BIT_ULL(POWER_DOMAIN_AUX_A) |			\
++	BIT_ULL(POWER_DOMAIN_GMBUS) |			\
+ 	BIT_ULL(POWER_DOMAIN_INIT))
+ 
+ #define CNL_DISPLAY_POWERWELL_2_POWER_DOMAINS (		\
+From 30414f3010aff95ffdb6bed7b9dce62cde94fdc7 Mon Sep 17 00:00:00 2001
+From: Lucas De Marchi <lucas.demarchi@intel.com>
+Date: Tue, 2 Jan 2018 12:18:37 -0800
+Subject: drm/i915: Apply Display WA #1183 on skl, kbl, and cfl
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+From: Lucas De Marchi <lucas.demarchi@intel.com>
+
+commit 30414f3010aff95ffdb6bed7b9dce62cde94fdc7 upstream.
+
+Display WA #1183 was recently added to workaround
+"Failures when enabling DPLL0 with eDP link rate 2.16
+or 4.32 GHz and CD clock frequency 308.57 or 617.14 MHz
+(CDCLK_CTL CD Frequency Select 10b or 11b) used in this
+ enabling or in previous enabling."
+
+This workaround was designed to minimize the impact only
+to save the bad case with that link rates. But HW engineers
+indicated that it should be safe to apply broadly, although
+they were expecting the DPLL0 link rate to be unchanged on
+runtime.
+
+We need to cover 2 cases: when we are in fact enabling DPLL0
+and when we are just changing the frequency with small
+differences.
+
+This is based on previous patch by Rodrigo Vivi with suggestions
+from Ville Syrjälä.
+
+Cc: Arthur J Runyan <arthur.j.runyan@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20171204232210.4958-1-lucas.demarchi@intel.com
+(cherry picked from commit 53421c2fe99ce16838639ad89d772d914a119a49)
+[ Lucas: Backport to 4.15 adding back variable that has been removed on
+  commits not meant to be backported ]
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20180102201837.6812-1-lucas.demarchi@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/gpu/drm/i915/i915_reg.h         |    2 +
+ drivers/gpu/drm/i915/intel_cdclk.c      |   35 +++++++++++++++++++++++---------
+ drivers/gpu/drm/i915/intel_runtime_pm.c |   10 +++++++++
+ 3 files changed, 38 insertions(+), 9 deletions(-)
+
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -6944,6 +6944,7 @@ enum {
+ #define  RESET_PCH_HANDSHAKE_ENABLE	(1<<4)
+ 
+ #define GEN8_CHICKEN_DCPR_1		_MMIO(0x46430)
++#define   SKL_SELECT_ALTERNATE_DC_EXIT	(1<<30)
+ #define   MASK_WAKEMEM			(1<<13)
+ 
+ #define SKL_DFSM			_MMIO(0x51000)
+@@ -8475,6 +8476,7 @@ enum skl_power_gate {
+ #define  BXT_CDCLK_CD2X_DIV_SEL_2	(2<<22)
+ #define  BXT_CDCLK_CD2X_DIV_SEL_4	(3<<22)
+ #define  BXT_CDCLK_CD2X_PIPE(pipe)	((pipe)<<20)
++#define  CDCLK_DIVMUX_CD_OVERRIDE	(1<<19)
+ #define  BXT_CDCLK_CD2X_PIPE_NONE	BXT_CDCLK_CD2X_PIPE(3)
+ #define  BXT_CDCLK_SSA_PRECHARGE_ENABLE	(1<<16)
+ #define  CDCLK_FREQ_DECIMAL_MASK	(0x7ff)
+--- a/drivers/gpu/drm/i915/intel_cdclk.c
++++ b/drivers/gpu/drm/i915/intel_cdclk.c
+@@ -859,16 +859,10 @@ static void skl_set_preferred_cdclk_vco(
+ 
+ static void skl_dpll0_enable(struct drm_i915_private *dev_priv, int vco)
+ {
+-	int min_cdclk = skl_calc_cdclk(0, vco);
+ 	u32 val;
+ 
+ 	WARN_ON(vco != 8100000 && vco != 8640000);
+ 
+-	/* select the minimum CDCLK before enabling DPLL 0 */
+-	val = CDCLK_FREQ_337_308 | skl_cdclk_decimal(min_cdclk);
+-	I915_WRITE(CDCLK_CTL, val);
+-	POSTING_READ(CDCLK_CTL);
+-
+ 	/*
+ 	 * We always enable DPLL0 with the lowest link rate possible, but still
+ 	 * taking into account the VCO required to operate the eDP panel at the
+@@ -922,7 +916,7 @@ static void skl_set_cdclk(struct drm_i91
+ {
+ 	int cdclk = cdclk_state->cdclk;
+ 	int vco = cdclk_state->vco;
+-	u32 freq_select, pcu_ack;
++	u32 freq_select, pcu_ack, cdclk_ctl;
+ 	int ret;
+ 
+ 	WARN_ON((cdclk == 24000) != (vco == 0));
+@@ -939,7 +933,7 @@ static void skl_set_cdclk(struct drm_i91
+ 		return;
+ 	}
+ 
+-	/* set CDCLK_CTL */
++	/* Choose frequency for this cdclk */
+ 	switch (cdclk) {
+ 	case 450000:
+ 	case 432000:
+@@ -967,10 +961,33 @@ static void skl_set_cdclk(struct drm_i91
+ 	    dev_priv->cdclk.hw.vco != vco)
+ 		skl_dpll0_disable(dev_priv);
+ 
++	cdclk_ctl = I915_READ(CDCLK_CTL);
++
++	if (dev_priv->cdclk.hw.vco != vco) {
++		/* Wa Display #1183: skl,kbl,cfl */
++		cdclk_ctl &= ~(CDCLK_FREQ_SEL_MASK | CDCLK_FREQ_DECIMAL_MASK);
++		cdclk_ctl |= freq_select | skl_cdclk_decimal(cdclk);
++		I915_WRITE(CDCLK_CTL, cdclk_ctl);
++	}
++
++	/* Wa Display #1183: skl,kbl,cfl */
++	cdclk_ctl |= CDCLK_DIVMUX_CD_OVERRIDE;
++	I915_WRITE(CDCLK_CTL, cdclk_ctl);
++	POSTING_READ(CDCLK_CTL);
++
+ 	if (dev_priv->cdclk.hw.vco != vco)
+ 		skl_dpll0_enable(dev_priv, vco);
+ 
+-	I915_WRITE(CDCLK_CTL, freq_select | skl_cdclk_decimal(cdclk));
++	/* Wa Display #1183: skl,kbl,cfl */
++	cdclk_ctl &= ~(CDCLK_FREQ_SEL_MASK | CDCLK_FREQ_DECIMAL_MASK);
++	I915_WRITE(CDCLK_CTL, cdclk_ctl);
++
++	cdclk_ctl |= freq_select | skl_cdclk_decimal(cdclk);
++	I915_WRITE(CDCLK_CTL, cdclk_ctl);
++
++	/* Wa Display #1183: skl,kbl,cfl */
++	cdclk_ctl &= ~CDCLK_DIVMUX_CD_OVERRIDE;
++	I915_WRITE(CDCLK_CTL, cdclk_ctl);
+ 	POSTING_READ(CDCLK_CTL);
+ 
+ 	/* inform PCU of the change */
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.c
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.c
+@@ -598,6 +598,11 @@ void gen9_enable_dc5(struct drm_i915_pri
+ 
+ 	DRM_DEBUG_KMS("Enabling DC5\n");
+ 
++	/* Wa Display #1183: skl,kbl,cfl */
++	if (IS_GEN9_BC(dev_priv))
++		I915_WRITE(GEN8_CHICKEN_DCPR_1, I915_READ(GEN8_CHICKEN_DCPR_1) |
++			   SKL_SELECT_ALTERNATE_DC_EXIT);
++
+ 	gen9_set_dc_state(dev_priv, DC_STATE_EN_UPTO_DC5);
+ }
+ 
+@@ -625,6 +630,11 @@ void skl_disable_dc6(struct drm_i915_pri
+ {
+ 	DRM_DEBUG_KMS("Disabling DC6\n");
+ 
++	/* Wa Display #1183: skl,kbl,cfl */
++	if (IS_GEN9_BC(dev_priv))
++		I915_WRITE(GEN8_CHICKEN_DCPR_1, I915_READ(GEN8_CHICKEN_DCPR_1) |
++			   SKL_SELECT_ALTERNATE_DC_EXIT);
++
+ 	gen9_set_dc_state(dev_priv, DC_STATE_DISABLE);
+ }
+ 
+From e2bf801ecd4e62222a46d1ba9e57e710171d29c1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>
+Date: Mon, 27 Nov 2017 20:05:34 +0100
+Subject: sunxi-rsb: Include OF based modalias in device uevent
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+From: Stefan Brüns <stefan.bruens@rwth-aachen.de>
+
+commit e2bf801ecd4e62222a46d1ba9e57e710171d29c1 upstream.
+
+Include the OF-based modalias in the uevent sent when registering devices
+on the sunxi RSB bus, so that user space has a chance to autoload the
+kernel module for the device.
+
+Fixes a regression caused by commit 3f241bfa60bd ("arm64: allwinner: a64:
+pine64: Use dcdc1 regulator for mmc0"). When the axp20x-rsb module for
+the AXP803 PMIC is built as a module, it is not loaded and the system
+ends up with an disfunctional MMC controller.
+
+Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Stefan Brüns <stefan.bruens@rwth-aachen.de>
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/bus/sunxi-rsb.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/bus/sunxi-rsb.c
++++ b/drivers/bus/sunxi-rsb.c
+@@ -178,6 +178,7 @@ static struct bus_type sunxi_rsb_bus = {
+ 	.match		= sunxi_rsb_device_match,
+ 	.probe		= sunxi_rsb_device_probe,
+ 	.remove		= sunxi_rsb_device_remove,
++	.uevent		= of_device_uevent_modalias,
+ };
+ 
+ static void sunxi_rsb_dev_release(struct device *dev)
+From 98801506552593c9b8ac11021b0cdad12cab4f6b Mon Sep 17 00:00:00 2001
+From: David Howells <dhowells@redhat.com>
+Date: Tue, 2 Jan 2018 10:02:19 +0000
+Subject: fscache: Fix the default for fscache_maybe_release_page()
+
+From: David Howells <dhowells@redhat.com>
+
+commit 98801506552593c9b8ac11021b0cdad12cab4f6b upstream.
+
+Fix the default for fscache_maybe_release_page() for when the cookie isn't
+valid or the page isn't cached.  It mustn't return false as that indicates
+the page cannot yet be freed.
+
+The problem with the default is that if, say, there's no cache, but a
+network filesystem's pages are using up almost all the available memory, a
+system can OOM because the filesystem ->releasepage() op will not allow
+them to be released as fscache_maybe_release_page() incorrectly prevents
+it.
+
+This can be tested by writing a sequence of 512MiB files to an AFS mount.
+It does not affect NFS or CIFS because both of those wrap the call in a
+check of PG_fscache and it shouldn't bother Ceph as that only has
+PG_private set whilst writeback is in progress.  This might be an issue for
+9P, however.
+
+Note that the pages aren't entirely stuck.  Removing a file or unmounting
+will clear things because that uses ->invalidatepage() instead.
+
+Fixes: 201a15428bd5 ("FS-Cache: Handle pages pending storage that get evicted under OOM conditions")
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ include/linux/fscache.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/include/linux/fscache.h
++++ b/include/linux/fscache.h
+@@ -755,7 +755,7 @@ bool fscache_maybe_release_page(struct f
+ {
+ 	if (fscache_cookie_valid(cookie) && PageFsCache(page))
+ 		return __fscache_maybe_release_page(cookie, page, gfp);
+-	return false;
++	return true;
+ }
+ 
+ /**
+From b29c6ef7bb1257853c1e31616d84f55e561cf631 Mon Sep 17 00:00:00 2001
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Date: Mon, 13 Nov 2017 02:15:39 +0100
+Subject: x86 / CPU: Avoid unnecessary IPIs in arch_freq_get_on_cpu()
+
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+commit b29c6ef7bb1257853c1e31616d84f55e561cf631 upstream.
+
+Even though aperfmperf_snapshot_khz() caches the samples.khz value to
+return if called again in a sufficiently short time, its caller,
+arch_freq_get_on_cpu(), still uses smp_call_function_single() to run it
+which may allow user space to trigger an IPI storm by reading from the
+scaling_cur_freq cpufreq sysfs file in a tight loop.
+
+To avoid that, move the decision on whether or not to return the cached
+samples.khz value to arch_freq_get_on_cpu().
+
+This change was part of commit 941f5f0f6ef5 ("x86: CPU: Fix up "cpu MHz"
+in /proc/cpuinfo"), but it was not the reason for the revert and it
+remains applicable.
+
+Fixes: 4815d3c56d1e (cpufreq: x86: Make scaling_cur_freq behave more as expected)
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: WANG Chao <chao.wang@ucloud.cn>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/kernel/cpu/aperfmperf.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+--- a/arch/x86/kernel/cpu/aperfmperf.c
++++ b/arch/x86/kernel/cpu/aperfmperf.c
+@@ -42,10 +42,6 @@ static void aperfmperf_snapshot_khz(void
+ 	s64 time_delta = ktime_ms_delta(now, s->time);
+ 	unsigned long flags;
+ 
+-	/* Don't bother re-computing within the cache threshold time. */
+-	if (time_delta < APERFMPERF_CACHE_THRESHOLD_MS)
+-		return;
+-
+ 	local_irq_save(flags);
+ 	rdmsrl(MSR_IA32_APERF, aperf);
+ 	rdmsrl(MSR_IA32_MPERF, mperf);
+@@ -74,6 +70,7 @@ static void aperfmperf_snapshot_khz(void
+ 
+ unsigned int arch_freq_get_on_cpu(int cpu)
+ {
++	s64 time_delta;
+ 	unsigned int khz;
+ 
+ 	if (!cpu_khz)
+@@ -82,6 +79,12 @@ unsigned int arch_freq_get_on_cpu(int cp
+ 	if (!static_cpu_has(X86_FEATURE_APERFMPERF))
+ 		return 0;
+ 
++	/* Don't bother re-computing within the cache threshold time. */
++	time_delta = ktime_ms_delta(ktime_get(), per_cpu(samples.time, cpu));
++	khz = per_cpu(samples.khz, cpu);
++	if (khz && time_delta < APERFMPERF_CACHE_THRESHOLD_MS)
++		return khz;
++
+ 	smp_call_function_single(cpu, aperfmperf_snapshot_khz, NULL, 1);
+ 	khz = per_cpu(samples.khz, cpu);
+ 	if (khz)
+From 7d5905dc14a87805a59f3c5bf70173aac2bb18f8 Mon Sep 17 00:00:00 2001
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Date: Wed, 15 Nov 2017 02:13:40 +0100
+Subject: x86 / CPU: Always show current CPU frequency in /proc/cpuinfo
+
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+commit 7d5905dc14a87805a59f3c5bf70173aac2bb18f8 upstream.
+
+After commit 890da9cf0983 (Revert "x86: do not use cpufreq_quick_get()
+for /proc/cpuinfo "cpu MHz"") the "cpu MHz" number in /proc/cpuinfo
+on x86 can be either the nominal CPU frequency (which is constant)
+or the frequency most recently requested by a scaling governor in
+cpufreq, depending on the cpufreq configuration.  That is somewhat
+inconsistent and is different from what it was before 4.13, so in
+order to restore the previous behavior, make it report the current
+CPU frequency like the scaling_cur_freq sysfs file in cpufreq.
+
+To that end, modify the /proc/cpuinfo implementation on x86 to use
+aperfmperf_snapshot_khz() to snapshot the APERF and MPERF feedback
+registers, if available, and use their values to compute the CPU
+frequency to be reported as "cpu MHz".
+
+However, do that carefully enough to avoid accumulating delays that
+lead to unacceptable access times for /proc/cpuinfo on systems with
+many CPUs.  Run aperfmperf_snapshot_khz() once on all CPUs
+asynchronously at the /proc/cpuinfo open time, add a single delay
+upfront (if necessary) at that point and simply compute the current
+frequency while running show_cpuinfo() for each individual CPU.
+
+Also, to avoid slowing down /proc/cpuinfo accesses too much, reduce
+the default delay between consecutive APERF and MPERF reads to 10 ms,
+which should be sufficient to get large enough numbers for the
+frequency computation in all cases.
+
+Fixes: 890da9cf0983 (Revert "x86: do not use cpufreq_quick_get() for /proc/cpuinfo "cpu MHz"")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/kernel/cpu/Makefile     |    2 -
+ arch/x86/kernel/cpu/aperfmperf.c |   74 +++++++++++++++++++++++++++------------
+ arch/x86/kernel/cpu/cpu.h        |    3 +
+ arch/x86/kernel/cpu/proc.c       |    6 ++-
+ fs/proc/cpuinfo.c                |    6 +++
+ include/linux/cpufreq.h          |    1 
+ 6 files changed, 68 insertions(+), 24 deletions(-)
+
+--- a/arch/x86/kernel/cpu/Makefile
++++ b/arch/x86/kernel/cpu/Makefile
+@@ -22,7 +22,7 @@ obj-y			+= common.o
+ obj-y			+= rdrand.o
+ obj-y			+= match.o
+ obj-y			+= bugs.o
+-obj-$(CONFIG_CPU_FREQ)	+= aperfmperf.o
++obj-y			+= aperfmperf.o
+ obj-y			+= cpuid-deps.o
+ 
+ obj-$(CONFIG_PROC_FS)	+= proc.o
+--- a/arch/x86/kernel/cpu/aperfmperf.c
++++ b/arch/x86/kernel/cpu/aperfmperf.c
+@@ -14,6 +14,8 @@
+ #include <linux/percpu.h>
+ #include <linux/smp.h>
+ 
++#include "cpu.h"
++
+ struct aperfmperf_sample {
+ 	unsigned int	khz;
+ 	ktime_t	time;
+@@ -24,7 +26,7 @@ struct aperfmperf_sample {
+ static DEFINE_PER_CPU(struct aperfmperf_sample, samples);
+ 
+ #define APERFMPERF_CACHE_THRESHOLD_MS	10
+-#define APERFMPERF_REFRESH_DELAY_MS	20
++#define APERFMPERF_REFRESH_DELAY_MS	10
+ #define APERFMPERF_STALE_THRESHOLD_MS	1000
+ 
+ /*
+@@ -38,8 +40,6 @@ static void aperfmperf_snapshot_khz(void
+ 	u64 aperf, aperf_delta;
+ 	u64 mperf, mperf_delta;
+ 	struct aperfmperf_sample *s = this_cpu_ptr(&samples);
+-	ktime_t now = ktime_get();
+-	s64 time_delta = ktime_ms_delta(now, s->time);
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
+@@ -57,38 +57,68 @@ static void aperfmperf_snapshot_khz(void
+ 	if (mperf_delta == 0)
+ 		return;
+ 
+-	s->time = now;
++	s->time = ktime_get();
+ 	s->aperf = aperf;
+ 	s->mperf = mperf;
+-
+-	/* If the previous iteration was too long ago, discard it. */
+-	if (time_delta > APERFMPERF_STALE_THRESHOLD_MS)
+-		s->khz = 0;
+-	else
+-		s->khz = div64_u64((cpu_khz * aperf_delta), mperf_delta);
++	s->khz = div64_u64((cpu_khz * aperf_delta), mperf_delta);
+ }
+ 
+-unsigned int arch_freq_get_on_cpu(int cpu)
++static bool aperfmperf_snapshot_cpu(int cpu, ktime_t now, bool wait)
+ {
+-	s64 time_delta;
+-	unsigned int khz;
++	s64 time_delta = ktime_ms_delta(now, per_cpu(samples.time, cpu));
++
++	/* Don't bother re-computing within the cache threshold time. */
++	if (time_delta < APERFMPERF_CACHE_THRESHOLD_MS)
++		return true;
++
++	smp_call_function_single(cpu, aperfmperf_snapshot_khz, NULL, wait);
++
++	/* Return false if the previous iteration was too long ago. */
++	return time_delta <= APERFMPERF_STALE_THRESHOLD_MS;
++}
+ 
++unsigned int aperfmperf_get_khz(int cpu)
++{
+ 	if (!cpu_khz)
+ 		return 0;
+ 
+ 	if (!static_cpu_has(X86_FEATURE_APERFMPERF))
+ 		return 0;
+ 
+-	/* Don't bother re-computing within the cache threshold time. */
+-	time_delta = ktime_ms_delta(ktime_get(), per_cpu(samples.time, cpu));
+-	khz = per_cpu(samples.khz, cpu);
+-	if (khz && time_delta < APERFMPERF_CACHE_THRESHOLD_MS)
+-		return khz;
++	aperfmperf_snapshot_cpu(cpu, ktime_get(), true);
++	return per_cpu(samples.khz, cpu);
++}
+ 
+-	smp_call_function_single(cpu, aperfmperf_snapshot_khz, NULL, 1);
+-	khz = per_cpu(samples.khz, cpu);
+-	if (khz)
+-		return khz;
++void arch_freq_prepare_all(void)
++{
++	ktime_t now = ktime_get();
++	bool wait = false;
++	int cpu;
++
++	if (!cpu_khz)
++		return;
++
++	if (!static_cpu_has(X86_FEATURE_APERFMPERF))
++		return;
++
++	for_each_online_cpu(cpu)
++		if (!aperfmperf_snapshot_cpu(cpu, now, false))
++			wait = true;
++
++	if (wait)
++		msleep(APERFMPERF_REFRESH_DELAY_MS);
++}
++
++unsigned int arch_freq_get_on_cpu(int cpu)
++{
++	if (!cpu_khz)
++		return 0;
++
++	if (!static_cpu_has(X86_FEATURE_APERFMPERF))
++		return 0;
++
++	if (aperfmperf_snapshot_cpu(cpu, ktime_get(), true))
++		return per_cpu(samples.khz, cpu);
+ 
+ 	msleep(APERFMPERF_REFRESH_DELAY_MS);
+ 	smp_call_function_single(cpu, aperfmperf_snapshot_khz, NULL, 1);
+--- a/arch/x86/kernel/cpu/cpu.h
++++ b/arch/x86/kernel/cpu/cpu.h
+@@ -47,4 +47,7 @@ extern const struct cpu_dev *const __x86
+ 
+ extern void get_cpu_cap(struct cpuinfo_x86 *c);
+ extern void cpu_detect_cache_sizes(struct cpuinfo_x86 *c);
++
++unsigned int aperfmperf_get_khz(int cpu);
++
+ #endif /* ARCH_X86_CPU_H */
+--- a/arch/x86/kernel/cpu/proc.c
++++ b/arch/x86/kernel/cpu/proc.c
+@@ -5,6 +5,8 @@
+ #include <linux/seq_file.h>
+ #include <linux/cpufreq.h>
+ 
++#include "cpu.h"
++
+ /*
+  *	Get CPU information for use by the procfs.
+  */
+@@ -78,9 +80,11 @@ static int show_cpuinfo(struct seq_file
+ 		seq_printf(m, "microcode\t: 0x%x\n", c->microcode);
+ 
+ 	if (cpu_has(c, X86_FEATURE_TSC)) {
+-		unsigned int freq = cpufreq_quick_get(cpu);
++		unsigned int freq = aperfmperf_get_khz(cpu);
+ 
+ 		if (!freq)
++			freq = cpufreq_quick_get(cpu);
++		if (!freq)
+ 			freq = cpu_khz;
+ 		seq_printf(m, "cpu MHz\t\t: %u.%03u\n",
+ 			   freq / 1000, (freq % 1000));
+--- a/fs/proc/cpuinfo.c
++++ b/fs/proc/cpuinfo.c
+@@ -1,12 +1,18 @@
+ // SPDX-License-Identifier: GPL-2.0
++#include <linux/cpufreq.h>
+ #include <linux/fs.h>
+ #include <linux/init.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+ 
++__weak void arch_freq_prepare_all(void)
++{
++}
++
+ extern const struct seq_operations cpuinfo_op;
+ static int cpuinfo_open(struct inode *inode, struct file *file)
+ {
++	arch_freq_prepare_all();
+ 	return seq_open(file, &cpuinfo_op);
+ }
+ 
+--- a/include/linux/cpufreq.h
++++ b/include/linux/cpufreq.h
+@@ -917,6 +917,7 @@ static inline bool policy_has_boost_freq
+ }
+ #endif
+ 
++extern void arch_freq_prepare_all(void);
+ extern unsigned int arch_freq_get_on_cpu(int cpu);
+ 
+ /* the following are really really optional */
+From 628c1bcba204052d19b686b5bac149a644cdb72e Mon Sep 17 00:00:00 2001
+From: Oleg Nesterov <oleg@redhat.com>
+Date: Fri, 17 Nov 2017 15:30:01 -0800
+Subject: kernel/signal.c: protect the traced SIGNAL_UNKILLABLE tasks from SIGKILL
+
+From: Oleg Nesterov <oleg@redhat.com>
+
+commit 628c1bcba204052d19b686b5bac149a644cdb72e upstream.
+
+The comment in sig_ignored() says "Tracers may want to know about even
+ignored signals" but SIGKILL can not be reported to debugger and it is
+just wrong to return 0 in this case: SIGKILL should only kill the
+SIGNAL_UNKILLABLE task if it comes from the parent ns.
+
+Change sig_ignored() to ignore ->ptrace if sig == SIGKILL and rely on
+sig_task_ignored().
+
+SISGTOP coming from within the namespace is not really right too but at
+least debugger can intercept it, and we can't drop it here because this
+will break "gdb -p 1": ptrace_attach() won't work.  Perhaps we will add
+another ->ptrace check later, we will see.
+
+Link: http://lkml.kernel.org/r/20171103184206.GB21036@redhat.com
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Tested-by: Kyle Huey <me@kylehuey.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ kernel/signal.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -94,13 +94,15 @@ static int sig_ignored(struct task_struc
+ 	if (sigismember(&t->blocked, sig) || sigismember(&t->real_blocked, sig))
+ 		return 0;
+ 
+-	if (!sig_task_ignored(t, sig, force))
+-		return 0;
+-
+ 	/*
+-	 * Tracers may want to know about even ignored signals.
++	 * Tracers may want to know about even ignored signal unless it
++	 * is SIGKILL which can't be reported anyway but can be ignored
++	 * by SIGNAL_UNKILLABLE task.
+ 	 */
+-	return !t->ptrace;
++	if (t->ptrace && sig != SIGKILL)
++		return 0;
++
++	return sig_task_ignored(t, sig, force);
+ }
+ 
+ /*
+From ac25385089f673560867eb5179228a44ade0cfc1 Mon Sep 17 00:00:00 2001
+From: Oleg Nesterov <oleg@redhat.com>
+Date: Fri, 17 Nov 2017 15:30:04 -0800
+Subject: kernel/signal.c: protect the SIGNAL_UNKILLABLE tasks from !sig_kernel_only() signals
+
+From: Oleg Nesterov <oleg@redhat.com>
+
+commit ac25385089f673560867eb5179228a44ade0cfc1 upstream.
+
+Change sig_task_ignored() to drop the SIG_DFL && !sig_kernel_only()
+signals even if force == T.  This simplifies the next change and this
+matches the same check in get_signal() which will drop these signals
+anyway.
+
+Link: http://lkml.kernel.org/r/20171103184227.GC21036@redhat.com
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Tested-by: Kyle Huey <me@kylehuey.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ kernel/signal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -78,7 +78,7 @@ static int sig_task_ignored(struct task_
+ 	handler = sig_handler(t, sig);
+ 
+ 	if (unlikely(t->signal->flags & SIGNAL_UNKILLABLE) &&
+-			handler == SIG_DFL && !force)
++	    handler == SIG_DFL && !(force && sig_kernel_only(sig)))
+ 		return 1;
+ 
+ 	return sig_handler_ignored(handler, sig);
+From 426915796ccaf9c2bd9bb06dc5702225957bc2e5 Mon Sep 17 00:00:00 2001
+From: Oleg Nesterov <oleg@redhat.com>
+Date: Fri, 17 Nov 2017 15:30:08 -0800
+Subject: kernel/signal.c: remove the no longer needed SIGNAL_UNKILLABLE check in complete_signal()
+
+From: Oleg Nesterov <oleg@redhat.com>
+
+commit 426915796ccaf9c2bd9bb06dc5702225957bc2e5 upstream.
+
+complete_signal() checks SIGNAL_UNKILLABLE before it starts to destroy
+the thread group, today this is wrong in many ways.
+
+If nothing else, fatal_signal_pending() should always imply that the
+whole thread group (except ->group_exit_task if it is not NULL) is
+killed, this check breaks the rule.
+
+After the previous changes we can rely on sig_task_ignored();
+sig_fatal(sig) && SIGNAL_UNKILLABLE can only be true if we actually want
+to kill this task and sig == SIGKILL OR it is traced and debugger can
+intercept the signal.
+
+This should hopefully fix the problem reported by Dmitry.  This
+test-case
+
+	static int init(void *arg)
+	{
+		for (;;)
+			pause();
+	}
+
+	int main(void)
+	{
+		char stack[16 * 1024];
+
+		for (;;) {
+			int pid = clone(init, stack + sizeof(stack)/2,
+					CLONE_NEWPID | SIGCHLD, NULL);
+			assert(pid > 0);
+
+			assert(ptrace(PTRACE_ATTACH, pid, 0, 0) == 0);
+			assert(waitpid(-1, NULL, WSTOPPED) == pid);
+
+			assert(ptrace(PTRACE_DETACH, pid, 0, SIGSTOP) == 0);
+			assert(syscall(__NR_tkill, pid, SIGKILL) == 0);
+			assert(pid == wait(NULL));
+		}
+	}
+
+triggers the WARN_ON_ONCE(!(task->jobctl & JOBCTL_STOP_PENDING)) in
+task_participate_group_stop().  do_signal_stop()->signal_group_exit()
+checks SIGNAL_GROUP_EXIT and return false, but task_set_jobctl_pending()
+checks fatal_signal_pending() and does not set JOBCTL_STOP_PENDING.
+
+And his should fix the minor security problem reported by Kyle,
+SECCOMP_RET_TRACE can miss fatal_signal_pending() the same way if the
+task is the root of a pid namespace.
+
+Link: http://lkml.kernel.org/r/20171103184246.GD21036@redhat.com
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Reported-by: Kyle Huey <me@kylehuey.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Kyle Huey <me@kylehuey.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ kernel/signal.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -931,9 +931,9 @@ static void complete_signal(int sig, str
+ 	 * then start taking the whole group down immediately.
+ 	 */
+ 	if (sig_fatal(p, sig) &&
+-	    !(signal->flags & (SIGNAL_UNKILLABLE | SIGNAL_GROUP_EXIT)) &&
++	    !(signal->flags & SIGNAL_GROUP_EXIT) &&
+ 	    !sigismember(&t->real_blocked, sig) &&
+-	    (sig == SIGKILL || !t->ptrace)) {
++	    (sig == SIGKILL || !p->ptrace)) {
+ 		/*
+ 		 * This signal will be fatal to the whole group.
+ 		 */
+From 57d72e159b60456c8bb281736c02ddd3164037aa Mon Sep 17 00:00:00 2001
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Date: Thu, 14 Dec 2017 11:03:01 +0000
+Subject: iommu/arm-smmu-v3: Don't free page table ops twice
+
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+
+commit 57d72e159b60456c8bb281736c02ddd3164037aa upstream.
+
+Kasan reports a double free when finalise_stage_fn fails: the io_pgtable
+ops are freed by arm_smmu_domain_finalise and then again by
+arm_smmu_domain_free. Prevent this by leaving pgtbl_ops empty on failure.
+
+Fixes: 48ec83bcbcf5 ("iommu/arm-smmu: Add initial driver support for ARM SMMUv3 devices")
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/iommu/arm-smmu-v3.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -1611,13 +1611,15 @@ static int arm_smmu_domain_finalise(stru
+ 	domain->pgsize_bitmap = pgtbl_cfg.pgsize_bitmap;
+ 	domain->geometry.aperture_end = (1UL << ias) - 1;
+ 	domain->geometry.force_aperture = true;
+-	smmu_domain->pgtbl_ops = pgtbl_ops;
+ 
+ 	ret = finalise_stage_fn(smmu_domain, &pgtbl_cfg);
+-	if (ret < 0)
++	if (ret < 0) {
+ 		free_io_pgtable_ops(pgtbl_ops);
++		return ret;
++	}
+ 
+-	return ret;
++	smmu_domain->pgtbl_ops = pgtbl_ops;
++	return 0;
+ }
+ 
+ static __le64 *arm_smmu_get_step_for_sid(struct arm_smmu_device *smmu, u32 sid)
+From 563b5cbe334e9503ab2b234e279d500fc4f76018 Mon Sep 17 00:00:00 2001
+From: Robin Murphy <robin.murphy@arm.com>
+Date: Tue, 2 Jan 2018 12:33:14 +0000
+Subject: iommu/arm-smmu-v3: Cope with duplicated Stream IDs
+
+From: Robin Murphy <robin.murphy@arm.com>
+
+commit 563b5cbe334e9503ab2b234e279d500fc4f76018 upstream.
+
+For PCI devices behind an aliasing PCIe-to-PCI/X bridge, the bridge
+alias to DevFn 0.0 on the subordinate bus may match the original RID of
+the device, resulting in the same SID being present in the device's
+fwspec twice. This causes trouble later in arm_smmu_write_strtab_ent()
+when we wind up visiting the STE a second time and find it already live.
+
+Avoid the issue by giving arm_smmu_install_ste_for_dev() the cleverness
+to skip over duplicates. It seems mildly counterintuitive compared to
+preventing the duplicates from existing in the first place, but since
+the DT and ACPI probe paths build their fwspecs differently, this is
+actually the cleanest and most self-contained way to deal with it.
+
+Fixes: 8f78515425da ("iommu/arm-smmu: Implement of_xlate() for SMMUv3")
+Reported-by: Tomasz Nowicki <tomasz.nowicki@caviumnetworks.com>
+Tested-by: Tomasz Nowicki <Tomasz.Nowicki@cavium.com>
+Tested-by: Jayachandran C. <jnair@caviumnetworks.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/iommu/arm-smmu-v3.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -1646,7 +1646,7 @@ static __le64 *arm_smmu_get_step_for_sid
+ 
+ static void arm_smmu_install_ste_for_dev(struct iommu_fwspec *fwspec)
+ {
+-	int i;
++	int i, j;
+ 	struct arm_smmu_master_data *master = fwspec->iommu_priv;
+ 	struct arm_smmu_device *smmu = master->smmu;
+ 
+@@ -1654,6 +1654,13 @@ static void arm_smmu_install_ste_for_dev
+ 		u32 sid = fwspec->ids[i];
+ 		__le64 *step = arm_smmu_get_step_for_sid(smmu, sid);
+ 
++		/* Bridged PCI devices may end up with duplicated IDs */
++		for (j = 0; j < i; j++)
++			if (fwspec->ids[j] == sid)
++				break;
++		if (j < i)
++			continue;
++
+ 		arm_smmu_write_strtab_ent(smmu, sid, step, &master->ste);
+ 	}
+ }
+From 79435ac78d160e4c245544d457850a56f805ac0d Mon Sep 17 00:00:00 2001
+From: Vineet Gupta <vgupta@synopsys.com>
+Date: Fri, 8 Dec 2017 08:26:58 -0800
+Subject: ARC: uaccess: dont use "l" gcc inline asm constraint modifier
+
+From: Vineet Gupta <vgupta@synopsys.com>
+
+commit 79435ac78d160e4c245544d457850a56f805ac0d upstream.
+
+This used to setup the LP_COUNT register automatically, but now has been
+removed.
+
+There was an earlier fix 3c7c7a2fc8811 which fixed instance in delay.h but
+somehow missed this one as gcc change had not made its way into
+production toolchains and was not pedantic as it is now !
+
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/arc/include/asm/uaccess.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/arch/arc/include/asm/uaccess.h
++++ b/arch/arc/include/asm/uaccess.h
+@@ -668,6 +668,7 @@ __arc_strncpy_from_user(char *dst, const
+ 		return 0;
+ 
+ 	__asm__ __volatile__(
++	"	mov	lp_count, %5		\n"
+ 	"	lp	3f			\n"
+ 	"1:	ldb.ab  %3, [%2, 1]		\n"
+ 	"	breq.d	%3, 0, 3f               \n"
+@@ -684,8 +685,8 @@ __arc_strncpy_from_user(char *dst, const
+ 	"	.word   1b, 4b			\n"
+ 	"	.previous			\n"
+ 	: "+r"(res), "+r"(dst), "+r"(src), "=r"(val)
+-	: "g"(-EFAULT), "l"(count)
+-	: "memory");
++	: "g"(-EFAULT), "r"(count)
++	: "lp_count", "lp_start", "lp_end", "memory");
+ 
+ 	return res;
+ }
+From ecb101aed86156ec7cd71e5dca668e09146e6994 Mon Sep 17 00:00:00 2001
+From: John Sperbeck <jsperbeck@google.com>
+Date: Sun, 31 Dec 2017 21:24:58 -0800
+Subject: powerpc/mm: Fix SEGV on mapped region to return SEGV_ACCERR
+
+From: John Sperbeck <jsperbeck@google.com>
+
+commit ecb101aed86156ec7cd71e5dca668e09146e6994 upstream.
+
+The recent refactoring of the powerpc page fault handler in commit
+c3350602e876 ("powerpc/mm: Make bad_area* helper functions") caused
+access to protected memory regions to indicate SEGV_MAPERR instead of
+the traditional SEGV_ACCERR in the si_code field of a user-space
+signal handler. This can confuse debug libraries that temporarily
+change the protection of memory regions, and expect to use SEGV_ACCERR
+as an indication to restore access to a region.
+
+This commit restores the previous behavior. The following program
+exhibits the issue:
+
+    $ ./repro read  || echo "FAILED"
+    $ ./repro write || echo "FAILED"
+    $ ./repro exec  || echo "FAILED"
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <unistd.h>
+    #include <signal.h>
+    #include <sys/mman.h>
+    #include <assert.h>
+
+    static void segv_handler(int n, siginfo_t *info, void *arg) {
+            _exit(info->si_code == SEGV_ACCERR ? 0 : 1);
+    }
+
+    int main(int argc, char **argv)
+    {
+            void *p = NULL;
+            struct sigaction act = {
+                    .sa_sigaction = segv_handler,
+                    .sa_flags = SA_SIGINFO,
+            };
+
+            assert(argc == 2);
+            p = mmap(NULL, getpagesize(),
+                    (strcmp(argv[1], "write") == 0) ? PROT_READ : 0,
+                    MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+            assert(p != MAP_FAILED);
+
+            assert(sigaction(SIGSEGV, &act, NULL) == 0);
+            if (strcmp(argv[1], "read") == 0)
+                    printf("%c", *(unsigned char *)p);
+            else if (strcmp(argv[1], "write") == 0)
+                    *(unsigned char *)p = 0;
+            else if (strcmp(argv[1], "exec") == 0)
+                    ((void (*)(void))p)();
+            return 1;  /* failed to generate SEGV */
+    }
+
+Fixes: c3350602e876 ("powerpc/mm: Make bad_area* helper functions")
+Signed-off-by: John Sperbeck <jsperbeck@google.com>
+Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+[mpe: Add commit references in change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/powerpc/mm/fault.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -145,6 +145,11 @@ static noinline int bad_area(struct pt_r
+ 	return __bad_area(regs, address, SEGV_MAPERR);
+ }
+ 
++static noinline int bad_access(struct pt_regs *regs, unsigned long address)
++{
++	return __bad_area(regs, address, SEGV_ACCERR);
++}
++
+ static int do_sigbus(struct pt_regs *regs, unsigned long address,
+ 		     unsigned int fault)
+ {
+@@ -490,7 +495,7 @@ retry:
+ 
+ good_area:
+ 	if (unlikely(access_error(is_write, is_exec, vma)))
+-		return bad_area(regs, address);
++		return bad_access(regs, address);
+ 
+ 	/*
+ 	 * If for any reason at all we couldn't handle the fault,
+From 10d900303f1c3a821eb0bef4e7b7ece16768fba4 Mon Sep 17 00:00:00 2001
+From: Aaron Ma <aaron.ma@canonical.com>
+Date: Sat, 25 Nov 2017 16:48:41 -0800
+Subject: Input: elantech - add new icbody type 15
+
+From: Aaron Ma <aaron.ma@canonical.com>
+
+commit 10d900303f1c3a821eb0bef4e7b7ece16768fba4 upstream.
+
+The touchpad of Lenovo Thinkpad L480 reports it's version as 15.
+
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/input/mouse/elantech.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1613,7 +1613,7 @@ static int elantech_set_properties(struc
+ 		case 5:
+ 			etd->hw_version = 3;
+ 			break;
+-		case 6 ... 14:
++		case 6 ... 15:
+ 			etd->hw_version = 4;
+ 			break;
+ 		default:
+From f4e9b7af0cd58dd039a0fb2cd67d57cea4889abf Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Thu, 30 Nov 2017 16:46:40 -0600
+Subject: x86/microcode/AMD: Add support for fam17h microcode loading
+
+From: Tom Lendacky <thomas.lendacky@amd.com>
+
+commit f4e9b7af0cd58dd039a0fb2cd67d57cea4889abf upstream.
+
+The size for the Microcode Patch Block (MPB) for an AMD family 17h
+processor is 3200 bytes.  Add a #define for fam17h so that it does
+not default to 2048 bytes and fail a microcode load/update.
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Borislav Petkov <bp@alien8.de>
+Link: https://lkml.kernel.org/r/20171130224640.15391.40247.stgit@tlendack-t1.amdoffice.net
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Alice Ferrazzi <alicef@gentoo.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/kernel/cpu/microcode/amd.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/arch/x86/kernel/cpu/microcode/amd.c
++++ b/arch/x86/kernel/cpu/microcode/amd.c
+@@ -470,6 +470,7 @@ static unsigned int verify_patch_size(u8
+ #define F14H_MPB_MAX_SIZE 1824
+ #define F15H_MPB_MAX_SIZE 4096
+ #define F16H_MPB_MAX_SIZE 3458
++#define F17H_MPB_MAX_SIZE 3200
+ 
+ 	switch (family) {
+ 	case 0x14:
+@@ -481,6 +482,9 @@ static unsigned int verify_patch_size(u8
+ 	case 0x16:
+ 		max_size = F16H_MPB_MAX_SIZE;
+ 		break;
++	case 0x17:
++		max_size = F17H_MPB_MAX_SIZE;
++		break;
+ 	default:
+ 		max_size = F1XH_MPB_MAX_SIZE;
+ 		break;
