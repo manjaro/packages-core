@@ -15,9 +15,9 @@ _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
 _sub=0
-_rc=rc6
-_shortgit=.r180106.g3219e26
-_git=3219e264b984ec0a13923aa66385819c2e98d582
+_rc=rc7
+_shortgit=.r180107.gb2cd1df
+_git=b2cd1df66037e7c4697c7e40496bf7e4a5e16a2d
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -53,29 +53,22 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         '0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
-        # Zen temperature
-        #'0001-zen-temp.patch::https://patchwork.kernel.org/patch/9941509/raw/'
-        #'0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941521/raw/'
-        #'0003-zen-temp.patch::https://patchwork.kernel.org/patch/9941527/raw/'
         # Bootsplash
-        #'0001-bootsplash.patch::https://patchwork.kernel.org/patch/10026659/raw/'
-        #'0002-bootsplash.patch::https://patchwork.kernel.org/patch/10026661/raw/'
-        #'0003-bootsplash.patch::https://patchwork.kernel.org/patch/10026617/raw/'
-        #'0004-bootsplash.patch::https://patchwork.kernel.org/patch/10026615/raw/'
-        #'0005-bootsplash.patch::https://patchwork.kernel.org/patch/10026635/raw/'
-        #'0006-bootsplash.patch::https://patchwork.kernel.org/patch/10026643/raw/'
-        #'0007-bootsplash.patch::https://patchwork.kernel.org/patch/10026641/raw/'
-        #'0008-bootsplash.patch::https://patchwork.kernel.org/patch/10026647/raw/'
-        #'0009-bootsplash.patch::https://patchwork.kernel.org/patch/10026627/raw/'
-        #'0010-bootsplash.patch::https://patchwork.kernel.org/patch/10026639/raw/'
-        #'0011-bootsplash.patch::https://patchwork.kernel.org/patch/10026629/raw/'
-        #'0012-bootsplash.patch::https://patchwork.kernel.org/patch/10026637/raw/'
-        #'0013-bootsplash.patch::https://patchwork.kernel.org/patch/10026619/raw/'
-        #'0014-bootsplash.patch::https://patchwork.kernel.org/patch/10026623/raw/'
-        # Fix HP-WMI for libinput v1.9.1+
-        #'hp-wmi-fix-tablet-mode-detection-for-convertibles.patch::https://github.com/torvalds/linux/commit/9968e12a291e639dd51d1218b694d440b22a917f.patch'
+        #'0001-bootsplash.patch::https://patchwork.kernel.org/patch/10110819/raw/'
+        #'0002-bootsplash.patch::https://patchwork.kernel.org/patch/10110805/raw/'
+        #'0003-bootsplash.patch::https://patchwork.kernel.org/patch/10110817/raw/'
+        #'0004-bootsplash.patch::https://patchwork.kernel.org/patch/10110749/raw/'
+        #'0005-bootsplash.patch::https://patchwork.kernel.org/patch/10110793/raw/'
+        #'0006-bootsplash.patch::https://patchwork.kernel.org/patch/10110753/raw/'
+        #'0007-bootsplash.patch::https://patchwork.kernel.org/patch/10110799/raw/'
+        #'0008-bootsplash.patch::https://patchwork.kernel.org/patch/10110797/raw/'
+        #'0009-bootsplash.patch::https://patchwork.kernel.org/patch/10110785/raw/'
+        #'0010-bootsplash.patch::https://patchwork.kernel.org/patch/10110765/raw/'
+        #'0011-bootsplash.patch::https://patchwork.kernel.org/patch/10110787/raw/'
+        #'0012-bootsplash.patch::https://patchwork.kernel.org/patch/10110771/raw/'
+        #'0013-bootsplash.patch::https://patchwork.kernel.org/patch/10110759/raw/'
 )
-sha256sums=('c45d6ef3cff0d6e0d0c873a8f44c6d3326b036115d55c0e4664dec54cec2cd18'
+sha256sums=('4862a95bf40ebd0ba568b1b41dec7c8c732c9a5145f8e2fbca1c6bd186847ba7'
             '6e585c2efabc7d190345af7d2e5f0a2dc260bf73b5f33063c614216747315e55'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -110,15 +103,6 @@ prepare() {
   # https://bugs.freedesktop.org/show_bug.cgi?id=103497
   patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch
 
-  # libinput v1.9.1 issue
-  # see: https://bugs.freedesktop.org/show_bug.cgi?id=103561
-  #patch -Np1 -i "${srcdir}/hp-wmi-fix-tablet-mode-detection-for-convertibles.patch"
-
-  # Add support for temperature sensors on Family 17h (Ryzen) processors.
-  #patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
-  #patch -Np1 -i "${srcdir}/0002-zen-temp.patch"
-  #patch -Np1 -i "${srcdir}/0003-zen-temp.patch"
-
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
   #patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
   #patch -Np1 -i "${srcdir}/0002-bootsplash.patch"
@@ -133,7 +117,6 @@ prepare() {
   #patch -Np1 -i "${srcdir}/0011-bootsplash.patch"
   #patch -Np1 -i "${srcdir}/0012-bootsplash.patch"
   #patch -Np1 -i "${srcdir}/0013-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0014-bootsplash.patch"
 
   # add aufs4 support
   #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
