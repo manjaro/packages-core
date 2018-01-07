@@ -47,12 +47,16 @@ post_upgrade() {
 		if [ "$(vercmp $(grep 'sddm' /tmp/cmd1 | cut -d' ' -f2) 0.17.0-5)" -le 0 ]; then
 			msg "Fix sddm upgrade ..."
 			rm /var/lib/pacman/db.lck &> /dev/null
-			mv /etc/sddm.conf /etc/sddm.backup
+			if [ -e "/etc/sddm.conf" ]; then
+				mv /etc/sddm.conf /etc/sddm.backup
+			fi
 			pacman --noconfirm -S sddm
 			if [ -e "/etc/sddm.conf" ]; then
 				mv /etc/sddm.conf /etc/sddm.conf.pacnew
 			fi
-			mv /etc/sddm.backup /etc/sddm.conf
+			if [ -e "/etc/sddm.backup" ]; then
+				mv /etc/sddm.backup /etc/sddm.conf
+			fi
 		fi
 	fi
 
