@@ -12,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _aufs=20170410
 _bfq=v8r12
-_sub=75
+_sub=76
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -47,7 +47,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
         '0003-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
         '0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/0a76ac80e84d0be0aba24ab60ac3bc14bc49bbc9.patch'
-        '0001-add-support-for-fam17h-microcode-loading.patch::https://github.com/torvalds/linux/commit/f4e9b7af0cd58dd039a0fb2cd67d57cea4889abf.patch'
         # Zen temperature
         '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
         '0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
@@ -55,7 +54,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            '992956ec4d7c10fb4360f82099196592adfbeb191a6193ab7d3af7b2515551e1'
+            '9bc56c158c42d682fc631c2ed98da54bac26c7f0796d75999e48dd4a09b7ad64'
             '724f55b0695e8f27760f555068134d14067ba40998af041a153adabedd65f7ea'
             'b7cdb38f2928d39a49ce0617ebb536491259beafeab0eec7dda06363ae1eec91'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -92,9 +91,6 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
-
-  # https://spectreattack.com/ https://bugs.archlinux.org/task/56951
-  patch -Np1 -i ../0001-add-support-for-fam17h-microcode-loading.patch
 
   # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
   patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
