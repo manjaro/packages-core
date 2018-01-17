@@ -12,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _aufs=20170410
 _bfq=v8r12
-_sub=76
+_sub=77
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -42,7 +42,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
-        'e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         '0001-HID-microsoft-Add-Surface-4-type-cover-pro-4-not-JP-versions.patch::https://github.com/torvalds/linux/commit/2ae3986b84e9d325bc92a1efbcf0c6b0f5016b35.patch'
         '0002-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/4fed0231994b27b3896bc63885ac66d02fff625b.patch'
         '0003-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch::https://github.com/torvalds/linux/commit/66e5c5ffc7a5e4d36d136ce4fd8bdb4e92ecec7b.patch'
@@ -54,9 +53,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            '9bc56c158c42d682fc631c2ed98da54bac26c7f0796d75999e48dd4a09b7ad64'
-            '724f55b0695e8f27760f555068134d14067ba40998af041a153adabedd65f7ea'
-            'b7cdb38f2928d39a49ce0617ebb536491259beafeab0eec7dda06363ae1eec91'
+            '8aa68d127620d5b643c0dbdb01676bab5296e81f953daf7d9dcba282f1d07503'
+            '8272e9a39e1292a1d35077ce0837ebe0b99bbe97681306109519da692ccc549a'
+            '2ff4e05ebcf44e793532fbf285bc44f4bc70d396949c0008be0d63935a97603f'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
@@ -70,7 +69,6 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
             '1ff51208068a4ff836bb8cf90ede45f8d4e07ffb2e069cddae98a3f19a52807e'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
-            'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
             'c317b35c5661b96445b05ea7a1a7564c10650f94fb273a2cbf6d21eaa41e7a06'
             '3aaca014f7e4768965dfe5e9740f2007d49f2319db6b6cf566ac7b8b869a6506'
             'dc464866c4b773644b729803ec3e99c0cdd9781727db35337ac6b06ccd3f458b'
@@ -91,9 +89,6 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
-
-  # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
-  patch -Np1 -i "${srcdir}/e1000e-fix-Separate-signaling-for-link-check-link-up.patch"
 
   # set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
   # remove this when a Kconfig knob is made available by upstream

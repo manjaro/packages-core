@@ -15,7 +15,7 @@ _aufs=20170703
 _bfq=v8r12
 _bfqdate=20171108
 _bfqdate2=20171228
-_sub=13
+_sub=14
 _rc=
 _shortgit=
 _git=
@@ -52,9 +52,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         0002-dccp-CVE-2017-8824-use-after-free-in-DCCP-code.patch
         0002-xfrm-Fix-stack-out-of-bounds-read-on-socket-policy-l.patch
-        0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
         # MANJARO Patches
-        '0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch::https://bugzilla.kernel.org/attachment.cgi?id=261183&action=diff&collapsed=&headers=1&format=raw'
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
         #"prepatch-${_basekernel}.patch"
         # Zen temperature
@@ -77,8 +75,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10110759/raw/'
 )
 sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
-            'ce897f467e80452f29d7a7a8809e8585ea12192a2c32e4d18578f64b043e802e'
-            'fca8c8c18aad7a3aa942fc3e2371d18ee78e7207832834aa83cb1c1a399c06d7'
+            '62d656b98f0dc143216cb9650bd9b96cd83d92925731e9f0bec5eb4d6358e603'
+            'd175076f9e66754f3c2b1194c572fbddab242b8c077faa38306549b368d4ea2b'
             '03bcfef52aea8159563d31b1012d6bcfff6b79d216d02b989c0b913612a9be68'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
@@ -88,8 +86,6 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             '1d69940c6bf1731fa1d1da29b32ec4f594fa360118fe7b128c9810285ebf13e2'
             '64a014f7e1b4588728b3ea9538beee67ec63fb792d890c7be9cc13ddc2121b00'
-            '3d4c41086c077fbd515d04f5e59c0c258f700433c5da3365d960b696c2e56efb'
-            'b8031e0901240b2228edafab1955518352264a7f01291509c91207cef2116cd5'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
             'cd463af7193bcf864c42e95d804976a627ac11132886f25e04dfc2471c28bf6c'
@@ -132,12 +128,6 @@ prepare() {
 
   # https://bugs.archlinux.org/task/56605
   patch -Np1 -i ../0002-xfrm-Fix-stack-out-of-bounds-read-on-socket-policy-l.patch
-
-  # https://bugs.archlinux.org/task/56846
-  patch -Np1 -i ../0003-cgroup-fix-css_task_iter-crash-on-CSS_TASK_ITER_PROC.patch
-
-  # e1000e - https://bugzilla.kernel.org/show_bug.cgi?id=198047
-  patch -Np1 -i ../0001-e1000e-fix-Separate-signaling-for-link-check-link-up.patch
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"
