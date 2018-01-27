@@ -4,7 +4,7 @@
 pkgname=linux-firmware
 _commit=2a713be25a44bd6cec90d8affc54b246a2ca9c7b # master
 pkgver=20180119.2a713be
-pkgrel=1
+pkgrel=2
 pkgdesc="Firmware files for Linux"
 makedepends=('git')
 arch=('any')
@@ -37,39 +37,13 @@ replaces=('kernel26-firmware'
           'amd-ucode')
 options=(!strip)
 source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_rev}"
-        "iwlwifi-update-16-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=c48ebaf4b31bad10c1d5203706a2e5960da4fc5c"
-        "iwlwifi-add-14-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=6ba88f9586a9b3b79d6278b11a2cf04732151013"
-        "iwlwifi-add-15-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=ca2c1a9c426ab0eb4c4a7d44335ca647b143531f"
-        "iwlwifi-add-17-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=833d464fc077d653d8e728d3d4c2b3d98ba581fd"
-        "iwlwifi-add-18-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=c8bc8058fc9089b73a85f301ec26eaa1daec38ac"
-        "iwlwifi-add-19-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=219d52e7ad7e9ea6f806d7abfc2918cd999f3acb"
-        "iwlwifi-add-20-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=7129ac81a733762e2cddd6e294c4d77c0a3e6c71"
-        "iwlwifi-update-22-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=685548cc4795ede5c924cfea9c0274b98ab8b0d8"
-        "iwlwifi-update-17-ucode.patch::https://git.kernel.org/cgit/linux/kernel/git/iwlwifi/linux-firmware.git/patch/?id=be8a6fcba2e48e00674d1f35e6def56e2268039c"
         'microcode_amd_fam17h.bin')
 md5sums=('SKIP'
-         '81ef67b100c72c133a5fde379b980ded'
-         '63fdcdce7ccdcbcf8beda0b2443f0ce8'
-         '86775dadd2784a200917bfbc622cd238'
-         'be41227c79e2fbe78d3bffafb19cc054'
-         '401f012748792b0648a9cfc0fb43a7b9'
-         'ddd3eb8f6267a415e16f7698cc261e02'
-         'e97092be36e0dc5232758bc3090d0a80'
-         'b5bc0dbee285dcd659435a61c015052c'
-         '5fa1a287aef54e70457418eda8e025c4'
          '4610fdded46938a4b094c5897e5c92b2')
 
 prepare() {
   cd "${srcdir}/${pkgname}"
-  patch -p1 -i "${srcdir}/iwlwifi-update-16-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-add-14-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-add-15-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-add-17-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-add-18-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-add-19-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-add-20-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-update-22-ucode.patch"
-  patch -p1 -i "${srcdir}/iwlwifi-update-17-ucode.patch"
+  # patches here
 }
 
 pkgver() {
