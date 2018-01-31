@@ -18,8 +18,8 @@ _sub=0
 _rc=rc9
 _shortgit=.r180127.gc4e0ca7
 _git=c4e0ca7fa24137e372d6135fe16e8df8e123f116
-pkgver=${_basekernel}${_shortgit}
-#pkgver=${_basekernel}.${_sub}
+#pkgver=${_basekernel}${_shortgit}
+pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -28,8 +28,8 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
 options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://git.kernel.org/torvalds/t/linux-${_basekernel}-${_rc}.tar.gz"
-        #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        linux-${_basekernel}${_rc}${_shortgit}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
+        https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
+        #linux-${_basekernel}${_rc}${_shortgit}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config.x86_64' 'config' # 'config.aufs'
@@ -66,7 +66,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         #'0012-bootsplash.patch::https://patchwork.kernel.org/patch/10110771/raw/'
         #'0013-bootsplash.patch::https://patchwork.kernel.org/patch/10110759/raw/'
 )
-sha256sums=('edc9b66e78a81504c5d3bcbfdd968f1eb390c228acc819a3f6697a8718f75089'
+sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
             'ab72401ef6334e7464673da27dd4050589566f60c8214d0fce96ed7b19a9a06b'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -75,7 +75,7 @@ sha256sums=('edc9b66e78a81504c5d3bcbfdd968f1eb390c228acc819a3f6697a8718f75089'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148')
 prepare() {
-  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
+  #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
   #mv "${srcdir}/linux-${_basekernel}-${_rc}" "${srcdir}/linux-${_basekernel}"
   cd "${srcdir}/linux-${_basekernel}"
 
