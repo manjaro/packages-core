@@ -20,7 +20,7 @@ _sub=2
 #_git=c4e0ca7fa24137e372d6135fe16e8df8e123f116
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -48,6 +48,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         0001-BFQ-${_bfq}-${_bfqdate}.patch
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
+        0001-ssb-Do-not-disable-PCI-host-on-non-Mips.patch
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
         # Bootsplash
@@ -67,13 +68,14 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
 )
 sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
             '812499c5d0cc5183606dc9388084df162ca2eb5fa374d8f8b00136fd82825847'
-            'c1b2c90a0c58fbaebef8415947bfde5a8e91480bd22da18088b0371e702ad838'
+            '95b42b2fee6b9b820065bcd6357b29e5729c934e2e9170e106692dd537be4a8d'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
             'ea69ef89ecf53592b5e653c254464a47172d90b80d1fba4ff2d7d6d06024aad8'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
+            'b21406c060cf601f879528cfa1b83f524c44d8ecd99689c331a7c6326653d0be'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148')
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
@@ -93,6 +95,9 @@ prepare() {
 
   # https://bugs.freedesktop.org/show_bug.cgi?id=103497
   patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch
+
+  # https://bugs.archlinux.org/task/57327
+  patch -Np1 -i ../0001-ssb-Do-not-disable-PCI-host-on-non-Mips.patch
 
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
   #patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
