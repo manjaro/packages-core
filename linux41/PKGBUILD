@@ -13,8 +13,8 @@ _basekernel=4.1
 _basever=41
 _aufs=20170220 # Last Version
 _bfq=v7r8
-pkgver=${_basekernel}.48
-pkgrel=3
+pkgver=${_basekernel}.49
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -48,7 +48,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-ovl-allow-distributed-fs-as-lower-layer.patch'
         '0003-ovl-fix-open-in-stacked-overlay.patch::https://github.com/torvalds/linux/commit/1c8a47df36d72ace8cf78eb6c228aa0f8027d3c2.patch'
         'i8042-asus-x455lab-dmi.patch'
-        'gcc-7.1-ilog2.patch'
         # Zen temperature
         '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
         '0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
@@ -56,7 +55,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
-            'cc1e260b1fbfe330a2bbaaf8dbf43c4a58574b9f5834f925135409bc43d1f8cb'
+            '31e5cce70826304099ea781ccc2d677c5ede1db5fe6129db378978e0216565d7'
             'f3ad2809f5eda0b957d5bc09648260242aa8849ff00ae4eb116ff59cdaf8c5ec'
             'c6ecfeaf7edda6e152c1471b441e3d6dfa8be237c9186cc210b8abf906261df5'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -80,7 +79,6 @@ sha256sums=('caf51f085aac1e1cea4d00dbbf3093ead07b551fc07b31b2a989c05f8ea72d9f'
             '6bb3f7a4119230c61e68a51f4233dc4dcf82af2cf62c753e7d9753b52eec2aa9'
             '1d3bfab9203e6e773044a40ad229d524bcd50714aa8b6160a62224071cb2f85b'
             '42aac9d4b2745a1fb6b6504dd42173baad521d75ff6533a7179f7c756eca9d8d'
-            '188111a23d2700320989ae7026986079ece313a13a9abd9086c15ac35a84556f'
             '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
             'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
             'cd463af7193bcf864c42e95d804976a627ac11132886f25e04dfc2471c28bf6c'
@@ -102,9 +100,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/0002-zen-temp.patch"
   patch -Np1 -i "${srcdir}/0003-zen-temp.patch"
   patch -Np1 -i "${srcdir}/0004-zen-temp.patch"
-
-  # fix gcc71
-  patch -Np1 -i "${srcdir}/gcc-7.1-ilog2.patch"
 
   # Fix https://github.com/manjaro/release-plan/issues/8
   # Backports from v4.2 and v4.3
