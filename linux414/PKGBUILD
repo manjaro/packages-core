@@ -21,7 +21,7 @@ _shortgit=
 _git=
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -53,6 +53,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         0002-xfrm-Fix-stack-out-of-bounds-read-on-socket-policy-l.patch
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
+        '0001-synaptics-lenovo-t460p.patch::https://github.com/torvalds/linux/commit/48282969826b3d3c76e908182f69724d86d995fe.patch'
+        '0001-synaptics-reset-abs_xy-fuzz.patch::https://github.com/torvalds/linux/commit/19eb4ed1141bd1096b9bc84ba9c4d03d5830c143.patch'
         #"prepatch-${_basekernel}.patch"
         # Zen temperature
         '0001-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
@@ -85,6 +87,8 @@ sha256sums=('f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             '64a014f7e1b4588728b3ea9538beee67ec63fb792d890c7be9cc13ddc2121b00'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
+            '2fc534377b4059faa3291a93f193f77f44e7a20237d8c4528d8828f48fc94c7f'
+            '7618a876eccbd928b39d90bf4f910cb00d216230c4bcd793d48c611ea8d957aa'
             'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
             'cd463af7193bcf864c42e95d804976a627ac11132886f25e04dfc2471c28bf6c'
             '70cee696fb4204ac7f787cef0742c50637e8bb7f68e2c7bca01aeefff32affc8'
@@ -123,6 +127,12 @@ prepare() {
 
   # https://bugs.archlinux.org/task/56605
   patch -Np1 -i ../0002-xfrm-Fix-stack-out-of-bounds-read-on-socket-policy-l.patch
+
+  # Lenovo Thinkpad T460p devices should use RMI 
+  patch -Np1 -i ../0001-synaptics-lenovo-t460p.patch
+
+  # https://bugs.archlinux.org/task/57512
+  patch -Np1 -i ../0001-synaptics-reset-abs_xy-fuzz.patch
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
   patch -Np1 -i "${srcdir}/0001-zen-temp.patch"

@@ -20,7 +20,7 @@ _sub=4
 #_git=c4e0ca7fa24137e372d6135fe16e8df8e123f116
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -50,6 +50,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
+        '0001-synaptics-reset-abs_xy-fuzz.patch::https://github.com/torvalds/linux/commit/19eb4ed1141bd1096b9bc84ba9c4d03d5830c143.patch'
         # Bootsplash
         #'0001-bootsplash.patch::https://patchwork.kernel.org/patch/10110819/raw/'
         #'0002-bootsplash.patch::https://patchwork.kernel.org/patch/10110805/raw/'
@@ -74,7 +75,8 @@ sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
             'ea69ef89ecf53592b5e653c254464a47172d90b80d1fba4ff2d7d6d06024aad8'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
-            'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148')
+            'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
+            '7618a876eccbd928b39d90bf4f910cb00d216230c4bcd793d48c611ea8d957aa')
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
   #mv "${srcdir}/linux-${_basekernel}-${_rc}" "${srcdir}/linux-${_basekernel}"
@@ -93,6 +95,9 @@ prepare() {
 
   # https://bugs.freedesktop.org/show_bug.cgi?id=103497
   patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch
+
+  # https://bugs.archlinux.org/task/57512
+  patch -Np1 -i ../0001-synaptics-reset-abs_xy-fuzz.patch
 
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
   #patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
