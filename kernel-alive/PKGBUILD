@@ -3,15 +3,15 @@
 pkgname=kernel-alive
 _clean=linux-module-cleanup
 pkgver=0.3
-pkgrel=1
+pkgrel=2
 pkgdesc="Back up modules of current kernel to prevent some issues after kernel update"
 url="https://github.com/Ste74/$pkgname"
-_commit=12fbd57ce1bb5f5e9abbd2ba8aa99281401c59e0
+_commit=fce88e91e79c9a5401396cb2857c52a0b49cae4f
 arch=(any)
 license=(GPL3)
 source=("$url/archive/$_commit.tar.gz")
 depends=('rsync')
-md5sums=('bc6c6fa6604bd1758880c99566ef9451')
+md5sums=('c767bbbfbc3de67a0978e44b2b59a45f')
 
 package() {
 	cd $pkgname-$_commit
