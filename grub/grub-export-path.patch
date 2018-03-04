@@ -1,0 +1,10 @@
+--- a/util/grub.d/30_os-prober.in	2018-02-26 10:37:36.000000000 +0100
++++ b/util/grub.d/30_os-prober.in	2018-03-04 19:54:02.701139595 +0100
+@@ -23,6 +23,7 @@ datarootdir="@datarootdir@"
+ 
+ export TEXTDOMAIN=@PACKAGE@
+ export TEXTDOMAINDIR="@localedir@"
++export PATH="$PATH"
+ 
+ . "$pkgdatadir/grub-mkconfig_lib"
+ 
