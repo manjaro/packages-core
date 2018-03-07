@@ -6,11 +6,11 @@
 pkgbase=systemd
 pkgname=('systemd' 'libsystemd' 'systemd-sysvcompat')
 # latest commit on stable branch
-_commit='7909254c7a8ee09d91b8b21fd779320b3e2fe716'
+_commit='738ab7502afb7663d9aacdd73e79025aa7cd0a9b'
 # Bump this to latest major release for signed tag verification,
 # the commit count is handled by pkgver() function.
-pkgver=237.64
-pkgrel=2
+pkgver=238.0
+pkgrel=1
 arch=('x86_64')
 url="https://www.github.com/systemd/systemd"
 makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
@@ -19,10 +19,10 @@ makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
              'python-lxml' 'quota-tools' 'shadow' 'gnu-efi-libs' 'git'
              'meson' 'libseccomp' 'pcre2')
 options=('strip')
-validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4')  # Lennart Poettering <lennart@poettering.net>
+validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
+              '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
 source=('git://github.com/systemd/systemd-stable.git'
         'git://github.com/systemd/systemd.git' # pull in for tags, backports & reverts
-        '8155.patch::https://patch-diff.githubusercontent.com/raw/systemd/systemd/pull/8246.patch'
         'initcpio-hook-udev'
         'initcpio-install-systemd'
         'initcpio-install-udev'
@@ -36,7 +36,6 @@ source=('git://github.com/systemd/systemd-stable.git'
         'systemd-update.hook')
 sha512sums=('SKIP'
             'SKIP'
-            '90ffbd9b96352ddb95ad91aa6cf4202c8ad81097678a393ec53bf1a4a483617602965a135b94163f90c84b2c58344c229bec777de4ffa68c1585d285e4ed9660'
             'f0d933e8c6064ed830dec54049b0a01e27be87203208f6ae982f10fb4eddc7258cb2919d594cbfb9a33e74c3510cfd682f3416ba8e804387ab87d1a217eb4b73'
             '86d7cacd7536b1069c82bbbb08de7ec81e7f0f18a19fc2b06fabe90db4700623eb3540b75121080d325672d92e26912632ae4f93fd3c0bb48eb3e5eedd88352c'
             'a25b28af2e8c516c3a2eec4e64b8c7f70c21f974af4a955a4a9d45fd3e3ff0d2a98b4419fe425d47152d5acae77d64e69d8d014a7209524b75a81b0edb10bf3a'
@@ -50,7 +49,6 @@ sha512sums=('SKIP'
             '10190fba9f39a8f4b620a0829e0ba8ed63bb4dbeca712966011ee7807880d01ab2abff1a80baafeb6674db70526a473fe585db8190e864f318fc4d6068552618')
 
 _backports=(
-  af229d7a5be768a49a7f0d1028d878a71b797bad
 )
 
 _reverts=(
@@ -110,9 +108,6 @@ prepare() {
   for _commit in "${_reverts[@]}"; do
     git revert -n "$_commit"
   done
-
-  # https://github.com/systemd/systemd/issues/8155
-  patch -p1 -i $srcdir/8155.patch
 }
 
 build() {
@@ -209,8 +204,10 @@ package_systemd() {
   echo 'disable *' >"$pkgdir"/usr/lib/systemd/system-preset/99-default.preset
 
   # manpages shipped with systemd-sysvcompat
-  rm "$pkgdir"/usr/share/man/man8/{telinit,halt,reboot,poweroff,runlevel,shutdown}.8
+  rm "$pkgdir"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8
 
+  # executable (symlinks) shipped with systemd-sysvcompat
+  rm "$pkgdir"/usr/bin/{halt,init,poweroff,reboot,runlevel,shutdown,telinit}
   # runtime libraries shipped with libsystemd
   rm "$pkgdir"/usr/lib/lib{nss,systemd,udev}*.so*
 

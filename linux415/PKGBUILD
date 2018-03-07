@@ -20,7 +20,7 @@ _sub=7
 #_git=c4e0ca7fa24137e372d6135fe16e8df8e123f116
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -52,23 +52,24 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
         '0001-synaptics-reset-abs_xy-fuzz.patch::https://github.com/torvalds/linux/commit/19eb4ed1141bd1096b9bc84ba9c4d03d5830c143.patch'
         # Bootsplash
-        #'0001-bootsplash.patch::https://patchwork.kernel.org/patch/10110819/raw/'
-        #'0002-bootsplash.patch::https://patchwork.kernel.org/patch/10110805/raw/'
-        #'0003-bootsplash.patch::https://patchwork.kernel.org/patch/10110817/raw/'
-        #'0004-bootsplash.patch::https://patchwork.kernel.org/patch/10110749/raw/'
-        #'0005-bootsplash.patch::https://patchwork.kernel.org/patch/10110793/raw/'
-        #'0006-bootsplash.patch::https://patchwork.kernel.org/patch/10110753/raw/'
-        #'0007-bootsplash.patch::https://patchwork.kernel.org/patch/10110799/raw/'
-        #'0008-bootsplash.patch::https://patchwork.kernel.org/patch/10110797/raw/'
-        #'0009-bootsplash.patch::https://patchwork.kernel.org/patch/10110785/raw/'
-        #'0010-bootsplash.patch::https://patchwork.kernel.org/patch/10110765/raw/'
-        #'0011-bootsplash.patch::https://patchwork.kernel.org/patch/10110787/raw/'
-        #'0012-bootsplash.patch::https://patchwork.kernel.org/patch/10110771/raw/'
-        #'0013-bootsplash.patch::https://patchwork.kernel.org/patch/10110759/raw/'
+        '0001-bootsplash.patch::https://patchwork.kernel.org/patch/10171593/raw/'
+        '0002-bootsplash.patch::https://patchwork.kernel.org/patch/10171611/raw/'
+        '0003-bootsplash.patch::https://patchwork.kernel.org/patch/10171573/raw/'
+        '0004-bootsplash.patch::https://patchwork.kernel.org/patch/10171613/raw/'
+        '0005-bootsplash.patch::https://patchwork.kernel.org/patch/10171595/raw/'
+        '0006-bootsplash-415.patch'
+        #'0006-bootsplash.patch::https://patchwork.kernel.org/patch/10171583/raw/'
+        '0007-bootsplash.patch::https://patchwork.kernel.org/patch/10171601/raw/'
+        '0008-bootsplash.patch::https://patchwork.kernel.org/patch/10171567/raw/'
+        '0009-bootsplash.patch::https://patchwork.kernel.org/patch/10171603/raw/'
+        '0010-bootsplash.patch::https://patchwork.kernel.org/patch/10171585/raw/'
+        '0011-bootsplash.patch::https://patchwork.kernel.org/patch/10171577/raw/'
+        '0012-bootsplash.patch::https://patchwork.kernel.org/patch/10171569/raw/'
+        '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10171575/raw/'
 )
 sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
             '0dad200b26837acd0340dfe18d9610467c111df5719440248cd8be6fb8d6dd02'
-            '3e8a662c6dd48b16baf1888cdd3efacaf55ca629681420f56a678b3e00f61bc2'
+            '057c1c930c55ed89a1c2156a84be04c490d7e966e1c34d50754436e5b17d5297'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
@@ -76,7 +77,20 @@ sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
             'ea69ef89ecf53592b5e653c254464a47172d90b80d1fba4ff2d7d6d06024aad8'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
-            '7618a876eccbd928b39d90bf4f910cb00d216230c4bcd793d48c611ea8d957aa')
+            '7618a876eccbd928b39d90bf4f910cb00d216230c4bcd793d48c611ea8d957aa'
+            'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
+            'e096b127a5208f56d368d2cb938933454d7200d70c86b763aa22c38e0ddb8717'
+            '8c1c880f2caa9c7ae43281a35410203887ea8eae750fe8d360d0c8bf80fcc6e0'
+            '1144d51e5eb980fceeec16004f3645ed04a60fac9e0c7cf88a15c5c1e7a4b89e'
+            'dd4b69def2efacf4a6c442202ad5cb93d492c03886d7c61de87696e5a83e2846'
+            'c9ae3f67042a6a008ba0e19c911fae45fbc7003ce704c4a5028c965b2e0881ff'
+            'c8b0cb231659d33c3cfaed4b1f8d7c8305ab170bdd4c77fce85270d7b6a68000'
+            '8dbb5ab3cb99e48d97d4e2f2e3df5d0de66f3721b4f7fd94a708089f53245c77'
+            'a7aefeacf22c600fafd9e040a985a913643095db7272c296b77a0a651c6a140a'
+            'e9f22cbb542591087d2d66dc6dc912b1434330ba3cd13d2df741d869a2c31e89'
+            '27471eee564ca3149dd271b0817719b5565a9594dc4d884fe3dc51a5f03832bc'
+            '60e295601e4fb33d9bf65f198c54c7eb07c0d1e91e2ad1e0dd6cd6e142cb266d'
+            '035ea4b2a7621054f4560471f45336b981538a40172d8f17285910d4e0e0b3ef')
 prepare() {
   #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
   #mv "${srcdir}/linux-${_basekernel}-${_rc}" "${srcdir}/linux-${_basekernel}"
@@ -100,19 +114,20 @@ prepare() {
   patch -Np1 -i ../0001-synaptics-reset-abs_xy-fuzz.patch
 
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
-  #patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0002-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0003-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0004-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0005-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0006-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0007-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0008-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0009-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0010-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0011-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0012-bootsplash.patch"
-  #patch -Np1 -i "${srcdir}/0013-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0002-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0003-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0004-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0005-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0006-bootsplash-415.patch"
+  patch -Np1 -i "${srcdir}/0007-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0008-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0009-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0010-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0011-bootsplash.patch"
+  patch -Np1 -i "${srcdir}/0012-bootsplash.patch"
+  # use git-apply to add binary files
+  git apply -p1 < "${srcdir}/0013-bootsplash.patch"
 
   # add aufs4 support
   #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
