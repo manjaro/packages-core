@@ -1,10 +1,11 @@
-aufs4.9 base patch
+SPDX-License-Identifier: GPL-2.0
+aufs4.15 base patch
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 63cefa6..d78b954 100644
+index 845fc25..7dc2813 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -2293,6 +2293,19 @@ F:	include/linux/audit.h
+@@ -2486,6 +2486,19 @@ F:	include/linux/audit.h
  F:	include/uapi/linux/audit.h
  F:	kernel/audit*
  
@@ -25,10 +26,10 @@ index 63cefa6..d78b954 100644
  M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
  W:	http://miguelojeda.es/auxdisplay.htm
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index fa1b7a9..6ee9235 100644
+index d5fe720..c292afa 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
-@@ -701,6 +701,24 @@ static inline int is_loop_device(struct file *file)
+@@ -691,6 +691,24 @@ static inline int is_loop_device(struct file *file)
  	return i && S_ISBLK(i->i_mode) && MAJOR(i->i_rdev) == LOOP_MAJOR;
  }
  
@@ -54,10 +55,10 @@ index fa1b7a9..6ee9235 100644
  
  static ssize_t loop_attr_show(struct device *dev, char *page,
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 5c7cc95..df0268c 100644
+index 5c7df1d..019f14b 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1164,7 +1164,7 @@ enum d_walk_ret {
+@@ -1197,7 +1197,7 @@ enum d_walk_ret {
   *
   * The @enter() and @finish() callbacks are called with d_lock held.
   */
@@ -67,10 +68,10 @@ index 5c7cc95..df0268c 100644
  		   void (*finish)(void *))
  {
 diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 350a2c8..6f42279 100644
+index 0522e28..74c255d 100644
 --- a/fs/fcntl.c
 +++ b/fs/fcntl.c
-@@ -29,7 +29,7 @@
+@@ -32,7 +32,7 @@
  
  #define SETFL_MASK (O_APPEND | O_NONBLOCK | O_NDELAY | O_DIRECT | O_NOATIME)
  
@@ -79,7 +80,7 @@ index 350a2c8..6f42279 100644
  {
  	struct inode * inode = file_inode(filp);
  	int error = 0;
-@@ -60,6 +60,8 @@ static int setfl(int fd, struct file * filp, unsigned long arg)
+@@ -63,6 +63,8 @@ static int setfl(int fd, struct file * filp, unsigned long arg)
  
  	if (filp->f_op->check_flags)
  		error = filp->f_op->check_flags(arg);
@@ -89,10 +90,10 @@ index 350a2c8..6f42279 100644
  		return error;
  
 diff --git a/fs/inode.c b/fs/inode.c
-index 88110fd..9a9ba3a 100644
+index 03102d6..517883c 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
-@@ -1642,7 +1642,7 @@ EXPORT_SYMBOL(generic_update_time);
+@@ -1655,7 +1655,7 @@ EXPORT_SYMBOL(generic_update_time);
   * This does the actual work of updating an inodes time or version.  Must have
   * had called mnt_want_write() before calling this.
   */
@@ -102,10 +103,10 @@ index 88110fd..9a9ba3a 100644
  	int (*update_time)(struct inode *, struct timespec *, int);
  
 diff --git a/fs/namespace.c b/fs/namespace.c
-index e6c234b..db0b1ac 100644
+index 9d1374a..26ef600 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -787,6 +787,12 @@ static inline int check_mnt(struct mount *mnt)
+@@ -846,6 +846,12 @@ static inline int check_mnt(struct mount *mnt)
  	return mnt->mnt_ns == current->nsproxy->mnt_ns;
  }
  
@@ -119,12 +120,12 @@ index e6c234b..db0b1ac 100644
   * vfsmount lock must be held for write
   */
 diff --git a/fs/read_write.c b/fs/read_write.c
-index 190e0d36..4052813 100644
+index f8547b8..0a5c47b 100644
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
-@@ -515,6 +515,28 @@ ssize_t __vfs_write(struct file *file, const char __user *p, size_t count,
+@@ -484,6 +484,28 @@ ssize_t __vfs_write(struct file *file, const char __user *p, size_t count,
+ 		return -EINVAL;
  }
- EXPORT_SYMBOL(__vfs_write);
  
 +vfs_readf_t vfs_readf(struct file *file)
 +{
@@ -148,14 +149,14 @@ index 190e0d36..4052813 100644
 +	return ERR_PTR(-ENOSYS);
 +}
 +
- ssize_t __kernel_write(struct file *file, const char *buf, size_t count, loff_t *pos)
+ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t *pos)
  {
  	mm_segment_t old_fs;
 diff --git a/fs/splice.c b/fs/splice.c
-index 5a7750b..28160a7 100644
+index 39e2dc0..c5fb195 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
-@@ -855,8 +855,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
+@@ -837,8 +837,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);
  /*
   * Attempt to initiate a splice from pipe to file.
   */
@@ -166,7 +167,7 @@ index 5a7750b..28160a7 100644
  {
  	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *,
  				loff_t *, size_t, unsigned int);
-@@ -872,9 +872,9 @@ static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+@@ -854,9 +854,9 @@ static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
  /*
   * Attempt to initiate a splice from a file to a pipe.
   */
@@ -180,10 +181,10 @@ index 5a7750b..28160a7 100644
  	ssize_t (*splice_read)(struct file *, loff_t *,
  			       struct pipe_inode_info *, size_t, unsigned int);
 diff --git a/fs/sync.c b/fs/sync.c
-index 2a54c1f..7a5fa3f 100644
+index 6e0a2cb..a6891ee 100644
 --- a/fs/sync.c
 +++ b/fs/sync.c
-@@ -27,7 +27,7 @@
+@@ -28,7 +28,7 @@
   * wait == 1 case since in that case write_inode() functions do
   * sync_dirty_buffer() and thus effectively write one block at a time.
   */
@@ -193,30 +194,30 @@ index 2a54c1f..7a5fa3f 100644
  	if (wait)
  		sync_inodes_sb(sb);
 diff --git a/include/linux/file.h b/include/linux/file.h
-index 7444f5f..bdac0be 100644
+index 279720d..76e38ea 100644
 --- a/include/linux/file.h
 +++ b/include/linux/file.h
-@@ -19,6 +19,7 @@ struct dentry;
+@@ -20,6 +20,7 @@ struct dentry;
  struct path;
- extern struct file *alloc_file(struct path *, fmode_t mode,
+ extern struct file *alloc_file(const struct path *, fmode_t mode,
  	const struct file_operations *fop);
 +extern struct file *get_empty_filp(void);
  
  static inline void fput_light(struct file *file, int fput_needed)
  {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index dc0478c..a02be40d 100644
+index 511fbaa..96e05b3 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1291,6 +1291,7 @@ extern void fasync_free(struct fasync_struct *);
+@@ -1265,6 +1265,7 @@ extern void fasync_free(struct fasync_struct *);
  /* can be called from interrupts */
  extern void kill_fasync(struct fasync_struct **, int, int);
  
 +extern int setfl(int fd, struct file * filp, unsigned long arg);
  extern void __f_setown(struct file *filp, struct pid *, enum pid_type, int force);
- extern void f_setown(struct file *filp, unsigned long arg, int force);
+ extern int f_setown(struct file *filp, unsigned long arg, int force);
  extern void f_delown(struct file *filp);
-@@ -1715,6 +1716,7 @@ struct file_operations {
+@@ -1712,6 +1713,7 @@ struct file_operations {
  	ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);
  	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
  	int (*check_flags)(int);
@@ -224,7 +225,7 @@ index dc0478c..a02be40d 100644
  	int (*flock) (struct file *, int, struct file_lock *);
  	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *, loff_t *, size_t, unsigned int);
  	ssize_t (*splice_read)(struct file *, loff_t *, struct pipe_inode_info *, size_t, unsigned int);
-@@ -1768,6 +1770,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
+@@ -1782,6 +1784,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
  			      struct iovec *fast_pointer,
  			      struct iovec **ret_pointer);
  
@@ -235,9 +236,9 @@ index dc0478c..a02be40d 100644
 +vfs_writef_t vfs_writef(struct file *file);
 +
  extern ssize_t __vfs_read(struct file *, char __user *, size_t, loff_t *);
- extern ssize_t __vfs_write(struct file *, const char __user *, size_t, loff_t *);
  extern ssize_t vfs_read(struct file *, char __user *, size_t, loff_t *);
-@@ -2140,6 +2148,7 @@ extern int current_umask(void);
+ extern ssize_t vfs_write(struct file *, const char __user *, size_t, loff_t *);
+@@ -2201,6 +2209,7 @@ extern int current_umask(void);
  extern void ihold(struct inode * inode);
  extern void iput(struct inode *);
  extern int generic_update_time(struct inode *, struct timespec *, int);
@@ -245,7 +246,7 @@ index dc0478c..a02be40d 100644
  
  /* /sys/fs */
  extern struct kobject *fs_kobj;
-@@ -2419,6 +2428,7 @@ static inline bool sb_is_blkdev_sb(struct super_block *sb)
+@@ -2481,6 +2490,7 @@ static inline bool sb_is_blkdev_sb(struct super_block *sb)
  	return false;
  }
  #endif
@@ -253,11 +254,32 @@ index dc0478c..a02be40d 100644
  extern int sync_filesystem(struct super_block *);
  extern const struct file_operations def_blk_fops;
  extern const struct file_operations def_chr_fops;
+diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
+index 3251d9c..0360952 100644
+--- a/include/linux/lockdep.h
++++ b/include/linux/lockdep.h
+@@ -313,6 +313,8 @@ static inline int lockdep_match_key(struct lockdep_map *lock,
+ 	return lock->key == key;
+ }
+ 
++struct lock_class *lockdep_hlock_class(struct held_lock *hlock);
++
+ /*
+  * Acquire a lock.
+  *
+@@ -442,6 +444,7 @@ struct lockdep_map { };
+ 
+ #define lockdep_depth(tsk)	(0)
+ 
++#define lockdep_is_held(lock)			(1)
+ #define lockdep_is_held_type(l, r)		(1)
+ 
+ #define lockdep_assert_held(l)			do { (void)(l); } while (0)
 diff --git a/include/linux/mnt_namespace.h b/include/linux/mnt_namespace.h
-index 12b2ab5..8b810d1 100644
+index 3594208..24f5fd1 100644
 --- a/include/linux/mnt_namespace.h
 +++ b/include/linux/mnt_namespace.h
-@@ -5,11 +5,14 @@
+@@ -6,11 +6,14 @@
  struct mnt_namespace;
  struct fs_struct;
  struct user_namespace;
@@ -273,10 +295,10 @@ index 12b2ab5..8b810d1 100644
  extern const struct file_operations proc_mountinfo_operations;
  extern const struct file_operations proc_mountstats_operations;
 diff --git a/include/linux/splice.h b/include/linux/splice.h
-index 00a2116..1f0a4a2 100644
+index 74b4911..19789fb 100644
 --- a/include/linux/splice.h
 +++ b/include/linux/splice.h
-@@ -86,4 +86,10 @@ extern void spd_release_page(struct splice_pipe_desc *, unsigned int);
+@@ -87,4 +87,10 @@ extern void splice_shrink_spd(struct splice_pipe_desc *);
  
  extern const struct pipe_buf_operations page_cache_pipe_buf_ops;
  extern const struct pipe_buf_operations default_pipe_buf_ops;
@@ -287,3 +309,24 @@ index 00a2116..1f0a4a2 100644
 +			 struct pipe_inode_info *pipe, size_t len,
 +			 unsigned int flags);
  #endif
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 5216590..8b5f44d 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -140,7 +140,7 @@ static struct lock_list list_entries[MAX_LOCKDEP_ENTRIES];
+ unsigned long nr_lock_classes;
+ static struct lock_class lock_classes[MAX_LOCKDEP_KEYS];
+ 
+-static inline struct lock_class *hlock_class(struct held_lock *hlock)
++inline struct lock_class *lockdep_hlock_class(struct held_lock *hlock)
+ {
+ 	if (!hlock->class_idx) {
+ 		/*
+@@ -151,6 +151,7 @@ static inline struct lock_class *hlock_class(struct held_lock *hlock)
+ 	}
+ 	return lock_classes + hlock->class_idx - 1;
+ }
++#define hlock_class(hlock) lockdep_hlock_class(hlock)
+ 
+ #ifdef CONFIG_LOCK_STAT
+ static DEFINE_PER_CPU(struct lock_class_stats[MAX_LOCKDEP_KEYS], cpu_lock_stats);

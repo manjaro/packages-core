@@ -11,10 +11,10 @@ pkgname=('linux415' 'linux415-headers')
 _kernelname=-MANJARO
 _basekernel=4.15
 _basever=415
-_aufs=20170703
+_aufs=20180219
 _bfq=v8r12
 _bfqdate=20180130
-_sub=8
+_sub=9
 #_rc=rc9
 #_shortgit=.r180127.gc4e0ca7
 #_git=c4e0ca7fa24137e372d6135fe16e8df8e123f116
@@ -32,18 +32,18 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         #linux-${_basekernel}${_rc}${_shortgit}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
-        'config.x86_64' 'config' # 'config.aufs'
+        'config.x86_64' 'config' 'config.aufs'
         "${pkgbase}.preset" # standard config files for mkinitcpio ramdisk
         '60-linux.hook'     # pacman hook for depmod
         '90-linux.hook'     # pacman hook for initramfs regeneration
-        #"aufs4.x-rcN-${_aufs}.patch.bz2"
-        #'aufs4-base.patch'
-        #'aufs4-kbuild.patch'
-        #'aufs4-loopback.patch'
-        #'aufs4-mmap.patch'
-        #'aufs4-standalone.patch'
-        #'tmpfs-idr.patch'
-        #'vfs-ino.patch'
+        "aufs4.15-${_aufs}.patch.bz2"
+        'aufs4-base.patch'
+        'aufs4-kbuild.patch'
+        'aufs4-loopback.patch'
+        'aufs4-mmap.patch'
+        'aufs4-standalone.patch'
+        'tmpfs-idr.patch'
+        'vfs-ino.patch'
         #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d8a5b80...643a89c.patch"
         0001-BFQ-${_bfq}-${_bfqdate}.patch
         # ARCH Patches
@@ -68,12 +68,21 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10171575/raw/'
 )
 sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
-            '93e9495e5d43f3ff6695b50ba74fc17d8feef670c16c08acd005059b54db1ef0'
+            'f3070554bd5f1640085cc35ae2f4bc23a94f9cf47b562140e5c2ec9a16d6b52e'
             '057c1c930c55ed89a1c2156a84be04c490d7e966e1c34d50754436e5b17d5297'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
+            'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
+            '48c664b13a951e1d23f2084074bb83cae932568ff8017f32aa3803c018802a76'
+            '638fe57d4bb52e8006baa48ba358af7595209a7bb2e7f7ff7d793feeaa62f179'
+            'c2c010dcc21531b33fc29913943fba0db0cc33542c84af64b7e74bc64c059c0b'
+            '0721ad7618d140fa5b2bb7b204edbd5c6c5ae98ba056a19c5f28265241a424bf'
+            '8f8202cf3d6fecca9298d586c2da749eec687758b74699cf31171c0bda004122'
+            'df30f08d86e18daa03f4bae9e0a59419939f073baf9387bc4877b1279306bfe8'
+            '6f258e71d8c7d4220dfb65f6168d1dddd5b5335f63a9552788a9464308c01ef7'
+            'a11935a9bdf0e95e6621523188e55b5c0bbeef046b618119414d269c228a5c5c'
             'ea69ef89ecf53592b5e653c254464a47172d90b80d1fba4ff2d7d6d06024aad8'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
@@ -130,14 +139,14 @@ prepare() {
   git apply -p1 < "${srcdir}/0013-bootsplash.patch"
 
   # add aufs4 support
-  #patch -Np1 -i "${srcdir}/aufs4.x-rcN-${_aufs}.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-base.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
-  #patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
-  #patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
-  #patch -Np1 -i "${srcdir}/vfs-ino.patch"
+  patch -Np1 -i "${srcdir}/aufs4.15-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4-base.patch"
+  patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
+  patch -Np1 -i "${srcdir}/aufs4-loopback.patch"
+  patch -Np1 -i "${srcdir}/aufs4-mmap.patch"
+  patch -Np1 -i "${srcdir}/aufs4-standalone.patch"
+  patch -Np1 -i "${srcdir}/tmpfs-idr.patch"
+  patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
   msg "Fix naming schema in BFQ-MQ patch"
@@ -153,7 +162,7 @@ prepare() {
     cat "${srcdir}/config" > ./.config
   fi
 
-  #cat "${srcdir}/config.aufs" >> ./.config
+  cat "${srcdir}/config.aufs" >> ./.config
 
   if [ "${_kernelname}" != "" ]; then
     sed -i "s|CONFIG_LOCALVERSION=.*|CONFIG_LOCALVERSION=\"${_kernelname}\"|g" ./.config
@@ -294,6 +303,11 @@ package_linux415-headers() {
 
   # add xfs and shmem for aufs building
   mkdir -p "${_builddir}"/{fs/xfs,mm}
+  mkdir -p "${_builddir}"/fs/xfs/libxfs
+  cp fs/xfs/libxfs/xfs_sb.h "${_builddir}"/fs/xfs/libxfs/xfs_sb.h
+
+  #aufs4-util need
+  sed -i "s:__user::g" "${_builddir}"/include/uapi/linux/aufs_type.h
 
   # copy in Kconfig files
   find . -name Kconfig\* -exec install -Dm644 {} "${_builddir}/{}" \;

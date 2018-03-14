@@ -8,7 +8,7 @@ pkgname=('systemd' 'libsystemd' 'systemd-sysvcompat')
 # Can be from either systemd or systemd-stable
 _commit='738ab7502afb7663d9aacdd73e79025aa7cd0a9b'
 pkgver=238.0
-pkgrel=2
+pkgrel=3
 arch=('x86_64')
 url="https://www.github.com/systemd/systemd"
 makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
@@ -63,6 +63,14 @@ sha512sums=('SKIP'
 _backports=(
   # core: do not free heap-allocated strings (#8391) (FS#57741)
   '5cbaad2f6795088db56063d20695c6444595822f'
+  # core: sd-shutdown improvements (#8429) (#8155)
+  '659b15313b9ca8c7f3f6e523e0d3fd696243ff8b'
+  '0494cae03d762eaf2fb7217ee7d70f615dcb5183'
+  '1d62d22d9432d5c4a637002c9a29b20d52f25d9a'
+  '3bc341bee9fc7dfb41a131246b6fb0afd6ff4407'
+  '8645ffd12b3cc7b0292acd9e1d691c4fab4cf409'
+  'e783b4902f387640bba12496936d01e967545c3c'
+  '456b2199f6ef0378da007e71347657bcf83ae465'
 )
 
 _reverts=(

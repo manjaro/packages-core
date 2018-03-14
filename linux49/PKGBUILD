@@ -10,9 +10,9 @@ pkgbase=linux49
 pkgname=('linux49' 'linux49-headers')
 _kernelname=-MANJARO
 _basekernel=4.9
-_aufs=20170410
+_aufs=20171218 # LAST RELEASE
 _bfq=v8r12
-_sub=86
+_sub=87
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -53,18 +53,18 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            'e29192925d83693e381cb7c5a0437158f0ab8cffd6cce5e574996e955c1eae21'
+            '2e24956ab39fb57606fee2a0d0ea5807b6f8f3256536de8351d17df7eb07a748'
             '8272e9a39e1292a1d35077ce0837ebe0b99bbe97681306109519da692ccc549a'
             'b1be3281e1df21d29e501201caace8d8e0c6200f4b01761f194538cb42f42aa8'
-            'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
+            'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            '1ce36e5394ac79f286a5a89d4a5c56b1fd4427db1483dbe506bc4caeec41dccc'
-            '535295f114dfe01c23e1251a1ef46a5aeab23b509c0c784be8330272736084db'
+            '0dd0d0c57e1f23990954fc032172f17275863fdf4156ca3550da3991ebd4185e'
+            '967b9d3572dbe60a67f209732396d17ac77fedcf7b7dec1c0ddd2c887b5adacf'
             'cc46a882be029cdcdf134915e34286db2af58b4f91a8b520dd11c15129a765c4'
-            '7ee7a4271e5f6fee498c9ffcbb6eaa198fa0d07daf89d04538785f575cb64070'
-            '6b64e16324ec241ad02b540343aeed133f5b8e50a73c836e846183772f74a3d3'
-            'dd62bacdfd3f16be81b0d6b5cfb2a45ae03fc0e3c126d321d198d3f19ebd84a8'
+            '0cafdf22d5934c3fb497f93e1a285026d4c1468aa8316ed787735a903cde8d37'
+            '15f6b580699d1707a62365b145a2bcc6d1365e32f6b0cfbf2ac8e742bcb337eb'
+            'ccd85d1f34e24007c1e3b236ad9c5054c4b837bc6e70ba2391f92551bc14b975'
             'db7a22592a3d192dd84c84c20f361972bccfd84de346d8d7684488d118eade83'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
             '1ff51208068a4ff836bb8cf90ede45f8d4e07ffb2e069cddae98a3f19a52807e'
@@ -321,6 +321,9 @@ package_linux49-headers() {
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/libxfs"
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/mm"
   cp fs/xfs/libxfs/xfs_sb.h "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/libxfs/xfs_sb.h"
+
+  #aufs4-util need
+  sed -i "s:__user::g" "${pkgdir}/usr/lib/modules/${_kernver}/build/include/uapi/linux/aufs_type.h"
 
   # copy in Kconfig files
   for i in $(find . -name "Kconfig*"); do
