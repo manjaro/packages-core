@@ -8,7 +8,7 @@ pkgname=('systemd' 'libsystemd' 'systemd-sysvcompat')
 # Can be from either systemd or systemd-stable
 _commit='738ab7502afb7663d9aacdd73e79025aa7cd0a9b'
 pkgver=238.0
-pkgrel=3
+pkgrel=4
 arch=('x86_64')
 url="https://www.github.com/systemd/systemd"
 makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
@@ -22,6 +22,7 @@ validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <
 source=('git+https://github.com/systemd/systemd-stable'
         'git+https://github.com/systemd/systemd'
         '0001-Use-Manjaro-Linux-device-access-groups.patch'
+        'https://patch-diff.githubusercontent.com/raw/systemd/systemd/pull/8452.patch'
         'initcpio-hook-udev'
         'initcpio-install-systemd'
         'initcpio-install-udev'
@@ -42,6 +43,7 @@ source=('git+https://github.com/systemd/systemd-stable'
 sha512sums=('SKIP'
             'SKIP'
             '764c571f68d092928b9e01c2422bac7c08cc1ac91f969ff2636156c733c81b7cc3f4cd089f8e607a0aad9725751cd52e5fd66c4a8810f16dce6a97906d7fc40a'
+            '1977832ffdd3d99bc50435388231596e05baeb9f53aa76191984a5423b9f5352b8c356fd9a8c3d0ccf232eb6240740dee16569b63469142ada74533f9d3d22e5'
             'f0d933e8c6064ed830dec54049b0a01e27be87203208f6ae982f10fb4eddc7258cb2919d594cbfb9a33e74c3510cfd682f3416ba8e804387ab87d1a217eb4b73'
             '86d7cacd7536b1069c82bbbb08de7ec81e7f0f18a19fc2b06fabe90db4700623eb3540b75121080d325672d92e26912632ae4f93fd3c0bb48eb3e5eedd88352c'
             'a25b28af2e8c516c3a2eec4e64b8c7f70c21f974af4a955a4a9d45fd3e3ff0d2a98b4419fe425d47152d5acae77d64e69d8d014a7209524b75a81b0edb10bf3a'
@@ -120,6 +122,9 @@ prepare() {
 
   # Replace cdrom/dialout/tape groups with optical/uucp/storage
   patch -Np1 -i ../0001-Use-Manjaro-Linux-device-access-groups.patch
+
+  # Use libmount in systemd-shutdown, add tests #8452 
+  patch -Np1 -i ../8452.patch
 }
 
 pkgver() {
