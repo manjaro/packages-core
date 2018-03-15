@@ -13,7 +13,7 @@ _basekernel=4.15
 _basever=415
 _aufs=20180219
 _bfq=v8r12
-_bfqdate=20180130
+_bfqdate=20180227
 _sub=9
 #_rc=rc9
 #_shortgit=.r180127.gc4e0ca7
@@ -44,7 +44,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d8a5b80...643a89c.patch"
+        #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d8a5b80...4cb5de6.patch"
         0001-BFQ-${_bfq}-${_bfqdate}.patch
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
@@ -83,7 +83,7 @@ sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
             'df30f08d86e18daa03f4bae9e0a59419939f073baf9387bc4877b1279306bfe8'
             '6f258e71d8c7d4220dfb65f6168d1dddd5b5335f63a9552788a9464308c01ef7'
             'a11935a9bdf0e95e6621523188e55b5c0bbeef046b618119414d269c228a5c5c'
-            'ea69ef89ecf53592b5e653c254464a47172d90b80d1fba4ff2d7d6d06024aad8'
+            '6695a654200641d0666ec5cd8cbe798ed6c8bebcff532057ccd4ae9726f55eeb'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             '7618a876eccbd928b39d90bf4f910cb00d216230c4bcd793d48c611ea8d957aa'
