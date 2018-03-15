@@ -41,6 +41,13 @@ detectDE()
 }
 
 post_upgrade() {
+	# Fix Firefox upgrading
+	pacman -Q firefox &> /tmp/cmd1
+	if [ "$(vercmp $(grep 'firefox' /tmp/cmd1 | cut -d' ' -f2) 59.0-1)" -le 0 ]; then
+		msg "Fix firefox upgrade ..."
+		/usr/bin/rm -f /usr/lib/firefox/distribution/distribution.ini{,.mjo}
+	fi
+
 	# Fix upgrading sddm version is 0.17.0-5 or less
 	pacman -Q sddm &> /tmp/cmd1
 	if [ "$(grep 'sddm' /tmp/cmd1 | cut -d' ' -f1)" == "sddm" ]; then 
