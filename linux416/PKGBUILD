@@ -16,8 +16,8 @@ _bfq=v8r12
 _bfqdate=20180130
 _sub=
 _rc=rc5
-_shortgit=.r180315.g0aa3fdb
-_git=0aa3fdb8b3a6df3c2e3b61dbfe079db9d30e03cd
+_shortgit=.r180316.gdf09348
+_git=df09348f78dc53a14faddca4414d66bea849a749
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -51,6 +51,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
         '0001-nvidia-revert-4bd89ed.patch::https://github.com/torvalds/linux/commit/4bd89ed39b2a.patch'
+        '0001-x86-microcode-attempt-late-loading-only-when-new-microcode-is-present.patch::https://patchwork.kernel.org/patch/10283369/raw/'
+        '0002-x86-microcode-fix-CPU-synchronization-routine.patch::https://patchwork.kernel.org/patch/10283367/raw/'
         # Bootsplash
         '0001-bootsplash.patch::https://patchwork.kernel.org/patch/10171593/raw/'
         '0002-bootsplash.patch::https://patchwork.kernel.org/patch/10171611/raw/'
@@ -67,7 +69,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0012-bootsplash.patch::https://patchwork.kernel.org/patch/10171569/raw/'
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10171575/raw/'
 )
-sha256sums=('400001eabf5602049826166ece6e44c8e262ac7f2cc392aef3b2cef25c0e1706'
+sha256sums=('b72e8279091d25f31565ebfb07e9a80440c5459cedfae36cbdcc0b7c259817c9'
             '0cf139e03370a26718e0170c892c0a41b851ff9e7f91b23f8420d5c81779d43d'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -85,6 +87,8 @@ sha256sums=('400001eabf5602049826166ece6e44c8e262ac7f2cc392aef3b2cef25c0e1706'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             'edc9b314d3ce29565361cc326f67ab1439c8bf73e89f4e9e6159a87b5d865c2a'
+            'f06a6e7ea2ac3ad7e7ca5f15ada1079203126f744e06a8c925436454e45d4a84'
+            '4dd63a8ac0a081b7b60c4f1a8c520603bb0759eed70c6ade2338ab4243da250a'
             'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
             'e096b127a5208f56d368d2cb938933454d7200d70c86b763aa22c38e0ddb8717'
             '8c1c880f2caa9c7ae43281a35410203887ea8eae750fe8d360d0c8bf80fcc6e0'
@@ -119,6 +123,10 @@ prepare() {
 
   # https://devtalk.nvidia.com/default/topic/1030082/kernel-4-16-rc1-breaks-latest-drivers-unknown-symbol-swiotlb_map_sg_attrs-/
   patch -Rp1 -i ../0001-nvidia-revert-4bd89ed.patch
+
+  # https://forum.manjaro.org/t/any-support-for-the-ryzen-2200g-and-2400g-for-linux/38079/143
+  patch -Np1 -i ../0001-x86-microcode-attempt-late-loading-only-when-new-microcode-is-present.patch
+  patch -Np1 -i ../0002-x86-microcode-fix-CPU-synchronization-routine.patch
 
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
   patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
