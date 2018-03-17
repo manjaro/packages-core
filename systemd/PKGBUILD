@@ -8,7 +8,7 @@ pkgname=('systemd' 'libsystemd' 'systemd-sysvcompat')
 # Can be from either systemd or systemd-stable
 _commit='738ab7502afb7663d9aacdd73e79025aa7cd0a9b'
 pkgver=238.0
-pkgrel=5
+pkgrel=6
 arch=('x86_64')
 url="https://www.github.com/systemd/systemd"
 makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
@@ -140,7 +140,7 @@ pkgver() {
 build() {
   _validate_tag || return
 
-  local timeservers=({0..3}.arch.pool.ntp.org)
+  local timeservers=({0..3}.manjaro.pool.ntp.org)
 
   local meson_options=(
     -Daudit=false
