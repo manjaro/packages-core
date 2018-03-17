@@ -38,7 +38,7 @@ index 00d1931..f403585 100644
    CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr 'A-Z' 'a-z' | cut -d' ' -f1|LC_ALL=C sed 's,[^[:alnum:]_],_,g') ${CLASS}"
  fi
  
-@@ -86,9 +86,11 @@ linux_entry ()
+@@ -82,9 +82,11 @@ linux_entry ()
    if [ x$type != xsimple ] ; then
        case $type in
  	  recovery)
@@ -52,7 +52,7 @@ index 00d1931..f403585 100644
        esac
        if [ x"$title" = x"$GRUB_ACTUAL_DEFAULT" ] || [ x"Previous Linux versions>$title" = x"$GRUB_ACTUAL_DEFAULT" ]; then
  	  replacement_title="$(echo "Advanced options for ${OS}" | sed 's,>,>>,g')>$(echo "$title" | sed 's,>,>>,g')"
-@@ -100,7 +102,7 @@ linux_entry ()
+@@ -96,7 +98,7 @@ linux_entry ()
    else
        echo "menuentry '$(echo "$os" | grub_quote)' ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
    fi      
@@ -61,7 +61,7 @@ index 00d1931..f403585 100644
        save_default_entry | grub_add_tab
    fi
  
-@@ -132,10 +134,11 @@ linux_entry ()
+@@ -128,10 +130,11 @@ linux_entry ()
      fi
      printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
    fi
@@ -75,7 +75,7 @@ index 00d1931..f403585 100644
  EOF
    if test -n "${initrd}" ; then
      # TRANSLATORS: ramdisk isn't identifier. Should be translated.
-@@ -190,7 +190,27 @@ while [ "x$list" != "x" ] ; do
+@@ -192,6 +195,25 @@ while [ "x$list" != "x" ] ; do
    alt_version=`echo $version | sed -e "s,\.old$,,g"`
    linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
  
@@ -98,12 +98,18 @@ index 00d1931..f403585 100644
 +    fi
 +  fi
 +
-   initrd=
+   initrd_early=
+   for i in ${GRUB_EARLY_INITRD_LINUX_STOCK} \
+ 	   ${GRUB_EARLY_INITRD_LINUX_CUSTOM}; do
+@@ -201,6 +223,7 @@ while [ "x$list" != "x" ] ; do
+   done
+ 
+   initrd_real=
 +  initramfs_manjaro="`echo "${basename}" | sed -e 's,vmlinuz,initramfs,g'`"
    for i in "initrd.img-${version}" "initrd-${version}.img" "initrd-${version}.gz" \
  	   "initrd-${version}" "initramfs-${version}.img" \
  	   "initrd.img-${alt_version}" "initrd-${alt_version}.img" \
-@@ -198,7 +213,8 @@ while [ "x$list" != "x" ] ; do
+@@ -208,7 +231,8 @@ while [ "x$list" != "x" ] ; do
  	   "initramfs-genkernel-${version}" \
  	   "initramfs-genkernel-${alt_version}" \
  	   "initramfs-genkernel-${GENKERNEL_ARCH}-${version}" \
@@ -111,9 +117,9 @@ index 00d1931..f403585 100644
 +	   "initramfs-genkernel-${GENKERNEL_ARCH}-${alt_version}" \
 +	   "${initramfs_manjaro}.img" ; do
      if test -e "${dirname}/${i}" ; then
-       initrd="$i"
+       initrd_real="${i}"
        break
-@@ -242,6 +258,17 @@ while [ "x$list" != "x" ] ; do
+@@ -261,6 +285,17 @@ while [ "x$list" != "x" ] ; do
  
    linux_entry "${OS}" "${version}" advanced \
                "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"

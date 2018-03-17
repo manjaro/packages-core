@@ -6,9 +6,9 @@
 # Maintainer: Philip Mueller <philm|manjaro|org>
 # Maintainer: Guinux <nuxgui|gmail|com>
 
-_pkgver="2.02"
-_GRUB_GIT_TAG="2.02"
-_SNAPSHOT="d73badfd0aa6683212136e8d6ef439070176722b"
+_pkgver="2.03"
+_GRUB_GIT_TAG="2.03"
+_SNAPSHOT="e2faabacff9eccb80a75d7e00d810cdc26b5e866"
 _SNAPSHOT_EXTRAS="f2a079441939eee7251bf141986cdd78946e1d20"
 
 _UNIFONT_VER="9.0.06"
@@ -18,8 +18,8 @@ _UNIFONT_VER="9.0.06"
 
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
-pkgver=2.02.0
-pkgrel=6
+pkgver=2.03.0
+pkgrel=1
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -47,23 +47,23 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         "grub-extras-${_pkgver}-${pkgrel}.tar.gz::http://git.savannah.gnu.org/cgit/grub-extras.git/snapshot/grub-extras-${_SNAPSHOT_EXTRAS}.tar.gz"
         "http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz"
         #"http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz.sig"
+        'grub-revert-6400613.patch'
         'grub-export-path.patch'
         'grub-add-GRUB_COLOR_variables.patch'
         'grub-manjaro-modifications.patch'
-        'grub-intel-ucode.patch'
         'background.png'
         'grub.default'
         'grub.cfg'
         'update-grub'
         "${pkgname}.hook")
 
-sha256sums=('36f91f07d57f6d23101eb305ac2d4c01171ba4a107abc222184de561ced681a8'
+sha256sums=('032c577b60ec9d4e7f5d54514b7efb6ae66ff37e60c8a2a934fc76b908e06779'
             '2844601914cea6b1231eca0104853a93c4d67a5209933a0766f1475953300646'
             '4246c4773ed70f78a7e27ff1118fd257a280d1102200265ad5d58bb2011195ef'
+            '40401632b8d790976a80f3075fc9bfe8197b9b3b21080bbba517e7dd0784389a'
             '63c611189a60d68c6ae094f2ced91ac576b3921b7fd2e75a551c2dc6baefc35e'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
-            '05852a81e75e779178da8f3d3402be7a9abde306e0b6e8236401226494e89ba0'
-            'f62734e61f4e5c566ee5de4470746e2c6e9a407ce97d0bdb5915a3e3be85d5ae'
+            '4094172aa715a6dc6df5d53b5480d56205bfa5dc1eab529fdba9cdbd536f0466'
             '01264c247283b7bbdef65d7646541c022440ddaf54f8eaf5aeb3a02eb98b4dd8'
             '720db20a6a1c81864ad6405ef838db02206b53298fda48f383bebdb51eac56a8'
             '7fc95d49c0febe98a76e56b606a280565cb736580adecf163bc6b5aca8e7cbd8'
@@ -80,9 +80,10 @@ prepare() {
 	mv "${srcdir}/grub-extras-${_SNAPSHOT_EXTRAS}/" "${srcdir}/grub-extras-${_pkgver}/"
 
 	cd "${srcdir}/grub-${_pkgver}/"
-	
-	msg "Patch to load Intel microcode"
-	patch -Np1 -i "${srcdir}/grub-intel-ucode.patch"
+
+	# https://github.com/calamares/calamares/issues/918
+        msg "Revert commit 6400613"
+	patch -Rp1 -i "${srcdir}/grub-revert-6400613.patch"
 	echo
 
 	msg "Patch to export $PATH"
