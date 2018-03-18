@@ -43,9 +43,11 @@ detectDE()
 post_upgrade() {
 	# Fix Firefox upgrading
 	pacman -Q firefox &> /tmp/cmd1
-	if [ "$(vercmp $(grep 'firefox' /tmp/cmd1 | cut -d' ' -f2) 59.0-1)" -le 0 ]; then
-		msg "Fix firefox upgrade ..."
-		/usr/bin/rm -f /usr/lib/firefox/distribution/distribution.ini{,.mjo}
+	if [ "$(vercmp $(grep 'firefox' /tmp/cmd1 | cut -d' ' -f2) 59.0.1-1)" -le 0 ]; then
+		if [ -e "/usr/lib/firefox/distribution/distribution.ini" ]; then
+			msg "Fix firefox upgrade ..."
+			/usr/bin/rm -f /usr/lib/firefox/distribution/distribution.ini
+		fi
 	fi
 
 	# Fix upgrading sddm version is 0.17.0-5 or less
