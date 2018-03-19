@@ -1,11 +1,11 @@
 # Maintainer: Frede Hundewadt <fh@manjaro.org>
 # Contributor: Philip Müller <philm@manjaro.org>
 
-_branch=master
+_branch=4.8.x-stable
 _date=$(date +%Y%m%d)
 pkgname=pacman-mirrors
-pkgver=4.7.6
-pkgrel=2
+pkgver=4.8.2
+pkgrel=1
 pkgdesc="Manjaro Linux mirror list for use by pacman"
 arch=('any')
 depends=('python' 'python-npyscreen')
@@ -14,8 +14,8 @@ optdepends=('gtk3: for interactive mode (GUI)'
             'python-gobject: for interactive mode (GUI)')
 url="https://github.com/manjaro/pacman-mirrors.git"
 #url="https://github.com/fhdk/pacman-mirrors.git"
-conflicts=('pacman-mirrorlist' 'pacman-mirrorlist-dev')
-replaces=('pacman-mirrorlist' 'pacman-mirrorlist-dev')
+conflicts=('pacman-mirrorlist' 'pacman-mirrorlist')
+replaces=('pacman-mirrorlist' 'pacman-mirrorlist')
 provides=("pacman-mirrorlist=$_date")
 license=('GPL')
 backup=(etc/pacman-mirrors.conf)
