@@ -1,0 +1,28 @@
+From c7dfc2facbd69dad89b75e13c608da709668dcd0 Mon Sep 17 00:00:00 2001
+From: Carlo Caione <carlo@endlessm.com>
+Date: Sun, 9 Apr 2017 15:56:07 +0200
+Subject: [PATCH] platform/x86: hp-wmi: Fix error value for hp_wmi_tablet_state
+
+hp_wmi_tablet_state() fails to return the correct error code when
+hp_wmi_perform_query() returns the HP WMI query specific error code
+that is a positive value.
+
+Signed-off-by: Carlo Caione <carlo@endlessm.com>
+Signed-off-by: Darren Hart (VMware) <dvhart@infradead.org>
+---
+ drivers/platform/x86/hp-wmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 7abf92d0ba81c..9db502c42b5c8 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -290,7 +290,7 @@ static int hp_wmi_tablet_state(void)
+ 	int ret = hp_wmi_perform_query(HPWMI_HARDWARE_QUERY, 0, &state,
+ 				       sizeof(state), sizeof(state));
+ 	if (ret)
+-		return ret;
++		return -EINVAL;
+ 
+ 	return (state & 0x4) ? 1 : 0;
+ }

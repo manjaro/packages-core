@@ -1,0 +1,102 @@
+From 298747b7579f5bbbced793d997b333fd10a24921 Mon Sep 17 00:00:00 2001
+From: Carlo Caione <carlo@endlessm.com>
+Date: Sun, 9 Apr 2017 15:56:08 +0200
+Subject: [PATCH] platform/x86: hp-wmi: Fix detection for dock and tablet mode
+
+The current driver code is not checking for the error values returned by
+'hp_wmi_dock_state()' and 'hp_wmi_tablet_state()' before passing the
+returned values down to 'input_report_switch()'. This error code is
+being translated to '1' in the input subsystem, reporting the wrong
+status.
+
+The biggest problem caused by this issue is that several laptops are
+wrongly reported by the driver as docked, preventing them to be put to
+sleep using the LID (and in most cases they are not even dockable).
+
+With this patch we create the report switches only if we are able to
+read the dock and tablet mode status correctly from ACPI.
+
+Signed-off-by: Carlo Caione <carlo@endlessm.com>
+Signed-off-by: Darren Hart (VMware) <dvhart@infradead.org>
+---
+ drivers/platform/x86/hp-wmi.c | 40 +++++++++++++++++++++++++++-------------
+ 1 file changed, 27 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index 9db502c42b5c8..5c5efccf9f196 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -572,10 +572,12 @@ static void hp_wmi_notify(u32 value, void *context)
+ 
+ 	switch (event_id) {
+ 	case HPWMI_DOCK_EVENT:
+-		input_report_switch(hp_wmi_input_dev, SW_DOCK,
+-				    hp_wmi_dock_state());
+-		input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE,
+-				    hp_wmi_tablet_state());
++		if (test_bit(SW_DOCK, hp_wmi_input_dev->swbit))
++			input_report_switch(hp_wmi_input_dev, SW_DOCK,
++					    hp_wmi_dock_state());
++		if (test_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit))
++			input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE,
++					    hp_wmi_tablet_state());
+ 		input_sync(hp_wmi_input_dev);
+ 		break;
+ 	case HPWMI_PARK_HDD:
+@@ -644,6 +646,7 @@ static int __init hp_wmi_input_setup(void)
+ {
+ 	acpi_status status;
+ 	int err;
++	int val;
+ 
+ 	hp_wmi_input_dev = input_allocate_device();
+ 	if (!hp_wmi_input_dev)
+@@ -654,17 +657,26 @@ static int __init hp_wmi_input_setup(void)
+ 	hp_wmi_input_dev->id.bustype = BUS_HOST;
+ 
+ 	__set_bit(EV_SW, hp_wmi_input_dev->evbit);
+-	__set_bit(SW_DOCK, hp_wmi_input_dev->swbit);
+-	__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
++
++	/* Dock */
++	val = hp_wmi_dock_state();
++	if (!(val < 0)) {
++		__set_bit(SW_DOCK, hp_wmi_input_dev->swbit);
++		input_report_switch(hp_wmi_input_dev, SW_DOCK, val);
++	}
++
++	/* Tablet mode */
++	val = hp_wmi_tablet_state();
++	if (!(val < 0)) {
++		__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
++		input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE, val);
++	}
+ 
+ 	err = sparse_keymap_setup(hp_wmi_input_dev, hp_wmi_keymap, NULL);
+ 	if (err)
+ 		goto err_free_dev;
+ 
+ 	/* Set initial hardware state */
+-	input_report_switch(hp_wmi_input_dev, SW_DOCK, hp_wmi_dock_state());
+-	input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE,
+-			    hp_wmi_tablet_state());
+ 	input_sync(hp_wmi_input_dev);
+ 
+ 	if (!hp_wmi_bios_2009_later() && hp_wmi_bios_2008_later())
+@@ -947,10 +959,12 @@ static int hp_wmi_resume_handler(struct device *device)
+ 	 * changed.
+ 	 */
+ 	if (hp_wmi_input_dev) {
+-		input_report_switch(hp_wmi_input_dev, SW_DOCK,
+-				    hp_wmi_dock_state());
+-		input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE,
+-				    hp_wmi_tablet_state());
++		if (test_bit(SW_DOCK, hp_wmi_input_dev->swbit))
++			input_report_switch(hp_wmi_input_dev, SW_DOCK,
++					    hp_wmi_dock_state());
++		if (test_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit))
++			input_report_switch(hp_wmi_input_dev, SW_TABLET_MODE,
++					    hp_wmi_tablet_state());
+ 		input_sync(hp_wmi_input_dev);
+ 	}
+ 

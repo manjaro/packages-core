@@ -20,7 +20,7 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc')
 options=('!strip')
 source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.xz"
-        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        "https://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -35,20 +35,20 @@ source=("https://www.kernel.org/pub/linux/kernel/v3.x/linux-${_basekernel}.tar.x
         'tmpfs-idr.patch'
         'vfs-ino.patch'
         'aufs316-3.16.7.4.patch'
-        'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.15/1700_enable-thinkpad-micled.patch'
-        'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
-        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.16.patch"
-        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch::ftp://teambelgium.net/bfq/patches/3.16.0-${_bfq}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.16.0.patch"
+        '1700_enable-thinkpad-micled.patch'
+        '2700_ThinkPad-30-brightness-control-fix.patch'
+        "0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
+        "0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.16.patch"
+        "0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.16.0.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # Additional patches
         'fix-mod_devicetable.patch'
         'gcc-7.1-ilog2.patch'
         # Fix HP-WMI for libinput v1.9.1+
-        'hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch::https://github.com/torvalds/linux/commit/c7dfc2facbd69dad89b75e13c608da709668dcd0.patch'
-        'hp-wmi-fix-detection-for-dock-and-tablet-mode.patch::https://github.com/torvalds/linux/commit/298747b7579f5bbbced793d997b333fd10a24921.patch'
-        'hp-wmi-Do-not-shadow-error-values.patch::https://github.com/torvalds/linux/commit/d313876925f3e7a480a02773fd333bcab9202d5e.patch'
+        'hp-wmi-Fix-error-value-for-hp_wmi_tablet_state.patch'
+        'hp-wmi-fix-detection-for-dock-and-tablet-mode.patch'
+        'hp-wmi-Do-not-shadow-error-values.patch'
 )
 sha256sums=('4813ad7927a7d92e5339a873ab16201b242b2748934f12cb5df9ba2cfe1d77a0'
             '10b44990b1f1d2e8defb7fb6f3761a2fb7411e760cf9313e7702fb1e2c1eb600'
@@ -122,9 +122,9 @@ prepare() {
   patch -Np2 -i "${srcdir}/aufs316-3.16.7.4.patch"
 
   # add BFQ scheduler
-  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}.patch"
-  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
-  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
+  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${_bfq}-3.16.patch"
+  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched-for-3.16.patch"
+  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}-for-3.16.0.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
