@@ -43,17 +43,17 @@ detectDE()
 post_upgrade() {
 	# Fix Firefox upgrading
 	pacman -Q firefox &> /tmp/cmd1
-	if [ "$(vercmp $(grep 'firefox' /tmp/cmd1 | cut -d' ' -f2) 59.0.1-1)" -le 0 ]; then
+	if [ "$(vercmp $(grep 'firefox' /tmp/cmd1 | cut -d' ' -f2) 59.0.1-0)" -le 0 ]; then
 		if [ -e "/usr/lib/firefox/distribution/distribution.ini" ]; then
 			msg "Fix firefox upgrade ..."
 			/usr/bin/rm -f /usr/lib/firefox/distribution/distribution.ini
 		fi
 	fi
 
-	# Fix upgrading sddm version is 0.17.0-5 or less
+	# Fix upgrading sddm version is 0.17.0-4 or less
 	pacman -Q sddm &> /tmp/cmd1
 	if [ "$(grep 'sddm' /tmp/cmd1 | cut -d' ' -f1)" == "sddm" ]; then 
-		if [ "$(vercmp $(grep 'sddm' /tmp/cmd1 | cut -d' ' -f2) 0.17.0-5)" -le 0 ]; then
+		if [ "$(vercmp $(grep 'sddm' /tmp/cmd1 | cut -d' ' -f2) 0.17.0-4)" -le 0 ]; then
 			msg "Fix sddm upgrade ..."
 			rm /var/lib/pacman/db.lck &> /dev/null
 			if [ -e "/etc/sddm.conf" ]; then
