@@ -6,9 +6,9 @@
 pkgbase=systemd
 pkgname=('systemd' 'libsystemd' 'systemd-sysvcompat')
 # Can be from either systemd or systemd-stable
-_commit='738ab7502afb7663d9aacdd73e79025aa7cd0a9b'
-pkgver=238.0
-pkgrel=6
+_commit='c58ab03f64890e7db88745a843bd4520e307099b'
+pkgver=238.51
+pkgrel=1
 arch=('x86_64')
 url="https://www.github.com/systemd/systemd"
 makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
@@ -22,7 +22,6 @@ validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <
 source=('git+https://github.com/systemd/systemd-stable'
         'git+https://github.com/systemd/systemd'
         '0001-Use-Manjaro-Linux-device-access-groups.patch'
-        'https://patch-diff.githubusercontent.com/raw/systemd/systemd/pull/8452.patch'
         'initcpio-hook-udev'
         'initcpio-install-systemd'
         'initcpio-install-udev'
@@ -43,7 +42,6 @@ source=('git+https://github.com/systemd/systemd-stable'
 sha512sums=('SKIP'
             'SKIP'
             '764c571f68d092928b9e01c2422bac7c08cc1ac91f969ff2636156c733c81b7cc3f4cd089f8e607a0aad9725751cd52e5fd66c4a8810f16dce6a97906d7fc40a'
-            '90dd28eaf9256e0e92797d60180c7e527156e565e9ea90d1bd806a67d4e5fb58d6d99d266ca58b58edb19a33d4486ee662c68e4b0b5232f9972bcf8f130fe597'
             'f0d933e8c6064ed830dec54049b0a01e27be87203208f6ae982f10fb4eddc7258cb2919d594cbfb9a33e74c3510cfd682f3416ba8e804387ab87d1a217eb4b73'
             '86d7cacd7536b1069c82bbbb08de7ec81e7f0f18a19fc2b06fabe90db4700623eb3540b75121080d325672d92e26912632ae4f93fd3c0bb48eb3e5eedd88352c'
             'a25b28af2e8c516c3a2eec4e64b8c7f70c21f974af4a955a4a9d45fd3e3ff0d2a98b4419fe425d47152d5acae77d64e69d8d014a7209524b75a81b0edb10bf3a'
@@ -63,18 +61,21 @@ sha512sums=('SKIP'
             '209b01b044877cc986757fa4009a92ea98f480306c2530075d153203c3cd2b3afccab6aacc1453dee8857991e04270572f1700310705d7a0f4d5bed27fab8c67')
 
 _backports=(
-  # core: do not free heap-allocated strings (#8391) (FS#57741)
-  '5cbaad2f6795088db56063d20695c6444595822f'
   # core: sd-shutdown improvements (#8429) (#8155)
-  '659b15313b9ca8c7f3f6e523e0d3fd696243ff8b'
   '0494cae03d762eaf2fb7217ee7d70f615dcb5183'
   '1d62d22d9432d5c4a637002c9a29b20d52f25d9a'
   '3bc341bee9fc7dfb41a131246b6fb0afd6ff4407'
   '8645ffd12b3cc7b0292acd9e1d691c4fab4cf409'
   'e783b4902f387640bba12496936d01e967545c3c'
   '456b2199f6ef0378da007e71347657bcf83ae465'
-  # basic/macros: rename noreturn into _noreturn_ (#8456)
-  '848e863acc51ecfb0f3955c498874588201d9130'
+  # Use libmount in systemd-shutdown, add tests (#8452) 
+  '95b862b0540ac24999fdfbd670e8744bb626729a'
+  '6fa392bf911ef17caf4c13e839236c8edd11bfaf'
+  'a6dcd22976a10d7733de91aca240427c5def1bc9'
+  '1fd8edb53aa5894e9b8cbec87376ecce660d3087'
+  '71ae04c40081d11cc412d731d59c4a25e6bc5f07'
+  # shutdown: Don't limit unmount attempts prematurely (#8469)
+  'ac9cea5ba30acbf17fd431a4a4092c4dbee23593'
 )
 
 _reverts=(
@@ -116,17 +117,16 @@ prepare() {
 
   local c
   for c in "${_backports[@]}"; do
+    echo "patching $c"
     git cherry-pick -n "$c"
   done
   for c in "${_reverts[@]}"; do
+    echo "reverting $c"
     git revert -n "$c"
   done
 
   # Replace cdrom/dialout/tape groups with optical/uucp/storage
   patch -Np1 -i ../0001-Use-Manjaro-Linux-device-access-groups.patch
-
-  # Use libmount in systemd-shutdown, add tests #8452 
-  patch -Np1 -i ../8452.patch
 }
 
 pkgver() {
