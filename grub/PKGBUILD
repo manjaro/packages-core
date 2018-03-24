@@ -19,7 +19,7 @@ _UNIFONT_VER="9.0.06"
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.03.0
-pkgrel=3
+pkgrel=4
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -52,6 +52,7 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'grub-add-GRUB_COLOR_variables.patch'
         'grub-manjaro-modifications.patch'
         'grub-add-f2fs-support-v8.patch'
+        'grub-use-efivarfs.patch'
         'background.png'
         'grub.default'
         'grub.cfg'
@@ -66,6 +67,7 @@ sha256sums=('032c577b60ec9d4e7f5d54514b7efb6ae66ff37e60c8a2a934fc76b908e06779'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
             'cf00c96aee37e0a73c1ab6ed6ccfe74fa2b2859f55cd315a4caa6c880ce7aeba'
             'abdc601f66df5a50b82c82fcec5223d26ff4de77c8600d0197ca5869c7689fe7'
+            '20b2b6e7f501596b5cce6ffa05906980427f760c03d308d0e045cf2ecf47bb0e'
             '01264c247283b7bbdef65d7646541c022440ddaf54f8eaf5aeb3a02eb98b4dd8'
             '720db20a6a1c81864ad6405ef838db02206b53298fda48f383bebdb51eac56a8'
             '7fc95d49c0febe98a76e56b606a280565cb736580adecf163bc6b5aca8e7cbd8'
@@ -86,6 +88,11 @@ prepare() {
 	# https://github.com/calamares/calamares/issues/918
         msg "Revert commit 6400613"
 	patch -Rp1 -i "${srcdir}/grub-revert-6400613.patch"
+	echo
+
+	# https://github.com/calamares/calamares/issues/918
+        msg "Use efivarfs modules"
+	patch -Np1 -i "${srcdir}/grub-use-efivarfs.patch"
 	echo
 
 	msg "Patch to export $PATH"
