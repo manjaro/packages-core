@@ -1,0 +1,22 @@
+--- a/grub-core/osdep/linux/platform.c	2018-03-14 13:24:40.000000000 +0100
++++ b/grub-core/osdep/linux/platform.c	2018-03-24 19:26:03.576948808 +0100
+@@ -107,7 +107,7 @@ grub_install_get_default_x86_platform (v
+      anyway later. So it should be safe to
+      try to load it here.
+    */
+-  grub_util_exec_redirect_all ((const char * []){ "modprobe", "efivars", NULL },
++  grub_util_exec_redirect_all ((const char * []){ "modprobe", "efivarfs", NULL },
+ 			       NULL, NULL, "/dev/null");
+ 
+   grub_util_info ("Looking for /sys/firmware/efi ..");
+--- a/grub-core/osdep/unix/platform.c	2018-03-14 13:24:40.000000000 +0100
++++ b/grub-core/osdep/unix/platform.c	2018-03-24 19:27:39.281836104 +0100
+@@ -151,7 +151,7 @@ grub_install_register_efi (grub_device_t
+ 
+   /* On Linux, we need the efivars kernel modules.  */
+ #ifdef __linux__
+-  grub_util_exec ((const char * []){ "modprobe", "-q", "efivars", NULL });
++  grub_util_exec ((const char * []){ "modprobe", "-q", "efivarfs", NULL });
+ #endif
+   /* Delete old entries from the same distributor.  */
+   ret = grub_install_remove_efi_entries_by_distributor (efi_distributor);
