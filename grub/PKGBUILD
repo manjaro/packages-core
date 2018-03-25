@@ -86,12 +86,12 @@ prepare() {
 	cd "${srcdir}/grub-${_pkgver}/"
 
 	# https://github.com/calamares/calamares/issues/918
-        msg "Revert commit 6400613"
+	msg "Revert commit 6400613"
 	patch -Rp1 -i "${srcdir}/grub-revert-6400613.patch"
 	echo
 
 	# https://github.com/calamares/calamares/issues/918
-        msg "Use efivarfs modules"
+	msg "Use efivarfs modules"
 	patch -Np1 -i "${srcdir}/grub-use-efivarfs.patch"
 	echo
 
