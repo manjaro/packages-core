@@ -1,0 +1,26 @@
+From 48282969826b3d3c76e908182f69724d86d995fe Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=E7=8E=8B=E6=8C=AF=E6=9D=B0?= <zhenjie.wang@sjtu.edu.cn>
+Date: Wed, 10 Jan 2018 16:12:22 -0800
+Subject: [PATCH] Input: synaptics - Lenovo Thinkpad T460p devices should use
+ RMI
+
+The tpouchpad/trackpoint on Lenovo Thinkpad T460p work with smbus/RMI.
+
+Signed-off-by: Zhenjie Wang <zhenjie.wang@sjtu.edu.cn>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index ee5466a374bf0..cd9f61cb3fc67 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -173,6 +173,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0046", /* X250 */
+ 	"LEN004a", /* W541 */
+ 	"LEN200f", /* T450s */
++	"LEN2018", /* T460p */
+ 	NULL
+ };
+ 
