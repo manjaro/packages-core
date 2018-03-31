@@ -13,7 +13,7 @@ _basekernel=4.4
 _basever=44
 _aufs=20170410
 _bfq=v8r12
-_sub=125
+_sub=126
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -38,22 +38,22 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.15/1700_enable-thinkpad-micled.patch'
-        'http://dev.gentoo.org/~mpagano/genpatches/trunk/3.15/2700_ThinkPad-30-brightness-control-fix.patch'
-        "0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/linusw/linux-bfq/compare/a8e0574...887cf43.patch"
+        '1700_enable-thinkpad-micled.patch'
+        '2700_ThinkPad-30-brightness-control-fix.patch'
+        "0001-BFQ-${_bfq}.patch #https://github.com/linusw/linux-bfq/compare/a8e0574...887cf43.patch"
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
         '0001-sdhci-revert.patch'
-        'i8042-asus-notebook.patch::https://bugzilla.kernel.org/attachment.cgi?id=242001&action=diff&context=patch&collapsed=&headers=1&format=raw'
+        'i8042-asus-notebook.patch'
         # Zen temperature
-        '0001-zen-temp.patch::https://github.com/torvalds/linux/commit/0c36d72e57dfdc7bb7a3c39411a675d85f8e672c.patch'
-        '0002-zen-temp.patch::https://patchwork.kernel.org/patch/9941409/raw/'
-        '0003-zen-temp.patch::https://patchwork.kernel.org/patch/9941421/raw/'
-        '0004-zen-temp.patch::https://patchwork.kernel.org/patch/9941427/raw/'
+        '0001-zen-temp.patch'
+        '0002-zen-temp.patch'
+        '0003-zen-temp.patch'
+        '0004-zen-temp.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            '4120a259b8f6182d118573efb79b62bf472fb05c40bdf329a060af13bd3cb599'
+            '40178beb2cb70cd3eed54358dbb7604b6d52a01174f969053b08d0afbb366bfa'
             '0579d0c801502e7fb7d2682acfe8a243888afaa90b597871c112c7d0b00114a2'
             'fc6543a6f5aa3366ffccb584654735410df1df318b3f4831519ade32bcb593e3'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -131,7 +131,7 @@ prepare() {
   #patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${_bfq}-I-O-sched.patch"
   #patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
   #patch -Np1 -i "${srcdir}/0004-block-bfq-update-migration-methods-attach-for-4.4-rc5-v7r8.patch"
-  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
