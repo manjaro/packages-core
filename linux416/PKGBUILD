@@ -16,8 +16,8 @@ _bfq=v8r12
 _bfqdate=20180130
 _sub=
 _rc=rc7
-_shortgit=.r180325.g3eb2ce8
-_git=3eb2ce825ea1ad89d20f7a3b5780df850e4be274
+_shortgit=.r180329.0b41260
+_git=0b412605ef5f5c64b31f19e2910b1d5eba9929c3
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -50,7 +50,6 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
-        '0001-nvidia-revert-4bd89ed.patch::https://github.com/torvalds/linux/commit/4bd89ed39b2a.patch'
         # Bootsplash
         '0001-bootsplash.patch::https://patchwork.kernel.org/patch/10171593/raw/'
         '0002-bootsplash.patch::https://patchwork.kernel.org/patch/10171611/raw/'
@@ -67,7 +66,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0012-bootsplash.patch::https://patchwork.kernel.org/patch/10171569/raw/'
         '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10171575/raw/'
 )
-sha256sums=('7705f63656f3722ae93233c727bb55033a6aed9ca36c00a3d601d058cc118e14'
+sha256sums=('8463d979e749e8516ab30a32c7c6d0c824fab90314762d2034e817c0aa50aebe'
             'a0c04b8361faa13d6c2b52f89f6b9687bebbe5c3eb9da133074d6d86748acd32'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -84,7 +83,6 @@ sha256sums=('7705f63656f3722ae93233c727bb55033a6aed9ca36c00a3d601d058cc118e14'
             '00f0e0862dd31e7248df557672ebc540d5b38d34eca57d14d796540b274bf52b'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
-            'edc9b314d3ce29565361cc326f67ab1439c8bf73e89f4e9e6159a87b5d865c2a'
             'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
             'e096b127a5208f56d368d2cb938933454d7200d70c86b763aa22c38e0ddb8717'
             '8c1c880f2caa9c7ae43281a35410203887ea8eae750fe8d360d0c8bf80fcc6e0'
@@ -116,9 +114,6 @@ prepare() {
 
   # https://bugs.freedesktop.org/show_bug.cgi?id=103497
   patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch
-
-  # https://devtalk.nvidia.com/default/topic/1030082/kernel-4-16-rc1-breaks-latest-drivers-unknown-symbol-swiotlb_map_sg_attrs-/
-  patch -Rp1 -i ../0001-nvidia-revert-4bd89ed.patch
 
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
   patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
