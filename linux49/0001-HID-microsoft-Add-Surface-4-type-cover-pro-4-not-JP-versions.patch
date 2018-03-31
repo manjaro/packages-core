@@ -1,0 +1,84 @@
+From 2ae3986b84e9d325bc92a1efbcf0c6b0f5016b35 Mon Sep 17 00:00:00 2001
+From: Daniel Keller <daniel.keller@gcd.de>
+Date: Tue, 22 Nov 2016 16:24:05 +0100
+Subject: [PATCH] HID: microsoft: Add Surface 4 type cover pro 4 not JP
+ versions
+
+Adding support for not JP versions of the Microsoft Surface 4 Type Cover Pro
+
+[jkosina@suse.cz: The identical patch has been sent by Jeff Farthing, so I am
+ including his signoff as well]
+
+Signed-off-by: Jeff Farthing <jeff@jfarthing.com>
+Signed-off-by: Daniel Keller <daniel.keller@gcd.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-core.c          | 4 ++++
+ drivers/hid/hid-ids.h           | 2 ++
+ drivers/hid/hid-microsoft.c     | 4 ++++
+ drivers/hid/usbhid/hid-quirks.c | 2 ++
+ 4 files changed, 12 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 2b89c701076f3..1bbe32966d21a 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -727,6 +727,8 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+ 	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
++	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 ||
++	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+ 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+@@ -1983,6 +1985,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6cfb5cacc2533..5198a45254663 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -717,6 +717,8 @@
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
++#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 0x07e4
++#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2 0x07e8
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
+ #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index c6cd392e9f99c..5e592f04095b3 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -280,6 +280,10 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP),
+ 		.driver_data = MS_HIDINPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4),
++		.driver_data = MS_HIDINPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2),
++		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 354d49ea36dd9..a67e90a8b5be0 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -100,6 +100,8 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
