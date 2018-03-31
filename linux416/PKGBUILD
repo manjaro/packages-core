@@ -49,23 +49,21 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         # MANJARO Patches
-        '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch::https://bugs.freedesktop.org/attachment.cgi?id=135277'
+        '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch'
         # Bootsplash
-        '0001-bootsplash.patch::https://patchwork.kernel.org/patch/10171593/raw/'
-        '0002-bootsplash.patch::https://patchwork.kernel.org/patch/10171611/raw/'
-        '0003-bootsplash.patch::https://patchwork.kernel.org/patch/10171573/raw/'
-        '0004-bootsplash.patch::https://patchwork.kernel.org/patch/10171613/raw/'
-        '0005-bootsplash.patch::https://patchwork.kernel.org/patch/10171595/raw/'
-        '0006-bootsplash-415.patch'
-        #'0006-bootsplash.patch::https://patchwork.kernel.org/patch/10171583/raw/'
-        '0007-bootsplash.patch::https://patchwork.kernel.org/patch/10171601/raw/'
-        '0008-bootsplash.patch::https://patchwork.kernel.org/patch/10171567/raw/'
-        '0009-bootsplash.patch::https://patchwork.kernel.org/patch/10171603/raw/'
-        '0010-bootsplash.patch::https://patchwork.kernel.org/patch/10171585/raw/'
-        '0011-bootsplash.patch::https://patchwork.kernel.org/patch/10171577/raw/'
-        '0012-bootsplash.patch::https://patchwork.kernel.org/patch/10171569/raw/'
-        '0013-bootsplash.patch::https://patchwork.kernel.org/patch/10171575/raw/'
-)
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0001-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0002-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0003-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0004-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0005-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0006-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0007-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0008-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0009-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0010-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
+        'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
 sha256sums=('8463d979e749e8516ab30a32c7c6d0c824fab90314762d2034e817c0aa50aebe'
             'a0c04b8361faa13d6c2b52f89f6b9687bebbe5c3eb9da133074d6d86748acd32'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
@@ -121,7 +119,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/0003-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0004-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0005-bootsplash.patch"
-  patch -Np1 -i "${srcdir}/0006-bootsplash-415.patch"
+  patch -Np1 -i "${srcdir}/0006-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0007-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0008-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0009-bootsplash.patch"
