@@ -14,22 +14,22 @@ _basever=416
 _aufs=20180312
 _bfq=v8r12
 _bfqdate=20180130
-_sub=
-_rc=rc7
-_shortgit=.r180329.0b41260
-_git=0b412605ef5f5c64b31f19e2910b1d5eba9929c3
-pkgver=${_basekernel}${_shortgit}
-#pkgver=${_basekernel}.${_sub}
+_sub=0
+#_rc=rc7
+#_shortgit=.r180329.0b41260
+#_git=0b412605ef5f5c64b31f19e2910b1d5eba9929c3
+#pkgver=${_basekernel}${_shortgit}
+pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
 options=('!strip')
-source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
+source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://git.kernel.org/torvalds/t/linux-${_basekernel}-${_rc}.tar.gz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
-        linux-${_basekernel}${_rc}${_shortgit}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
+        #linux-${_basekernel}${_rc}${_shortgit}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
         #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
         # the main kernel config files
         'config.x86_64' 'config' 'config.aufs'
@@ -64,7 +64,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
-sha256sums=('8463d979e749e8516ab30a32c7c6d0c824fab90314762d2034e817c0aa50aebe'
+sha256sums=('63f6dc8e3c9f3a0273d5d6f4dca38a2413ca3a5f689329d05b750e4c87bb21b9'
             'a0c04b8361faa13d6c2b52f89f6b9687bebbe5c3eb9da133074d6d86748acd32'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -95,7 +95,7 @@ sha256sums=('8463d979e749e8516ab30a32c7c6d0c824fab90314762d2034e817c0aa50aebe'
             '60e295601e4fb33d9bf65f198c54c7eb07c0d1e91e2ad1e0dd6cd6e142cb266d'
             '035ea4b2a7621054f4560471f45336b981538a40172d8f17285910d4e0e0b3ef')
 prepare() {
-  mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
+  #mv "${srcdir}/linux-${_git}" "${srcdir}/linux-${_basekernel}"
   #mv "${srcdir}/linux-${_basekernel}-${_rc}" "${srcdir}/linux-${_basekernel}"
   cd "${srcdir}/linux-${_basekernel}"
 
