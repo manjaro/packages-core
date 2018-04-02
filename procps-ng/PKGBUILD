@@ -3,8 +3,8 @@
 # Contributor: Eric Bélanger <eric@archlinux.org>
 
 pkgname=procps-ng
-pkgver=3.3.12
-pkgrel=2.1
+pkgver=3.3.13
+pkgrel=0
 pkgdesc='Utilities for monitoring your system and its processes'
 url='https://gitlab.com/procps-ng/procps'
 license=('GPL' 'LGPL')
@@ -12,9 +12,9 @@ arch=('i686' 'x86_64')
 makedepends=('systemd')
 depends=('ncurses' 'libsystemd')
 source=("https://downloads.sourceforge.net/project/${pkgname}/Production/${pkgname}-${pkgver}.tar.xz"
-        'impossibly-high-memory.patch')
-sha256sums=('6ed65ab86318f37904e8f9014415a098bec5bc53653e5d9ab404f95ca5e1a7d4'
-            '1095223d697cf86b7086839666222b853bfa80bb83c7b09eaeceb0c506bea980')
+        'topdefaultrc')
+sha256sums=('52b05b2bd5b05f46f24766a10474337ebadd828df9915e2b178df291cf88f7d3'
+            '918526626ddbdb3e75eef6a3ce5bef809473609e45576454acaa28c9749017a4')
 
 groups=('base')
 
@@ -26,7 +26,6 @@ install=install
 
 prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
-	patch -p1 -i ../impossibly-high-memory.patch
 	sed 's:<ncursesw/:<:g' -i watch.c
 }
 
@@ -41,8 +40,7 @@ build() {
 		--sbindir=/usr/bin \
 		--enable-watch8bit \
 		--with-systemd \
-		--disable-kill \
-		--disable-modern-top
+		--disable-kill
 
 	# kill is provided by util-linux
 
@@ -50,6 +48,8 @@ build() {
 }
 
 package() {
+	install -Dm644 topdefaultrc "$pkgdir"/etc/topdefaultrc
+
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	make DESTDIR="${pkgdir}" install
 }
