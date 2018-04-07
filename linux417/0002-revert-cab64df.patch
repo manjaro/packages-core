@@ -1,0 +1,137 @@
+From cab64df194667dc5d9d786f0a895f647f5501c0d Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Tue, 20 Mar 2018 11:30:14 +0100
+Subject: [PATCH] fs: fold open_check_o_direct into do_dentry_open
+
+do_dentry_open is where we do the actual open of the file, so this is
+where we should do our O_DIRECT sanity check to cover all potential
+callers.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ fs/internal.h |  1 -
+ fs/namei.c    |  7 +------
+ fs/open.c     | 44 ++++++++++++++++++--------------------------
+ 3 files changed, 19 insertions(+), 33 deletions(-)
+
+diff --git a/fs/internal.h b/fs/internal.h
+index df262f41a0ef6..5e797281d941e 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -111,7 +111,6 @@ extern struct file *do_filp_open(int dfd, struct filename *pathname,
+ extern struct file *do_file_open_root(struct dentry *, struct vfsmount *,
+ 		const char *, const struct open_flags *);
+ 
+-extern int open_check_o_direct(struct file *f);
+ extern int vfs_open(const struct path *, struct file *, const struct cred *);
+ extern struct file *filp_clone_open(struct file *);
+ 
+diff --git a/fs/namei.c b/fs/namei.c
+index 5a66e7ca5d608..9cbd5e79ad914 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -3382,9 +3382,7 @@ static int do_last(struct nameidata *nd,
+ 		goto out;
+ 	*opened |= FILE_OPENED;
+ opened:
+-	error = open_check_o_direct(file);
+-	if (!error)
+-		error = ima_file_check(file, op->acc_mode, *opened);
++	error = ima_file_check(file, op->acc_mode, *opened);
+ 	if (!error && will_truncate)
+ 		error = handle_truncate(file);
+ out:
+@@ -3464,9 +3462,6 @@ static int do_tmpfile(struct nameidata *nd, unsigned flags,
+ 	error = finish_open(file, child, NULL, opened);
+ 	if (error)
+ 		goto out2;
+-	error = open_check_o_direct(file);
+-	if (error)
+-		fput(file);
+ out2:
+ 	mnt_drop_write(path.mnt);
+ out:
+diff --git a/fs/open.c b/fs/open.c
+index 7ea118471dce5..f587f3dbfc7f4 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -682,16 +682,6 @@ SYSCALL_DEFINE3(fchown, unsigned int, fd, uid_t, user, gid_t, group)
+ 	return error;
+ }
+ 
+-int open_check_o_direct(struct file *f)
+-{
+-	/* NB: we're sure to have correct a_ops only after f_op->open */
+-	if (f->f_flags & O_DIRECT) {
+-		if (!f->f_mapping->a_ops || !f->f_mapping->a_ops->direct_IO)
+-			return -EINVAL;
+-	}
+-	return 0;
+-}
+-
+ static int do_dentry_open(struct file *f,
+ 			  struct inode *inode,
+ 			  int (*open)(struct inode *, struct file *),
+@@ -713,7 +703,7 @@ static int do_dentry_open(struct file *f,
+ 	if (unlikely(f->f_flags & O_PATH)) {
+ 		f->f_mode = FMODE_PATH;
+ 		f->f_op = &empty_fops;
+-		return 0;
++		goto done;
+ 	}
+ 
+ 	if (f->f_mode & FMODE_WRITE && !special_file(inode->i_mode)) {
+@@ -766,7 +756,12 @@ static int do_dentry_open(struct file *f,
+ 	f->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
+ 
+ 	file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
+-
++done:
++	/* NB: we're sure to have correct a_ops only after f_op->open */
++	error = -EINVAL;
++	if ((f->f_flags & O_DIRECT) &&
++	    (!f->f_mapping->a_ops || !f->f_mapping->a_ops->direct_IO))
++	    	goto out_fput;
+ 	return 0;
+ 
+ cleanup_all:
+@@ -781,6 +776,9 @@ static int do_dentry_open(struct file *f,
+ 	f->f_path.dentry = NULL;
+ 	f->f_inode = NULL;
+ 	return error;
++out_fput:
++    	fput(f);
++	return error;
+ }
+ 
+ /**
+@@ -878,20 +876,14 @@ struct file *dentry_open(const struct path *path, int flags,
+ 	BUG_ON(!path->mnt);
+ 
+ 	f = get_empty_filp();
+-	if (!IS_ERR(f)) {
+-		f->f_flags = flags;
+-		error = vfs_open(path, f, cred);
+-		if (!error) {
+-			/* from now on we need fput() to dispose of f */
+-			error = open_check_o_direct(f);
+-			if (error) {
+-				fput(f);
+-				f = ERR_PTR(error);
+-			}
+-		} else { 
+-			put_filp(f);
+-			f = ERR_PTR(error);
+-		}
++	if (IS_ERR(f))
++		return f;
++
++	f->f_flags = flags;
++	error = vfs_open(path, f, cred);
++	if (error) {
++		put_filp(f);
++		return ERR_PTR(error);
+ 	}
+ 	return f;
+ }
