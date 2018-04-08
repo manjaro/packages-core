@@ -14,7 +14,7 @@ _basever=415
 _aufs=20180219
 _bfq=v8r12
 _bfqdate=20180227
-_sub=15
+_sub=16
 #_rc=rc9
 #_shortgit=.r180127.gc4e0ca7
 #_git=c4e0ca7fa24137e372d6135fe16e8df8e123f116
@@ -44,8 +44,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d8a5b80...4cb5de6.patch"
-        0001-BFQ-${_bfq}-${_bfqdate}.patch
+        #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d8a5b80...1f77c17.patch"
+        0001-BFQ-${_bfq}.patch
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         # MANJARO Patches
@@ -66,7 +66,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.15/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.15/0013-bootsplash.patch')
 sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
-            'd8e7f93e24db5517a1be2030a765431120e07f7cd55e510d0de562c70e45bc00'
+            '7fe0dd8c07051e7c7b75a9e2aef60c577babedc4ad6e37886fb75cbd466b8696'
             '057c1c930c55ed89a1c2156a84be04c490d7e966e1c34d50754436e5b17d5297'
             '851ef1e9123d926926bfc20e8b462b0e3b2f1372e38c938b94a7e5d83f21e39a'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -81,7 +81,7 @@ sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
             'df30f08d86e18daa03f4bae9e0a59419939f073baf9387bc4877b1279306bfe8'
             '6f258e71d8c7d4220dfb65f6168d1dddd5b5335f63a9552788a9464308c01ef7'
             'a11935a9bdf0e95e6621523188e55b5c0bbeef046b618119414d269c228a5c5c'
-            '6695a654200641d0666ec5cd8cbe798ed6c8bebcff532057ccd4ae9726f55eeb'
+            '8d0173afcda145dc91853c6350e34a7d68b6bda58fea7ad7c33aa752ca733aed'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             '7618a876eccbd928b39d90bf4f910cb00d216230c4bcd793d48c611ea8d957aa'
@@ -149,10 +149,8 @@ prepare() {
   # add BFQ scheduler
   msg "Fix naming schema in BFQ-MQ patch"
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
-      "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
-  #"${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+      "${srcdir}/0001-BFQ-${_bfq}.patch"
+  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
