@@ -12,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _aufs=20171218 # LAST RELEASE
 _bfq=v8r12
-_sub=92
+_sub=93
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -38,7 +38,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        "0001-BFQ-${_bfq}.patch #https://github.com/linusw/linux-bfq/compare/69973b8...67c883e.patch"
+        "0001-BFQ-${_bfq}.patch" #https://github.com/linusw/linux-bfq/compare/69973b8...67c883e.patch
         # ARCH Patches
         'change-default-console-loglevel.patch'
         # MANJARO Patches
@@ -53,7 +53,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-zen-temp.patch'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            '37daa38bde9abcc17e8400effb431cfd75426049093b369a82166edb5efcaa30'
+            'c8d5f72b4913bafd1fc42939b276211eb4b2c4ab28238826184cca8f2d89af33'
             '8272e9a39e1292a1d35077ce0837ebe0b99bbe97681306109519da692ccc549a'
             'b1be3281e1df21d29e501201caace8d8e0c6200f4b01761f194538cb42f42aa8'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -123,7 +123,7 @@ prepare() {
   #patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${_bfq}.patch"
   #patch -Np1 -i "${srcdir}/0004-Turn-into-BFQ-${_bfq}-for-${_basekernel}.0.patch"
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" "${srcdir}/0001-BFQ-${_bfq}.patch"
-  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
+  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
