@@ -2,8 +2,8 @@
 # Maintainer: Thomas Bächler <thomas@archlinux.org>
 
 pkgname=linux-firmware
-_commit=4c0bf113a55975d702673e57c5542f150807ad66 # master
-pkgver=20180314.4c0bf11
+_commit=8c1e439c967a50f0698d61aafdba3841aff10db0 # master
+pkgver=20180402.8c1e439
 pkgrel=1
 pkgdesc="Firmware files for Linux"
 makedepends=('git')
@@ -36,7 +36,7 @@ replaces=('kernel26-firmware'
           'rt2x00-rt71w-fw'
           'amd-ucode')
 options=(!strip)
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_rev}"
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}"
         'microcode_amd_fam17h.bin')
 md5sums=('SKIP'
          '4610fdded46938a4b094c5897e5c92b2')
