@@ -16,8 +16,8 @@ _bfq=v8r12
 _bfqdate=20180130
 #_sub=0
 _rc=rc0
-_shortgit=.r180407.f605ba9
-_git=f605ba97fb80522656c7dce9825a908f1e765b57
+_shortgit=.r180408.f8cf2f1
+_git=f8cf2f16a7c95acce497bfafa90e7c6d8397d653
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -66,7 +66,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
-sha256sums=('fa42ebfda862c48b9eeca5fd771e24c1d563c6f38114aa3ec483d2c97cc1f897'
+sha256sums=('9908ca0a51207611952f5e8963a1204227888e8b6df7e670f708d4469a9d5dba'
             '1b34c6038da0ffb58ae7fc22c1f96fb8d43bd58d8909a4c050afe12cc4a62de6'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -112,6 +112,7 @@ prepare() {
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
 
   # https://www.spinics.net/lists/linux-next/msg42872.html
+  # fs/open.c:696:19: error: 'open_check_o_direct' undeclared here (not in a function)
   patch -Rp1 -i ../0002-revert-cab64df.patch
 
   # disable USER_NS for non-root users by default
