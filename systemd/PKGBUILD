@@ -6,9 +6,9 @@
 pkgbase=systemd
 pkgname=('systemd' 'libsystemd' 'systemd-sysvcompat')
 # Can be from either systemd or systemd-stable
-_commit='c58ab03f64890e7db88745a843bd4520e307099b'
-pkgver=238.51
-pkgrel=1.1
+_commit='f398c546c6fc43121131f41acec56b5a851bd35e'
+pkgver=238.76
+pkgrel=1
 arch=('x86_64')
 url="https://www.github.com/systemd/systemd"
 makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
@@ -43,7 +43,7 @@ sha512sums=('SKIP'
             'SKIP'
             '764c571f68d092928b9e01c2422bac7c08cc1ac91f969ff2636156c733c81b7cc3f4cd089f8e607a0aad9725751cd52e5fd66c4a8810f16dce6a97906d7fc40a'
             'f0d933e8c6064ed830dec54049b0a01e27be87203208f6ae982f10fb4eddc7258cb2919d594cbfb9a33e74c3510cfd682f3416ba8e804387ab87d1a217eb4b73'
-            '86d7cacd7536b1069c82bbbb08de7ec81e7f0f18a19fc2b06fabe90db4700623eb3540b75121080d325672d92e26912632ae4f93fd3c0bb48eb3e5eedd88352c'
+            '3214b80fb5e3a9eed026dc1d6f23a3785c34b03dd09cba536ad4413322fc0d83936ec3d140ad11ffbf527b4bb8b83887044209c453bd1a25d22d6b9cbcd88288'
             'a25b28af2e8c516c3a2eec4e64b8c7f70c21f974af4a955a4a9d45fd3e3ff0d2a98b4419fe425d47152d5acae77d64e69d8d014a7209524b75a81b0edb10bf3a'
             '72dfd0e513e61f391d2b0bf8d9f13c6e2d2732dd7bd52413dccc791c562ab6265062c17d5abe60a42db0775e0b2352eba5e18d14fa2740c176d82edac4867c32'
             '363052706e8fdb040754d0bdc75377212865314ffb8718f8889e6c8a0049ea6cc442cb34fb9a204622eca597b78a547421867cb7517bd1b7342badee581bde7d'
@@ -76,6 +76,8 @@ _backports=(
   '71ae04c40081d11cc412d731d59c4a25e6bc5f07'
   # shutdown: Don't limit unmount attempts prematurely (#8469)
   'ac9cea5ba30acbf17fd431a4a4092c4dbee23593'
+  # nspawn: wait for network namespace creation before interface setup (#8633)
+  '7511655807e90aa33ea7b71991401a79ec36bb41'
 )
 
 _reverts=(
