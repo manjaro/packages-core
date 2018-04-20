@@ -36,10 +36,10 @@ index 6ee9235..f64161f 100644
  
  	/* freeze queue and wait for completion of scheduled requests */
  	blk_mq_freeze_queue(lo->lo_queue);
-@@ -612,7 +615,16 @@ static int loop_switch(struct loop_device *lo, struct file *file)
-  */
- static int loop_flush(struct loop_device *lo)
- {
+@@ -615,7 +618,16 @@ static int loop_flush(struct loop_device
+ 	/* loop not yet configured, no running thread, nothing to flush */
+ 	if (lo->lo_state != Lo_bound)
+ 		return 0;
 -	return loop_switch(lo, NULL);
 +	return loop_switch(lo, NULL, NULL);
 +}

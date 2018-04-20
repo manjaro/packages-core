@@ -15,16 +15,16 @@ _aufs=20180312
 _bfq=v8r12
 _bfqdate=20180130
 #_sub=0
-_rc=rc0
-_shortgit=.r180410.b284d4d
-_git=b284d4d5a6785f8cd07eda2646a95782373cd01e
+_rc=rc1
+_shortgit=.r180418.a27fc14
+_git=a27fc14219f2e3c4a46ba9177b04d9b52c875532
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
-makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'elfutils' 'git')
 options=('!strip')
 source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.xz"
         #"https://git.kernel.org/torvalds/t/linux-${_basekernel}-${_rc}.tar.gz"
@@ -66,8 +66,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
-sha256sums=('a44ace93c15a67bab59816106141e1ac92ee8f848aef0611dc73bde6d98d0da8'
-            'bdb52f41811ace7a1db569dcada4ba6c7da4a0057c2d5c42e50ebd5930089e44'
+sha256sums=('3f2a31fedcf3bf395e9b2b4ae7a95c99ed1b4eaff9df940e15fc58bb38834283'
+            '1518e8d3c8f55acbe92572632d3af5f66dcf910f44941749c210f1511f01f724'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'

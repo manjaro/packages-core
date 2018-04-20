@@ -1,4 +1,18 @@
+eol() {
+  echo ">>> NOTE, 4.15.18 is the last release of the 4.15.y kernel."
+  echo "    It is now end-of-life."
+  echo "    "
+  echo "    It is recommend to move on to linux416-series."
+  echo "    Use followed cmd to do that: 'sudo mhwd-kernel -i linux416'"
+  echo "    "
+}
+
+post_install() {
+  eol
+}
+
 post_upgrade() {
+  eol
   if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
     echo "WARNING: /boot appears to be a separate partition but is not mounted."
   fi
