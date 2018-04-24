@@ -1,181 +1,123 @@
-# Based on the file created for Arch Linux by:
-# Tom Gundersen <teg@jklm.no>
-
-# Maintainer: Guinux <nuxgui@gmail.com>
-# Maintainer: Roland <roland@manjaro.org>
 # Maintainer: Philip Müller <philm@manjaro.org>
+# Contributor: Sébastien Luttringer
+# Contributor: Tom Gundersen <teg@jklm.no>
 
 pkgname=filesystem
-pkgver=2017.06
-pkgrel=4.5
-pkgdesc='Base filesystem'
-arch=('i686' 'x86_64')
+pkgver=2018.1
+pkgrel=1
+pkgdesc='Base Manjaro Linux files'
+arch=('x86_64')
 license=('GPL')
-url='http://www.manjaro.org'
+url='https://manjaro.org'
 groups=('base')
-install='filesystem.install'
-makedepends=('asciidoc')
 depends=('iana-etc')
-backup=('etc/fstab' 'etc/crypttab' 'etc/group' 'etc/hosts' 'etc/ld.so.conf' 'etc/passwd'
-        'etc/shadow' 'etc/gshadow' 'etc/resolv.conf' 'etc/motd' 'etc/nsswitch.conf'
-        'etc/shells' 'etc/host.conf' 'etc/securetty' 'etc/profile' 'etc/issue' 'etc/rc.local'
-        'etc/rc.local.shutdown' 'etc/hostname' 'etc/locale.conf' 'etc/modules-load.d/modules.conf'
-        'etc/vconsole.conf' 'usr/lib/os-release')
-source=('crypttab' 'fstab' 'group' 'gshadow' 'host.conf' 'hostname' 'hosts' 'issue' 'ld.so.conf'
-        'locale.conf' 'locale.sh' 'manjaro.7.txt' 'motd' 'modules.conf' 'nsswitch.conf' 'os-release' 
-        'passwd' 'profile' 'rc.local' 'rc.local.shutdown' 'resolv.conf' 'securetty' 'shadow' 'shells'
-        'vconsole.conf')
-sha256sums=('4e298e0ec247c3bb09157f5598127f6ecb779f5ec018ab69ba4678f361bdaae3'
-            '86dff00854a7f2280bb799484ccc39ad449a171448926880742ae64f41666a43'
-            '059f48847b3aedee21470010e2e0077661a28f54c0a422a8978b647724b84a43'
-            'e93e7f9f2dd8f691eda9c1e14c7c6df789830438162728f2c1643e480096a287'
-            'f21f35e7d3083aeee19beb48478130d119b2572922a4889df98326d551540eda'
-            '295a881e674d14ee0c0e77f25236a8fd99a9453e5c33f635f55d2e8c6959c7ea'
-            '13d1f59c1d0860bf43da996e2b9a6ab2744791614241ed9a1376b7e7e30de3a8'
+backup=('etc/crypttab' 'etc/fstab' 'etc/group' 'etc/gshadow' 'etc/host.conf'
+        'etc/hosts' 'etc/issue' 'etc/ld.so.conf' 'etc/motd' 'etc/nsswitch.conf'
+        'etc/passwd' 'etc/profile' 'etc/resolv.conf' 'etc/securetty'
+        'etc/shadow' 'etc/shells' 'usr/lib/os-release')
+source=('crypttab' 'env-generator' 'fstab' 'group' 'gshadow' 'host.conf' 'hosts'
+        'issue' 'ld.so.conf' 'locale.sh' 'motd' 'nsswitch.conf' 'os-release'
+        'passwd' 'profile' 'resolv.conf' 'securetty' 'shadow' 'shells'
+        'sysusers' 'tmpfiles')
+sha256sums=('e03bede3d258d680548696623d5979c6edf03272e801a813c81ba5a5c64f4f82'
+            'ed0cb4f1db4021f8c3b5ce78fdf91d2c0624708f58f36c9cf867f4d93c3bc6da'
+            'e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696'
+            '244f0718ee2a9d6862ae59d6c18c1dd1568651eada91a704574fa527fbac2b3a'
+            '90d879374f77bac47f132164c1e7fc4892e994ff1d1ac376efa0c1c26ea37273'
+            '4d7b647169063dfedbff5e1e22cee77bd1a4183dbcfd5e802e68939da4bbf733'
+            'd9cd8a77d9e0aa5e90d7f4ed74c8745c17b525e720e28e4c44364150003c35f9'
             'aa59e888f2f4b6f565ae7f4057b987bfde07890a2ccde438abee2b93a93d96c0'
-            '00d5d103837480d26cd350753382c3211df6bc304ee59ffaab130fad108f6a86'
-            'bc538cf42f96e24b8ec94c32242b6891de245e0207fab6937bfce3e23942742b'
-            '331805ff85b80ae2444be58740f1cf41be56fb6e254e930677f1e36e8f95bee1'
-            '0304f9811dfb2369212d1e30f65dd0be30fb0ccc7ad6f63c535cb5649d9f23de'
+            'dad04a370e488aa85fb0a813a5c83cf6fd981ce01883fc59685447b092de84b5'
+            '8ca2d8eef6fb5143c9ef7e9174ccfef59ac7ad2deee243574cd10c763156cc10'
             'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-            'a8a1cd5c81b11498d43ba0e0b5de53de6f154a395d54171f44d2874b4f659053'
-            'e7db11dd35c2264750e21f4c97b9e412c565b56c4676347ccdce8cae217ac2a5'
+            '3e17088d6141e3ef676528ac8ef4abd9c4584f8b65547c1236b55310e725e1bf'
             'efd40220834038831fd7837e1249428cbe24d361ccf9a38d510e137235faa9bc'
-            'ba434ef2777f5dbb1c7b41d934af08194b548af9aca8877dded11a08f795fd0b'
-            '93d7d21f7e5a644ba533847beff35167efc4624571c9b68bea6cf2b6a13ab5ff'
-            '156b75b3470c2f73efca084b7ee681eca01508df3d8e9ba0c9325162b5d80f11'
-            '4367e4f2b40237448cad791410a1acaedcd46f5504827840aa85214fad1b546c'
-            '74d2be3dd69600bcf0da751a1804a386bf4ad143b76d79c336acaa5c600e7991'
-            'f7b38167196943d8fb9d2e75358c7262d5fe1082b257c4c8caffe3b6de429cb5'
-            'c2f767cf9e11637702893ef7b706613c3252d9e7776bab35eb6683c3a0c9a7c1'
-            '6cff886fe9e23096d5f67b7857a747ebaf10431be5a2afc40236de5ad13a654f'
-            'cd4a55177020a436254bb4baf84e068b98b3b0f6644173a7c853d58d236e00f1')
-
-lint() {
-	# ensure that passwd is sync'd to shadow and group is sync'd to gshadow.
-	local r=0
-
-	local passwd shadow group gshadow
-
-	for f in passwd shadow group gshadow; do
-		mapfile -t "$f" < <(cut -d: -f1 "$f" | sort)
-	done
-
-	# we can cheat and do simple string comparison only because we can make some
-	# assumptions about the data in these files
-	if [[ ${passwd[*]} != "${shadow[*]}" ]]; then
-		error 'passwd is not in sync with shadow!'
-		r=1
-	fi
-
-	if [[ ${group[*]} != "${gshadow[*]}" ]]; then
-		error 'group is not in sync with gshadow!'
-		r=1
-	fi
-
-	return $r
-}
-
-build() {
-	cd "$srcdir"
-
-	lint
-
-	a2x -d manpage -f manpage manjaro.7.txt
-}
+            '5e06477834f51abf42ea4e8dc199632afc6afbfd8c44354685a271e9a48d2c0a'
+            '5da078777cda24e4df697e2928451723f2303bfdbb2ce9551c822188c7945d25'
+            '5557d8e601b17a80d1ea7de78a9869be69637cb6a02fbfe334e22fdf64e61d4c'
+            'd88be2b45b43605ff31dd83d6a138069b6c2e92bc8989b7b9ab9eba8da5f8c7b'
+            '8ce994663d7588143ad7ed4441b07f468f4f7d3590164dd73ddfa3ea307ece8e'
+            'c390b31fffc4a2b5d78ae8c89f5317aadef1f71baac09cfb467b675db1406d61'
+            'b5b28f395583d141d88c0b955cd05124f9b8cdf003feab01e55885b8e8c1303e'
+            '618ac097441c1f2daffc9967e5c3cd18ea8866f776db62d04bf401c53907b1c9')
 
 package() {
-	cd "$pkgdir"
+  cd "$pkgdir"
 
-	#
-	# setup root filesystem
-	#
-	for d in boot dev etc home mnt usr var opt srv/http run; do
-		install -d -m755 $d
-	done
-	install -d -m555 proc
-	install -d -m555 sys
-	install -d -m0750 root
-	install -d -m1777 tmp
-	# vsftpd won't run with write perms on /srv/ftp
-	install -d -m555 -g ftp srv/ftp
+  # setup root filesystem
+  for d in boot dev etc home mnt usr var opt srv/http run; do
+    install -d -m755 $d
+  done
+  install -d -m555 proc
+  install -d -m555 sys
+  install -d -m0750 root
+  install -d -m1777 tmp
+  # vsftpd won't run with write perms on /srv/ftp
+  # ftp (uid 14/gid 11)
+  install -d -m555 -g 11 srv/ftp
 
-	# setup /etc and /usr/share/factory/etc
-	install -d etc/{ld.so.conf.d,skel,profile.d} usr/share/factory/etc
-	for f in fstab group host.conf hostname hosts issue ld.so.conf locale.conf \
-             motd nsswitch.conf passwd profile rc.local rc.local.shutdown resolv.conf \
-             securetty shells vconsole.conf; do
-		install -m644 "$srcdir"/$f etc/
-		install -m644 "$srcdir"/$f usr/share/factory/etc/
-	done
-	ln -s ../proc/self/mounts etc/mtab
-	for f in gshadow shadow crypttab; do
-		install -m600 "$srcdir"/$f etc/
-		install -m600 "$srcdir"/$f usr/share/factory/etc/
-	done
+  # setup /etc and /usr/share/factory/etc
+  install -d etc/{ld.so.conf.d,skel,profile.d} usr/share/factory/etc
+  for f in fstab group host.conf hosts issue ld.so.conf motd nsswitch.conf \
+  passwd resolv.conf securetty shells profile; do
+    install -m644 "$srcdir"/$f etc/
+    install -m644 "$srcdir"/$f usr/share/factory/etc/
+  done
+  ln -s ../proc/self/mounts etc/mtab
+  for f in gshadow shadow crypttab; do
+    install -m600 "$srcdir"/$f etc/
+    install -m600 "$srcdir"/$f usr/share/factory/etc/
+  done
+  touch etc/arch-release
+  install -m755 "$srcdir"/locale.sh etc/profile.d/locale.sh
+  install -Dm644 "$srcdir"/os-release usr/lib/os-release
 
-	# add modules-load.d/modules
-	install -D -m644 $srcdir/modules.conf etc/modules-load.d/modules.conf
+  # setup /var
+  for d in cache local opt log/old lib/misc empty; do
+    install -d -m755 var/$d
+  done
+  install -d -m1777 var/{tmp,spool/mail}
 
-	# Create the manjaro-release file
-	echo "Manjaro Linux" > $pkgdir/etc/manjaro-release
-	ln -s manjaro-release $pkgdir/etc/arch-release
+  # allow setgid games (gid 50) to write scores
+  install -d -m775 -g 50 var/games
+  ln -s spool/mail var/mail
+  ln -s ../run var/run
+  ln -s ../run/lock var/lock
 
-	install -m755 "$srcdir"/locale.sh etc/profile.d/locale.sh
-	install -Dm644 "$srcdir"/os-release "$pkgdir"/usr/lib/os-release
-        ln -s ../usr/lib/os-release etc/os-release
+  # setup /usr hierarchy
+  for d in bin include lib share/misc src; do
+    install -d -m755 usr/$d
+  done
+  for d in {1..8}; do
+    install -d -m755 usr/share/man/man$d
+  done
 
-	# setup /var
-	for d in cache local opt log/old lib/misc empty; do
-		install -d -m755 var/$d
-	done
-	install -d -m1777 var/{tmp,spool/mail}
+  # add lib symlinks
+  ln -s usr/lib lib
+  [[ $CARCH = 'x86_64' ]] && {
+    ln -s usr/lib lib64
+    ln -s lib usr/lib64
+  }
 
-	# allow setgid games to write scores
-	install -d -m775 -g games var/games
-	ln -s spool/mail var/mail
-	ln -s ../run var/run
-	ln -s ../run/lock var/lock
+  # add bin symlinks
+  ln -s usr/bin bin
+  ln -s usr/bin sbin
+  ln -s bin usr/sbin
 
-	#
-	# setup /usr hierarchy
-	#
-	for d in bin include lib share/misc src; do
-		install -d -m755 usr/$d
-	done
-	for d in $(seq 8); do
-		install -d -m755 usr/share/man/man$d
-	done
+  # setup /usr/local hierarchy
+  for d in bin etc games include lib man sbin share src; do
+    install -d -m755 usr/local/$d
+  done
+  ln -s ../man usr/local/share/man
 
-	#
-	# add lib symlinks
-	#
-	ln -s usr/lib "$pkgdir"/lib
-	[[ $CARCH = 'x86_64' ]] && (
-		ln -s usr/lib "$pkgdir"/lib64
-		ln -s lib "$pkgdir"/usr/lib64
-	)
+  # setup systemd-sysusers
+  install -D -m644 "$srcdir"/sysusers usr/lib/sysusers.d/manjaro.conf
 
-	#
-	# add bin symlinks
-	#
-	ln -s usr/bin "$pkgdir"/bin
-	ln -s usr/bin "$pkgdir"/sbin
-	ln -s bin "$pkgdir"/usr/sbin
+  # setup systemd-tmpfiles
+  install -D -m644 "$srcdir"/tmpfiles usr/lib/tmpfiles.d/manjaro.conf
 
-	#
-	# install manjaro(7) manpage
-	#
-	install -D -m644 "$srcdir"/manjaro.7 usr/share/man/man7/manjaro.7
-
-	#
-	# setup /usr/local hierarchy
-	#
-	for d in bin etc games include lib man sbin share src; do
-		install -d -m755 usr/local/$d
-	done
-	ln -s ../man usr/local/share/man
-
-	# remove conflict with systemd
-	rm usr/share/factory/etc/nsswitch.conf
+  # setup systemd.environment-generator
+  install -D -m755 "$srcdir"/env-generator usr/lib/systemd/system-environment-generators/10-manjaro
 }
+
+# vim:set ts=2 sw=2 et:
