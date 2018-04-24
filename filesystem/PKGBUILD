@@ -4,7 +4,7 @@
 
 pkgname=filesystem
 pkgver=2018.1
-pkgrel=1
+pkgrel=2
 pkgdesc='Base Manjaro Linux files'
 arch=('x86_64')
 license=('GPL')
@@ -68,7 +68,9 @@ package() {
     install -m600 "$srcdir"/$f etc/
     install -m600 "$srcdir"/$f usr/share/factory/etc/
   done
-  touch etc/arch-release
+	# Create the manjaro-release file
+	echo "Manjaro Linux" > $pkgdir/etc/manjaro-release
+	ln -s manjaro-release $pkgdir/etc/arch-release
   install -m755 "$srcdir"/locale.sh etc/profile.d/locale.sh
   install -Dm644 "$srcdir"/os-release usr/lib/os-release
 
