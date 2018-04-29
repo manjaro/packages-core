@@ -20,7 +20,7 @@ _shortgit=.r180429.cdface5
 _git=cdface5209349930ae1b51338763c8e029971b97
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -52,6 +52,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch'
         '0002-revert-cab64df.patch'
+        '0003-intel-could-not-determine-valid-watermarks-for-inherited-state.patch'
         # Bootsplash
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0001-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0002-bootsplash.patch'
@@ -85,6 +86,7 @@ sha256sums=('20f66434f731421e901787ecc2b19e7f5f381e2c8b255b03c195c2d3a766d81f'
             'd365ce80dab359d5277bd2f8568cad50a30ab269f222ed1bb12b8d74571e24a6'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             'b842f3a8e69f72c95a68a580725e56474b9f05ea06b7ab7393ce737b5214942a'
+            '044f47a4950a6e3c7894af958e86fc9b8a3373127f1468a6ab040d45e0a1b70c'
             'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
             'e096b127a5208f56d368d2cb938933454d7200d70c86b763aa22c38e0ddb8717'
             '8c1c880f2caa9c7ae43281a35410203887ea8eae750fe8d360d0c8bf80fcc6e0'
@@ -114,6 +116,9 @@ prepare() {
   # https://www.spinics.net/lists/linux-next/msg42872.html
   # fs/open.c:696:19: error: 'open_check_o_direct' undeclared here (not in a function)
   patch -Rp1 -i ../0002-revert-cab64df.patch
+
+  # https://bugs.freedesktop.org/show_bug.cgi?id=105992
+  patch -Np1 -i ../0003-intel-could-not-determine-valid-watermarks-for-inherited-state.patch
 
   # disable USER_NS for non-root users by default
   patch -Np1 -i ../0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
