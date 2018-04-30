@@ -13,14 +13,14 @@ _basekernel=4.16
 _basever=416
 _aufs=20180312
 _bfq=v8r12
-_bfqdate=20180130
+_bfqdate=20180412
 _sub=6
 #_rc=rc7
 #_shortgit=.r180329.0b41260
 #_git=0b412605ef5f5c64b31f19e2910b1d5eba9929c3
 #pkgver=${_basekernel}${_shortgit}
 pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -44,8 +44,8 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d8a5b80...4cb5de6.patch"
-        #0001-BFQ-${_bfq}-${_bfqdate}.patch
+        #"0001-BFQ-${_bfq}-${_bfqdate}.patch::https://github.com/Algodev-github/bfq-mq/compare/0adb328...ae5d540.patch"
+        0001-BFQ-${_bfq}-${_bfqdate}.patch
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         0002-Partially-revert-swiotlb-remove-various-exports.patch
@@ -70,7 +70,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
 sha256sums=('63f6dc8e3c9f3a0273d5d6f4dca38a2413ca3a5f689329d05b750e4c87bb21b9'
             '634d3fd97e5d9d90262db0a9d62ed0a40043eb691d68bd4a545f907079610b56'
-            '223c4cf6562f11103b4d661adb6ceed117a1a1dbb3b8816c21b708848adb23fe'
+            '6adbe173f2419287a665e8d8d00c8affbf33004e5dc14b3141a248960f602051'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -84,6 +84,7 @@ sha256sums=('63f6dc8e3c9f3a0273d5d6f4dca38a2413ca3a5f689329d05b750e4c87bb21b9'
             'a8d6c0d5ae96ea722ad7842134684a4d44f7d90dd306eca82a88bf3f753fa732'
             'dd4f4de182a1807796dd6756f67edcf2f354335976c309532157716be07882c1'
             '00f0e0862dd31e7248df557672ebc540d5b38d34eca57d14d796540b274bf52b'
+            'add5d66f3ab452514dbd2591922f440f94fbc003f6e33e588c17f627c2dc80e4'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'd365ce80dab359d5277bd2f8568cad50a30ab269f222ed1bb12b8d74571e24a6'
             '9e93bc5bafeb978b1fb260d0cbfe15d8214ea0599dc6d771aae9ab652e223339'
@@ -159,12 +160,10 @@ prepare() {
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
-  #msg "Fix naming schema in BFQ-MQ patch"
-  #sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
-  #    "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
-  #"${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  msg "Fix naming schema in BFQ-MQ patch"
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
+      "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
