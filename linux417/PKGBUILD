@@ -13,14 +13,14 @@ _basekernel=4.17
 _basever=417
 _aufs=20180312
 _bfq=v8r12
-_bfqdate=20180130
-#_sub=0
+_bfqdate=20180412
+_sub=0
 _rc=rc3
 _shortgit=.r180430.6da6c0d
 _git=6da6c0db5316275015e8cc2959f12a17584aeb64
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -44,8 +44,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'aufs4-standalone.patch'
         'tmpfs-idr.patch'
         'vfs-ino.patch'
-        #"0001-BFQ-${_bfq}-v${pkgver}.patch::https://github.com/Algodev-github/bfq-mq/compare/d8a5b80...4cb5de6.patch"
-        #0001-BFQ-${_bfq}-${_bfqdate}.patch
+        #"0001-BFQ-${_bfq}-${_bfqdate}.patch::https://github.com/Algodev-github/bfq-mq/compare/0adb328...ae5d540.patch"
+        0001-BFQ-${_bfq}-${_bfqdate}.patch
         # ARCH Patches
         0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
         0002-Partially-revert-swiotlb-remove-various-exports.patch
@@ -53,6 +53,8 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch'
         '0002-revert-cab64df.patch'
         '0003-intel-could-not-determine-valid-watermarks-for-inherited-state.patch'
+        '0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch'
+        '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
         # Bootsplash
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0001-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0002-bootsplash.patch'
@@ -68,7 +70,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
 sha256sums=('00b2b2553b274751c5a6590e8c27662450e973dd1640dd9774902beda382e4fe'
-            'c38ff1c53105d4cef9a88ac769f660085772c444b86019e5f6df3c771473d2aa'
+            '7e46041118371e88ec33039c3f5140566c8984830670607a677e799fa9f95cce'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
@@ -82,11 +84,14 @@ sha256sums=('00b2b2553b274751c5a6590e8c27662450e973dd1640dd9774902beda382e4fe'
             'a8d6c0d5ae96ea722ad7842134684a4d44f7d90dd306eca82a88bf3f753fa732'
             'dd4f4de182a1807796dd6756f67edcf2f354335976c309532157716be07882c1'
             '00f0e0862dd31e7248df557672ebc540d5b38d34eca57d14d796540b274bf52b'
+            'add5d66f3ab452514dbd2591922f440f94fbc003f6e33e588c17f627c2dc80e4'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'd365ce80dab359d5277bd2f8568cad50a30ab269f222ed1bb12b8d74571e24a6'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             'b842f3a8e69f72c95a68a580725e56474b9f05ea06b7ab7393ce737b5214942a'
             '044f47a4950a6e3c7894af958e86fc9b8a3373127f1468a6ab040d45e0a1b70c'
+            'b7fc4332fb091e30bd79d64ccf7b41f54b2cb33b4011e962dd6d95c9be98e4dd'
+            '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
             'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
             'e096b127a5208f56d368d2cb938933454d7200d70c86b763aa22c38e0ddb8717'
             '8c1c880f2caa9c7ae43281a35410203887ea8eae750fe8d360d0c8bf80fcc6e0'
@@ -129,6 +134,10 @@ prepare() {
   # https://bugs.freedesktop.org/show_bug.cgi?id=103497
   patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch
 
+  # https://bugzilla.kernel.org/show_bug.cgi?id=199271
+  patch -Np1 -i ../0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch
+  patch -Np1 -i ../0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch
+
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
   patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0002-bootsplash.patch"
@@ -156,12 +165,14 @@ prepare() {
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # add BFQ scheduler
-  #msg "Fix naming schema in BFQ-MQ patch"
-  #sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
-  #    "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
-  #"${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-v${pkgver}.patch"
-  #patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  msg "Fix naming schema in BFQ-MQ patch"
+  sed -i -e "s|PATCHLEVEL = 16|PATCHLEVEL = 17|g" \
+      "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
+      "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -${_rc}|g" \
+      "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
 
   if [ "${CARCH}" = "x86_64" ]; then
     cat "${srcdir}/config.x86_64" > ./.config
@@ -178,9 +189,6 @@ prepare() {
 
   # set extraversion to pkgrel
   sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
-
-  # set patchlevel to 17 until first RC released
-  sed -ri "s|^(PATCHLEVEL =).*|\1 17|" Makefile
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh
