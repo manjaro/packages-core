@@ -16,11 +16,11 @@ _bfq=v8r12
 _bfqdate=20180412
 _sub=0
 _rc=rc3
-_shortgit=.r180430.6da6c0d
-_git=6da6c0db5316275015e8cc2959f12a17584aeb64
+_shortgit=.r180501.f212599
+_git=f2125992e7cb25ece668cb7af2bd8433715827d1
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -55,6 +55,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0003-intel-could-not-determine-valid-watermarks-for-inherited-state.patch'
         '0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch'
         '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
+        '0001-iwlwifi-killer-ac-1550.patch'
         # Bootsplash
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0001-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0002-bootsplash.patch'
@@ -69,7 +70,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
-sha256sums=('00b2b2553b274751c5a6590e8c27662450e973dd1640dd9774902beda382e4fe'
+sha256sums=('2603945c5fd7773fc2d68876af7d39795eb27c21f04f324bc5407d7fa81c585a'
             '7e46041118371e88ec33039c3f5140566c8984830670607a677e799fa9f95cce'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -92,6 +93,7 @@ sha256sums=('00b2b2553b274751c5a6590e8c27662450e973dd1640dd9774902beda382e4fe'
             '044f47a4950a6e3c7894af958e86fc9b8a3373127f1468a6ab040d45e0a1b70c'
             'b7fc4332fb091e30bd79d64ccf7b41f54b2cb33b4011e962dd6d95c9be98e4dd'
             '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
+            '863a02c53b5096a005cdde60d558f3e5d48d33d8360e513b915fa06e0df38c62'
             'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
             'e096b127a5208f56d368d2cb938933454d7200d70c86b763aa22c38e0ddb8717'
             '8c1c880f2caa9c7ae43281a35410203887ea8eae750fe8d360d0c8bf80fcc6e0'
@@ -137,6 +139,10 @@ prepare() {
   # https://bugzilla.kernel.org/show_bug.cgi?id=199271
   patch -Np1 -i ../0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch
   patch -Np1 -i ../0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch
+
+  # iwlwifi: add killer cards for 9000 series
+  # https://forum.manjaro.org/t/46167
+  patch -Np1 -i "${srcdir}/0001-iwlwifi-killer-ac-1550.patch"
 
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
   patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
