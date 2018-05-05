@@ -11,13 +11,13 @@ pkgname=('linux417' 'linux417-headers')
 _kernelname=-MANJARO
 _basekernel=4.17
 _basever=417
-_aufs=20180312
+_aufs=20180430
 _bfq=v8r12
 _bfqdate=20180412
 _sub=0
 _rc=rc3
-_shortgit=.r180504.625e200
-_git=625e2001e99e82ea3eb5b0370a428a4328b9166b
+_shortgit=.r180505.c1c0741
+_git=c1c07416cdd47161a359286021d483f449ad8c4f
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -51,7 +51,6 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         0002-Partially-revert-swiotlb-remove-various-exports.patch
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch'
-        '0002-revert-cab64df.patch'
         '0003-intel-could-not-determine-valid-watermarks-for-inherited-state.patch'
         '0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch'
         '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
@@ -70,26 +69,25 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
-sha256sums=('3f5e5bf785ad37f0c7f621ddba8ead2ec11ac7a9d912f516e59ebb5462ae793c'
+sha256sums=('afac926514f2d93f4796daa61c03a0a4ee2220fd641b094fbb533c16ca5fe5a2'
             '7e46041118371e88ec33039c3f5140566c8984830670607a677e799fa9f95cce'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             'ae2e95db94ef7176207c690224169594d49445e04249d2499e9d2fbc117a0b21'
             '90831589b7ab43d6fab11bfa3ad788db14ba77ea4dc03d10ee29ad07194691e1'
-            'bb59b8d4055295ffdf3d4114c2524f0fd9aa5b41267122a5a27b383c99ffdb90'
-            '31b029232fe5cb6359c63c480415cff11cc24c52eb71d97dec6e80dd3ae373d1'
-            'cdb243b72d61004cefd2bc9f8955681236b2971a417ec07d7b27e0b830215996'
-            'e39db62055bc2ace7942a92dcd3dcedb5f2cc07717602163454e9b8e625e0804'
-            '0f89ecbdf0a83a1d632697b63a44b6b212c05b4a167c224cc94ad96a79184308'
-            'a8d6c0d5ae96ea722ad7842134684a4d44f7d90dd306eca82a88bf3f753fa732'
-            'dd4f4de182a1807796dd6756f67edcf2f354335976c309532157716be07882c1'
-            '00f0e0862dd31e7248df557672ebc540d5b38d34eca57d14d796540b274bf52b'
+            '97bfea70dc9216c7dd0db58a89d9b9274cddc69008b0521bcac8a3fba7d47e96'
+            '363f7aea70949d87befe4890918848c456c4ece903caa9ef3bf3b3269c021474'
+            '173ec6ca1b9b5b0938bddc897270abd67a171d18199f917c5299a8655497c6a7'
+            '4de296b32203a6d54580c129b1c261065952a1173031bcbcdc57bf6a9ad24325'
+            '78a5db0fa5fa216e80387d6d1e81830e82f6fb40257624665ed4598217f4de32'
+            'c7bb7de8af97e17f8e0c971b6acbe432ed73d1c9346d4016518e0e28d03062f2'
+            '82a021dee94e3afb3f04f5fdb75fd6196ab52ba44c751237fd2e5e8d945a7660'
+            '02c6de5d4bf75b90ee5cb2f3fd672eaf176c79c0f2a762657f6b4025c27e627a'
             'add5d66f3ab452514dbd2591922f440f94fbc003f6e33e588c17f627c2dc80e4'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'd365ce80dab359d5277bd2f8568cad50a30ab269f222ed1bb12b8d74571e24a6'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
-            'b842f3a8e69f72c95a68a580725e56474b9f05ea06b7ab7393ce737b5214942a'
             '044f47a4950a6e3c7894af958e86fc9b8a3373127f1468a6ab040d45e0a1b70c'
             'b7fc4332fb091e30bd79d64ccf7b41f54b2cb33b4011e962dd6d95c9be98e4dd'
             '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
@@ -119,10 +117,6 @@ prepare() {
   # http://git.kernel.org/?p=linux/kernel/git/stable/stable-queue.git
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
-
-  # https://www.spinics.net/lists/linux-next/msg42872.html
-  # fs/open.c:696:19: error: 'open_check_o_direct' undeclared here (not in a function)
-  patch -Rp1 -i ../0002-revert-cab64df.patch
 
   # https://bugs.freedesktop.org/show_bug.cgi?id=105992
   patch -Np1 -i ../0003-intel-could-not-determine-valid-watermarks-for-inherited-state.patch
