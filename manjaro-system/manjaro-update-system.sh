@@ -41,6 +41,15 @@ detectDE()
 }
 
 post_upgrade() {
+	# Fix js52 upgrading
+	pacman -Q js52 &> /tmp/cmd1
+	if [ "$(vercmp $(grep 'js52' /tmp/cmd1 | cut -d' ' -f2) 52.7.3-1)" -le 0 ]; then
+		if [ -e "/usr/lib/libmozjs-52.so.0" ]; then
+			msg "Fix js52 upgrade ..."
+			/usr/bin/rm -f /usr/lib/libmozjs-52.so.0
+		fi
+	fi
+
 	# Fix Firefox upgrading
 	pacman -Q firefox &> /tmp/cmd1
 	if [ "$(vercmp $(grep 'firefox' /tmp/cmd1 | cut -d' ' -f2) 59.0.1-0)" -le 0 ]; then
