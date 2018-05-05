@@ -46,7 +46,9 @@ post_upgrade() {
 	if [ "$(vercmp $(grep 'js52' /tmp/cmd1 | cut -d' ' -f2) 52.7.3-1)" -le 0 ]; then
 		if [ -e "/usr/lib/libmozjs-52.so.0" ]; then
 			msg "Fix js52 upgrade ..."
-			/usr/bin/rm -f /usr/lib/libmozjs-52.so.0
+			rm -f /usr/lib/libmozjs-52.so.0
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm -S js52
 		fi
 	fi
 
@@ -55,7 +57,7 @@ post_upgrade() {
 	if [ "$(vercmp $(grep 'firefox' /tmp/cmd1 | cut -d' ' -f2) 59.0.1-0)" -le 0 ]; then
 		if [ -e "/usr/lib/firefox/distribution/distribution.ini" ]; then
 			msg "Fix firefox upgrade ..."
-			/usr/bin/rm -f /usr/lib/firefox/distribution/distribution.ini
+			rm -f /usr/lib/firefox/distribution/distribution.ini
 		fi
 	fi
 
