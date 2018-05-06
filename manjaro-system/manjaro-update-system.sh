@@ -48,7 +48,7 @@ post_upgrade() {
 			msg "Fix js52 upgrade ..."
 			rm -f /usr/lib/libmozjs-52.so.0
 			rm /var/lib/pacman/db.lck &> /dev/null
-			pacman --noconfirm -S js52
+			pacman --noconfirm --force -S js52
 		fi
 	fi
 
