@@ -1,0 +1,195 @@
+From a3ef483ec5002b7af5a2ad04cb7a77366cd23b9f Mon Sep 17 00:00:00 2001
+From: Ihab Zhaika <ihab.zhaika@intel.com>
+Date: Tue, 10 Apr 2018 11:02:08 +0300
+Subject: [PATCH] iwlwifi: add killer cards for 9000 series
+
+add 2 killer cards PCI ID'S for 9000 series
+
+type=feature
+ticket=jira:WLWG-2821
+
+Change-Id: I33ad1e57a93713377ebea53488da989dae08a82f
+Signed-off-by: Ihab Zhaika <ihab.zhaika@intel.com>
+x-iwlwifi-stack-dev: 07b58a533a6aaaa58c2e15c15ed87203e048c7c3
+---
+ drivers/net/wireless/intel/iwlwifi/cfg/9000.c   | 40 +++++++++++++++++++++++++
+ drivers/net/wireless/intel/iwlwifi/iwl-config.h |  3 ++
+ drivers/net/wireless/intel/iwlwifi/pcie/drv.c   | 11 +++++++
+ versions                                        |  2 +-
+ 4 files changed, 55 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/intel/iwlwifi/cfg/9000.c b/drivers/net/wireless/intel/iwlwifi/cfg/9000.c
+index daaac2749..99c3ca676 100644
+--- a/drivers/net/wireless/intel/iwlwifi/cfg/9000.c
++++ b/drivers/net/wireless/intel/iwlwifi/cfg/9000.c
+@@ -181,6 +181,17 @@ const struct iwl_cfg iwl9260_2ac_cfg = {
+ 	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,
+ };
+ 
++const struct iwl_cfg iwl9260_killer_2ac_cfg = {
++	.name = "Killer (R) Wireless-AC 1550 Wireless Network Adapter (9260NGW)",
++	.fw_name_pre = IWL9260A_FW_PRE,
++	.fw_name_pre_b_or_c_step = IWL9260B_FW_PRE,
++	IWL_DEVICE_9000,
++	.ht_params = &iwl9000_ht_params,
++	.nvm_ver = IWL9000_NVM_VERSION,
++	.nvm_calib_ver = IWL9000_TX_POWER_VERSION,
++	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,
++};
++
+ const struct iwl_cfg iwl9270_2ac_cfg = {
+ 	.name = "Intel(R) Dual Band Wireless AC 9270",
+ 	.fw_name_pre = IWL9260A_FW_PRE,
+@@ -270,6 +281,20 @@ const struct iwl_cfg iwl9560_2ac_cfg_soc = {
+ 	.soc_latency = 5000,
+ };
+ 
++const struct iwl_cfg iwl9560_killer_2ac_cfg_soc = {
++	.name = "Killer (R) Wireless-AC 1550i Wireless Network Adapter (9560NGW)",
++	.fw_name_pre = IWL9000A_FW_PRE,
++	.fw_name_pre_b_or_c_step = IWL9000B_FW_PRE,
++	.fw_name_pre_rf_next_step = IWL9000RFB_FW_PRE,
++	IWL_DEVICE_9000,
++	.ht_params = &iwl9000_ht_params,
++	.nvm_ver = IWL9000_NVM_VERSION,
++	.nvm_calib_ver = IWL9000_TX_POWER_VERSION,
++	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,
++	.integrated = true,
++	.soc_latency = 5000,
++};
++
+ const struct iwl_cfg iwl9460_2ac_cfg_shared_clk = {
+ 	.name = "Intel(R) Dual Band Wireless AC 9460",
+ 	.fw_name_pre = IWL9000A_FW_PRE,
+@@ -330,6 +355,21 @@ const struct iwl_cfg iwl9560_2ac_cfg_shared_clk = {
+ 	.extra_phy_cfg_flags = FW_PHY_CFG_SHARED_CLK
+ };
+ 
++const struct iwl_cfg iwl9560_killer_2ac_cfg_shared_clk = {
++	.name = "Killer (R) Wireless-AC 1550i Wireless Network Adapter (9560NGW)",
++	.fw_name_pre = IWL9000A_FW_PRE,
++	.fw_name_pre_b_or_c_step = IWL9000B_FW_PRE,
++	.fw_name_pre_rf_next_step = IWL9000RFB_FW_PRE,
++	IWL_DEVICE_9000,
++	.ht_params = &iwl9000_ht_params,
++	.nvm_ver = IWL9000_NVM_VERSION,
++	.nvm_calib_ver = IWL9000_TX_POWER_VERSION,
++	.max_ht_ampdu_exponent = IEEE80211_HT_MAX_AMPDU_64K,
++	.integrated = true,
++	.soc_latency = 5000,
++	.extra_phy_cfg_flags = FW_PHY_CFG_SHARED_CLK
++};
++
+ MODULE_FIRMWARE(IWL9000A_MODULE_FIRMWARE(IWL9000_UCODE_API_MAX));
+ MODULE_FIRMWARE(IWL9000B_MODULE_FIRMWARE(IWL9000_UCODE_API_MAX));
+ MODULE_FIRMWARE(IWL9000RFB_MODULE_FIRMWARE(IWL9000_UCODE_API_MAX));
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-config.h b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
+index 7ea811c3c..ac10b6860 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-config.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
+@@ -470,6 +470,7 @@ extern const struct iwl_cfg iwl8265_2ac_
+ extern const struct iwl_cfg iwl4165_2ac_sdio_cfg;
+ extern const struct iwl_cfg iwl9160_2ac_cfg;
+ extern const struct iwl_cfg iwl9260_2ac_cfg;
++extern const struct iwl_cfg iwl9260_killer_2ac_cfg;
+ extern const struct iwl_cfg iwl9270_2ac_cfg;
+ extern const struct iwl_cfg iwl9460_2ac_cfg;
+ extern const struct iwl_cfg iwl9560_2ac_cfg;
+@@ -477,10 +478,12 @@ extern const struct iwl_cfg iwl9460_2ac_
+ extern const struct iwl_cfg iwl9461_2ac_cfg_soc;
+ extern const struct iwl_cfg iwl9462_2ac_cfg_soc;
+ extern const struct iwl_cfg iwl9560_2ac_cfg_soc;
++extern const struct iwl_cfg iwl9560_killer_2ac_cfg_soc;
+ extern const struct iwl_cfg iwl9460_2ac_cfg_shared_clk;
+ extern const struct iwl_cfg iwl9461_2ac_cfg_shared_clk;
+ extern const struct iwl_cfg iwl9462_2ac_cfg_shared_clk;
+ extern const struct iwl_cfg iwl9560_2ac_cfg_shared_clk;
++extern const struct iwl_cfg iwl9560_killer_2ac_cfg_shared_clk;
+ extern const struct iwl_cfg iwla000_2ac_cfg_hr;
+ extern const struct iwl_cfg iwla000_2ac_cfg_hr_cdb;
+ extern const struct iwl_cfg iwla000_2ac_cfg_jf;
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+index 3cc448f1e..195e550f4 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+@@ -357,6 +357,8 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0x2526, 0x1210, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x2526, 0x1410, iwl9270_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x2526, 0x1420, iwl9460_2ac_cfg_soc)},
++	{IWL_PCI_DEVICE(0x2526, 0x1550, iwl9260_killer_2ac_cfg)},
++	{IWL_PCI_DEVICE(0x2526, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x2526, 0x1610, iwl9270_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x2526, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x2526, 0x2034, iwl9560_2ac_cfg_soc)},
+@@ -390,6 +392,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0x2720, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x2720, 0x1030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x2720, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0x2720, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x2720, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x2720, 0x2034, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x2720, 0x4030, iwl9560_2ac_cfg)},
+@@ -416,6 +419,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0x30DC, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x30DC, 0x1030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x30DC, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0x30DC, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x30DC, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x30DC, 0x2034, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x30DC, 0x4030, iwl9560_2ac_cfg_soc)},
+@@ -442,6 +446,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0x31DC, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x31DC, 0x1030, iwl9560_2ac_cfg_shared_clk)},
+ 	{IWL_PCI_DEVICE(0x31DC, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0x31DC, 0x1552, iwl9560_killer_2ac_cfg_shared_clk)},
+ 	{IWL_PCI_DEVICE(0x31DC, 0x2030, iwl9560_2ac_cfg_shared_clk)},
+ 	{IWL_PCI_DEVICE(0x31DC, 0x2034, iwl9560_2ac_cfg_shared_clk)},
+ 	{IWL_PCI_DEVICE(0x31DC, 0x4030, iwl9560_2ac_cfg_shared_clk)},
+@@ -468,6 +473,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0x34F0, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x34F0, 0x1030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x34F0, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0x34F0, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x34F0, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x34F0, 0x2034, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x34F0, 0x4030, iwl9560_2ac_cfg_soc)},
+@@ -494,6 +500,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0x3DF0, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x3DF0, 0x1030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x3DF0, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0x3DF0, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x3DF0, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x3DF0, 0x2034, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x3DF0, 0x4030, iwl9560_2ac_cfg_soc)},
+@@ -520,6 +527,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0x43F0, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x43F0, 0x1030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x43F0, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0x43F0, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x43F0, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x43F0, 0x2034, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x43F0, 0x4030, iwl9560_2ac_cfg_soc)},
+@@ -555,6 +563,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0x9DF0, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0x9DF0, 0x1030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x9DF0, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0x9DF0, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x9DF0, 0x2010, iwl9460_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x9DF0, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0x9DF0, 0x2034, iwl9560_2ac_cfg_soc)},
+@@ -583,6 +592,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0xA0F0, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0xA0F0, 0x1030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0xA0F0, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0xA0F0, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0xA0F0, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0xA0F0, 0x2034, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0xA0F0, 0x4030, iwl9560_2ac_cfg_soc)},
+@@ -609,6 +619,7 @@ static const struct pci_device_id iwl_hw_card_ids[] = {
+ 	{IWL_PCI_DEVICE(0xA370, 0x1010, iwl9260_2ac_cfg)},
+ 	{IWL_PCI_DEVICE(0xA370, 0x1030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0xA370, 0x1210, iwl9260_2ac_cfg)},
++	{IWL_PCI_DEVICE(0xA370, 0x1552, iwl9560_killer_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0xA370, 0x2030, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0xA370, 0x2034, iwl9560_2ac_cfg_soc)},
+ 	{IWL_PCI_DEVICE(0xA370, 0x4030, iwl9560_2ac_cfg_soc)},
