@@ -1,11 +1,11 @@
 SPDX-License-Identifier: GPL-2.0
-aufs4.x-rcN base patch
+aufs4.16 base patch
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 4623caf..7617c0e 100644
+index 6e950b8..7324ece 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -2484,6 +2484,19 @@ F:	include/linux/audit.h
+@@ -2485,6 +2485,19 @@ F:	include/linux/audit.h
  F:	include/uapi/linux/audit.h
  F:	kernel/audit*
  
@@ -26,7 +26,7 @@ index 4623caf..7617c0e 100644
  M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
  W:	http://miguelojeda.es/auxdisplay.htm
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 87855b5..962b2d6 100644
+index ee62d2d..4ca6361 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -691,6 +691,24 @@ static inline int is_loop_device(struct file *file)
@@ -55,10 +55,10 @@ index 87855b5..962b2d6 100644
  
  static ssize_t loop_attr_show(struct device *dev, char *page,
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 7c38f39..9ce5e26 100644
+index 8945e6c..87c19c0 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
-@@ -1200,7 +1200,7 @@ enum d_walk_ret {
+@@ -1205,7 +1205,7 @@ enum d_walk_ret {
   *
   * The @enter() and @finish() callbacks are called with d_lock held.
   */
@@ -206,7 +206,7 @@ index 279720d..76e38ea 100644
  static inline void fput_light(struct file *file, int fput_needed)
  {
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 79c41398..383ab06 100644
+index c6baf76..71dc695 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
 @@ -1270,6 +1270,7 @@ extern void fasync_free(struct fasync_struct *);
@@ -217,7 +217,7 @@ index 79c41398..383ab06 100644
  extern void __f_setown(struct file *filp, struct pid *, enum pid_type, int force);
  extern int f_setown(struct file *filp, unsigned long arg, int force);
  extern void f_delown(struct file *filp);
-@@ -1721,6 +1722,7 @@ struct file_operations {
+@@ -1722,6 +1723,7 @@ struct file_operations {
  	ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);
  	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
  	int (*check_flags)(int);
@@ -225,7 +225,7 @@ index 79c41398..383ab06 100644
  	int (*flock) (struct file *, int, struct file_lock *);
  	ssize_t (*splice_write)(struct pipe_inode_info *, struct file *, loff_t *, size_t, unsigned int);
  	ssize_t (*splice_read)(struct file *, loff_t *, struct pipe_inode_info *, size_t, unsigned int);
-@@ -1791,6 +1793,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
+@@ -1792,6 +1794,12 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
  			      struct iovec *fast_pointer,
  			      struct iovec **ret_pointer);
  
@@ -238,7 +238,7 @@ index 79c41398..383ab06 100644
  extern ssize_t __vfs_read(struct file *, char __user *, size_t, loff_t *);
  extern ssize_t vfs_read(struct file *, char __user *, size_t, loff_t *);
  extern ssize_t vfs_write(struct file *, const char __user *, size_t, loff_t *);
-@@ -2195,6 +2203,7 @@ extern int current_umask(void);
+@@ -2196,6 +2204,7 @@ extern int current_umask(void);
  extern void ihold(struct inode * inode);
  extern void iput(struct inode *);
  extern int generic_update_time(struct inode *, struct timespec *, int);
@@ -246,7 +246,7 @@ index 79c41398..383ab06 100644
  
  /* /sys/fs */
  extern struct kobject *fs_kobj;
-@@ -2475,6 +2484,7 @@ static inline bool sb_is_blkdev_sb(struct super_block *sb)
+@@ -2476,6 +2485,7 @@ static inline bool sb_is_blkdev_sb(struct super_block *sb)
  	return false;
  }
  #endif

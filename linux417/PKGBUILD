@@ -15,9 +15,9 @@ _aufs=20180430
 _bfq=v8r12
 _bfqdate=20180412
 _sub=0
-_rc=rc3
-_shortgit=.r180505.c1c0741
-_git=c1c07416cdd47161a359286021d483f449ad8c4f
+_rc=rc4
+_shortgit=.r180509.036db8b
+_git=036db8bd96374c66424f270f3370ddaf0adf7506
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -69,7 +69,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
-sha256sums=('afac926514f2d93f4796daa61c03a0a4ee2220fd641b094fbb533c16ca5fe5a2'
+sha256sums=('ee906021e40b4e8b4f00914c12519b652eb98f3882ed71e1866d74d09778d137'
             '7e46041118371e88ec33039c3f5140566c8984830670607a677e799fa9f95cce'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -171,6 +171,8 @@ prepare() {
   sed -i -e "s|SUBLEVEL = 0|SUBLEVEL = ${_sub}|g" \
       "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
   sed -i -e "s|EXTRAVERSION =|EXTRAVERSION = -${_rc}|g" \
+      "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
+  sed -i -e "s|Fearless Coyote|Merciless Moray|g" \
       "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
   patch -Np1 -i "${srcdir}/0001-BFQ-${_bfq}-${_bfqdate}.patch"
 

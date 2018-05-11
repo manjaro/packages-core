@@ -10,9 +10,9 @@ pkgbase=linux49
 pkgname=('linux49' 'linux49-headers')
 _kernelname=-MANJARO
 _basekernel=4.9
-_aufs=20171218 # LAST RELEASE
+_aufs=20180423
 _bfq=v8r12
-_sub=98
+_sub=99
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -30,7 +30,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         # standard config files for mkinitcpio ramdisk
         "${pkgbase}.preset"
         "${pkgbase}.hook"
-        "aufs4.9-${_aufs}.patch.bz2"
+        "aufs4.9.9+-${_aufs}.patch.bz2"
         'aufs4-base.patch'
         'aufs4-kbuild.patch'
         'aufs4-loopback.patch'
@@ -55,18 +55,18 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-zen-temp.patch'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            '21570f5c0bd6c90094dda5551787f8b883c93de949748bbc2cbfce39bcb762c2'
+            'd852721b3749ca16dfef7b5939088b916839aa1263782db003d00fec66a3d4b5'
             '8272e9a39e1292a1d35077ce0837ebe0b99bbe97681306109519da692ccc549a'
             'b1be3281e1df21d29e501201caace8d8e0c6200f4b01761f194538cb42f42aa8'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
             '43942683a7ff01b180dff7f3de2db4885d43ab3d4e7bd0e1918c3aaf2ee061f4'
             '5016e07c4afa91866566f6812aa7a4c69537d3abf64076c0307863f45a491e77'
-            '0dd0d0c57e1f23990954fc032172f17275863fdf4156ca3550da3991ebd4185e'
-            '967b9d3572dbe60a67f209732396d17ac77fedcf7b7dec1c0ddd2c887b5adacf'
-            'cc46a882be029cdcdf134915e34286db2af58b4f91a8b520dd11c15129a765c4'
-            'd099aef945f8930edd162d7cf765c45abc4a86ee6b671c0a18a5970ca8cf4862'
-            '15f6b580699d1707a62365b145a2bcc6d1365e32f6b0cfbf2ac8e742bcb337eb'
-            'ccd85d1f34e24007c1e3b236ad9c5054c4b837bc6e70ba2391f92551bc14b975'
+            '53a29eaff4109ad12b63c325dd5c957c1014ce22498d5c887fc99a2810917db0'
+            '3793037bd7581309798fc40e796e1f6eb469f7216d81b6df26516cd46dcaa5dc'
+            '320c1aebf1d9ab53011b00655764b8dc2d036382aeec3083bcbfaec77bdc7c95'
+            '2baded567e11ee6d77d4c9d0db0ccd18dbd12b74f657e563e38d16ae139db29d'
+            '10e684804c611e136c2fa18b2e34c95e8f29d6ec2cd217a65379d764a40f7f2b'
+            'd9eb380b696fb5b454fa4ec081d60dd3ba69808f02d38954db468009ef0e2d62'
             'db7a22592a3d192dd84c84c20f361972bccfd84de346d8d7684488d118eade83'
             'e13bf072112864338cf610c8d694b8d82ae08844851b80d6d3f1cb61e112290e'
             '1ff51208068a4ff836bb8cf90ede45f8d4e07ffb2e069cddae98a3f19a52807e'
@@ -112,7 +112,7 @@ prepare() {
   patch -p1 -i "${srcdir}/0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch"
 
   # add aufs4 support
-  patch -Np1 -i "${srcdir}/aufs4.9-${_aufs}.patch"
+  patch -Np1 -i "${srcdir}/aufs4.9.9+-${_aufs}.patch"
   patch -Np1 -i "${srcdir}/aufs4-base.patch"
   patch -Np1 -i "${srcdir}/aufs4-kbuild.patch"
   patch -Np1 -i "${srcdir}/aufs4-loopback.patch"

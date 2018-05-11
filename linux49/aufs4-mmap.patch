@@ -1,4 +1,4 @@
-aufs4.9 mmap patch
+aufs4.9.9+ mmap patch
 
 diff --git a/fs/proc/base.c b/fs/proc/base.c
 index ca651ac..0e8551a 100644
@@ -71,7 +71,7 @@ index 3717562..6a328f1 100644
  		ino = inode->i_ino;
  		pgoff = (loff_t)vma->vm_pgoff << PAGE_SHIFT;
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index a92c8d7..1d83a2a 100644
+index 0b5b2e4..77b1438 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
 @@ -1266,6 +1266,28 @@ static inline int fixup_user_fault(struct task_struct *tsk,
@@ -104,7 +104,7 @@ index a92c8d7..1d83a2a 100644
  		unsigned int gup_flags);
  extern int access_remote_vm(struct mm_struct *mm, unsigned long addr,
 diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 4a8aced..badd16b 100644
+index 08d947f..836f637 100644
 --- a/include/linux/mm_types.h
 +++ b/include/linux/mm_types.h
 @@ -275,6 +275,7 @@ struct vm_region {
@@ -124,7 +124,7 @@ index 4a8aced..badd16b 100644
  
  #ifndef CONFIG_MMU
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 997ac1d..4d0131b 100644
+index ba8a015..f1751cb 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
 @@ -624,7 +624,7 @@ static __latent_entropy int dup_mmap(struct mm_struct *mm,
@@ -150,10 +150,10 @@ index 295bd7a..14fa1c8 100644
  obj-y += init-mm.o
  
 diff --git a/mm/filemap.c b/mm/filemap.c
-index 50b52fe..9e607f9 100644
+index d8d7df8..29f16cc 100644
 --- a/mm/filemap.c
 +++ b/mm/filemap.c
-@@ -2304,7 +2304,7 @@ int filemap_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
+@@ -2309,7 +2309,7 @@ int filemap_page_mkwrite(struct vm_area_struct *vma, struct vm_fault *vmf)
  	int ret = VM_FAULT_LOCKED;
  
  	sb_start_pagefault(inode->i_sb);
@@ -163,7 +163,7 @@ index 50b52fe..9e607f9 100644
  	if (page->mapping != inode->i_mapping) {
  		unlock_page(page);
 diff --git a/mm/memory.c b/mm/memory.c
-index e18c57b..7be4a39 100644
+index cbb1e5e..150737f 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -2117,7 +2117,7 @@ static inline int wp_page_reuse(struct fault_env *fe, pte_t orig_pte,
@@ -273,7 +273,7 @@ index 1af87c1..95b0ff4 100644
  			new_vma->vm_ops->open(new_vma);
  		vma_link(mm, new_vma, prev, rb_link, rb_parent);
 diff --git a/mm/nommu.c b/mm/nommu.c
-index 8b8faaf..5d26ed94 100644
+index 44265e0..781c61e 100644
 --- a/mm/nommu.c
 +++ b/mm/nommu.c
 @@ -636,7 +636,7 @@ static void __put_nommu_region(struct vm_region *region)
@@ -318,7 +318,7 @@ index 8b8faaf..5d26ed94 100644
  
 diff --git a/mm/prfile.c b/mm/prfile.c
 new file mode 100644
-index 0000000..1ef053b
+index 0000000..86e01bd
 --- /dev/null
 +++ b/mm/prfile.c
 @@ -0,0 +1,85 @@
@@ -329,7 +329,7 @@ index 0000000..1ef053b
 + *
 + * See Documentation/filesystems/aufs/design/06mmap.txt
 + *
-+ * Copyright (c) 2014-2017 Junjro R. Okajima
++ * Copyright (c) 2014-2018 Junjro R. Okajima
 + * Copyright (c) 2014 Ian Campbell
 + */
 +

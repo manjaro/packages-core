@@ -1,7 +1,7 @@
-aufs4.9 standalone patch
+aufs4.9.9+ standalone patch
 
 diff --git a/fs/dcache.c b/fs/dcache.c
-index df0268c..755fea1 100644
+index fc74297..98de99a 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
 @@ -1272,6 +1272,7 @@ void d_walk(struct dentry *parent, void *data,
@@ -12,7 +12,7 @@ index df0268c..755fea1 100644
  
  /*
   * Search for at least 1 mount point in the dentry's subdirs.
-@@ -2855,6 +2856,7 @@ void d_exchange(struct dentry *dentry1, struct dentry *dentry2)
+@@ -2858,6 +2859,7 @@ void d_exchange(struct dentry *dentry1, struct dentry *dentry2)
  
  	write_sequnlock(&rename_lock);
  }
@@ -21,7 +21,7 @@ index df0268c..755fea1 100644
  /**
   * d_ancestor - search for an ancestor
 diff --git a/fs/exec.c b/fs/exec.c
-index 4e497b9..e27d323 100644
+index 67e8657..70f15ed 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
 @@ -104,6 +104,7 @@ bool path_noexec(const struct path *path)
@@ -81,7 +81,7 @@ index ad17e05..ae9f267 100644
  void __init files_init(void)
  { 
 diff --git a/fs/inode.c b/fs/inode.c
-index 9a9ba3a..a3a18d8 100644
+index 9a9ba3a..a3a18d83 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
 @@ -1651,6 +1651,7 @@ int update_time(struct inode *inode, struct timespec *time, int flags)
@@ -93,7 +93,7 @@ index 9a9ba3a..a3a18d8 100644
  /**
   *	touch_atime	-	update the access time
 diff --git a/fs/namespace.c b/fs/namespace.c
-index db0b1ac..2d1e8ff 100644
+index 63e316b..9765fa3 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -466,6 +466,7 @@ void __mnt_drop_write(struct vfsmount *mnt)
@@ -104,7 +104,7 @@ index db0b1ac..2d1e8ff 100644
  
  /**
   * mnt_drop_write - give up write access to a mount
-@@ -792,6 +793,7 @@ int is_current_mnt_ns(struct vfsmount *mnt)
+@@ -816,6 +817,7 @@ int is_current_mnt_ns(struct vfsmount *mnt)
  {
  	return check_mnt(real_mount(mnt));
  }
@@ -112,7 +112,7 @@ index db0b1ac..2d1e8ff 100644
  
  /*
   * vfsmount lock must be held for write
-@@ -1829,6 +1831,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
+@@ -1853,6 +1855,7 @@ int iterate_mounts(int (*f)(struct vfsmount *, void *), void *arg,
  	}
  	return 0;
  }
@@ -233,7 +233,7 @@ index 4052813..7dfd732 100644
  ssize_t __kernel_write(struct file *file, const char *buf, size_t count, loff_t *pos)
  {
 diff --git a/fs/splice.c b/fs/splice.c
-index 28160a7..98c1902 100644
+index 608a98b..e50c4ec 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
 @@ -868,6 +868,7 @@ long do_splice_from(struct pipe_inode_info *pipe, struct file *out,

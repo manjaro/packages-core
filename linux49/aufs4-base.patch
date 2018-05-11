@@ -1,4 +1,4 @@
-aufs4.9 base patch
+aufs4.9.9+ base patch
 
 diff --git a/MAINTAINERS b/MAINTAINERS
 index 63cefa6..d78b954 100644
@@ -25,7 +25,7 @@ index 63cefa6..d78b954 100644
  M:	Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
  W:	http://miguelojeda.es/auxdisplay.htm
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index fa1b7a9..6ee9235 100644
+index 4af81876..c27854b 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -701,6 +701,24 @@ static inline int is_loop_device(struct file *file)
@@ -54,7 +54,7 @@ index fa1b7a9..6ee9235 100644
  
  static ssize_t loop_attr_show(struct device *dev, char *page,
 diff --git a/fs/dcache.c b/fs/dcache.c
-index 5c7cc95..df0268c 100644
+index 4485a48..fc74297 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
 @@ -1164,7 +1164,7 @@ enum d_walk_ret {
@@ -102,10 +102,10 @@ index 88110fd..9a9ba3a 100644
  	int (*update_time)(struct inode *, struct timespec *, int);
  
 diff --git a/fs/namespace.c b/fs/namespace.c
-index e6c234b..db0b1ac 100644
+index 7cea503..63e316b 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -787,6 +787,12 @@ static inline int check_mnt(struct mount *mnt)
+@@ -811,6 +811,12 @@ static inline int check_mnt(struct mount *mnt)
  	return mnt->mnt_ns == current->nsproxy->mnt_ns;
  }
  
@@ -152,7 +152,7 @@ index 190e0d36..4052813 100644
  {
  	mm_segment_t old_fs;
 diff --git a/fs/splice.c b/fs/splice.c
-index 5a7750b..28160a7 100644
+index 63b8f54..608a98b 100644
 --- a/fs/splice.c
 +++ b/fs/splice.c
 @@ -855,8 +855,8 @@ EXPORT_SYMBOL(generic_splice_sendpage);

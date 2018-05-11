@@ -149,7 +149,7 @@ index 1f39567..128b137 100644
  	void		*key_data; 
  
 diff --git a/fs/aufs/f_op.c b/fs/aufs/f_op.c
-index 0d4ea929..af293c2 100644
+index ad30f42..5caf353 100644
 --- a/fs/aufs/f_op.c
 +++ b/fs/aufs/f_op.c
 @@ -358,7 +358,7 @@ static ssize_t aufs_read_iter(struct kiocb *kio, struct iov_iter *iov_iter)
@@ -162,7 +162,7 @@ index 0d4ea929..af293c2 100644
  		if (file->f_mapping != h_file->f_mapping) {
  			file->f_mapping = h_file->f_mapping;
 diff --git a/fs/aufs/loop.c b/fs/aufs/loop.c
-index 3b217c2..0f5ab22 100644
+index 3e9d59a..42811d3 100644
 --- a/fs/aufs/loop.c
 +++ b/fs/aufs/loop.c
 @@ -133,3 +133,19 @@ void au_loopback_fin(void)
@@ -186,7 +186,7 @@ index 3b217c2..0f5ab22 100644
 +	return f;
 +}
 diff --git a/fs/aufs/loop.h b/fs/aufs/loop.h
-index 7d7bf34..ba7c188 100644
+index dc3f3be..c33d060 100644
 --- a/fs/aufs/loop.h
 +++ b/fs/aufs/loop.h
 @@ -26,7 +26,11 @@ void au_warn_loopback(struct super_block *h_sb);
@@ -211,7 +211,7 @@ index 7d7bf34..ba7c188 100644
  
  #endif /* __KERNEL__ */
 diff --git a/fs/aufs/super.c b/fs/aufs/super.c
-index 75c2e17..ebb1cca 100644
+index 7c4bf43..7447f37 100644
 --- a/fs/aufs/super.c
 +++ b/fs/aufs/super.c
 @@ -839,7 +839,10 @@ static const struct super_operations aufs_sop = {
