@@ -42,7 +42,8 @@ detectDE()
 
 post_upgrade() {
 	# Fix config issue in sddm.conf
-	if [ ! -e "/etc/sddm.conf.path-mod.done" ]; then
+	if [ ! -e "/etc/sddm.conf.path-mod.done" ] && \
+		[ -e "/etc/sddm.conf" ]; then
 		msg "Fix default path config issue in sddm.conf ..."
 		sed -i -e 's|/bin:/usr/bin:/usr/local/bin|/usr/local/sbin:/usr/local/bin:/usr/bin|' /etc/sddm.conf
 		touch /etc/sddm.conf.path-mod.done
