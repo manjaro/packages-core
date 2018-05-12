@@ -16,8 +16,8 @@ _bfq=v8r12
 _bfqdate=20180412
 _sub=0
 _rc=rc4
-_shortgit=.r180509.036db8b
-_git=036db8bd96374c66424f270f3370ddaf0adf7506
+_shortgit=.r180512.f0ab773
+_git=f0ab773f5c96c29a5227234c4b5a820f5591b74d
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -51,10 +51,12 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         0002-Partially-revert-swiotlb-remove-various-exports.patch
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch'
-        '0003-intel-could-not-determine-valid-watermarks-for-inherited-state.patch'
-        '0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch'
         '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
         '0001-iwlwifi-killer-ac-1550.patch'
+        # gcc8 ojtool patches
+        '0001-objtool_Fix_noreturn_detection_for_recursive_sibling_calls.patch'
+        '0002-objtool_support_GCC8_cold_subfunctions.patch'
+        '0003-objtool_support_GCC8_switch_tables.patch'
         # Bootsplash
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0001-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0002-bootsplash.patch'
@@ -69,7 +71,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
-sha256sums=('ee906021e40b4e8b4f00914c12519b652eb98f3882ed71e1866d74d09778d137'
+sha256sums=('fbbe8951d3e6b86d338314b9c60f1371daf77cae0d3129809cf260148c0b2a1d'
             '7e46041118371e88ec33039c3f5140566c8984830670607a677e799fa9f95cce'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -88,10 +90,11 @@ sha256sums=('ee906021e40b4e8b4f00914c12519b652eb98f3882ed71e1866d74d09778d137'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'd365ce80dab359d5277bd2f8568cad50a30ab269f222ed1bb12b8d74571e24a6'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
-            '044f47a4950a6e3c7894af958e86fc9b8a3373127f1468a6ab040d45e0a1b70c'
-            'b7fc4332fb091e30bd79d64ccf7b41f54b2cb33b4011e962dd6d95c9be98e4dd'
             '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
             '863a02c53b5096a005cdde60d558f3e5d48d33d8360e513b915fa06e0df38c62'
+            '0d2ac82871694368a563f6082ffffc891cbbb7a5a16ca1d18792fdda95ed4840'
+            '46d7929976781187de803b1d600e7e5577d633b0c9ae4e6e222801e9787594a1'
+            '94b1f14b4cdb336556e23d4c737e9a805c798380508a75c18c23a5a7ff11eda8'
             'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
             'e096b127a5208f56d368d2cb938933454d7200d70c86b763aa22c38e0ddb8717'
             '8c1c880f2caa9c7ae43281a35410203887ea8eae750fe8d360d0c8bf80fcc6e0'
@@ -118,11 +121,14 @@ prepare() {
   # enable only if you have "gen-stable-queue-patch.sh" executed before
   #patch -Np1 -i "${srcdir}/prepatch-${_basekernel}`date +%Y%m%d`"
 
-  # https://bugs.freedesktop.org/show_bug.cgi?id=105992
-  patch -Np1 -i ../0003-intel-could-not-determine-valid-watermarks-for-inherited-state.patch
-
   # disable USER_NS for non-root users by default
   patch -Np1 -i ../0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
+
+  # gcc8 ojtool patches
+  msg "gcc8 objtool patches..."
+  patch -p1 -i '../0001-objtool_Fix_noreturn_detection_for_recursive_sibling_calls.patch'
+  patch -p1 -i '../0002-objtool_support_GCC8_cold_subfunctions.patch'
+  patch -p1 -i '../0003-objtool_support_GCC8_switch_tables.patch'
 
   # Nvidia driver
   patch -Np1 -i ../0002-Partially-revert-swiotlb-remove-various-exports.patch
@@ -131,7 +137,6 @@ prepare() {
   patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch
 
   # https://bugzilla.kernel.org/show_bug.cgi?id=199271
-  patch -Np1 -i ../0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch
   patch -Np1 -i ../0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch
 
   # iwlwifi: add killer cards for 9000 series
