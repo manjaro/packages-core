@@ -123,7 +123,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
-  patch -p1 -i "${srcdir}/patch-${pkgver}"
+  patch -Np1 -i "${srcdir}/patch-${pkgver}"
   chmod +x tools/objtool/sync-check.sh # GNU patch doesn't support git-style file mode
 
   # add latest fixes from stable queue, if needed
