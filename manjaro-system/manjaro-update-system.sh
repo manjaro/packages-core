@@ -41,12 +41,34 @@ detectDE()
 }
 
 post_upgrade() {
+	# nvidia legacy changes (may 2018)
+	pacman -Qq nvidia-utils &> /tmp/cmd1
+	pacman -Qq mhwd-nvidia-390xx &> /tmp/cmd2
+	if [ "$(grep 'nvidia-utils' /tmp/cmd1)" == "nvidia-utils" ]; then
+		if [ "$(grep 'mhwd-nvidia-390xx' /tmp/cmd2)" != "mhwd-nvidia-390xx" ]; then
+			msg "Updating mhwd database"
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm -S mhwd-db
+		fi
+		mhwd | grep " video-nvidia " &> /tmp/cmd3
+		mhwd-gpu | grep nvidia &> /tmp/cmd4
+		pacman -Qq | grep nvidia | grep -v mhwd | grep -v toolkit &> /tmp/cmd5
+		if [[ -z "$(cat /tmp/cmd3)" && -n "$(cat /tmp/cmd4)" ]]; then
+			msg "Maintaining video driver at version nvidia-390xx"
+			rm /var/lib/pacman/db.lck &> /dev/null
+			pacman --noconfirm -Rdd $(cat /tmp/cmd5)
+			pacman --noconfirm -S $(cat /tmp/cmd5 | sed 's|nvidia|nvidia-390xx|g')
+			rm -r /var/lib/mhwd/local/pci/video-nvidia/
+			cp -a /var/lib/mhwd/db/pci/graphic_drivers/nvidia-390xx/ /var/lib/mhwd/local/pci/
+		fi
+	fi
+
 	# Fix config issue in sddm.conf
 	if [ ! -e "/etc/sddm.conf.path-mod.done" ] && \
 		[ -e "/etc/sddm.conf" ]; then
 		msg "Fix default path config issue in sddm.conf ..."
-		sed -i -e 's|/bin:/usr/bin:/usr/local/bin|/usr/local/sbin:/usr/local/bin:/usr/bin|' /etc/sddm.conf
-		touch /etc/sddm.conf.path-mod.done
+		cp /etc/sddm.conf /etc/sddm.conf.path-mod.done
+		sed -i -e 's|^.*DefaultPath.*|DefaultPath=/usr/local/sbin:/usr/local/bin:/usr/bin|' /etc/sddm.conf
 	fi
 
 	# Fix js52 upgrading
