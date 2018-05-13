@@ -64,10 +64,10 @@ post_upgrade() {
 	fi
 
 	# Fix config issue in sddm.conf
-	if [ ! -e "/etc/sddm.conf.path-mod.done" ] && \
+	if [ "$(vercmp $2 20180513)" -eq 0 ] && \
 		[ -e "/etc/sddm.conf" ]; then
 		msg "Fix default path config issue in sddm.conf ..."
-		cp /etc/sddm.conf /etc/sddm.conf.path-mod.done
+		cp /etc/sddm.conf /etc/sddm.conf.pacsave
 		sed -i -e 's|^.*DefaultPath.*|DefaultPath=/usr/local/sbin:/usr/local/bin:/usr/bin|' /etc/sddm.conf
 	fi
 

@@ -6,7 +6,7 @@
 
 pkgname=manjaro-system
 pkgver=$(date +%Y%m%d)
-pkgrel=2
+pkgrel=1
 pkgdesc="Manjaro Linux System - Update script"
 arch=('any')
 url="http://www.manjaro.org"
