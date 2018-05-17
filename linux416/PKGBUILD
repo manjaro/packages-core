@@ -14,11 +14,7 @@ _basever=416
 _aufs=20180409
 _bfq=v8r12
 _bfqdate=20180412
-_sub=8
-#_rc=rc7
-#_shortgit=.r180329.0b41260
-#_git=0b412605ef5f5c64b31f19e2910b1d5eba9929c3
-#pkgver=${_basekernel}${_shortgit}
+_sub=9
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -51,7 +47,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         0002-Partially-revert-swiotlb-remove-various-exports.patch
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch'
-        '0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch'
         '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
         '0001-iwlwifi-killer-ac-1550.patch'
         # Bootsplash
@@ -69,7 +64,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
 sha256sums=('63f6dc8e3c9f3a0273d5d6f4dca38a2413ca3a5f689329d05b750e4c87bb21b9'
-            '6fb2db1e38f762e6a028dfa5e6d094f0eb4324572667923aca3d64c87117772d'
+            '299b45a4f16f763ecf654e6642c020b6e9e461601d056ef44ecb21b54d736cbf'
             '659fba7a1d63a25ba13cd9b20002a5c044ba1307d3ac0d3c6db3cec91a678886'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -88,7 +83,6 @@ sha256sums=('63f6dc8e3c9f3a0273d5d6f4dca38a2413ca3a5f689329d05b750e4c87bb21b9'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'd365ce80dab359d5277bd2f8568cad50a30ab269f222ed1bb12b8d74571e24a6'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
-            'b7fc4332fb091e30bd79d64ccf7b41f54b2cb33b4011e962dd6d95c9be98e4dd'
             '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
             '863a02c53b5096a005cdde60d558f3e5d48d33d8360e513b915fa06e0df38c62'
             'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
@@ -127,7 +121,6 @@ prepare() {
   patch -Np1 -i ../0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch
 
   # https://bugzilla.kernel.org/show_bug.cgi?id=199271
-  patch -Np1 -i ../0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch
   patch -Np1 -i ../0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch
 
   # iwlwifi: add killer cards for 9000 series

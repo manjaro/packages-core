@@ -12,7 +12,7 @@ _kernelname=-MANJARO
 _basekernel=4.9
 _aufs=20180423
 _bfq=v8r12
-_sub=99
+_sub=100
 pkgver=${_basekernel}.${_sub}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -46,7 +46,6 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0002-HID-multitouch-enable-the-Surface-4-Type-Cover-Pro-JP-to-report-multitouch-data.patch'
         '0003-HID-multitouch-enable-Surface-4-Type-Cover-Pro-non-JP-to-report-multitouch-data.patch'
         '0004-HID-multitouch-enable-Surface-3-Type-Cover-Pro-to-report-multitouch-data.patch'
-        '0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch'
         '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
         # Zen temperature
         '0001-zen-temp.patch'
@@ -55,7 +54,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         '0004-zen-temp.patch'
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
-            'd852721b3749ca16dfef7b5939088b916839aa1263782db003d00fec66a3d4b5'
+            'a1daad441ae3df6a9dcce7b6c53b38a9c80613bad62b16517b20dab3a0df8293'
             '8272e9a39e1292a1d35077ce0837ebe0b99bbe97681306109519da692ccc549a'
             'b1be3281e1df21d29e501201caace8d8e0c6200f4b01761f194538cb42f42aa8'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -75,7 +74,6 @@ sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             '3aaca014f7e4768965dfe5e9740f2007d49f2319db6b6cf566ac7b8b869a6506'
             'dc464866c4b773644b729803ec3e99c0cdd9781727db35337ac6b06ccd3f458b'
             '555b6a27b3a34a81e422f0ac935ee72ae8bfd798799aea443f8036518bdaea00'
-            'b7fc4332fb091e30bd79d64ccf7b41f54b2cb33b4011e962dd6d95c9be98e4dd'
             '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
             '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
             'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
@@ -122,7 +120,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/vfs-ino.patch"
 
   # https://bugzilla.kernel.org/show_bug.cgi?id=199271
-  patch -Np1 -i ../0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch
   patch -Np1 -i ../0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch
 
   # add BFQ scheduler

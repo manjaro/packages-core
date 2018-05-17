@@ -13,9 +13,9 @@ _basekernel=4.4
 _basever=44
 _aufs=20170410
 _bfq=v8r12
-_sub=131
+_sub=132
 pkgver=${_basekernel}.${_sub}
-pkgrel=2
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -46,7 +46,6 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         '0001-sdhci-revert.patch'
         'i8042-asus-notebook.patch'
-        '0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch'
         '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
         # Zen temperature
         '0001-zen-temp.patch'
@@ -55,7 +54,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0004-zen-temp.patch'
 )
 sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
-            '6d55f660482213c8fcd2ccd89592eccaa020d047976733909a457d9b0e56f3af'
+            'e7bff75248011733d5e4de5b630d489afee5b9b862db84f92e3d9054048e1c36'
             '0579d0c801502e7fb7d2682acfe8a243888afaa90b597871c112c7d0b00114a2'
             'fc6543a6f5aa3366ffccb584654735410df1df318b3f4831519ade32bcb593e3'
             'd1cecc720df66c70f43bdb86e0169d6b756161c870db8d7d39c32c04dc36ed36'
@@ -75,7 +74,6 @@ sha256sums=('5b8fc6519a737a5c809171e08225f050bf794f1f369c4c387ed3c8a89b1e995b'
             '44e7e15c95af9676f715569e72688fd64304a70d2854b0f804c156d4961c72c0'
             '5313df7cb5b4d005422bd4cd0dae956b2dadba8f3db904275aaf99ac53894375'
             '6f836c7ede51db88504fee33e228af368b1b6cb08f3dc7536849945f595a6758'
-            'b7fc4332fb091e30bd79d64ccf7b41f54b2cb33b4011e962dd6d95c9be98e4dd'
             '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
             '4d55d497f1c3ebc7afa82909c3fc63a37855d1753b4cd7dfdbaac21d91fe6968'
             'ee46e4c25b58d1dbd7db963382cf37aeae83dd0b4c13a59bdd11153dc324d8e8'
@@ -109,7 +107,6 @@ prepare() {
   patch -p1 -i "${srcdir}/i8042-asus-notebook.patch"
 
   # https://bugzilla.kernel.org/show_bug.cgi?id=199271
-  patch -Np1 -i ../0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch
   patch -Np1 -i ../0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch
 
   # Add support for temperature sensors on Family 17h (Ryzen) processors.
