@@ -51,6 +51,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         # MANJARO Patches
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch'
         '0001-synaptics-reset-abs_xy-fuzz.patch'
+        '0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch'
         '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
         '0001-gcc8.patch::https://patchwork.kernel.org/patch/10138399/raw/'
         '0002-gcc8.patch::https://patchwork.kernel.org/patch/10291671/raw/'
@@ -88,6 +89,7 @@ sha256sums=('8ea1d0447c6b97182a308f80be34e4e5bb7c14d7840658a8822cfad6b4061798'
             '37b86ca3de148a34258e3176dbf41488d9dbd19e93adbd22a062b3c41332ce85'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             '7618a876eccbd928b39d90bf4f910cb00d216230c4bcd793d48c611ea8d957aa'
+            'b7fc4332fb091e30bd79d64ccf7b41f54b2cb33b4011e962dd6d95c9be98e4dd'
             '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
             '3d646f8b30653027971a89295ffc3ac59de01bd8a9b1e599119f46e87fc15866'
             '48c2d6dcd116ed15b6a9172ecc274d85c2ce74bafe4d83f2809dd8c4db58f0b3'
@@ -130,6 +132,7 @@ prepare() {
   patch -Np1 -i ../0001-synaptics-reset-abs_xy-fuzz.patch
 
   # https://bugzilla.kernel.org/show_bug.cgi?id=199271
+  patch -Np1 -i ../0001-Revert-Bluetooth-btusb-Fix-quirk-for-Atheros-1525-QCA6174.patch
   patch -Np1 -i ../0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch
 
   # Add bootsplash - http://lkml.iu.edu/hypermail/linux/kernel/1710.3/01542.html
