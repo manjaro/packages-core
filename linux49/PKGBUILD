@@ -24,7 +24,9 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
         #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/linux-${_basekernel}-{_rc}.tar.xz"
         #https://github.com/torvalds/linux/archive/v${_basekernel}.tar.gz
         #linux-${_basekernel}-${pkgrel}.tar.gz::https://github.com/torvalds/linux/archive/${_git}.tar.gz
-        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        #"http://www.kernel.org/pub/linux/kernel/v4.x/patch-${pkgver}.xz"
+        "http://www.kernel.org/pub/linux/kernel/v4.x/patch-4.9.100.xz"
+        "patch-${pkgver}::https://lkml.org/lkml/diff/2018/5/20/97/1"
         # the main kernel config files
         'config' 'config.x86_64' 'config.aufs'
         # standard config files for mkinitcpio ramdisk
@@ -55,6 +57,7 @@ source=("https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.x
 )
 sha256sums=('029098dcffab74875e086ae970e3828456838da6e0ba22ce3f64ef764f3d7f1a'
             'a1daad441ae3df6a9dcce7b6c53b38a9c80613bad62b16517b20dab3a0df8293'
+            'e7a2eaa6771ee17e8486690293e6f23cb61ed61e86383e9985ca9ab8cdd3ea3e'
             '8272e9a39e1292a1d35077ce0837ebe0b99bbe97681306109519da692ccc549a'
             'b1be3281e1df21d29e501201caace8d8e0c6200f4b01761f194538cb42f42aa8'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -85,6 +88,7 @@ prepare() {
   cd "${srcdir}/linux-${_basekernel}"
 
   # add upstream patch
+  patch -p1 -i "${srcdir}/patch-4.9.100"
   patch -p1 -i "${srcdir}/patch-${pkgver}"
 
   # add latest fixes from stable queue, if needed
