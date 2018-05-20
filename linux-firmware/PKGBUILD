@@ -2,8 +2,8 @@
 # Maintainer: Thomas Bächler <thomas@archlinux.org>
 
 pkgname=linux-firmware
-_commit=86d39f8e78fd809c4b13b0c35beba2f0f5e492f5 # master
-pkgver=20180518.86d39f8
+_commit=2a9b2cf50fb32e36e4fc1586c2f6f1421913b553 # master
+pkgver=20180518.2a9b2cf
 pkgrel=1
 pkgdesc="Firmware files for Linux"
 makedepends=('git')
@@ -36,10 +36,8 @@ replaces=('kernel26-firmware'
           'rt2x00-rt71w-fw'
           'amd-ucode')
 options=(!strip)
-source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}"
-        'microcode_amd_fam17h.bin')
-md5sums=('SKIP'
-         '4610fdded46938a4b094c5897e5c92b2')
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git#commit=${_commit}")
+md5sums=('SKIP')
 
 prepare() {
   cd "${srcdir}/${pkgname}"
@@ -58,8 +56,6 @@ package() {
 
   make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
   rm "${pkgdir}/usr/lib/firmware/"{Makefile,README,configure,GPL-3}
-
-  cp "${srcdir}/microcode_amd_fam17h.bin" "${pkgdir}/usr/lib/firmware/amd-ucode/"
 
   install -d "${pkgdir}/usr/share/licenses/${pkgname}"
   install -Dm644 LICEN* WHENCE "${pkgdir}/usr/share/licenses/linux-firmware/"
