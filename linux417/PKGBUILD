@@ -15,9 +15,9 @@ _aufs=20180430
 _bfq=v8r12
 _bfqdate=20180412
 _sub=0
-_rc=rc5
-_shortgit=.r180519.73fcb1a
-_git=73fcb1a370c76b202d406e95d9dabb76eaccf484
+_rc=rc6
+_shortgit=.r180520.771c577
+_git=771c577c23bac90597c685971d7297ea00f99d11
 pkgver=${_basekernel}${_shortgit}
 #pkgver=${_basekernel}.${_sub}
 pkgrel=1
@@ -53,10 +53,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         '0001-drm-i915-edp-Only-use-the-alternate-fixed-mode-if-it.patch'
         '0002-Bluetooth-btusb-Apply-QCQ_ROME-setup-for-BTUSB_ATH30.patch'
         '0001-iwlwifi-killer-ac-1550.patch'
-        # gcc8 ojtool patches
-        '0001-objtool_Fix_noreturn_detection_for_recursive_sibling_calls.patch'
-        '0002-objtool_support_GCC8_cold_subfunctions.patch'
-        '0003-objtool_support_GCC8_switch_tables.patch'
+        '0001-realtek-uvc15.patch::https://patchwork.kernel.org/patch/10388043/raw/'
         # Bootsplash
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0001-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0002-bootsplash.patch'
@@ -71,7 +68,7 @@ source=(#"https://www.kernel.org/pub/linux/kernel/v4.x/linux-${_basekernel}.tar.
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0011-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0012-bootsplash.patch'
         'https://github.com/philmmanjaro/linux-bootsplash/raw/v4.16/0013-bootsplash.patch')
-sha256sums=('07d9b0cd443c9884581ebf910e1ca38e8b2a820e031df73116cd2d25a6ece440'
+sha256sums=('613b047e9434366559efb8a36c05b6416ec283463f4c8ef839ed2ec0b57a4e5d'
             '7e46041118371e88ec33039c3f5140566c8984830670607a677e799fa9f95cce'
             'a1f34dbcbda9931c01e71fec54f97f2b17165ac55c3cbf77c0389b025d3686ce'
             'b44d81446d8b53d5637287c30ae3eb64cae0078c3fbc45fcf1081dd6699818b5'
@@ -92,9 +89,7 @@ sha256sums=('07d9b0cd443c9884581ebf910e1ca38e8b2a820e031df73116cd2d25a6ece440'
             'c08d12c699398ef88b764be1837b9ee11f2efd3188bd1bf4e8f85dfbeee58148'
             '61abfab9093bdfec4edda3586fd05afe2f488a92ca99cff51c36b359acdcc815'
             '863a02c53b5096a005cdde60d558f3e5d48d33d8360e513b915fa06e0df38c62'
-            '0d2ac82871694368a563f6082ffffc891cbbb7a5a16ca1d18792fdda95ed4840'
-            '46d7929976781187de803b1d600e7e5577d633b0c9ae4e6e222801e9787594a1'
-            '94b1f14b4cdb336556e23d4c737e9a805c798380508a75c18c23a5a7ff11eda8'
+            'e7a3d7047a5b7a447d136db9bf65a018b4c48436204c4f087ef26190c4fc90a1'
             'a504f6cf84094e08eaa3cc5b28440261797bf4f06f04993ee46a20628ff2b53c'
             'e096b127a5208f56d368d2cb938933454d7200d70c86b763aa22c38e0ddb8717'
             '8c1c880f2caa9c7ae43281a35410203887ea8eae750fe8d360d0c8bf80fcc6e0'
@@ -124,11 +119,9 @@ prepare() {
   # disable USER_NS for non-root users by default
   patch -Np1 -i ../0001-add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by.patch
 
-  # gcc8 ojtool patches
-  msg "gcc8 objtool patches..."
-  patch -p1 -i '../0001-objtool_Fix_noreturn_detection_for_recursive_sibling_calls.patch'
-  patch -p1 -i '../0002-objtool_support_GCC8_cold_subfunctions.patch'
-  patch -p1 -i '../0003-objtool_support_GCC8_switch_tables.patch'
+  # media: uvcvideo: Support realtek's UVC 1.5 device
+  # https://forum.manjaro.org/t/47746
+  patch -p1 -i '../0001-realtek-uvc15.patch'
 
   # Nvidia driver
   patch -Np1 -i ../0002-Partially-revert-swiotlb-remove-various-exports.patch
