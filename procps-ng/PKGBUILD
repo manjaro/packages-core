@@ -5,8 +5,8 @@
 # Contributor: Eric Bélanger <eric@archlinux.org>
 
 pkgname=procps-ng
-pkgver=3.3.15
-pkgrel=1.0
+pkgver=3.3.14
+pkgrel=1.2
 pkgdesc='Utilities for monitoring your system and its processes'
 url='https://gitlab.com/procps-ng/procps'
 license=(GPL LGPL)
@@ -19,13 +19,27 @@ provides=(procps sysvinit-tools)
 replaces=(procps sysvinit-tools)
 install=install
 source=(https://downloads.sourceforge.net/project/$pkgname/Production/${pkgname}-${pkgver}.tar.xz
-        topdefaultrc)
-sha256sums=('10bd744ffcb3de2d591d2f6acf1a54a7ba070fdcc432a855931a5057149f0465'
-            '918526626ddbdb3e75eef6a3ce5bef809473609e45576454acaa28c9749017a4')
+        topdefaultrc
+        CVE-2018-1122.patch
+        CVE-2018-1123.patch
+        CVE-2018-1124.patch
+        CVE-2018-1125.patch
+        CVE-2018-1126.patch)
+sha256sums=('5eda0253999b7d786e690edfa73301b3113c7a67058478866e98e9ff6736726c'
+            '918526626ddbdb3e75eef6a3ce5bef809473609e45576454acaa28c9749017a4'
+            '5c188ad287717d91eceb720f06ecaf9788198ff8c47247c3793151d8cb7ed954'
+            'd5858ecc875709ce18d2553764db96838a1f9b3a2597ea5ba790ab70d89edd9e'
+            'd1eee8ba93c74e36e292d724d497fcd3404a40b2dc18d2d15f7080eba070b42b'
+            '5fa3ddb00e41c13bca8e4f333432e36d420c85e8f85a46f694f106b8056f40cf'
+            'b24387993f785b8551b0f554a219ad71d3fc01d3fe2dd10035b56c293f49346e')
 
 prepare() {
   cd $pkgname-$pkgver
   sed 's:<ncursesw/:<:g' -i watch.c
+
+  for patch in ../*patch; do
+    patch -Np1 < $patch
+  done
 }
 
 build() {
