@@ -9,7 +9,7 @@
 
 _pkgver="2.03"
 _GRUB_GIT_TAG="2.03"
-_SNAPSHOT="563b1da6e6ae7af46cc8354cadb5dab416989f0a"
+_SNAPSHOT="b66e364f131228f4215ff8f0b8173f14931d9b6c"
 _SNAPSHOT_EXTRAS="f2a079441939eee7251bf141986cdd78946e1d20"
 
 _UNIFONT_VER="9.0.06"
@@ -21,7 +21,7 @@ pkgname="grub-quiet"
 _pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (Silent grub menu version )"
 pkgver=2.03.0
-pkgrel=5
+pkgrel=6
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -52,7 +52,7 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         'grub-revert-6400613.patch'
         'grub-add-GRUB_COLOR_variables.patch'
         'grub-manjaro-modifications.patch'
-        'grub-add-f2fs-support-v8.patch'
+        'grub-xfs-accept-filesystem-with-sparse-inodes.patch::https://src.fedoraproject.org/rpms/grub2/raw/master/f/0250-xfs-accept-filesystem-with-sparse-inodes.patch'
         'grub-use-efivarfs.patch'
         'background.png'
         'grub.default'
@@ -63,13 +63,13 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
 	'https://anonscm.debian.org/cgit/pkg-grub/grub.git/plain/debian/patches/maybe_quiet.patch'
 	"${_pkgname}.hook")
 
-sha256sums=('5d63e50fd352b8fa5a4155f8e5827c78b3fdb695e9a601b1c2ba59bc3df457f1'
+sha256sums=('b3a1d31b12bd6b36fb793a85c1d9b921fb293a5247d7251ffd593b4bcb941360'
             '2844601914cea6b1231eca0104853a93c4d67a5209933a0766f1475953300646'
             '4246c4773ed70f78a7e27ff1118fd257a280d1102200265ad5d58bb2011195ef'
             '40401632b8d790976a80f3075fc9bfe8197b9b3b21080bbba517e7dd0784389a'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
             'cf00c96aee37e0a73c1ab6ed6ccfe74fa2b2859f55cd315a4caa6c880ce7aeba'
-            'abdc601f66df5a50b82c82fcec5223d26ff4de77c8600d0197ca5869c7689fe7'
+            '218bba43e0a33de294ac08cfce56733071152931f30f288923b5eb0bfcd61a25'
             '20b2b6e7f501596b5cce6ffa05906980427f760c03d308d0e045cf2ecf47bb0e'
             '01264c247283b7bbdef65d7646541c022440ddaf54f8eaf5aeb3a02eb98b4dd8'
             'c8b8ca4fb3906e69b09ebfe8df83a8a3ea00d0ad6330f54171ac97c80533946e'
@@ -110,9 +110,9 @@ prepare() {
 	patch -Np1 -i "${srcdir}/grub-manjaro-modifications.patch"
 	echo
 
-	msg "Patch to enable f2fs filesystem support"
-	## Based on https://lists.gnu.org/archive/html/grub-devel/2016-03/msg00080.html
-	patch -Np1 -i "${srcdir}/grub-add-f2fs-support-v8.patch"
+	msg "Patch to enable sparse inodes on xfs filesystem"
+	## https://github.com/calamares/calamares/issues/960
+	patch -Np1 -i "${srcdir}/grub-xfs-accept-filesystem-with-sparse-inodes.patch"
 	echo
 	
 	msg "Fix DejaVuSans.ttf location so that grub-mkfont can create *.pf2 files for starfield theme"
@@ -142,7 +142,6 @@ prepare() {
 	sed -i.bak '339,$d' maybe_quiet.patch
 	cd ${srcdir}/$_pkgname-$_pkgver
 	patch -p1 -i ${srcdir}/maybe_quiet.patch
-
 }
 
 _build_grub-common_and_bios() {
@@ -178,6 +177,7 @@ _build_grub-common_and_bios() {
 	
 	msg "Run ./configure for bios build"
 	./configure \
+		FREETYPE="pkg-config freetype2" \
 		--with-platform="pc" \
 		--target="i386" \
 		"${_EFIEMU}" \
@@ -230,6 +230,7 @@ _build_grub-efi() {
 	
 	msg "Run ./configure for ${_EFI_ARCH} efi build"
 	./configure \
+		FREETYPE="pkg-config freetype2" \
 		--with-platform="efi" \
 		--target="${_EFI_ARCH}" \
 		--disable-efiemu \
