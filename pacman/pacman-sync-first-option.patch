@@ -1,22 +1,3 @@
-diff -Nur a/doc/pacman.conf.5.txt b/doc/pacman.conf.5.txt
---- a/doc/pacman.conf.5.txt	2014-09-16 06:55:59.000000000 +0200
-+++ b/doc/pacman.conf.5.txt	2014-12-23 11:40:53.613365553 +0100
-@@ -90,6 +90,15 @@
- 	pacman will ask for confirmation before proceeding. Shell-style glob
- 	patterns are allowed.
- 
-+*SyncFirst =* package ...::
-+	Instructs pacman to check for newer version of these packages before any
-+	sync operation. The user will have the choice to either cancel the current
-+	operation and upgrade these packages first or go on with the current
-+	operation. This option is typically used with the 'pacman' package.
-+	*NOTE*: when a `SyncFirst` transaction takes place, no command line flags
-+	(e.g. '\--force') are honored. If this is not ideal, disabling `SyncFirst`
-+	and performing a manual sync of the involved packages may be required.
-+
- *IgnorePkg =* package ...::
- 	Instructs pacman to ignore any upgrades for this package when performing
- 	a '\--sysupgrade'. Shell-style glob patterns are allowed.
 diff -Nur a/etc/pacman.conf.in b/etc/pacman.conf.in
 --- a/etc/pacman.conf.in	2013-04-30 13:05:45.000000000 +0200
 +++ b/etc/pacman.conf.in	2014-12-23 11:43:38.039141449 +0100

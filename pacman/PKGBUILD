@@ -7,8 +7,9 @@
 # Maintainer: Rob McCathie <rob@manjaro.org>
 
 pkgname=pacman
-pkgver=5.0.2
-pkgrel=2
+pkgver=5.1.0
+_pkgver=1.0.0
+pkgrel=1
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
@@ -25,7 +26,11 @@ replaces=('pacman-contrib' 'pacman-init')
 backup=(etc/pacman.conf etc/makepkg.conf)
 install=pacman.install
 options=('strip' 'debug')
-source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz
+validpgpkeys=('6645B0A8C7005E78DB1D7864F99FFE0FEAE999BD'  # Allan McRae <allan@archlinux.org>
+              'B8151B117037781095514CA7BBDFFC92306B1121'  # Andrew Gregory (pacman) <andrew@archlinux.org>
+              '5134EF9EAF65F95B6BB1608E50FB9B273A9D0BB5') # Johannes Löthberg <johannes@kyriasis.com>
+source=(https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz{,.sig}
+        https://sources.archlinux.org/other/community/pacman-contrib/pacman-contrib-$_pkgver.tar.gz{,.asc}
         pacman.conf.i686
         pacman.conf.x86_64
         makepkg.conf
@@ -48,17 +53,24 @@ prepare() {
 build() {
   cd $srcdir/$pkgname-$pkgver
   make V=1
-  make -C contrib
+
+  cd $srcdir/pacman-contrib-$_pkgver
+
+  ./configure \
+      --prefix=/usr \
+      --sysconfdir=/etc \
+      --localstatedir=/var
+  make
 }
 
 check() {
   make -C "$pkgname-$pkgver" check
+  make -C pacman-contrib-$_pkgver check
 }
 
 package() {
   cd $srcdir/$pkgname-$pkgver
   make DESTDIR=$pkgdir install
-  make DESTDIR=$pkgdir -C contrib install
 
   # install Arch specific stuff
   install -dm755 $pkgdir/etc
@@ -93,22 +105,27 @@ package() {
     ln -s pacman "$pkgdir/usr/share/bash-completion/completions/$f"
   done
 
-  install -Dm644 contrib/PKGBUILD.vim "$pkgdir/usr/share/vim/vimfiles/syntax/PKGBUILD.vim"
-
-  # replace rankmirrors
-  rm "$pkgdir/usr/bin/rankmirrors"
-  ln -sfv "/usr/bin/pacman-mirrors" "$pkgdir/usr/bin/rankmirrors"
-
   # install pacman-init
   install -dm755 $pkgdir/usr/lib/systemd/system/
   install -m644 $srcdir/etc-pacman.d-gnupg.mount $pkgdir/usr/lib/systemd/system/etc-pacman.d-gnupg.mount
   install -m644 $srcdir/pacman-init.service $pkgdir/usr/lib/systemd/system/pacman-init.service
+
+  cd $srcdir/pacman-contrib-$_pkgver
+
+  make DESTDIR="$pkgdir" install
+
+  # replace rankmirrors
+  rm "$pkgdir/usr/bin/rankmirrors"
+  ln -sfv "/usr/bin/pacman-mirrors" "$pkgdir/usr/bin/rankmirrors"
 }
 
-sha256sums=('dfd36086ad68564bcd977f4a1fafe51dd328acd4a95093ac4bf1249be9c41f0e'
+sha256sums=('9f5993fc8923530713742f15df284677f297b3eca15ed7a24758c98ac7399bd3'
+            'SKIP'
+            '0fb95514bd16a316d4cce920d34edc88b0d0618c484e2d7588746869d2339795'
+            'SKIP'
             'b2ebeb47dd78e9df277f5d363daa079c82850a0ee65d2017689497b340b92e80'
             '01aa62ecd3e3d37bf800cd3ab0bf55121d3dd1d51a5070175c67216167a846de'
-            '1345f075823d7d34cd81c533154eb366a3e3bd79249160db26c36ffc5ce5b86a'
-            'feb18bf548343ce6bd60b1e9252ad4b0643c21ac1a53149d93afbd6028a7a37d'
+            '233f54c2478e1e12fa2464288096ae700adc2a31a6a2f1caa69f5c3dd4a39f73'
+            'd3a77bf8ea916c24a73b2a2dc4162d2b81f993394850e0f2c331a8f8893c1a0b'
             'b6d14727ec465bb66d0a0358163b1bbfafcb4eaed55a0f57c30aabafae7eed68'
-            'ca4aa967ccfb9affab23fd61ad6d16f330b2810e5f9de93deec49ea7872369ae')
+            '65d8bdccdcccb64ae05160b5d1e7f3e45e1887baf89dda36c1bd44c62442f91b')
