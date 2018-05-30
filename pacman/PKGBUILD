@@ -4,12 +4,14 @@
 
 # Maintainer: Philip Müller <philm@manjaro.org>
 # Maintainer: Guinux <guillaume@manjaro.org>
-# Maintainer: Rob McCathie <rob@manjaro.org>
+
+# Note: since we include pacman-contrib with this package we have to build pacman twice
+# Example: pacsort: error while loading shared libraries
 
 pkgname=pacman
 pkgver=5.1.0
 _pkgver=1.0.0
-pkgrel=1
+pkgrel=1.1
 pkgdesc="A library-based package manager with dependency support"
 arch=('i686' 'x86_64')
 url="http://www.archlinux.org/pacman/"
@@ -18,7 +20,7 @@ groups=('base' 'base-devel')
 depends=('bash>=4.2.042-2' 'glibc>=2.17-2' 'libarchive>=3.1.2' 'curl>=7.39.0'
          'gpgme' 'archlinux-keyring' 'manjaro-keyring' 'pacman-mirrors>=4.1.0')
 checkdepends=('python2' 'fakechroot')
-makedepends=('asciidoc')
+makedepends=('asciidoc' 'pacman>=5.1')
 optdepends=('haveged: for pacman-init.service')
 provides=('pacman-contrib' 'pacman-init')
 conflicts=('pacman-contrib' 'pacman-init')
