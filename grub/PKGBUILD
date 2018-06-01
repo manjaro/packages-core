@@ -19,7 +19,7 @@ _UNIFONT_VER="10.0.06"
 pkgname="grub"
 pkgdesc="GNU GRand Unified Bootloader (2)"
 pkgver=2.03.0
-pkgrel=7
+pkgrel=7.1
 url="https://www.gnu.org/software/grub/"
 arch=('x86_64' 'i686')
 license=('GPL3')
@@ -48,6 +48,7 @@ source=(#"grub-${_pkgver}::git+git://git.sv.gnu.org/grub.git#tag=${_GRUB_GIT_TAG
         "http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz"
         #"http://ftp.gnu.org/gnu/unifont/unifont-${_UNIFONT_VER}/unifont-${_UNIFONT_VER}.bdf.gz.sig"
         'grub-revert-6400613.patch'
+        'grub-proper-51be337.patch'
         'grub-export-path.patch'
         'grub-add-GRUB_COLOR_variables.patch'
         'grub-manjaro-modifications.patch'
@@ -64,6 +65,7 @@ sha256sums=('56488f3a773de30c45f605befcfdc35a11523faa15dbc2e31024db7267983258'
             '2844601914cea6b1231eca0104853a93c4d67a5209933a0766f1475953300646'
             '0d81571fc519573057b7641d26a31ead55cc0b02a931589fb346a3a534c3dcc1'
             '40401632b8d790976a80f3075fc9bfe8197b9b3b21080bbba517e7dd0784389a'
+            '3a2a930b6bd0ffe006027c5977ed87b37d6023865c02b2dd618a0314b4fe5078'
             '63c611189a60d68c6ae094f2ced91ac576b3921b7fd2e75a551c2dc6baefc35e'
             'a5198267ceb04dceb6d2ea7800281a42b3f91fd02da55d2cc9ea20d47273ca29'
             'cf00c96aee37e0a73c1ab6ed6ccfe74fa2b2859f55cd315a4caa6c880ce7aeba'
@@ -90,6 +92,11 @@ prepare() {
 	# https://github.com/calamares/calamares/issues/918
 	msg "Revert commit 6400613"
 	patch -Rp1 -i "${srcdir}/grub-revert-6400613.patch"
+	echo
+
+	# https://forum.manjaro.org/t/48614/23
+	msg "Proper commit 51be337"
+	patch -Np1 -i "${srcdir}/grub-proper-51be337.patch"
 	echo
 
 	msg "Fix freetype 2.9.1 issue"
