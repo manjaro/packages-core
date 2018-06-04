@@ -1,4 +1,6 @@
-packages
-========
+This repo has been archived.
+Our code is now hosted at
 
-Manjaro Linux Core PKGBUILDS
+https://gitlab.manjaro.org/
+
+See you there!
